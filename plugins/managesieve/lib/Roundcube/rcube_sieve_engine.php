@@ -33,11 +33,8 @@ class rcube_sieve_engine
     protected $script  = array();
     protected $exts    = array();
     protected $active  = array();
-    protected $headers = array(
-        'subject' => 'Subject',
-        'from'    => 'From',
-        'to'      => 'To',
-    );
+    // PAMELA - Make managesieve default headers configurable #5490
+    protected $headers = array();
     protected $addr_headers = array(
         // Required
         "from", "to", "cc", "bcc", "sender", "resent-from", "resent-to",
@@ -75,6 +72,12 @@ class rcube_sieve_engine
     {
         $this->rc     = rcube::get_instance();
         $this->plugin = $plugin;
+        // PAMELA - Make managesieve default headers configurable #5490
+        $this->headers = $this->rc->config->get('managesieve_default_headers', array(
+                'subject' => 'Subject',
+                'from'    => 'From',
+                'to'      => 'To',
+        ));
     }
 
     /**
