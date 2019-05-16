@@ -791,6 +791,11 @@ class rcube_ldap extends rcube_addressbook
             return $this->result;
         }
 
+        // PAMELA - Slow autocomplete - MANTIS 3508: L'autocomplétion LDAP n'est pas efficace
+        if (join(',', (array)$fields) == join(',', $list_fields)) {
+          $fields = array('name');
+        }
+
         // advanced per-attribute search
         if (is_array($value)) {
             // use AND operator for advanced searches
