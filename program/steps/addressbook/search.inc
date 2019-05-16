@@ -147,9 +147,20 @@ function rcmail_contact_search()
     $records    = array();
     $sort_col   = $RCMAIL->config->get('addressbook_sort_col', 'name');
     $afields = $RCMAIL->config->get('contactlist_fields');
+    
+    // PAMELA - Search contacts by source
+    $_source = rcube_utils::get_input_value('_source', rcube_utils::INPUT_GET);
+    if ($_source == 'all') {
+      $_source = '';
+    }
 
     foreach ($sources as $s) {
         $source = $RCMAIL->get_address_book($s['id']);
+        
+        // PAMELA - Search contacts by source
+        if (isset($_source) && !empty($_source) && $_source != $s['id']) {
+          continue;
+        }
 
         // check if search fields are supported....
         if (is_array($fields)) {
@@ -194,7 +205,8 @@ function rcmail_contact_search()
     }
 
     // sort the records
-    ksort($records, SORT_LOCALE_STRING);
+    // PAMELA - Show contacts result by source
+    //ksort($records, SORT_LOCALE_STRING);
 
     // create resultset object
     $count  = count($records);
@@ -234,8 +246,9 @@ function rcmail_contact_search()
     $OUTPUT->set_env('pagecount', ceil($result->count / $PAGE_SIZE));
     $OUTPUT->command('set_rowcount', rcmail_get_rowcount_text($result));
     // Re-set current source
-    $OUTPUT->set_env('search_id', $sid);
-    $OUTPUT->set_env('source', '');
+    //$OUTPUT->set_env('search_id', $sid);
+    // PAMELA - Search contacts by source
+    $OUTPUT->set_env('source', $_source);
     $OUTPUT->set_env('group', '');
     // Re-set list header
     $OUTPUT->command('set_group_prop', null);
@@ -245,14 +258,16 @@ function rcmail_contact_search()
                 'search_request' => $search_request,
                 'pagecount'      => ceil($result->count / $PAGE_SIZE),
                 'search_id'      => $sid,
-                'source'         => '',
+                // PAMELA - Search contacts by source
+                'source'         => $_source,
                 'group'          => '',
         ));
     }
 
     if (!$sid) {
         // unselect currently selected directory/group
-        $OUTPUT->command('unselect_directory');
+        // PAMELA - Search contacts by source
+        //$OUTPUT->command('unselect_directory');
         // enable "Save search" command
         $OUTPUT->command('enable_command', 'search-create', true);
     }
