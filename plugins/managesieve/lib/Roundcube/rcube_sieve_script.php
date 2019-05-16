@@ -487,8 +487,19 @@ class rcube_sieve_script
                         else if (!empty($action['days'])) {
                             $action_script .= " :days " . intval($action['days']);
                         }
-                        if (!empty($action['addresses']))
+                        // PAMELA - Mantis 3621: Les règles Sieve de réponse imposent de lister les adresses SMTP du destinataire
+                        if (!empty($action['addresses'])) {
                             $action_script .= " :addresses " . self::escape_string($action['addresses']);
+                        }
+                        else {
+                          // Ajout automatique des adresses SMTP en fonction des identités
+                          $identities = rcmail::get_instance()->user->list_identities();
+                          $addresses = array();
+                          foreach ($identities as $identity) {
+                            $addresses[] = $identity['email'];
+                          }
+                          $action_script .= " :addresses " . self::escape_string($addresses);
+                        }
                         if (!empty($action['subject']))
                             $action_script .= " :subject " . self::escape_string($action['subject']);
                         if (!empty($action['handle']))
