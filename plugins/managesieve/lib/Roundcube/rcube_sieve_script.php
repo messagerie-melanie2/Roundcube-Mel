@@ -597,7 +597,9 @@ class rcube_sieve_script
                 else if (!empty($options['format']) && $options['format'] == 'INGO'
                     && preg_match('/^# (.*)/', $line, $matches)
                 ) {
-                    $rulename = $matches[1];
+                    // PAMELA - MANTIS 0004558: Régles Sieve Horde non reprises par RC, Une erreur est survenue !
+                    //$rulename = $matches[1];
+                    $rulename = trim($matches[1]);
                 }
                 else if (empty($options['prefix'])) {
                     $prefix .= $line . "\n";
