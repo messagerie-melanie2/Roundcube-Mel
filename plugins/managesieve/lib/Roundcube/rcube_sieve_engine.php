@@ -1248,8 +1248,16 @@ class rcube_sieve_engine
             if ($list) {
                 foreach ($list as $idx => $set) {
                     $scripts['S'.$idx] = $set;
+                    // PAMELA - Change the default filterset name
+                    $nameset = $set;
+                    if ($nameset == 'managesieve') {
+                      $nameset = $this->rc->gettext('managesieve.managesieve_filters');
+                    }
+                    elseif ($nameset == 'old_ingo') {
+                      $nameset = $this->rc->gettext('managesieve.ingo_filters');
+                    }
                     $result[] = array(
-                        'name' => $set,
+                        'name' => $nameset,
                         'id' => 'S'.$idx,
                         'class' => !in_array($set, $this->active) ? 'disabled' : '',
                     );
@@ -1267,8 +1275,17 @@ class rcube_sieve_engine
                 'onchange' => $this->rc->task != 'mail' ? 'rcmail.managesieve_set()' : ''));
 
             if ($list) {
-                foreach ($list as $set)
-                    $select->add($set, $set);
+                foreach ($list as $set) {
+                    // PAMELA - Change the default filterset name
+                    $nameset = $set;
+                    if ($nameset == 'managesieve') {
+                      $nameset = $this->rc->gettext('managesieve.managesieve_filters');
+                    }
+                    elseif ($nameset == 'old_ingo') {
+                      $nameset = $this->rc->gettext('managesieve.ingo_filters');
+                    }
+                    $select->add($nameset, $set);
+                }
             }
 
             $out = $select->show($this->sieve->current);
@@ -1372,7 +1389,15 @@ class rcube_sieve_engine
                 $copy = $_SESSION['managesieve_current'];
 
             foreach ($list as $set) {
-                $select->add($set, $set);
+                // PAMELA - Change the default filterset name
+                $nameset = $set;
+                if ($nameset == 'managesieve') {
+                  $nameset = $this->rc->gettext('managesieve.managesieve_filters');
+                }
+                elseif ($nameset == 'old_ingo') {
+                  $nameset = $this->rc->gettext('managesieve.ingo_filters');
+                }
+                $select->add($nameset, $set);
             }
 
             $out .= '<br>';
