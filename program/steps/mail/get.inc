@@ -350,6 +350,11 @@ function rcmail_message_part_frame($attrib)
         $mimetype      = $RCMAIL->output->get_env('mimetype');
         $frame_replace = strpos($mimetype, 'text/') === 0 ? '_embed=' : '_preload=';
         $attrib['src'] = './?' . str_replace('_frame=', $frame_replace, $_SERVER['QUERY_STRING']);
+        /** PAMELA MANTIS 3295: Problème lors de l'affichage des pièces jointes **/
+        // TODO: Modification à supprimer lorsque l'url ne sera plus à la racine
+        // TODO2: Trouver une meilleur façon de régler le pb
+        $attrib['src'] = str_replace('&_extwin=1', '', $attrib['src']);
+        $attrib['src'] = str_replace('&_preload=1', '', $attrib['src']);
     }
 
     $RCMAIL->output->add_gui_object('messagepartframe', $attrib['id']);
