@@ -15,7 +15,8 @@
 
  For translation see https://www.transifex.com/projects/p/roundcube-webmail/resource/plugin-zipdownload/
 */
-$labels['downloadall'] = 'Télécharger toutes les pièces jointes';
+// PAMELA
+$labels['downloadall'] = 'Tout télécharger';
 $labels['download'] = 'Télécharger...';
 $labels['downloadmbox'] = 'Format mbox (.zip)';
 $labels['downloadmaildir'] = 'Format maildir (.zip)';
