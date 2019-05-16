@@ -826,6 +826,15 @@ class rcmail extends rcube
         $pre = array();
         $task = $p['_task'] ?: ($p['task'] ?: $this->task);
         $pre['_task'] = $task;
+        // PAMELA - Keep the account value in url generator
+        $_account = melanie2::get_account();
+        if (isset($_account)
+            && strpos($_account, '%40') !== false) {
+          $_account = urldecode($_account);
+        }
+        if (isset($_account)
+            && $task != 'login'
+            && $task != 'logout') $p['_account'] = $_account;
         unset($p['task'], $p['_task']);
 
         $url  = $this->filename;
