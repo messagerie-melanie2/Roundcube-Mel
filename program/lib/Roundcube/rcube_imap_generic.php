@@ -2664,7 +2664,8 @@ class rcube_imap_generic
                 if (is_string($value)) {
                     $value = str_replace('"', '', $value);
                     if ($field == 'subject') {
-                        $value = preg_replace('/^(Re:\s*|Fwd:\s*|Fw:\s*)+/i', '', $value);
+                      	// PAMELA - MANTIS 3663: Sur un transfert remplacer le Fwd par Tr
+                        $value = preg_replace('/^(Re:\s*|Fwd:\s*|Tr:\s*|Fw:\s*)+/i', '', $value);
                     }
 
                     $data = strtoupper($value);

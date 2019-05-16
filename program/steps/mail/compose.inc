@@ -1506,8 +1506,13 @@ function rcmail_compose_subject($attrib)
     else if ($COMPOSE['mode'] == RCUBE_COMPOSE_FORWARD) {
         if (preg_match('/^fwd:/i', $MESSAGE->subject))
             $subject = $MESSAGE->subject;
+        // PAMELA - MANTIS 3663: Sur un transfert remplacer le Fwd par Tr
+        elseif (preg_match('/^tr:/i', $MESSAGE->subject))
+            $subject = $MESSAGE->subject;
         else
-            $subject = 'Fwd: '.$MESSAGE->subject;
+          // PAMELA - MANTIS 3663: Sur un transfert remplacer le Fwd par Tr
+          //$subject = 'Fwd: '.$MESSAGE->subject;
+          $subject = 'Tr: '.$MESSAGE->subject;
     }
     // creeate a draft-subject
     else if ($COMPOSE['mode'] == RCUBE_COMPOSE_DRAFT || $COMPOSE['mode'] == RCUBE_COMPOSE_EDIT) {
