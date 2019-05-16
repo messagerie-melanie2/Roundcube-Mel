@@ -1348,7 +1348,9 @@ class rcube_sieve_engine
         if (!$attrib['id'])
             $attrib['id'] = 'rcmfiltersetform';
 
-        $out = '<form name="filtersetform" action="./" method="post" enctype="multipart/form-data">'."\n";
+        // PAMELA - MANTIS 3662: La création d'un groupe de regle sur une balp fait le groupe sur la bali
+        //$out = '<form name="filtersetform" action="./" method="post" enctype="multipart/form-data">'."\n";
+        $out = '<form name="filtersetform" action="#" method="post" enctype="multipart/form-data">'."\n";
 
         $hiddenfields = new html_hiddenfield(array('name' => '_task', 'value' => $this->rc->task));
         $hiddenfields->add(array('name' => '_action', 'value' => 'plugin.managesieve-save'));
@@ -1454,7 +1456,9 @@ class rcube_sieve_engine
         $hiddenfields->add(array('name' => '_framed', 'value' => ($_POST['_framed'] || $_GET['_framed'] ? 1 : 0)));
         $hiddenfields->add(array('name' => '_fid', 'value' => $fid));
 
-        $out = '<form name="filterform" action="./" method="post">'."\n";
+        // PAMELA - MANTIS 3662: La création d'un groupe de regle sur une balp fait le groupe sur la bali
+        //$out = '<form name="filterform" action="./" method="post">'."\n";
+        $out = '<form name="filterform" action="#" method="post">'."\n";
         $out .= $hiddenfields->show();
 
         // 'any' flag
