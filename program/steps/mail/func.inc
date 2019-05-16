@@ -768,9 +768,12 @@ function rcmail_send_unread_count($mbox_name, $force=false, $count=null, $mark='
         $unseen = $RCMAIL->storage->count($mbox_name, 'UNSEEN', $force);
     }
 
-    if ($unseen !== $old_unseen || ($mbox_name == 'INBOX')) {
+    // PAMELA - Change the IMAP folder name with a plugin (change INBOX for shared mailboxes)
+    $data = $RCMAIL->plugins->exec_hook('m2_set_folder_name',
+      array('folder' => 'INBOX'));
+    if ($unseen !== $old_unseen || ($mbox_name == $data['folder'])) {
         $RCMAIL->output->command('set_unread_count', $mbox_name, $unseen,
-            ($mbox_name == 'INBOX'), $unseen && $mark ? $mark : '');
+            ($mbox_name == $data['folder']), $unseen && $mark ? $mark : '');
     }
 
     rcmail_set_unseen_count($mbox_name, $unseen);

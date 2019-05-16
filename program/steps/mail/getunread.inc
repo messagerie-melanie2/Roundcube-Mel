@@ -23,7 +23,10 @@ $a_folders = $RCMAIL->storage->list_folders_subscribed('', '*', 'mail');
 
 if (!empty($a_folders)) {
     $current   = $RCMAIL->storage->get_folder();
-    $inbox     = ($current == 'INBOX');
+    // PAMELA - Change the IMAP folder name with a plugin (change INBOX for shared mailboxes)
+    $data = $RCMAIL->plugins->exec_hook('m2_set_folder_name',
+      array('folder' => 'INBOX'));
+    $inbox     = ($current == $data['folder']);
     $trash     = $RCMAIL->config->get('trash_mbox');
     $check_all = (bool)$RCMAIL->config->get('check_all_folders');
 
@@ -41,7 +44,8 @@ if (!empty($a_folders)) {
         // after possible message status change when opening a message
         // not in preview frame
         if ($unseen || $unseen_old === null || $mbox == $current) {
-            $OUTPUT->command('set_unread_count', $mbox, $unseen, $inbox && $mbox_row == 'INBOX');
+            // PAMELA - Change the IMAP folder name with a plugin (change INBOX for shared mailboxes)
+            $OUTPUT->command('set_unread_count', $mbox, $unseen, $inbox && $mbox_row == $data['folder']);
         }
 
         rcmail_set_unseen_count($mbox, $unseen);
