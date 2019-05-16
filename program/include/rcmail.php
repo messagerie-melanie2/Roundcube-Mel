@@ -835,6 +835,11 @@ class rcmail extends rcube
         if (isset($_account)
             && $task != 'login'
             && $task != 'logout') $p['_account'] = $_account;
+        // PAMELA - Keep the courrielleur value in url generator
+        $_courrielleur = trim(rcube_utils::get_input_value('_courrielleur', rcube_utils::INPUT_GET));
+        if (isset($_courrielleur)) {
+          $p['_courrielleur'] = $_courrielleur;
+        }
         unset($p['task'], $p['_task']);
 
         $url  = $this->filename;
