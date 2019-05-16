@@ -35,7 +35,10 @@
  | Author: Aleksander Machniak <alec@alec.pl>                              |
  +-------------------------------------------------------------------------+
 */
-
+// Application name configuration for ORM Mél
+if (! defined('CONFIGURATION_APP_LIBM2')) {
+  define('CONFIGURATION_APP_LIBM2', 'roundcube');
+}
 // include environment
 require_once 'program/include/iniset.php';
 
