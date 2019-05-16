@@ -2533,6 +2533,55 @@ class rcube_sieve_engine
             if (!empty($exceptions)) {
                 $this->list = array_diff($this->list, (array)$exceptions);
             }
+
+            // PAMELA
+            // MANTIS 3617: La reprise des regles Sieve Ingo ne permet pas les changements
+            // Recherche les regles ingo pour les reimporter dans le script courant
+            foreach ((array)$this->list as $idx_script => $name) {
+              if ($name == 'ingo') {
+                $txt = $this->sieve->get_script($name);
+                // parse
+                $script = new rcube_sieve_script($txt, $this->sieve->get_extensions());
+
+                // fix/convert to Roundcube format
+                if (!empty($script->content)) {
+                  // replace all elsif with if+stop, we support only ifs
+                  foreach ($script->content as $idx => $rule) {
+                    if (empty($rule['type']) || !preg_match('/^(if|elsif|else)$/', $rule['type'])) {
+                      continue;
+                    }
+
+                    $script->content[$idx]['type'] = 'if';
+
+                    // 'stop' not found?
+                    foreach ($rule['actions'] as $action) {
+                      if (preg_match('/^(stop|vacation)$/', $action['type'])) {
+                        continue 2;
+                      }
+                    }
+                    if (!empty($script->content[$idx+1]) && $script->content[$idx+1]['type'] != 'if') {
+                      $script->content[$idx]['actions'][] = array('type' => 'stop');
+                    }
+                  }
+                }
+
+                // Récupération du script par défaut
+                $script_name = $this->rc->config->get('managesieve_script_name');
+                if (in_array($script_name, $this->list)) {
+                  $script_name = 'old_ingo';
+                }
+                $txt = $script->as_text();
+                // Enregistrement du script sur le serveur
+                if ($this->sieve->save_script($script_name, $txt)) {
+                  $this->activate_script($script_name);
+                  $this->sieve->remove($name);
+                  unset($this->list[$idx_script]);
+                  if (!in_array($script_name, $this->list)) {
+                    $this->list[] = $script_name;
+                  }
+                }
+              }
+            }
         }
 
         // reindex
