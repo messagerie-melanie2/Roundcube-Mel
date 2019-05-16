@@ -135,6 +135,10 @@ $labels['notifymethodtel'] = 'Téléphone';
 $labels['notifymethodsms'] = 'Texto';
 $labels['filtercreate'] = 'Créer un filtre';
 $labels['usedata'] = 'Utiliser les données suivantes dans le filtre :';
+// PAMELA - MANTIS 3334: Gestion des adresses mail multiple pour les identités
+$labels['Subject'] = 'Sujet';
+$labels['From'] = 'De';
+$labels['To'] = 'À';
 $labels['nextstep'] = 'Étape suivante';
 $labels['...'] = '...';
 $labels['string'] = 'Chaîne';
