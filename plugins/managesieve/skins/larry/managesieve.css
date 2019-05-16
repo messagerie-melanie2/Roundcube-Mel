@@ -338,7 +338,8 @@ fieldset
   margin: 0;
   padding: 2px;
   display: inline-block;
-  max-height: 59px;
+  /** PAMELA **/
+  /*max-height: 59px;*/
   overflow-y: auto;
   vertical-align: middle;
 }
