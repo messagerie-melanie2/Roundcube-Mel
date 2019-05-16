@@ -52,11 +52,13 @@ class rcube_csv2vcard
         'company'               => 'organization',
         //'company_main_phone'    => '',
         'department'            => 'department',
-        'email_2_address'       => 'email:other',
+        // PAMELA - MANTIS 0005045: CSV contact import for multiple email addresses doesn't work
+        'email_2_address'       => 'email:home',
         //'email_2_type'          => '',
         'email_3_address'       => 'email:other',
         //'email_3_type'          => '',
-        'email_address'         => 'email:pref',
+        // PAMELA - MANTIS 0005045: CSV contact import for multiple email addresses doesn't work
+        'email_address'         => 'email:work',
         //'email_type'            => '',
         'first_name'            => 'firstname',
         'gender'                => 'gender',
