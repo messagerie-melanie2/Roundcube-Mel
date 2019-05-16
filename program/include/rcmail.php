@@ -1559,7 +1559,7 @@ class rcmail extends rcube
         $out = '';
         foreach ($arrFolders as $folder) {
             $title        = null;
-            $folder_class = $this->folder_classname($folder['id']);
+            $folder_class = $this->folder_classname(/* PAMELA - Get IMAP folder class name is exists */ isset($folder['class']) ? $folder['class'] : $folder['id']);
             $is_collapsed = strpos($collapsed, '&'.rawurlencode($folder['id']).'&') !== false;
             $unread       = $msgcounts ? intval($msgcounts[$folder['id']]['UNSEEN']) : 0;
 
