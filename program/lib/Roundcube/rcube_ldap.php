@@ -810,6 +810,12 @@ class rcube_ldap extends rcube_addressbook
                 }
             }
 
+            // PAMELA - Search by phone number in LDAP
+            if (count($fields) == 1 && $fields[0] == 'phone' && isset($value[0]) && strlen($value[0]) >= 4) {
+              // MANTIS 3622: Permettre la recherche LDAP par numéro de téléphone
+              $wp = '*'; $ws = '';
+            }
+
             foreach ((array)$fields as $idx => $field) {
                 $val = $value[$idx];
                 if (!strlen($val))
