@@ -1,9 +1,5 @@
-Roundcube Webmail 
-=================
-[roundcube.net](http://roundcube.net)
-
-[![Build Status](https://api.travis-ci.org/roundcube/roundcubemail.svg?branch=release-1.3)](https://travis-ci.org/roundcube/roundcubemail)
-
+Roundcube Mél Webmail 
+======================
 
 INTRODUCTION
 ------------
@@ -23,6 +19,16 @@ the [WASHTML][washtml] sanitizer by Frederic Motte.
 
 The current default skin 'Larry' was kindly created by FLINT / Büro für
 Gestaltung, Berne, Switzerland.
+
+
+MÉL
+---
+This version of [Roundcube][roundcube] improve some functionnality like 
+ - Support multiple mailboxes per user (shared mailboxes)
+ - New UI with a skin based on Larry skin created with NoDesign
+ - A right panel that show important informations for the user
+ 
+This version has to be used in a Mél/MCE environnement
 
 
 INSTALLATION
@@ -82,14 +88,14 @@ You're always welcome to send a message to the project admin:
 hello(at)roundcube(dot)net
 
 
+[roundcube]:	http://roundcube.net
 [pear]:         http://pear.php.net
 [iloha]:        http://sourceforge.net/projects/ilohamail/
 [tinymce]:      http://www.tinymce.com/
 [googiespell]:  http://orangoo.com/labs/GoogieSpell/
 [washtml]:      http://www.ubixis.com/washtml/
-[kmgerich]:     http://kmgerich.com/
 [gpl]:          http://www.gnu.org/licenses/
 [license]:      http://roundcube.net/license
 [contrib]:      http://roundcube.net/contribute
 [support]:      http://roundcube.net/support
-[githubissues]: https://github.com/roundcube/roundcubemail/issues
+[githubissues]: https://github.com/messagerie-melanie2/Roundcube-Mel/issues
