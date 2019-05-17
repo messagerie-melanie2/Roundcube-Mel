@@ -1,6 +1,8 @@
 Roundcube Mél Webmail 
 ======================
 
+[French version][french]
+
 INTRODUCTION
 ------------
 Roundcube Webmail is a browser-based multilingual IMAP client with an
@@ -77,25 +79,22 @@ For more details about licensing and the exceptions for skins and plugins
 see [roundcube.net/license][license]
 
 
-CONTRIBUTION
-------------
+CONTRIBUTION TO ROUNDCUBE
+-------------------------
 Want to help make Roundcube the best webmail solution ever?
 Roundcube is open source software. Our developers and contributors all
 are volunteers and we're always looking for new additions and resources.
 For more information visit [roundcube.net/contribute][contrib]
 
 
-CONTACT
--------
-For bug reports or feature requests please refer to the tracking system
-at [Github][githubissues] or subscribe to our mailing list.
-See [roundcube.net/support][support] for details.
-
-You're always welcome to send a message to the project admin:
-hello(at)roundcube(dot)net
+CONTACT MÉL TEAM
+----------------
+For bug reports or feature requests for the Mél Webmail please refer 
+to the tracking system at [Github][githubissues].
 
 
 [roundcube]:	http://roundcube.net
+[french]:		README_fr.md
 [pear]:         http://pear.php.net
 [iloha]:        http://sourceforge.net/projects/ilohamail/
 [tinymce]:      http://www.tinymce.com/
@@ -104,5 +103,4 @@ hello(at)roundcube(dot)net
 [gpl]:          http://www.gnu.org/licenses/
 [license]:      http://roundcube.net/license
 [contrib]:      http://roundcube.net/contribute
-[support]:      http://roundcube.net/support
 [githubissues]: https://github.com/messagerie-melanie2/Roundcube-Mel/issues
