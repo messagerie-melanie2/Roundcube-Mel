@@ -27,8 +27,15 @@ This version of [Roundcube][roundcube] improve some functionnality like
  - Support multiple mailboxes per user (shared mailboxes)
  - New UI with a skin based on Larry skin created with NoDesign
  - A right panel that show important informations for the user
+ - Some fixes for the managesieve plugin
  
 This version has to be used in a Mél/MCE environnement
+
+
+VERSION
+-------
+The actual version of Mél Webmail is 1.4.7
+This version is based on [Roundcube][roundcube] 1.3.8 version
 
 
 INSTALLATION
