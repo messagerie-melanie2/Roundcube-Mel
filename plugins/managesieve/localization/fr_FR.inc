@@ -264,4 +264,8 @@ $messages['forwardsaved'] = 'Les données de transfert ont été enregistrées a
 $messages['emptyvacationbody'] = 'Le corps du courriel de vacances est exigé !';
 $messages['duplicate.conflict.err'] = 'L\'en-tête et l\'identifiant unique ne sont pas permis.';
 $messages['disabledaction'] = 'L\'action n\'est pas permise.';
+
+// PAMELA - Renommer les filtres
+$messages['ingo_filters'] = 'Mes anciens filtres';
+$messages['managesieve_filters'] = 'Mes filtres';
 ?>
