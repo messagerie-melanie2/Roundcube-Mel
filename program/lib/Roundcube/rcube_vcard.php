@@ -675,8 +675,10 @@ class rcube_vcard
                     $data = self::vcard_unquote($data);
                 }
 
-                $entry = array_merge($entry, (array) $data);
-                $result[$field][] = $entry;
+                if (is_array($data) || (is_string($data) && strlen($data))) {
+                    $entry = array_merge($entry, (array) $data);
+                    $result[$field][] = $entry;
+                }
             }
         }
 
