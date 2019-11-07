@@ -388,7 +388,7 @@ class rcube_utils
             return '/* evil! */';
         }
 
-        $strict_url_regexp = '!url\s*\([ "\'](https?:)//[a-z0-9/._+-]+["\' ]\)!Uims';
+        $strict_url_regexp = '!url\s*\(\s*["\']?(https?:)//[a-z0-9/._+-]+["\']?\s*\)!Uims';
 
         // cut out all contents between { and }
         while (($pos = strpos($source, '{', $last_pos)) && ($pos2 = strpos($source, '}', $pos))) {
@@ -399,7 +399,7 @@ class rcube_utils
             $styles = substr($source, $pos+1, $length);
 
             // Convert position:fixed to position:absolute (#5264)
-            $styles = preg_replace('/position:[\s\r\n]*fixed/i', 'position: absolute', $styles);
+            $styles = preg_replace('/position[^a-z]*:[\s\r\n]*fixed/i', 'position: absolute', $styles);
 
             // check every line of a style block...
             if ($allow_remote) {
@@ -429,7 +429,7 @@ class rcube_utils
             $source   = substr_replace($source, $repl, $pos+1, $length);
             $last_pos = $pos2 - ($length - strlen($repl));
         }
-
+/*
         // remove html comments and add #container to each tag selector.
         // also replace body definition because we also stripped off the <body> tag
         $source = preg_replace(
@@ -447,6 +447,39 @@ class rcube_utils
                 $container_id,
             ),
             $source);
+*/
+        // remove html comments
+        $source = preg_replace('/(^\s*<\!--)|(-->\s*$)/m', '', $source);
+
+        // add #container to each tag selector
+        if ($container_id) {
+            // (?!##str) below is to not match with ##str_replacement_0##
+            // from rcube_string_replacer used above, this is needed for
+            // cases like @media { body { position: fixed; } } (#5811)
+            $regexp   = '/(^\s*|,\s*|\}\s*|\{\s*)((?!##str):?[a-z0-9\._#\*\[][a-z0-9\._:\(\)#=~ \[\]"\|\>\+\$\^-]*)/im';
+            $callback = function($matches) use ($container_id, $prefix) {
+                $replace = $matches[2];
+
+                if (stripos($replace, ':root') === 0) {
+                    $replace = substr($replace, 5);
+                }
+
+                $replace = "#$container_id " . $replace;
+
+                // Remove redundant spaces (for simpler testing)
+                $replace = preg_replace('/\s+/', ' ', $replace);
+
+                return str_replace($matches[2], $replace, $matches[0]);
+            };
+
+            $source = preg_replace_callback($regexp, $callback, $source);
+        }
+
+        // replace body definition because we also stripped off the <body> tag
+        if ($container_id) {
+            $regexp = '/#' . preg_quote($container_id, '/') . '\s+body/i';
+            $source = preg_replace($regexp, "#$container_id", $source);
+        }
 
         // put block contents back in
         $source = $replacements->resolve($source);
@@ -567,13 +600,15 @@ class rcube_utils
         // %n - host
         $n = preg_replace('/:\d+$/', '', $_SERVER['SERVER_NAME']);
         // %t - host name without first part, e.g. %n=mail.domain.tld, %t=domain.tld
-        $t = preg_replace('/^[^\.]+\./', '', $n);
-        // %d - domain name without first part
-        $d = preg_replace('/^[^\.]+\./', '', $_SERVER['HTTP_HOST']);
+        // If %n=domain.tld then %t=domain.tld as well (remains valid)
+        $t = preg_replace('/^[^.]+\.(?![^.]+$)/', '', $n);
+        // %d - domain name without first part (up to domain.tld)
+        $d = preg_replace('/^[^.]+\.(?![^.]+$)/', '', $_SERVER['HTTP_HOST']);
         // %h - IMAP host
         $h = $_SESSION['storage_host'] ?: $host;
         // %z - IMAP domain without first part, e.g. %h=imap.domain.tld, %z=domain.tld
-        $z = preg_replace('/^[^\.]+\./', '', $h);
+        // If %h=domain.tld then %z=domain.tld as well (remains valid)
+        $z = preg_replace('/^[^.]+\.(?![^.]+$)/', '', $h);
         // %s - domain name after the '@' from e-mail address provided at login screen.
         //      Returns FALSE if an invalid email is provided
         if (strpos($name, '%s') !== false) {
