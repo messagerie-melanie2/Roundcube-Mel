@@ -157,7 +157,8 @@ class rcube_smtp
         }
 
         // attempt to authenticate to the SMTP server
-        if ($smtp_user && $smtp_pass) {
+        // PAMELA - Support du mdp 0 pour la dgfip
+        if ($smtp_user && ($smtp_pass || $smtp_pass === '0')) {
             // IDNA Support
             if (strpos($smtp_user, '@')) {
                 $smtp_user = rcube_utils::idn_to_ascii($smtp_user);
