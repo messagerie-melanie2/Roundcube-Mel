@@ -80,7 +80,8 @@ function rcmail_zipdownload(mode)
             form = $('<form>').attr({
                     style: 'display: none',
                     method: 'POST',
-                    action: '?_task=mail&_action=plugin.zipdownload.messages'
+                    // PAMELA
+                    action: rcmail.url('mail/plugin.zipdownload.messages')
                 })
                 .appendTo('body');
 
