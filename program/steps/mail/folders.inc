@@ -50,11 +50,13 @@ else if ($RCMAIL->action == 'purge') {
     $delimiter    = $RCMAIL->storage->get_hierarchy_delimiter();
     $trash_mbox   = $RCMAIL->config->get('trash_mbox');
     $junk_mbox    = $RCMAIL->config->get('junk_mbox');
+    // PAMELA
+    $archive_mbox = $RCMAIL->config->get('mel_archivage_folder');
     $trash_regexp = '/^' . preg_quote($trash_mbox . $delimiter, '/') . '/';
     $junk_regexp  = '/^' . preg_quote($junk_mbox . $delimiter, '/') . '/';
 
     // we should only be purging trash and junk (or their subfolders)
-    if ($mbox == $trash_mbox || $mbox == $junk_mbox
+    if ($mbox == $trash_mbox || $mbox == $junk_mbox /* PAMELA */ || $mbox == $archive_mbox
         || preg_match($trash_regexp, $mbox) || preg_match($junk_regexp, $mbox)
     ) {
         $success = $RCMAIL->storage->clear_folder($mbox);
