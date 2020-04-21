@@ -20,10 +20,6 @@
  +-----------------------------------------------------------------------+
 */
 
-// PAMELA - MANTIS 0005714: Modcss retourner un 404
-header('HTTP/1.0 404 Not Found');
-exit("Invalid response returned by server");
-
 $url = preg_replace('![^a-z0-9.-]!i', '', $_GET['_u']);
 
 if ($url === null || !($realurl = $_SESSION['modcssurls'][$url])) {
