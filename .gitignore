@@ -11,23 +11,7 @@
 /plugins/jquery_mobile
 /plugins/libcalendaring
 /plugins/mel
-/plugins/mel_acl
-/plugins/mel_contacts
-/plugins/mel_courrielleur
-/plugins/mel_doubleauth
-/plugins/mel_labels_sync
-/plugins/mel_larry
-/plugins/mel_ldap_auth
-/plugins/mel_logs
-/plugins/mel_massmail
-/plugins/mel_melanissimo
-/plugins/mel_mobile
-/plugins/mel_moncompte
-/plugins/mel_nextcloud
-/plugins/mel_portail
-/plugins/mel_shortcuts
-/plugins/mel_sondage
-/plugins/mel_suggestion_box
+/plugins/mel_*
 /plugins/pdfviewer
 /plugins/removeattachments
 /plugins/right_panel
@@ -36,5 +20,4 @@
 /plugins/roundrive
 /plugins/tasklist
 
-/skins/mel_larry
-/skins/mel_larry_mobile
+/skins/mel_*
