@@ -423,12 +423,12 @@ class enigma_ui
                 }
             }
 
+            $table->set_row_attribs($subkey->revoked || ($subkey->expires && $subkey->expires < $now) ? 'deleted' : '');
             $table->add('id', $subkey->get_short_id());
             $table->add('algo', $algo);
             $table->add('created', $subkey->created ? $this->rc->format_date($subkey->created, $date_format, false) : '');
             $table->add('expires', $subkey->expires ? $this->rc->format_date($subkey->expires, $date_format, false) : $this->enigma->gettext('expiresnever'));
             $table->add('usage', implode(',', $usage));
-            $table->set_row_attribs($subkey->revoked || ($subkey->expires && $subkey->expires < $now) ? 'deleted' : '');
         }
 
         $out .= html::tag('fieldset', null,
@@ -448,9 +448,9 @@ class enigma_ui
             }
             $username .= ' <' . $user->email . '>';
 
+            $table->set_row_attribs($user->revoked || !$user->valid ? 'deleted' : '');
             $table->add('id', rcube::Q(trim($username)));
             $table->add('valid', $this->enigma->gettext($user->valid ? 'valid' : 'unknown'));
-            $table->set_row_attribs($user->revoked || !$user->valid ? 'deleted' : '');
         }
 
         $out .= html::tag('fieldset', null,
@@ -732,7 +732,7 @@ class enigma_ui
         }
 
         $table->add('title', html::label('key-name', rcube::Q($this->enigma->gettext('newkeyident'))));
-        $table->add(null, implode($identities, "\n"));
+        $table->add(null, implode("\n", $identities));
 
         // Key size
         $select = new html_select(array('name' => 'size', 'id' => 'key-size'));
@@ -1100,10 +1100,14 @@ class enigma_ui
 
         if ($mode && ($status instanceof enigma_error)) {
             $code = $status->getCode();
-
             if ($code == enigma_error::KEYNOTFOUND) {
-                $vars = array('email' => $status->getData('missing'));
-                $msg  = 'enigma.' . $mode . 'nokey';
+                if ($email = $status->getData('missing')) {
+                    $vars = array('email' => $email);
+                    $msg  = 'enigma.' . $mode . 'nokey';
+                }
+                else {
+                    $msg = 'enigma.' . ($encrypt_enable ? 'encryptnoprivkey' : 'signnokey');
+                }
             }
             else if ($code == enigma_error::BADPASS) {
                 $this->password_prompt($status);
