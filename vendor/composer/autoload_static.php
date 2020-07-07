@@ -7,6 +7,10 @@ namespace Composer\Autoload;
 class ComposerStaticInit5e108e3a9f277fcb66266622d96cf3d6
 {
     public static $prefixLengthsPsr4 = array (
+        'S' => 
+        array (
+            'Sabre\\VObject\\' => 14,
+        ),
         'E' => 
         array (
             'Endroid\\QrCode\\' => 15,
@@ -14,6 +18,10 @@ class ComposerStaticInit5e108e3a9f277fcb66266622d96cf3d6
     );
 
     public static $prefixDirsPsr4 = array (
+        'Sabre\\VObject\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/sabre/vobject/lib',
+        ),
         'Endroid\\QrCode\\' => 
         array (
             0 => __DIR__ . '/..' . '/endroid/qr-code/src',
@@ -103,7 +111,6 @@ class ComposerStaticInit5e108e3a9f277fcb66266622d96cf3d6
         'Net_LDAP3_Result' => __DIR__ . '/..' . '/kolab/net_ldap3/lib/Net/LDAP3/Result.php',
         'Net_Sieve' => __DIR__ . '/..' . '/pear/net_sieve/Sieve.php',
         'PEAR_Exception' => __DIR__ . '/..' . '/pear/pear_exception/PEAR/Exception.php',
-        'SieveTest' => __DIR__ . '/..' . '/pear/net_sieve/tests/SieveTest.php',
     );
 
     public static function getInitializer(ClassLoader $loader)
