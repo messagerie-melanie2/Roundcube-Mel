@@ -440,11 +440,12 @@ $labels['about'] = 'À propos de';
 $labels['preferences'] = 'Préférences';
 $labels['userpreferences'] = 'Préférences utilisateur';
 $labels['editpreferences'] = 'Modifier les préférences utilisateur';
-$labels['identities'] = 'Identités';
-$labels['manageidentities'] = 'Gérer les identités';
-$labels['newidentity'] = 'Créer une nouvelle identité';
-$labels['addidentity'] = 'Ajouter une identité';
-$labels['editidentity'] = 'Modifier l\'identité';
+// PAMELA - Identités -> Signatures
+$labels['identities'] = 'Signatures';
+$labels['manageidentities'] = 'Gérer les signatures';
+$labels['newidentity'] = 'Créer une nouvelle signature';
+$labels['addidentity'] = 'Ajouter une signature';
+$labels['editidentity'] = 'Modifier la signature';
 $labels['preferhtml'] = 'Afficher en HTML';
 $labels['defaultcharset'] = 'Jeu de caractère par défaut';
 $labels['htmlmessage'] = 'Courriel HTML';
