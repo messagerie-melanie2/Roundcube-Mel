@@ -530,7 +530,9 @@ function rcube_webmail()
             .init()
             .focus();
           // PAMELA 0005888: Dans Identités/Signatures ouvrir automatiquement le premier élément de la liste
-          this.identity_list.select_first();
+          if (!rcmail.env.ismobile) {
+            this.identity_list.select_first();
+          }
         }
         else if (this.gui_objects.sectionslist) {
           this.sections_list = new rcube_list_widget(this.gui_objects.sectionslist, {multiselect:false, draggable:false, keyboard:true});
