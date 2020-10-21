@@ -213,6 +213,7 @@ class rcube_csv2vcard
         'function'           => 'jobtitle',
         'manager'            => 'manager',
         'groups'             => 'groups',
+        'room'               => 'room',
 
         'home_website'       => 'website:homepage',
         'work_website'       => 'website:other',
@@ -220,7 +221,7 @@ class rcube_csv2vcard
         'unity'                => 'department',
         'email'                => 'email:work',
         'office'               => 'office',
-        'description'          => 'notes',
+        'description'          => 'description',
         'function_manager'     => 'manager',
         'function_jobtitle'    => 'jobtitle',
     );

@@ -18,7 +18,7 @@
 $map = array();
 $map['anniversary'] = "Anniversaire de mariage ou fête";
 $map['assistants_name'] = "Nom de l'assistant(e)";
-$map['assistants_phone'] = "Téléphone de l''assistant(e)";
+$map['assistants_phone'] = "Téléphone de l'assistant(e)";
 $map['birthday'] = "Anniversaire";
 $map['business_city'] = "Ville (bureau)";
 $map['business_countryregion'] = "Pays/Région (bureau)";
@@ -142,6 +142,7 @@ $map['structure'] = "Structure";
 $map['function'] = "Fonction";
 $map['manager'] = "Manageur";
 $map['groups'] = "Groupes";
+$map['room'] = "Bureau";
 
 $map['home_website'] = "Page web domicile";
 $map['work_website'] = "Page web travail";
@@ -149,8 +150,8 @@ $map['work_website'] = "Page web travail";
 // Export Pauline - 0005948: Améliorer l'import csv des contacts
 $map['unity'] = "Unité";
 $map['_email'] = "Messagerie";
-$map['_office'] = "Pièce";
-$map['_description'] = "Description";
+$map['_room'] = "Pièce";
+$map['description'] = "Description";
 $map['_function_manager'] = "Fonction hiérarchique";
 $map['_function_jobtitle'] = "Fonction métier";
 $map['_missions'] = "Missions";

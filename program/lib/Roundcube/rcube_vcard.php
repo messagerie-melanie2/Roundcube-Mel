@@ -41,6 +41,10 @@ class rcube_vcard
         'jobtitle' => 'TITLE',
         // PAMELA - Categories
         'category'  => 'X-CATEGORY',
+        // PAMELA - Room
+        'room'      => 'X-ROOM',
+        // PAMELA - Description
+        'description' => 'X-DESCRIPTION',
         'department'  => 'X-DEPARTMENT',
         'gender'      => 'X-GENDER',
         'maidenname'  => 'X-MAIDENNAME',
