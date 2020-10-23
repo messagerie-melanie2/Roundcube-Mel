@@ -3018,6 +3018,11 @@ class rcube_imap extends rcube_storage
         if (!empty($filter)) {
             $cache_key .= ':'.(is_string($filter) ? $filter : serialize($filter));
         }
+        // 0005951: Ajouter le _account dans le cache key du folder list
+        $_account = rcube_utils::get_input_value('_account', rcube_utils::INPUT_GET);
+        if (isset($_account)) {
+            $cache_key .= ':'.$_account;
+        }
         $cache_key .= ':'.$rights;
         $cache_key = 'mailboxes.list.'.md5($cache_key);
 
