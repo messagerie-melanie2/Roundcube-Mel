@@ -33,8 +33,6 @@ if ($RCMAIL->action == 'search-create') {
             'data' => array(
                 'fields' => $params['data'][0],
                 'search' => $params['data'][1],
-                // PAMELA - Search contacts by source
-                'source' => rcube_utils::get_input_value('_source', rcube_utils::INPUT_POST)
             ),
         );
 
