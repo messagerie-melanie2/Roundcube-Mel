@@ -274,7 +274,7 @@ function rcmail_contact_search()
     if (!$sid) {
         // unselect currently selected directory/group
         // PAMELA - Search contacts by source
-        $OUTPUT->command('unselect_directory');
+        //$OUTPUT->command('unselect_directory');
         // enable "Save search" command
         $OUTPUT->command('enable_command', 'search-create', true);
     }
