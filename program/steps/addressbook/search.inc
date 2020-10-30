@@ -116,7 +116,7 @@ function rcmail_contact_search()
         }
 
         // PAMELA - Search contacts by source
-        $_source = rcube_utils::get_input_value('_source', rcube_utils::INPUT_GET);
+        $_source = rcube_utils::get_input_value('_orig_source', rcube_utils::INPUT_GET);
         if ($_source == 'all') {
             $_source = '';
         }
@@ -257,6 +257,8 @@ function rcmail_contact_search()
     // PAMELA - Search contacts by source
     $OUTPUT->set_env('source', $_source);
     $OUTPUT->set_env('group', '');
+    // PAMELA - Do not use advanced search
+    $OUTPUT->command('contacts_search_only_hide');
     // Re-set list header
     $OUTPUT->command('set_group_prop', null);
 
