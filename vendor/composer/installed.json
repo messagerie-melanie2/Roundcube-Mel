@@ -757,17 +757,17 @@
     },
     {
         "name": "roundcube/plugin-installer",
-        "version": "0.1.10",
-        "version_normalized": "0.1.10.0",
+        "version": "0.2.0",
+        "version_normalized": "0.2.0.0",
         "source": {
             "type": "git",
             "url": "https://github.com/roundcube/plugin-installer.git",
-            "reference": "98af3c61566b4387aeae76cfa89076a8c39a0ddc"
+            "reference": "10148d050ee2db019d83113a479fb7716fd04d48"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/roundcube/plugin-installer/zipball/98af3c61566b4387aeae76cfa89076a8c39a0ddc",
-            "reference": "98af3c61566b4387aeae76cfa89076a8c39a0ddc",
+            "url": "https://api.github.com/repos/roundcube/plugin-installer/zipball/10148d050ee2db019d83113a479fb7716fd04d48",
+            "reference": "10148d050ee2db019d83113a479fb7716fd04d48",
             "shasum": ""
         },
         "require": {
@@ -776,7 +776,7 @@
         "require-dev": {
             "composer/composer": "*"
         },
-        "time": "2019-04-13T07:06:54+00:00",
+        "time": "2020-11-02T20:04:07+00:00",
         "bin": [
             "src/bin/rcubeinitdb.sh"
         ],
