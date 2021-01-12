@@ -27,6 +27,12 @@ if (!$OUTPUT->ajax_call) {
 // copy messages
 if (!empty($_POST['_uid']) && strlen($_POST['_target_mbox'])) {
     $target  = rcube_utils::get_input_value('_target_mbox', rcube_utils::INPUT_POST, true);
+    
+    // PAMELA - Gérer la corbeille individuelle
+    $data = $RCMAIL->plugins->exec_hook('mel_target_folder',
+                array('target' => $target));
+    $target = $data['target'];
+
     $sources = array();
 
     foreach (rcmail::get_uids(null, null, $multifolder, rcube_utils::INPUT_POST) as $mbox => $uids) {

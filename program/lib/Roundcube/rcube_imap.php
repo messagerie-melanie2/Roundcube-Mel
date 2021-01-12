@@ -673,13 +673,17 @@ class rcube_imap extends rcube_storage
 
         $a_folder_cache = $this->get_cache('messagecount');
 
+        // PAMELA - Gestion du cache pour les Corbeilles
+        $data = $this->plugins->exec_hook('mel_folder_cache',
+            array('folder' => $folder));
+
         // return cached value
-        if (!$force && is_array($a_folder_cache[$folder]) && isset($a_folder_cache[$folder][$mode])) {
-            return $a_folder_cache[$folder][$mode];
+        if (!$force && is_array($a_folder_cache[$data['folder']]) && isset($a_folder_cache[$data['folder']][$mode])) {
+            return $a_folder_cache[$data['folder']][$mode];
         }
 
-        if (!is_array($a_folder_cache[$folder])) {
-            $a_folder_cache[$folder] = array();
+        if (!is_array($a_folder_cache[$data['folder']])) {
+            $a_folder_cache[$data['folder']] = array();
         }
 
         if ($mode == 'THREADS') {
@@ -747,7 +751,7 @@ class rcube_imap extends rcube_storage
             }
         }
 
-        $a_folder_cache[$folder][$mode] = (int)$count;
+        $a_folder_cache[$data['folder']][$mode] = (int)$count;
 
         // write back to cache
         $this->update_cache('messagecount', $a_folder_cache);
@@ -3632,8 +3636,12 @@ class rcube_imap extends rcube_storage
         }
         // get cached folder attributes
         else if (!$force) {
+            // PAMELA - Gestion du cache pour les Corbeilles
+            $data = $this->plugins->exec_hook('mel_folder_cache',
+                array('folder' => $folder));
+
             $opts = $this->get_cache('mailboxes.attributes');
-            $opts = $opts[$folder];
+            $opts = $opts[$data['folder']];
         }
 
         if (!is_array($opts)) {
@@ -3701,7 +3709,12 @@ class rcube_imap extends rcube_storage
         }
 
         // get cached metadata
-        $cache_key = 'mailboxes.folder-info.' . $folder;
+
+        // PAMELA - Gestion du cache pour les Corbeilles
+        $data = $this->plugins->exec_hook('mel_folder_cache',
+            array('folder' => $folder));
+
+        $cache_key = 'mailboxes.folder-info.' . $data['folder'];
         $cached = $this->get_cache($cache_key);
 
         if (is_array($cached)) {
@@ -4051,7 +4064,12 @@ class rcube_imap extends rcube_storage
             //        maybe we should store data per-entry and merge on request
             sort($options);
             sort($entries);
-            $cache_key = 'mailboxes.metadata.' . $folder;
+
+            // PAMELA - Gestion du cache pour les Corbeilles
+            $data = $this->plugins->exec_hook('mel_folder_cache',
+                array('folder' => $folder));
+                
+            $cache_key = 'mailboxes.metadata.' . $data['folder'];
             $cache_key .= '.' . md5(serialize($options).serialize($entries));
 
             // get cached data
@@ -4452,16 +4470,20 @@ class rcube_imap extends rcube_storage
         $mode = strtoupper($mode);
         $a_folder_cache = $this->get_cache('messagecount');
 
-        if (!is_array($a_folder_cache[$folder]) || !isset($a_folder_cache[$folder][$mode])) {
+        // PAMELA - Gestion du cache pour les Corbeilles
+        $data = $this->plugins->exec_hook('mel_folder_cache',
+            array('folder' => $folder));
+
+        if (!is_array($a_folder_cache[$data['folder']]) || !isset($a_folder_cache[$data['folder']][$mode])) {
             return false;
         }
 
         // add incremental value to messagecount
-        $a_folder_cache[$folder][$mode] += $increment;
+        $a_folder_cache[$data['folder']][$mode] += $increment;
 
         // there's something wrong, delete from cache
-        if ($a_folder_cache[$folder][$mode] < 0) {
-            unset($a_folder_cache[$folder][$mode]);
+        if ($a_folder_cache[$data['folder']][$mode] < 0) {
+            unset($a_folder_cache[$data['folder']][$mode]);
         }
 
         // write back to cache
@@ -4477,14 +4499,18 @@ class rcube_imap extends rcube_storage
     {
         $a_folder_cache = $this->get_cache('messagecount');
 
-        if (is_array($a_folder_cache[$folder])) {
+        // PAMELA - Gestion du cache pour les Corbeilles
+        $data = $this->plugins->exec_hook('mel_folder_cache',
+            array('folder' => $folder));
+
+        if (is_array($a_folder_cache[$data['folder']])) {
             if (!empty($mode)) {
                 foreach ((array) $mode as $key) {
-                    unset($a_folder_cache[$folder][$key]);
+                    unset($a_folder_cache[$data['folder']][$key]);
                 }
             }
             else {
-                unset($a_folder_cache[$folder]);
+                unset($a_folder_cache[$data['folder']]);
             }
             $this->update_cache('messagecount', $a_folder_cache);
         }

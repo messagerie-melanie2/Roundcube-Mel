@@ -1689,7 +1689,11 @@ class rcmail extends rcube
      */
     public function folder_classname($folder_id)
     {
-        if ($folder_id == 'INBOX') {
+        // PAMELA - Gérer les INBOX des BALP en plus
+        $data = $this->plugins->exec_hook('mel_is_inbox',
+            array('mbox' => $folder_id, 'isInbox' => $folder_id == 'INBOX'));
+
+        if ($data['isInbox']) {
             return 'inbox';
         }
 
