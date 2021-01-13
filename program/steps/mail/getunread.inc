@@ -24,9 +24,10 @@ $a_folders = $RCMAIL->storage->list_folders_subscribed('', '*', 'mail');
 if (!empty($a_folders)) {
     $current   = $RCMAIL->storage->get_folder();
     // PAMELA - Change the IMAP folder name with a plugin (change INBOX for shared mailboxes)
-    $data = $RCMAIL->plugins->exec_hook('m2_set_folder_name',
-      array('folder' => 'INBOX'));
-    $inbox     = ($current == $data['folder']);
+    $data = $RCMAIL->plugins->exec_hook('mel_is_inbox',
+        array('mbox' => $current, 'isInbox' => $current == 'INBOX'));
+
+    $inbox     = $data['isInbox'];
     $trash     = $RCMAIL->config->get('trash_mbox');
     $check_all = (bool)$RCMAIL->config->get('check_all_folders');
 

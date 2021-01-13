@@ -36,9 +36,14 @@ function newmail_notifier_run(prop)
         newmail_notifier_sound();
     if (prop.desktop) {
       // PAMELA - Afficher le nom de la boite mail
-      var body = rcmail.get_label('body', 'newmail_notifier');
-      if ($('.sharesmailboxesul').length) {
-        body = $('.sharesmailboxesul li.current > a > span.button-inner-m2').text();
+      if (prop.title) {
+        var body = prop.title;
+      }
+      else {
+        var body = rcmail.get_label('body', 'newmail_notifier');
+        if ($('.sharesmailboxesul').length) {
+          body = $('.sharesmailboxesul li.current > a > span.button-inner-m2').text();
+        }
       }
       newmail_notifier_desktop(body);
     }
