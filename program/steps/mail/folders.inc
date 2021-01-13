@@ -59,7 +59,11 @@ else if ($RCMAIL->action == 'purge') {
     if ($mbox == $trash_mbox || $mbox == $junk_mbox /* PAMELA */ || $mbox == $archive_mbox
         || preg_match($trash_regexp, $mbox) || preg_match($junk_regexp, $mbox)
     ) {
-        $success = $RCMAIL->storage->clear_folder($mbox);
+        // PAMELA - Corbeille name converter
+        $data = $RCMAIL->plugins->exec_hook('m2_set_folder_name',
+                array('folder' => $mbox));
+                
+        $success = $RCMAIL->storage->clear_folder($data['folder']);
 
         if ($success) {
             $OUTPUT->show_message('folderpurged', 'confirmation');
