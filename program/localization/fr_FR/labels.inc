@@ -27,9 +27,10 @@ $labels['logout']   = 'Déconnexion';
 $labels['mail']     = 'Courriel';
 $labels['settings'] = 'Paramètres';
 $labels['addressbook'] = 'Contacts';
-$labels['inbox']  = 'Boîte de réception';
+/* PAMELA MANTIS 3518: Mail : Aligner certains aspects visuels sur le Courrielleur */
+$labels['inbox']  = 'Courrier entrant';
 $labels['drafts'] = 'Brouillons';
-$labels['sent']   = 'Envoyés';
+$labels['sent']   = 'Éléments envoyés';
 $labels['trash']  = 'Corbeille';
 /* PAMELA - Modeles */
 $labels['models'] = 'Modèles';
