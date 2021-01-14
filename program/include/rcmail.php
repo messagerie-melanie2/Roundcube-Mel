@@ -1698,7 +1698,8 @@ class rcmail extends rcube
         }
 
         // for these mailboxes we have localized labels and css classes
-        foreach (array('sent', 'drafts', 'trash', 'junk') as $smbx)
+        // PAMELA - Modèles
+        foreach (array('sent', 'drafts', 'models', 'trash', 'junk') as $smbx)
         {
             if ($folder_id === $this->config->get($smbx.'_mbox')) {
                 return $smbx;
