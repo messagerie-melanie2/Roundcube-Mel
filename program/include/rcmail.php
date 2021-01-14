@@ -1563,7 +1563,12 @@ class rcmail extends rcube
             $is_collapsed = strpos($collapsed, '&'.rawurlencode($folder['id']).'&') !== false;
             $unread       = $msgcounts ? intval($msgcounts[$folder['id']]['UNSEEN']) : 0;
 
-            if ($folder_class && !$realnames) {
+            // PAMELA - Support folder class
+            if (!$folder_class && isset($folder['class'])) {
+                $folder_class = $folder['class'];
+            }
+
+            if ($folder_class && !$realnames && (!isset($folder['realname']) || !$folder['realname'])) {
                 $foldername = $this->gettext($folder_class);
             }
             else {
