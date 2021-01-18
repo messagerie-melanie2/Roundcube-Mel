@@ -1128,6 +1128,9 @@ rcube_webmail.prototype.managesieve_create = function(force)
     url = rcmail.add_url(url, '_action', 'plugin.managesieve');
     url = rcmail.add_url(url, '_framed', 1);
 
+    // PAMELA - Add mbox for sieve connect
+    url = rcmail.add_url(url, '_mbox', rcmail.env.mailbox);
+
     hdrs.map(function() {
       var val = rcmail.env.sieve_headers[this.value];
       url = rcmail.add_url(url, 'r['+this.value+']', val[0]+':'+val[1]);
