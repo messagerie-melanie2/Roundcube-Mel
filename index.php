@@ -46,13 +46,7 @@ require_once 'program/include/iniset.php';
 $RCMAIL = rcmail::get_instance(0, $GLOBALS['env']);
 
 // Make the whole PHP output non-cacheable (#1487797)
-// PAMELA Cache in mail show/preview
-if ($RCMAIL->task != 'mail' || $RCMAIL->task == 'mail' && $RCMAIL->action != 'preview') {
-    $RCMAIL->output->nocacheing_headers();
-}
-else {
-    $RCMAIL->output->future_expire_header();
-}
+$RCMAIL->output->nocacheing_headers();
 $RCMAIL->output->common_headers();
 
 // turn on output buffering
