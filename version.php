@@ -14,5 +14,5 @@ class Version {
   /**
    * Build
    */
-  const BUILD = '20210121202552';
+  const BUILD = '20210122120852';
 }
