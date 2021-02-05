@@ -34,6 +34,7 @@ $labels['sent']   = 'Éléments envoyés';
 $labels['trash']  = 'Corbeille';
 /* PAMELA - Modeles */
 $labels['models'] = 'Modèles';
+$labels['local'] = 'Archives locales';
 /* PAMELA MANTIS 3518: Mail : Aligner certains aspects visuels sur le Courrielleur */
 $labels['junk']   = 'Indésirables';
 $labels['show_real_foldernames'] = 'Montrer les noms réels des dossiers spéciaux';
