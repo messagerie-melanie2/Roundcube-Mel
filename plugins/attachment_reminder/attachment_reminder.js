@@ -4,7 +4,7 @@
  * @licstart  The following is the entire license notice for the
  * JavaScript code in this file.
  *
- * Copyright (c) 2013, The Roundcube Dev Team
+ * Copyright (c) The Roundcube Dev Team
  *
  * The JavaScript code in this page is free software: you can redistribute it
  * and/or modify it under the terms of the GNU General Public License
@@ -64,7 +64,12 @@ function rcmail_attachment_reminder_dialog()
   };
 
   rcmail.env.attachment_reminder = false;
-  rcmail.show_popup_dialog(rcmail.get_label('attachment_reminder.forgotattachment'), '', buttons);
+  rcmail.show_popup_dialog(
+    rcmail.get_label('attachment_reminder.forgotattachment'),
+    rcmail.get_label('attachment_reminder.missingattachment'),
+    buttons,
+    {button_classes: ['mainaction attach', 'send']}
+  );
 };
 
 

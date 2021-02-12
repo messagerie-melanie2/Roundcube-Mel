@@ -2,15 +2,13 @@
 
 /**
  +-----------------------------------------------------------------------+
- | plugins/enigma/localization/<lang>.inc                                |
+ | Localization file of the Roundcube Webmail Enigma plugin              |
  |                                                                       |
- | Localization file of the Roundcube Webmail ACL plugin                 |
- | Copyright (C) 2012-2016, The Roundcube Dev Team                       |
+ | Copyright (C) The Roundcube Dev Team                                  |
  |                                                                       |
  | Licensed under the GNU General Public License version 3 or            |
  | any later version with exceptions for skins & plugins.                |
  | See the README file for a full license statement.                     |
- |                                                                       |
  +-----------------------------------------------------------------------+
 
  For translation see https://www.transifex.com/roundcube/roundcube-webmail/plugin-enigma/
@@ -27,6 +25,7 @@ $labels['keyuserid'] = 'User ID';
 $labels['keytype'] = 'Key type';
 $labels['fingerprint'] = 'Fingerprint';
 $labels['subkeys'] = 'Subkeys';
+$labels['keyprops'] = 'Key properties';
 $labels['basicinfo'] = 'Basic Information';
 $labels['userids'] = 'Additional Users';
 $labels['typepublickey'] = 'public key';
@@ -68,10 +67,10 @@ $labels['keyrevoke'] = 'Revoke';
 $labels['keysend'] = 'Send public key in a message';
 $labels['keychpass'] = 'Change password';
 
-$labels['newkeyident'] = 'Identity:';
-$labels['newkeypass'] = 'Password:';
-$labels['newkeypassconfirm'] = 'Confirm password:';
-$labels['newkeysize'] = 'Key size:';
+$labels['newkeyident'] = 'Identity';
+$labels['newkeypass'] = 'Password';
+$labels['newkeypassconfirm'] = 'Confirm password';
+$labels['newkeysize'] = 'Key size';
 $labels['key2048'] = '2048 bits - default';
 $labels['key4096'] = '4096 bits - more secure';
 $labels['keygenerating'] = 'Generating keys...';
@@ -79,6 +78,7 @@ $labels['keygenerating'] = 'Generating keys...';
 $labels['encryptionoptions'] = 'Encryption options...';
 $labels['encryptmsg'] = 'Encrypt this message';
 $labels['signmsg'] = 'Digitally sign this message';
+$labels['sendunencrypted'] = 'Send unencrypted';
 
 $labels['enterkeypasstitle'] = 'Enter key passphrase';
 $labels['enterkeypass'] = 'A passphrase is needed to unlock the secret key ($keyid) for user: $user.';
@@ -91,6 +91,10 @@ $labels['withprivkeys'] = 'Export Secret Keys';
 $labels['findkey'] = 'Search on key server(s)';
 $labels['keyimportlabel'] = 'Import from file';
 $labels['keyimportsearchlabel'] = 'Search on key server(s)';
+
+$labels['managekeys'] = 'Manage PGP keys';
+$labels['identitymatchingprivkeys'] = 'You have $nr matching PGP private keys stored in your keyring:';
+$labels['identitynoprivkeys'] = 'This sender identity doesn\'t yet have a PGP private key stored in your keyring.';
 
 $messages = array();
 $messages['sigvalid'] = 'Verified signature from $sender.';

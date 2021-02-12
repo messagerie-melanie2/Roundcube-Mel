@@ -2,19 +2,18 @@
 
 /**
  +-----------------------------------------------------------------------+
- | plugins/enigma/localization/<lang>.inc                                |
+ | Localization file of the Roundcube Webmail Enigma plugin              |
  |                                                                       |
- | Localization file of the Roundcube Webmail ACL plugin                 |
- | Copyright (C) 2012-2016, The Roundcube Dev Team                       |
+ | Copyright (C) The Roundcube Dev Team                                  |
  |                                                                       |
  | Licensed under the GNU General Public License version 3 or            |
  | any later version with exceptions for skins & plugins.                |
  | See the README file for a full license statement.                     |
- |                                                                       |
  +-----------------------------------------------------------------------+
 
  For translation see https://www.transifex.com/roundcube/roundcube-webmail/plugin-enigma/
 */
+
 $labels['encryption'] = 'Šifrovanie';
 $labels['enigmacerts'] = 'Certifikáty S/MIME';
 $labels['enigmakeys'] = 'Kľúče PGP';
@@ -64,6 +63,7 @@ $labels['keydisable'] = 'Vypnúť';
 $labels['keyrevoke'] = 'Odvolať';
 $labels['keysend'] = 'Odoslať verejný kľúč v správe';
 $labels['keychpass'] = 'Zmeniť heslo';
+$labels['keyadd'] = 'Pridať kľúč';
 $labels['newkeyident'] = 'Identita';
 $labels['newkeypass'] = 'Heslo';
 $labels['newkeypassconfirm'] = 'Potvrdenie hesla';
@@ -77,7 +77,6 @@ $labels['signmsg'] = 'Digitálne podpísať túto správu';
 $labels['sendunencrypted'] = 'Odoslať nezašifrované';
 $labels['enterkeypasstitle'] = 'Zadať kľúčovú frázu';
 $labels['enterkeypass'] = 'Na odomknutie tajného kľúča je potrebná kľúčová fráza ($keyid) pre používateľa: $user.';
-$labels['arialabelkeyexportoptions'] = 'Nastavenia exportu kľúčov';
 $labels['attachpubkeymsg'] = 'Pripojiť môj verejný kľúč';
 $labels['keyexportprompt'] = 'Chcete do uloženého súboru s kľúčmi OpenPGP zahrnúť aj tajné kľúče?';
 $labels['onlypubkeys'] = 'Exportovať len verejné kľúče';
@@ -85,6 +84,12 @@ $labels['withprivkeys'] = 'Exportovať tajné kľúče';
 $labels['findkey'] = 'Hľadať na serveri/serveroch s kľúčom';
 $labels['keyimportlabel'] = 'Importovať zo súboru';
 $labels['keyimportsearchlabel'] = 'Hľadať na serveri/serveroch s kľúčom';
+$labels['managekeys'] = 'Spravovať kľúče PGP';
+$labels['identitymatchingprivkeys'] = 'Vo vašej súprave kľúčov máte uložených $nr zodpovedajúcich súkromných kľúčov PGP.';
+$labels['identitynoprivkeys'] = 'Pre túto identitu odosielateľa ešte nemáte v súprave kľúčov uložený žiadny súkromný kľúč PGP.';
+$labels['arialabelkeyexportoptions'] = 'Nastavenia exportu kľúčov';
+$labels['arialabelkeysearchform'] = 'Formulár pre vyhľadávanie kľúčov';
+$labels['arialabelkeyoptions'] = 'Možnosti kľúča';
 $messages['sigvalid'] = 'Overený podpis od $sender.';
 $messages['sigvalidpartial'] = 'Overený podpis od $sender, ale časť tela podpísaná nebola.';
 $messages['siginvalid'] = 'Neplatný podpis od $sender.';
@@ -94,6 +99,7 @@ $messages['sigerror'] = 'Neoverený podpis. Interná chyba.';
 $messages['decryptok'] = 'Správa bola dešifrovaná.';
 $messages['decrypterror'] = 'Dešifrovanie nebolo úspešné.';
 $messages['decryptnokey'] = 'Dešifrovanie nebolo úspešné. Súkromný kľúč sa nenašiel. ID kľúča: $keyid.';
+$messages['decryptnomdc'] = 'Dešifrovanie bolo preskočené. Integrita správy nie je chránená.';
 $messages['decryptbadpass'] = 'Dešifrovanie bolo neúspešné. Neplatné heslo.';
 $messages['decryptnopass'] = 'Dešifrovanie nebolo úspešné. Vyžaduje sa kľúčové heslo.';
 $messages['decryptpartial'] = 'Správa bola dešifrovaná, ale časť jej tela nebola zašifrovaná.';
@@ -103,6 +109,7 @@ $messages['signbadpass'] = 'Podpisovanie bolo neúspešné. Neplatné heslo.';
 $messages['signnopass'] = 'Vloženie podpisu nebolo úspešné. Vyžaduje sa kľúčové heslo.';
 $messages['encrypterror'] = 'Šifrovanie nebolo úspešné.';
 $messages['encryptnokey'] = 'Šifrovanie nebolo úspešné. Nenašiel sa verejný kľúč pre $email.';
+$messages['encryptnoprivkey'] = 'Šifrovanie bolo neúspešné. Nenašiel sa súkromný kľúč.';
 $messages['nokeysfound'] = 'Nenašli sa žiadne kľúče';
 $messages['keynotfound'] = 'Kľúč sa nenašiel!';
 $messages['keyopenerror'] = 'Nemožno získať informácie o kľúči! Interná chyba.';

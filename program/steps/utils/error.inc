@@ -2,10 +2,9 @@
 
 /**
  +-----------------------------------------------------------------------+
- | program/steps/utils/error.inc                                         |
- |                                                                       |
  | This file is part of the Roundcube Webmail client                     |
- | Copyright (C) 2005-2015, The Roundcube Dev Team                       |
+ |                                                                       |
+ | Copyright (C) The Roundcube Dev Team                                  |
  |                                                                       |
  | Licensed under the GNU General Public License version 3 or            |
  | any later version with exceptions for skins & plugins.                |
@@ -13,7 +12,6 @@
  |                                                                       |
  | PURPOSE:                                                              |
  |   Display error message page                                          |
- |                                                                       |
  +-----------------------------------------------------------------------+
  | Author: Thomas Bruederli <roundcube@gmail.com>                        |
  +-----------------------------------------------------------------------+
@@ -21,28 +19,8 @@
 
 $rcmail = rcmail::get_instance();
 
-// browser is not compatible with this application
-if ($ERROR_CODE == 409) {
-    $user_agent    = htmlentities($_SERVER['HTTP_USER_AGENT']);
-    $__error_title = 'Your browser does not suit the requirements for this application';
-    $__error_text  = <<<EOF
-<i>Supported browsers:</i><br />
-&raquo; &nbsp;Microsoft Internet Explorer 7+<br />
-&raquo; &nbsp;Mozilla Firefox 3+<br />
-&raquo; &nbsp;Chrome 10+<br />
-&raquo; &nbsp;Safari 4+<br />
-&raquo; &nbsp;Opera 8+<br />
-<br />
-&raquo; &nbsp;JavaScript enabled<br />
-&raquo; &nbsp;Support for XMLHTTPRequest<br />
-
-<p><i>Your configuration:</i><br />
-$user_agent</p>
-EOF;
-}
-
 // authorization error
-else if ($ERROR_CODE == 401) {
+if ($ERROR_CODE == 401) {
     $__error_title = mb_strtoupper($rcmail->gettext('errauthorizationfailed'));
     $__error_text  = nl2br($rcmail->gettext('errunauthorizedexplain') . "\n" .
                         $rcmail->gettext('errcontactserveradmin'));
@@ -69,7 +47,21 @@ else if ($ERROR_CODE == 404) {
     $__error_text  = nl2br($rcmail->gettext('errnotfoundexplain') . "\n" .
                         $rcmail->gettext('errcontactserveradmin'));
 
-    $__error_text .= '<p><i>' . $rcmail->gettext('errfailedrequest') . ":</i><br />\n<tt>//$request_url</tt></p>";
+    $__error_text .= '<p><i>' . $rcmail->gettext('errfailedrequest') . ": $request_url</i></p>";
+}
+
+// browser is not compatible with this application
+else if ($ERROR_CODE == 409) {
+    $user_agent    = htmlentities($_SERVER['HTTP_USER_AGENT']);
+    $__error_title = 'Your browser does not suit the requirements for this application';
+    $__error_text  = "Required features: <i>JavaScript enabled</i> and <i>XMLHTTPRequest support</i>."
+        . "<p><i>Your configuration:</i><br>$user_agent</p>";
+}
+
+// Gone, e.g. message cached but not in the storage
+else if ($ERROR_CODE == 410) {
+    $__error_title = 'INTERNAL ERROR';
+    $__error_text  = $rcmail->gettext('messageopenerror');
 }
 
 // invalid compose ID
@@ -96,28 +88,23 @@ else if ($ERROR_CODE == 603) {
 // system error
 else {
     $__error_title = "SERVICE CURRENTLY NOT AVAILABLE!";
-    $__error_text  = "Please contact your server-administrator.";
-
-    if (($rcmail->config->get('debug_level') & 4) && $ERROR_MESSAGE) {
-        $__error_text = $ERROR_MESSAGE;
-    }
-    else {
-        $__error_text = sprintf('Error No. [%s]', $ERROR_CODE);
-    }
+    $__error_text  = sprintf('Error No. [%s]', $ERROR_CODE);
 }
 
 // inform plugins
 if ($rcmail && $rcmail->plugins) {
     $plugin = $rcmail->plugins->exec_hook('error_page', array(
-        'code' => $ERROR_CODE,
+        'code'  => $ERROR_CODE,
         'title' => $__error_title,
-        'text' => $__error_text,
+        'text'  => $__error_text,
     ));
 
-    if (!empty($plugin['title']))
+    if (!empty($plugin['title'])) {
         $__error_title = $plugin['title'];
-    if (!empty($plugin['text']))
+    }
+    if (!empty($plugin['text'])) {
         $__error_text = $plugin['text'];
+    }
 }
 
 $HTTP_ERR_CODE = $ERROR_CODE && $ERROR_CODE < 600 ? $ERROR_CODE : 500;
@@ -130,7 +117,7 @@ if ($rcmail->output && $rcmail->output->type == 'js') {
 
 // compose page content
 $__page_content = <<<EOF
-<div>
+<div class="boxerror">
 <h3 class="error-title">$__error_title</h3>
 <div class="error-text">$__error_text</div>
 </div>
@@ -138,6 +125,7 @@ EOF;
 
 if ($rcmail->output && $rcmail->output->template_exists('error')) {
     $rcmail->output->reset();
+    $rcmail->output->set_env('error_task', 'error' . (empty($rcmail->user) || empty($rcmail->user->ID) ? '-login' : ''));
     $rcmail->output->set_env('server_error', $ERROR_CODE);
     $rcmail->output->set_env('comm_path', $rcmail->comm_path);
     $rcmail->output->send('error');

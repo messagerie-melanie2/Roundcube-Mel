@@ -3,8 +3,9 @@
 /**
  +-----------------------------------------------------------------------+
  | This file is part of the Roundcube Webmail client                     |
- | Copyright (C) 2005-2012, The Roundcube Dev Team                       |
- | Copyright (C) 2011-2012, Kolab Systems AG                             |
+ |                                                                       |
+ | Copyright (C) The Roundcube Dev Team                                  |
+ | Copyright (C) Kolab Systems AG                                        |
  |                                                                       |
  | Licensed under the GNU General Public License version 3 or            |
  | any later version with exceptions for skins & plugins.                |
@@ -82,8 +83,6 @@ class rcube_image
                 'channels' => $channels,
             );
         }
-
-        return null;
     }
 
     /**
@@ -397,7 +396,9 @@ class rcube_image
     }
 
     /**
-     * Checks if image format conversion is supported
+     * Checks if image format conversion is supported (for specified mimetype).
+     *
+     * @param string $mimetype Mimetype name
      *
      * @return boolean True if specified format can be converted to another format
      */
@@ -443,6 +444,10 @@ class rcube_image
 
     /**
      * Check if we have enough memory to load specified image
+     *
+     * @param array Hash array with image props like channels, width, height
+     *
+     * @return bool True if there's enough memory to process the image, False otherwise
      */
     private function mem_check($props)
     {

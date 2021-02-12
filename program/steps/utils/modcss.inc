@@ -2,10 +2,9 @@
 
 /**
  +-----------------------------------------------------------------------+
- | program/steps/utils/modcss.inc                                        |
- |                                                                       |
  | This file is part of the Roundcube Webmail client                     |
- | Copyright (C) 2007-2014, The Roundcube Dev Team                       |
+ |                                                                       |
+ | Copyright (C) The Roundcube Dev Team                                  |
  |                                                                       |
  | Licensed under the GNU General Public License version 3 or            |
  | any later version with exceptions for skins & plugins.                |
@@ -13,7 +12,6 @@
  |                                                                       |
  | PURPOSE:                                                              |
  |   Modify CSS source from a URL                                        |
- |                                                                       |
  +-----------------------------------------------------------------------+
  | Author: Thomas Bruederli <roundcube@gmail.com>                        |
  | Author: Aleksander Machniak <alec@alec.pl>                            |
@@ -72,10 +70,12 @@ else {
 }
 
 $ctype_regexp = '~Content-Type:\s+text/(css|plain)~i';
+$container_id = preg_replace('/[^a-z0-9]/i', '', $_GET['_c']);
+$css_prefix   = preg_replace('/[^a-z0-9]/i', '', $_GET['_p']);
 
 if ($source !== false && preg_match($ctype_regexp, $headers)) {
     header('Content-Type: text/css');
-    echo rcube_utils::mod_css_styles($source, preg_replace('/[^a-z0-9]/i', '', $_GET['_c']));
+    echo rcube_utils::mod_css_styles($source, $container, false, $css_prefix);
     exit;
 }
 

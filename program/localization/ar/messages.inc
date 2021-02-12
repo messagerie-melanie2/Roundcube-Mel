@@ -2,19 +2,19 @@
 
 /*
  +-----------------------------------------------------------------------+
- | localization/<lang>/messages.inc                                      |
- |                                                                       |
  | Localization file of the Roundcube Webmail client                     |
- | Copyright (C) 2005-2015, The Roundcube Dev Team                       |
+ |                                                                       |
+ | Copyright (C) The Roundcube Dev Team                                  |
  |                                                                       |
  | Licensed under the GNU General Public License version 3 or            |
  | any later version with exceptions for skins & plugins.                |
  | See the README file for a full license statement.                     |
- |                                                                       |
  +-----------------------------------------------------------------------+
 
  For translation see https://www.transifex.com/projects/p/roundcube-webmail/resource/messages/
 */
+
+$messages['errortitle']  = 'طرأ هناك خطأ !';
 $messages['loginfailed']  = 'فشل تسجيل الدخول';
 $messages['cookiesdisabled'] = 'المتصفح الخاص بك لا يقبل الكوكيز';
 $messages['sessionerror'] = 'انتهت صلاحية الجلسة الحالية أو أنها غيرصالحة';
@@ -25,10 +25,14 @@ $messages['dberror'] = 'خطأ في قاعدة البيانات!';
 $messages['errorreadonly'] = 'تعذر تنفيذ العملية. المجلد للقراءة فقط.';
 $messages['errornoperm'] = 'تعذر تنفيذ العملية. ليست لديك الصلاحية.';
 $messages['invalidrequest'] = 'طلب غير صالح! لم تحفظ أية بيانات.';
+$messages['invalidhost'] = 'إسم الخادوم خاطئ.';
 $messages['nomessagesfound'] = 'لم يعثر على أية رسائل في صندوق البريد هذا';
-$messages['loggedout'] = 'قمت بإنهاء هذه الجلسة بنجاح. إلى اللقاء!';
+$messages['mailboxempty'] = 'علبة البريد فارغة';
+$messages['nomessages'] = 'ليس هناك أية رسالة';
+$messages['refreshing'] = 'عملية التحديث جارية …';
 $messages['loading'] = 'جاري العمل...';
 $messages['uploading'] = 'جاري رفع الملف...';
+$messages['attaching'] = 'عملية إرفاق الملف جارية …';
 $messages['uploadingmany'] = 'جاري تحميل الملفات...';
 $messages['loadingdata'] = 'تحميل البيانات...';
 $messages['checkingmail'] = 'التحقق من وجود رسائل جديدة...';
@@ -43,13 +47,13 @@ $messages['blockedimages'] = 'لحماية خصوصيتك، تم حجب الصو
 $messages['encryptedmessage'] = 'هذه الرسالة مشفرة ولا يمكن عرضها. عذراً!';
 $messages['nocontactsfound'] = 'لم يعثر على أي مراسل';
 $messages['contactnotfound'] = 'تعذر العثور على المراسل المطلوب';
-$messages['contactsearchonly'] = 'اكتب بعض كلمات البحث للعثور علىالمُراسلين';
 $messages['sendingfailed'] = 'فشل إرسال الرسالة';
 $messages['senttooquickly'] = 'رجاء انتظر $sec ثوان قبل إرسال هذه الرسالة';
 $messages['errormoving'] = 'تعذر نقل هذه الرسالة';
 $messages['errorcopying'] = 'تعذر نسخ الرسائل';
 $messages['errordeleting'] = 'تعذر حذف هذه الرسالة';
 $messages['errormarking'] = 'تعذر تحديد الرسائل';
+$messages['confirmationtitle'] = 'هل أنت متأكد …';
 $messages['deletecontactconfirm']  = 'هل تريد حقاً حذف المراسلـ(ين) المحدد(ين)؟';
 $messages['deletegroupconfirm']  = 'هل تريد فعلاً حذف المجموعة المحددة؟';
 $messages['deletemessagesconfirm'] = 'هل تريد حذف الرسائل المحددة؟';
@@ -67,6 +71,7 @@ $messages['nonamewarning']  = 'الرجاء إدخال اسم';
 $messages['nopagesizewarning'] = 'الرجاء إدخال حجم الصفحة';
 $messages['norecipientwarning'] = 'الرجاء إدخال اسم مستقبل واحد على الأقل';
 $messages['nosubjectwarning']  = 'حقل "الموضوع" فارغ. هل تريد كتابة موضوعللرسالة؟';
+$messages['nosubjecttitle']  = 'بدون موضوع';
 $messages['nobodywarning'] = 'إرسال هذه الرسالة دون نص؟';
 $messages['nosearchname'] = 'الرجاء إدخال اسم مراسل أو عنوان بريدإلكتروني';
 $messages['notuploadedwarning'] = 'لم يتم رفع جميع المرفقات بعد. رجاءً الانتظار أو إلغاء عملية الرفع.';
@@ -97,6 +102,7 @@ $messages['addingmember'] = 'جاري إضافة المُراسلين إلى ا�
 $messages['removingmember'] = 'جاري إزالة المراسلين من المجموعة...';
 $messages['receiptsent'] = 'أرسل إيصال الاستلام بنجاح';
 $messages['errorsendingreceipt'] = 'تعذر إرسال إيصال الاستلام';
+$messages['deleteidentityconfirm'] = 'هل تريد حقا حذف هذه الهوية ؟';
 $messages['nodeletelastidentity'] = 'لا يمكن حذف هذا السجل حيث أنه الوحيدالمتبقي.';
 $messages['forbiddencharacter'] = 'اسم المجلّد يحتوي حروفاً ممنوعة';
 $messages['selectimportfile'] = 'رجاء اختر ملفاً لرفعه';
@@ -141,3 +147,7 @@ $messages['invalidimageformat'] = 'ليست صيغة صورة صحيحة';
 $messages['mispellingsfound'] = 'عُثر على أخطاء إملائية في الرسالة';
 $messages['parentnotwritable'] = 'تعذر إنشاء/نقل المجلد إلى المجلد المحدد.ليست لديك الصلاحية.';
 $messages['messagetoobig'] = 'جزء الرسالة أكبر بكثير مما يمكن معالجته.';
+$messages['errfailedrequest'] = 'فَشِل الطلب';
+$messages['errauthorizationfailed'] = 'فَشِلت عملية المُصادقة';
+$messages['errcontactserveradmin'] = 'يُرجى الإتصال بمدير الخادوم.';
+$messages['listempty'] = 'إنّ القائمة فارغة.';

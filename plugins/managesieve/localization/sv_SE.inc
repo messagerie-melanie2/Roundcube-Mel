@@ -2,19 +2,19 @@
 
 /*
  +-----------------------------------------------------------------------+
- | plugins/managesieve/localization/<lang>.inc                           |
- |                                                                       |
  | Localization file of the Roundcube Webmail Managesieve plugin         |
- | Copyright (C) 2012-2013, The Roundcube Dev Team                       |
+ |                                                                       |
+ | Copyright (C) The Roundcube Dev Team                                  |
  |                                                                       |
  | Licensed under the GNU General Public License version 3 or            |
  | any later version with exceptions for skins & plugins.                |
  | See the README file for a full license statement.                     |
- |                                                                       |
  +-----------------------------------------------------------------------+
 
  For translation see https://www.transifex.com/projects/p/roundcube-webmail/resource/plugin-managesieve/
 */
+
+
 $labels['filters'] = 'Filter';
 $labels['managefilters'] = 'Administrera filter';
 $labels['filtername'] = 'Filternamn';
@@ -91,6 +91,7 @@ $labels['none'] = 'ingen';
 $labels['fromset'] = 'från grupp';
 $labels['fromfile'] = 'från fil';
 $labels['filterdisabled'] = 'Filter inaktiverat';
+$labels['filterenabled'] = 'Filter aktiverat';
 $labels['countisgreaterthan'] = 'antal är större än';
 $labels['countisgreaterthanequal'] = 'antal är större än eller lika med';
 $labels['countislessthan'] = 'antal är mindre än';
@@ -111,6 +112,18 @@ $labels['flagdeleted'] = 'Borttaget';
 $labels['flaganswered'] = 'Besvarat';
 $labels['flagflagged'] = 'Flaggat';
 $labels['flagdraft'] = 'Utkast';
+$labels['addheader'] = 'Lägg till meddelandeinformation';
+$labels['deleteheader'] = 'Ta bort meddelandeinformation';
+$labels['headername'] = 'Meddelandeinformation namn';
+$labels['headervalue'] = 'Meddelandeinformation värde';
+$labels['headerpos'] = 'Meddelandeinformation position';
+$labels['headeratstart'] = 'i början';
+$labels['headeratend'] = 'i slutet';
+$labels['headeroccurrence'] = ' Meddelandeinformation förekomst/position';
+$labels['headerfromstart'] = 'från början';
+$labels['headerfromend'] = 'från slutet';
+$labels['headerpatterns'] = 'Meddelandeinformation sökmönster';
+$labels['headermatchtype'] = 'resultattyp:';
 $labels['setvariable'] = 'Sätt variabel';
 $labels['setvarname'] = 'Variabelnamn:';
 $labels['setvarvalue'] = 'Variabelvärde:';
@@ -233,16 +246,16 @@ $messages['actiondeleteconfirm'] = 'Vill du ta bort filteråtgärden?';
 $messages['forbiddenchars'] = 'Otillåtet tecken i fältet';
 $messages['cannotbeempty'] = 'Fältet kan inte lämnas tomt';
 $messages['ruleexist'] = 'Ett filter med angivet namn finns redan.';
-$messages['setactivateerror'] = 'Filtergruppen kunde inte aktiveras på grund av serverfel';
-$messages['setdeactivateerror'] = 'Filtergruppen kunde inte deaktiveras på grund av serverfel';
-$messages['setdeleteerror'] = 'Filtergruppen kunde inte tas bort på grund av serverfel';
-$messages['setactivated'] = 'Filtergruppen är aktiverad';
-$messages['setdeactivated'] = 'Filtergruppen är inaktiverad';
-$messages['setdeleted'] = 'Filtergruppen är borttagen';
-$messages['setupdated'] = 'Filtergruppen är ändrad';
+$messages['setactivateerror'] = 'Filtergruppen kunde inte aktiveras på grund av serverfel.';
+$messages['setdeactivateerror'] = 'Filtergruppen kunde inte deaktiveras på grund av serverfel.';
+$messages['setdeleteerror'] = 'Filtergruppen kunde inte tas bort på grund av serverfel.';
+$messages['setactivated'] = 'Filtergruppen är aktiverad.';
+$messages['setdeactivated'] = 'Filtergruppen är inaktiverad.';
+$messages['setdeleted'] = 'Filtergruppen är borttagen.';
+$messages['setupdated'] = 'Filtergruppen är ändrad.';
 $messages['setdeleteconfirm'] = 'Vill du ta bort filtergruppen?';
-$messages['setcreateerror'] = 'Filtergruppen kunde inte läggas till på grund av serverfel';
-$messages['setcreated'] = 'Filtergruppen har lagts till';
+$messages['setcreateerror'] = 'Filtergruppen kunde inte läggas till på grund av serverfel.';
+$messages['setcreated'] = 'Filtergruppen har lagts till.';
 $messages['activateerror'] = 'Kunde inte aktivera filter på grund av serverfel.';
 $messages['deactivateerror'] = 'Kunde inte inaktivera filter på grund av serverfel.';
 $messages['deactivated'] = 'Filter inaktiverat.';
@@ -260,4 +273,4 @@ $messages['forwardsaved'] = 'Information för skicka vidare har sparats.';
 $messages['emptyvacationbody'] = 'Text för frånvaromeddelande saknas!';
 $messages['duplicate.conflict.err'] = 'Både huvud och unik identifikation är inte tillåtet.';
 $messages['disabledaction'] = 'Otillåten åtgärd.';
-?>
+$messages['lastindexempty'] = 'Index är nödvändigt för att räkna från slutet';

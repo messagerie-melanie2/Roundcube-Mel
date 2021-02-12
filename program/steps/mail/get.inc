@@ -2,10 +2,9 @@
 
 /**
  +-----------------------------------------------------------------------+
- | program/steps/mail/get.inc                                            |
- |                                                                       |
  | This file is part of the Roundcube Webmail client                     |
- | Copyright (C) 2005-2016, The Roundcube Dev Team                       |
+ |                                                                       |
+ | Copyright (C) The Roundcube Dev Team                                  |
  |                                                                       |
  | Licensed under the GNU General Public License version 3 or            |
  | any later version with exceptions for skins & plugins.                |
@@ -13,13 +12,14 @@
  |                                                                       |
  | PURPOSE:                                                              |
  |   Delivering a specific uploaded file or mail message attachment      |
- |                                                                       |
  +-----------------------------------------------------------------------+
  | Author: Thomas Bruederli <roundcube@gmail.com>                        |
  | Author: Aleksander Machniak <alec@alec.pl>                            |
  +-----------------------------------------------------------------------+
 */
 
+// This resets X-Frame-Options for framed output (#6688)
+$OUTPUT->page_headers();
 
 // show loading page
 if (!empty($_GET['_preload'])) {
@@ -76,13 +76,12 @@ if (!empty($_GET['_frame'])) {
 // render thumbnail of an image attachment
 if (!empty($_GET['_thumb']) && $attachment->is_valid()) {
     $thumbnail_size = $RCMAIL->config->get('image_thumbnail_size', 240);
-    $temp_dir       = $RCMAIL->config->get('temp_dir');
     $file_ident     = $attachment->ident;
-    $cache_basename = $temp_dir . '/' . md5($file_ident . ':' . $RCMAIL->user->ID . ':' . $thumbnail_size);
-    $cache_file     = $cache_basename . '.thumb';
+    $thumb_name     = 'thumb' . md5($file_ident . ':' . $RCMAIL->user->ID . ':' . $thumbnail_size);
+    $cache_file     = rcube_utils::temp_filename($thumb_name, false, false);
 
     // render thumbnail image if not done yet
-    if (!is_file($cache_file) && $attachment->body_to_file($orig_name = $cache_basename . '.tmp')) {
+    if (!is_file($cache_file) && $attachment->body_to_file($orig_name = $cache_file . '.tmp')) {
         $image = new rcube_image($orig_name);
 
         if ($imgtype = $image->resize($thumbnail_size, $cache_file, true)) {
@@ -181,24 +180,23 @@ if (empty($_GET['_thumb']) && $attachment->is_valid()) {
                 header("Content-Length: " . strlen($content));
                 echo $content;
             }
-            else {  // html warning with a button to load the file anyway
+            // html warning with a button to load the file anyway
+            else {
                 $OUTPUT = new rcmail_html_page();
-                $OUTPUT->write(html::tag('html', null, html::tag('body', 'embed',
-                    html::div(array('class' => 'rcmail-inline-message rcmail-inline-warning'),
+                $OUTPUT->register_inline_warning(
                         $RCMAIL->gettext(array(
-                            'name' => 'attachmentvalidationerror',
-                            'vars' => array(
-                                'expected' => $mimetype . ($file_extension ? " (.$file_extension)" : ''),
-                                'detected' => $real_mimetype . ($extensions[0] ? " (.$extensions[0])" : ''),
+                                'name' => 'attachmentvalidationerror',
+                                'vars' => array(
+                                    'expected' => $mimetype . ($file_extension ? " (.$file_extension)" : ''),
+                                    'detected' => $real_mimetype . ($extensions[0] ? " (.$extensions[0])" : ''),
+                                )
                             )
-                        ))
-                        . html::p(array('class' => 'rcmail-inline-buttons'),
-                            html::tag('button', array(
-                                'onclick' => "location.href='" . $RCMAIL->url(array_merge($_GET, array('_nocheck' => 1))) . "'"
-                            ),
-                            $RCMAIL->gettext('showanyway'))
-                        )
-                    ))));
+                        ),
+                        $RCMAIL->gettext('showanyway'),
+                        $RCMAIL->url(array_merge($_GET, array('_nocheck' => 1)))
+                );
+
+                $OUTPUT->write();
             }
 
             exit;
@@ -218,26 +216,18 @@ if (empty($_GET['_thumb']) && $attachment->is_valid()) {
         }
     }
 
-    $browser = $RCMAIL->output->browser;
-    list($ctype_primary, $ctype_secondary) = explode('/', $mimetype);
-
-    if (!empty($_GET['_download']) && $ctype_primary == 'text') {
-        header("Content-Type: text/$ctype_secondary; charset=" . $attachment->charset);
-    }
-    else {
-        header("Content-Type: $mimetype");
-        header("Content-Transfer-Encoding: binary");
-    }
-
     // deliver part content
     if ($mimetype == 'text/html' && empty($_GET['_download'])) {
+        $OUTPUT = new rcmail_html_page();
+
         // Check if we have enough memory to handle the message in it
         // #1487424: we need up to 10x more memory than the body
         if (!rcube_utils::mem_check($attachment->size * 10)) {
-            $out = '<html><body>'
-                . $RCMAIL->gettext('messagetoobig'). ' '
-                . html::a($RCMAIL->url(array_merge($_GET, array('download' => 1))), $RCMAIL->gettext('download'))
-                . '</body></html>';
+            $OUTPUT->register_inline_warning(
+                $RCMAIL->gettext('messagetoobig'),
+                $RCMAIL->gettext('download'),
+                $RCMAIL->url(array_merge($_GET, array('_download' => 1)))
+            );
         }
         else {
             // render HTML body
@@ -245,44 +235,32 @@ if (empty($_GET['_thumb']) && $attachment->is_valid()) {
 
             // insert remote objects warning into HTML body
             if ($REMOTE_OBJECTS) {
-                $body_start = 0;
-                if ($body_pos = strpos($out, '<body')) {
-                    $body_start = strpos($out, '>', $body_pos) + 1;
-                }
-
-                $out = substr($out, 0, $body_start)
-                    . html::div(array('class' => 'rcmail-inline-message rcmail-inline-warning'),
-                        rcube::Q($RCMAIL->gettext('blockedimages')) . '&nbsp;' .
-                        html::tag('button',
-                            array('onclick' => "location.href='" . $RCMAIL->url(array_merge($_GET, array('_safe' => 1))) . "'"),
-                            rcube::Q($RCMAIL->gettext('showimages')))
-                    )
-                    . substr($out, $body_start);
+                $OUTPUT->register_inline_warning(
+                    $RCMAIL->gettext('blockedresources'),
+                    $RCMAIL->gettext('allow'),
+                    $RCMAIL->url(array_merge($_GET, array('_safe' => 1)))
+                );
             }
         }
 
-        $OUTPUT = new rcmail_html_page();
         $OUTPUT->write($out);
         exit;
     }
-
-    // don't kill the connection if download takes some more time
-    @set_time_limit(3600);
-
-    $filename    = $browser->ie ? rawurlencode($filename) : addcslashes($filename, '"');
-    $disposition = !empty($_GET['_download']) ? 'attachment' : 'inline';
 
     // add filename extension if missing
     if (!pathinfo($filename, PATHINFO_EXTENSION) && ($extensions = rcube_mime::get_mime_extensions($mimetype))) {
         $filename .= '.' . $extensions[0];
     }
 
-    header("Content-Disposition: $disposition; filename=\"$filename\"");
+    $OUTPUT->download_headers($filename, array(
+            'type'         => $mimetype,
+            'type_charset' => $attachment->charset,
+            'disposition'  => !empty($_GET['_download']) ? 'attachment' : 'inline',
+    ));
 
     // handle tiff to jpeg conversion
     if (!empty($convert2jpeg)) {
-        $temp_dir  = unslashify($RCMAIL->config->get('temp_dir'));
-        $file_path = tempnam($temp_dir, 'rcmAttmnt');
+        $file_path = rcube_utils::temp_filename('attmnt');
 
         // convert image to jpeg and send it to the browser
         if ($attachment->body_to_file($file_path)) {
@@ -351,24 +329,23 @@ function rcmail_message_part_frame($attrib)
     global $RCMAIL;
 
     if ($RCMAIL->output->get_env('is_message')) {
-        $attrib['src'] = $RCMAIL->url(array(
-                'task'   => 'mail',
-                'action' => 'preview',
-                'uid'    => $RCMAIL->output->get_env('uid'),
-                'mbox'   => $RCMAIL->output->get_env('mailbox'),
-                'framed' => 1,
-        ));
+        $url = array(
+            'task'   => 'mail',
+            'action' => 'preview',
+            'uid'    => $RCMAIL->output->get_env('uid'),
+            'mbox'   => $RCMAIL->output->get_env('mailbox'),
+        );
     }
     else {
-        $mimetype      = $RCMAIL->output->get_env('mimetype');
-        $frame_replace = strpos($mimetype, 'text/') === 0 ? '_embed=' : '_preload=';
-        $attrib['src'] = './?' . str_replace('_frame=', $frame_replace, $_SERVER['QUERY_STRING']);
-        /** PAMELA MANTIS 3295: Problème lors de l'affichage des pièces jointes **/
-        // TODO: Modification à supprimer lorsque l'url ne sera plus à la racine
-        // TODO2: Trouver une meilleur façon de régler le pb
-        $attrib['src'] = str_replace('&_extwin=1', '', $attrib['src']);
-        $attrib['src'] = str_replace('&_preload=1', '', $attrib['src']);
+        $mimetype = $RCMAIL->output->get_env('mimetype');
+        $url      = $_GET;
+        $url[strpos($mimetype, 'text/') === 0 ? '_embed' : '_preload'] = 1;
+        unset($url['_frame']);
     }
+
+    $url['_framed'] = 1; // For proper X-Frame-Options:deny handling
+
+    $attrib['src'] = $RCMAIL->url($url);
 
     $RCMAIL->output->add_gui_object('messagepartframe', $attrib['id']);
 
@@ -690,7 +667,6 @@ class rcmail_attachment_handler
             'allow_remote'  => false,
             'charset'       => RCUBE_CHARSET,
             'html_elements' => array('title'),
-//            'blocked_src'   => 'program/resources/blocked.gif',
         );
 
         // initialize HTML washer

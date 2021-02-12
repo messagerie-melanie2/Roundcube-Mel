@@ -16,9 +16,9 @@ class zipdownload extends rcube_plugin
 {
     public $task = 'mail';
 
-    private $charset = 'ASCII';
-
-    private $names = array();
+    private $charset       = 'ASCII';
+    private $names         = array();
+    private $default_limit = '50MB';
 
     // RFC4155: mbox date format
     const MBOX_DATE_FORMAT = 'D M d H:i:s Y';
@@ -42,16 +42,17 @@ class zipdownload extends rcube_plugin
 
         $this->load_config();
         $this->charset = $rcmail->config->get('zipdownload_charset', RCUBE_CHARSET);
-        $this->add_texts('localization');
 
         if ($rcmail->config->get('zipdownload_attachments', 1) > -1 && ($rcmail->action == 'show' || $rcmail->action == 'preview')) {
+            $this->add_texts('localization');
             $this->add_hook('template_object_messageattachments', array($this, 'attachment_ziplink'));
         }
 
         $this->register_action('plugin.zipdownload.attachments', array($this, 'download_attachments'));
         $this->register_action('plugin.zipdownload.messages', array($this, 'download_messages'));
 
-        if (!$rcmail->action && $rcmail->config->get('zipdownload_selection')) {
+        if (!$rcmail->action && $rcmail->config->get('zipdownload_selection', $this->default_limit)) {
+            $this->add_texts('localization');
             $this->download_menu();
         }
     }
@@ -104,14 +105,16 @@ class zipdownload extends rcube_plugin
         $menu    = array();
         $ul_attr = array('role' => 'menu', 'aria-labelledby' => 'aria-label-zipdownloadmenu');
         if ($rcmail->config->get('skin') != 'classic') {
-            $ul_attr['class'] = 'toolbarmenu';
+            $ul_attr['class'] = 'toolbarmenu menu';
         }
 
         foreach (array('eml', 'mbox', 'maildir') as $type) {
             $menu[] = html::tag('li', null, $rcmail->output->button(array(
                     'command'  => "download-$type",
                     'label'    => "zipdownload.download$type",
-                    'classact' => 'active',
+                    'class'    => "download $type disabled",
+                    'classact' => "download $type active",
+                    'type'     => 'link',
             )));
         }
 
@@ -130,9 +133,7 @@ class zipdownload extends rcube_plugin
         // require CSRF protected request
         $rcmail->request_security_check(rcube_utils::INPUT_GET);
 
-        $imap      = $rcmail->get_storage();
-        $temp_dir  = $rcmail->config->get('temp_dir');
-        $tmpfname  = tempnam($temp_dir, 'zipdownload');
+        $tmpfname  = rcube_utils::temp_filename('zipdownload');
         $tempfiles = array($tmpfname);
         $message   = new rcube_message(rcube_utils::get_input_value('_uid', rcube_utils::INPUT_GET));
 
@@ -145,7 +146,7 @@ class zipdownload extends rcube_plugin
             $part     = $message->mime_parts[$pid];
             $disp_name = $this->_create_displayname($part);
 
-            $tmpfn       = tempnam($temp_dir, 'zipattach');
+            $tmpfn       = rcube_utils::temp_filename('zipattach');
             $tmpfp       = fopen($tmpfn, 'w');
             $tempfiles[] = $tmpfn;
 
@@ -175,7 +176,7 @@ class zipdownload extends rcube_plugin
     {
         $rcmail = rcmail::get_instance();
 
-        if ($rcmail->config->get('zipdownload_selection')) {
+        if ($rcmail->config->get('zipdownload_selection', $this->default_limit)) {
             $messageset = rcmail::get_uids(null, null, $multi, rcube_utils::INPUT_POST);
             if (count($messageset)) {
                 $this->_download_messages($messageset);
@@ -229,27 +230,24 @@ class zipdownload extends rcube_plugin
      */
     private function _download_messages($messageset)
     {
+        $this->add_texts('localization');
+
         $rcmail    = rcmail::get_instance();
         $imap      = $rcmail->get_storage();
         $mode      = rcube_utils::get_input_value('_mode', rcube_utils::INPUT_POST);
-        $temp_dir  = $rcmail->config->get('temp_dir');
-        $tmpfname  = tempnam($temp_dir, 'zipdownload');
+        $limit     = $rcmail->config->get('zipdownload_selection', $this->default_limit);
+        $limit     = $limit !== true ? parse_bytes($limit) : -1;
+        $delimiter = $imap->get_hierarchy_delimiter();
+        $tmpfname  = rcube_utils::temp_filename('zipdownload');
         $tempfiles = array($tmpfname);
         $folders   = count($messageset) > 1;
+        $timezone  = new DateTimeZone('UTC');
+        $messages  = array();
+        $size      = 0;
 
-        // @TODO: file size limit
-
-        // open zip file
-        $zip = new ZipArchive();
-        $zip->open($tmpfname, ZIPARCHIVE::OVERWRITE);
-
-        if ($mode == 'mbox') {
-            $tmpfp = fopen($tmpfname . '.mbox', 'w');
-        }
-
+        // collect messages metadata (and check size limit)
         foreach ($messageset as $mbox => $uids) {
             $imap->set_folder($mbox);
-            $path = $folders ? str_replace($imap->get_hierarchy_delimiter(), '/', $mbox) . '/' : '';
 
             if ($uids === '*') {
                 $index = $imap->index($mbox, null, null, true);
@@ -266,9 +264,8 @@ class zipdownload extends rcube_plugin
                     $from = preg_replace('/\s/', '-', $from);
 
                     // Received (internal) date
-                    $date = rcube_utils::anytodatetime($headers->internaldate);
+                    $date = rcube_utils::anytodatetime($headers->internaldate, $timezone);
                     if ($date) {
-                        $date->setTimezone(new DateTimeZone('UTC'));
                         $date = $date->format(self::MBOX_DATE_FORMAT);
                     }
 
@@ -278,29 +275,65 @@ class zipdownload extends rcube_plugin
                         $date ?: ''
                     );
 
-                    fwrite($tmpfp, $header);
-
-                    // Use stream filter to quote "From " in the message body
-                    stream_filter_register('mbox_filter', 'zipdownload_mbox_filter');
-                    $filter = stream_filter_append($tmpfp, 'mbox_filter');
-                    $imap->get_raw_body($uid, $tmpfp);
-                    stream_filter_remove($filter);
-                    fwrite($tmpfp, "\r\n");
+                    $messages[$uid . ':' . $mbox] = $header;
                 }
                 else { // maildir
                     $subject = rcube_mime::decode_header($headers->subject, $headers->charset);
                     $subject = $this->_filename_from_subject(mb_substr($subject, 0, 16));
                     $subject = $this->_convert_filename($subject);
 
+                    $path      = $folders ? str_replace($delimiter, '/', $mbox) . '/' : '';
                     $disp_name = $path . $uid . ($subject ? " $subject" : '') . '.eml';
 
-                    $tmpfn = tempnam($temp_dir, 'zipmessage');
-                    $tmpfp = fopen($tmpfn, 'w');
-                    $imap->get_raw_body($uid, $tmpfp);
-                    $tempfiles[] = $tmpfn;
-                    fclose($tmpfp);
-                    $zip->addFile($tmpfn, $disp_name);
+                    $messages[$uid . ':' . $mbox] = $disp_name;
                 }
+
+                $size += $headers->size;
+
+                if ($limit > 0 && $size > $limit) {
+                    unlink($tmpfname);
+
+                    $msg = $this->gettext(array(
+                            'name' => 'sizelimiterror',
+                            'vars' => array('$size' => $rcmail->show_bytes($limit))
+                    ));
+
+                    $rcmail->output->show_message($msg, 'error');
+                    $rcmail->output->send('iframe');
+                    exit;
+                }
+            }
+        }
+
+        // open zip file
+        $zip = new ZipArchive();
+        $zip->open($tmpfname, ZIPARCHIVE::OVERWRITE);
+
+        if ($mode == 'mbox') {
+            $tmpfp = fopen($tmpfname . '.mbox', 'w');
+        }
+
+        foreach ($messages as $key => $value) {
+            list($uid, $mbox) = explode(':', $key, 2);
+            $imap->set_folder($mbox);
+
+            if ($mode == 'mbox') {
+                fwrite($tmpfp, $value);
+
+                // Use stream filter to quote "From " in the message body
+                stream_filter_register('mbox_filter', 'zipdownload_mbox_filter');
+                $filter = stream_filter_append($tmpfp, 'mbox_filter');
+                $imap->get_raw_body($uid, $tmpfp);
+                stream_filter_remove($filter);
+                fwrite($tmpfp, "\r\n");
+            }
+            else { // maildir
+                $tmpfn = rcube_utils::temp_filename('zipmessage');
+                $tmpfp = fopen($tmpfn, 'w');
+                $imap->get_raw_body($uid, $tmpfp);
+                $tempfiles[] = $tmpfn;
+                fclose($tmpfp);
+                $zip->addFile($tmpfn, $value);
             }
         }
 
@@ -329,26 +362,10 @@ class zipdownload extends rcube_plugin
      */
     private function _deliver_zipfile($tmpfname, $filename)
     {
-        $browser = new rcube_browser;
-        $rcmail  = rcmail::get_instance();
+        $rcmail = rcmail::get_instance();
 
-        $rcmail->output->nocacheing_headers();
+        $rcmail->output->download_headers($filename, array('length' => filesize($tmpfname)));
 
-        if ($browser->ie)
-            $filename = rawurlencode($filename);
-        else
-            $filename = addcslashes($filename, '"');
-
-        // send download headers
-        header("Content-Type: application/octet-stream");
-        if ($browser->ie) {
-            header("Content-Type: application/force-download");
-        }
-
-        // don't kill the connection if download takes more than 30 sec.
-        @set_time_limit(0);
-        header("Content-Disposition: attachment; filename=\"". $filename ."\"");
-        header("Content-length: " . filesize($tmpfname));
         readfile($tmpfname);
     }
 

@@ -1,13 +1,13 @@
 CREATE TABLE [dbo].[cache] (
 	[user_id] [int] NOT NULL ,
-	[cache_key] [varchar] (128) COLLATE Latin1_General_CI_AI NOT NULL ,
+	[cache_key] [varchar] (128) COLLATE Latin1_General_CS_AS NOT NULL ,
 	[expires] [datetime] NULL ,
 	[data] [text] COLLATE Latin1_General_CI_AI NOT NULL 
 ) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
 GO
 
 CREATE TABLE [dbo].[cache_shared] (
-	[cache_key] [varchar] (255) COLLATE Latin1_General_CI_AI NOT NULL ,
+	[cache_key] [varchar] (255) COLLATE Latin1_General_CS_AS NOT NULL ,
 	[expires] [datetime] NULL ,
 	[data] [text] COLLATE Latin1_General_CI_AI NOT NULL 
 ) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
@@ -15,7 +15,7 @@ GO
 
 CREATE TABLE [dbo].[cache_index] (
 	[user_id] [int] NOT NULL ,
-	[mailbox] [varchar] (128) COLLATE Latin1_General_CI_AI NOT NULL ,
+	[mailbox] [varchar] (128) COLLATE Latin1_General_CS_AS NOT NULL ,
 	[expires] [datetime] NULL ,
 	[valid] [char] (1) COLLATE Latin1_General_CI_AI NOT NULL ,
 	[data] [text] COLLATE Latin1_General_CI_AI NOT NULL 
@@ -24,7 +24,7 @@ GO
 
 CREATE TABLE [dbo].[cache_thread] (
 	[user_id] [int] NOT NULL ,
-	[mailbox] [varchar] (128) COLLATE Latin1_General_CI_AI NOT NULL ,
+	[mailbox] [varchar] (128) COLLATE Latin1_General_CS_AS NOT NULL ,
 	[expires] [datetime] NULL ,
 	[data] [text] COLLATE Latin1_General_CI_AI NOT NULL 
 ) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
@@ -32,7 +32,7 @@ GO
 
 CREATE TABLE [dbo].[cache_messages] (
 	[user_id] [int] NOT NULL ,
-	[mailbox] [varchar] (128) COLLATE Latin1_General_CI_AI NOT NULL ,
+	[mailbox] [varchar] (128) COLLATE Latin1_General_CS_AS NOT NULL ,
 	[uid] [int] NOT NULL ,
 	[expires] [datetime] NULL ,
 	[data] [text] COLLATE Latin1_General_CI_AI NOT NULL ,
@@ -96,7 +96,7 @@ GO
 
 CREATE TABLE [dbo].[users] (
 	[user_id] [int] IDENTITY (1, 1) NOT NULL ,
-	[username] [varchar] (128) COLLATE Latin1_General_CI_AI NOT NULL ,
+	[username] [varchar] (128) COLLATE Latin1_General_CS_AS NOT NULL ,
 	[mail_host] [varchar] (128) COLLATE Latin1_General_CI_AI NOT NULL ,
 	[created] [datetime] NOT NULL ,
 	[last_login] [datetime] NULL ,
@@ -120,6 +120,16 @@ CREATE TABLE [dbo].[searches] (
 	[type] [tinyint] NOT NULL ,
 	[name] [varchar] (128) COLLATE Latin1_General_CI_AI NOT NULL ,
 	[data] [text] COLLATE Latin1_General_CI_AI NOT NULL 
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+
+CREATE TABLE [dbo].[filestore] (
+	[file_id] [int] IDENTITY (1, 1) NOT NULL ,
+	[user_id] [int] NOT NULL ,
+	[context] [varchar] (32) COLLATE Latin1_General_CI_AI NOT NULL ,
+	[filename] [varchar] (128) COLLATE Latin1_General_CI_AI NOT NULL ,
+	[mtime] [int] NOT NULL ,
+	[data] [text] COLLATE Latin1_General_CI_AI NULL ,
 ) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
 GO
 
@@ -210,6 +220,13 @@ ALTER TABLE [dbo].[searches] WITH NOCHECK ADD
 	CONSTRAINT [PK_searches_search_id] PRIMARY KEY CLUSTERED 
 	(
 		[search_id]
+	) ON [PRIMARY] 
+GO
+
+ALTER TABLE [dbo].[filestore] WITH NOCHECK ADD 
+	CONSTRAINT [PK_filestore_file_id] PRIMARY KEY  CLUSTERED 
+	(
+		[file_id]
 	) ON [PRIMARY] 
 GO
 
@@ -321,6 +338,9 @@ GO
 CREATE INDEX [IX_session_changed] ON [dbo].[session]([changed]) ON [PRIMARY]
 GO
 
+CREATE INDEX [IX_filestore_user_id] ON [dbo].[filestore]([user_id]) ON [PRIMARY]
+GO
+
 ALTER TABLE [dbo].[users] ADD 
 	CONSTRAINT [DF_users_username] DEFAULT ('') FOR [username],
 	CONSTRAINT [DF_users_mail_host] DEFAULT ('') FOR [mail_host],
@@ -339,6 +359,9 @@ ALTER TABLE [dbo].[searches] ADD
 GO
 
 CREATE UNIQUE INDEX [IX_searches_user_type_name] ON [dbo].[searches]([user_id],[type],[name]) ON [PRIMARY]
+GO
+
+CREATE UNIQUE INDEX [IX_filestore_user_id_context_filename] ON [dbo].[filestore]([user_id],[context],[filename]) ON [PRIMARY]
 GO
 
 ALTER TABLE [dbo].[identities] ADD CONSTRAINT [FK_identities_user_id] 
@@ -386,6 +409,11 @@ ALTER TABLE [dbo].[searches] ADD CONSTRAINT [FK_searches_user_id]
     ON DELETE CASCADE ON UPDATE CASCADE
 GO
 
+ALTER TABLE [dbo].[filestore] ADD CONSTRAINT [FK_filestore_user_id]
+    FOREIGN KEY ([user_id]) REFERENCES [dbo].[users] ([user_id])
+    ON DELETE CASCADE ON UPDATE CASCADE
+GO
+
 -- Use trigger instead of foreign key (#1487112)
 -- "Introducing FOREIGN KEY constraint ... may cause cycles or multiple cascade paths."
 CREATE TRIGGER [contact_delete_member] ON [dbo].[contacts]
@@ -394,6 +422,6 @@ CREATE TRIGGER [contact_delete_member] ON [dbo].[contacts]
     WHERE [contact_id] IN (SELECT [contact_id] FROM deleted)
 GO
 
-INSERT INTO [dbo].[system] ([name], [value]) VALUES ('roundcube-version', '2016112200')
+INSERT INTO [dbo].[system] ([name], [value]) VALUES ('roundcube-version', '2019092900')
 GO
 

@@ -3,7 +3,8 @@
 /**
  +-----------------------------------------------------------------------+
  | This file is part of the Roundcube Webmail client                     |
- | Copyright (C) 2005-2012, The Roundcube Dev Team                       |
+ |                                                                       |
+ | Copyright (C) The Roundcube Dev Team                                  |
  |                                                                       |
  | Licensed under the GNU General Public License version 3 or            |
  | any later version with exceptions for skins & plugins.                |
@@ -13,6 +14,7 @@
  |   Provide SMTP functionality using socket connections                 |
  +-----------------------------------------------------------------------+
  | Author: Thomas Bruederli <roundcube@gmail.com>                        |
+ |         Aleksander Machniak <alec@alec.pl>                            |
  +-----------------------------------------------------------------------+
 */
 
@@ -21,8 +23,6 @@
  *
  * @package    Framework
  * @subpackage Mail
- * @author     Thomas Bruederli <roundcube@gmail.com>
- * @author     Aleksander Machniak <alec@alec.pl>
  */
 class rcube_smtp
 {
@@ -60,9 +60,9 @@ class rcube_smtp
         // let plugins alter smtp connection config
         $CONFIG = $rcube->plugins->exec_hook('smtp_connect', array(
             'smtp_server'    => $host ?: $rcube->config->get('smtp_server'),
-            'smtp_port'      => $port ?: $rcube->config->get('smtp_port', 25),
-            'smtp_user'      => $user !== null ? $user : $rcube->config->get('smtp_user'),
-            'smtp_pass'      => $pass !== null ? $pass : $rcube->config->get('smtp_pass'),
+            'smtp_port'      => $port ?: $rcube->config->get('smtp_port', 587),
+            'smtp_user'      => $user !== null ? $user : $rcube->config->get('smtp_user', '%u'),
+            'smtp_pass'      => $pass !== null ? $pass : $rcube->config->get('smtp_pass', '%p'),
             'smtp_auth_cid'  => $rcube->config->get('smtp_auth_cid'),
             'smtp_auth_pw'   => $rcube->config->get('smtp_auth_pw'),
             'smtp_auth_type' => $rcube->config->get('smtp_auth_type'),
@@ -98,24 +98,25 @@ class rcube_smtp
         // Handle per-host socket options
         rcube_utils::parse_socket_options($CONFIG['smtp_conn_options'], $smtp_host);
 
-        if (!empty($CONFIG['smtp_helo_host'])) {
-            $helo_host = $CONFIG['smtp_helo_host'];
-        }
-        else if (!empty($_SERVER['SERVER_NAME'])) {
-            $helo_host = preg_replace('/:\d+$/', '', $_SERVER['SERVER_NAME']);
-        }
-        else {
+        // Use valid EHLO/HELO host (#6408)
+        $helo_host = $CONFIG['smtp_helo_host'] ?: rcube_utils::server_name();
+        $helo_host = rcube_utils::idn_to_ascii($helo_host);
+        if (!preg_match('/^[a-zA-Z0-9.:-]+$/', $helo_host)) {
             $helo_host = 'localhost';
         }
 
         // IDNA Support
         $smtp_host = rcube_utils::idn_to_ascii($smtp_host);
 
-        $this->conn = new Net_SMTP($smtp_host, $smtp_port, $helo_host, false, 0, $CONFIG['smtp_conn_options']);
+        $this->conn = new Net_SMTP($smtp_host, $smtp_port, $helo_host, false, 0, $CONFIG['smtp_conn_options'],
+            $CONFIG['gssapi_context'], $CONFIG['gssapi_cn']);
 
         if ($rcube->config->get('smtp_debug')) {
             $this->conn->setDebug(true, array($this, 'debug_handler'));
             $this->anonymize_log = 0;
+
+            $_host = ($use_tls ? 'tls://' : '') . $smtp_host . ':' . $smtp_port;
+            $this->debug_handler($this->conn, "Connecting to $_host...");
         }
 
         // register authentication methods
@@ -157,8 +158,7 @@ class rcube_smtp
         }
 
         // attempt to authenticate to the SMTP server
-        // PAMELA - Support du mdp 0 pour la dgfip
-        if ($smtp_user && ($smtp_pass || $smtp_pass === '0')) {
+        if (($smtp_user && $smtp_pass) || ($smtp_auth_type == 'GSSAPI')) {
             // IDNA Support
             if (strpos($smtp_user, '@')) {
                 $smtp_user = rcube_utils::idn_to_ascii($smtp_user);
@@ -172,7 +172,6 @@ class rcube_smtp
                 $this->response[] = 'Authentication failure: ' . $result->getMessage()
                     . ' (Code: ' . $result->getCode() . ')';
 
-                $this->reset();
                 $this->disconnect();
 
                 return false;
@@ -227,13 +226,34 @@ class rcube_smtp
             return false;
         }
 
+        // prepare list of recipients
+        $recipients = $this->_parse_rfc822($recipients);
+        if (is_a($recipients, 'PEAR_Error')) {
+            $this->error = array('label' => 'smtprecipientserror');
+            $this->reset();
+            return false;
+        }
+
+        $exts = $this->conn->getServiceExtensions();
+
         // RFC3461: Delivery Status Notification
         if ($opts['dsn']) {
-            $exts = $this->conn->getServiceExtensions();
-
             if (isset($exts['DSN'])) {
                 $from_params      = 'RET=HDRS';
                 $recipient_params = 'NOTIFY=SUCCESS,FAILURE';
+            }
+        }
+
+        // RFC6531: request SMTPUTF8 if needed
+        if (preg_match('/[^\x00-\x7F]/', $from . implode('', $recipients))) {
+            if (isset($exts['SMTPUTF8'])) {
+                $from_params = ltrim($from_params . ' SMTPUTF8');
+            }
+            else {
+                $this->error = array('label' => 'smtputf8error');
+                $this->response[] = "SMTP server does not support unicode in email addresses";
+                $this->reset();
+                return false;
             }
         }
 
@@ -253,14 +273,6 @@ class rcube_smtp
                 'from' => $from, 'code' => $err[0], 'msg' => $err[1]));
             $this->response[] = "Failed to set sender '$from'. "
                 . $err[1] . ' (Code: ' . $err[0] . ')';
-            $this->reset();
-            return false;
-        }
-
-        // prepare list of recipients
-        $recipients = $this->_parse_rfc822($recipients);
-        if (is_a($recipients, 'PEAR_Error')) {
-            $this->error = array('label' => 'smtprecipientserror');
             $this->reset();
             return false;
         }
@@ -301,21 +313,43 @@ class rcube_smtp
         // Send the message's headers and the body as SMTP data.
         $result = $this->conn->data($data, $text_headers);
         if (is_a($result, 'PEAR_Error')) {
-            $err = $this->conn->getResponse();
+            $err       = $this->conn->getResponse();
+            $err_label = 'smtperror';
+            $err_vars  = array();
+
             if (!in_array($err[0], array(354, 250, 221))) {
                 $msg = sprintf('[%d] %s', $err[0], $err[1]);
             }
             else {
                 $msg = $result->getMessage();
+
+                if (strpos($msg, 'size exceeds')) {
+                    $err_label = 'smtpsizeerror';
+                    $exts      = $this->conn->getServiceExtensions();
+                    $limit     = $exts['SIZE'];
+
+                    if ($limit) {
+                        $msg .= " (Limit: $limit)";
+                        $rcube = rcube::get_instance();
+                        if (method_exists($rcube, 'show_bytes')) {
+                            $limit = $rcube->show_bytes($limit);
+                        }
+
+                        $err_vars['limit'] = $limit;
+                        $err_label         = 'smtpsizeerror';
+                    }
+                }
             }
 
-            $this->error = array('label' => 'smtperror', 'vars' => array('msg' => $msg));
+            $err_vars['msg'] = $msg;
+
+            $this->error = array('label' => $err_label, 'vars' => $err_vars);
             $this->response[] = "Failed to send data. " . $msg;
             $this->reset();
             return false;
         }
 
-        $this->response[] = join(': ', $this->conn->getResponse());
+        $this->response[] = implode(': ', $this->conn->getResponse());
         return true;
     }
 
@@ -441,7 +475,7 @@ class rcube_smtp
             }
         }
 
-        return array($from, join(self::SMTP_MIME_CRLF, $lines) . self::SMTP_MIME_CRLF);
+        return array($from, implode(self::SMTP_MIME_CRLF, $lines) . self::SMTP_MIME_CRLF);
     }
 
     /**

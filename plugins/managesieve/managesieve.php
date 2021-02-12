@@ -11,8 +11,8 @@
  *
  * Configuration (see config.inc.php.dist)
  *
- * Copyright (C) 2008-2013, The Roundcube Dev Team
- * Copyright (C) 2011-2013, Kolab Systems AG
+ * Copyright (C) The Roundcube Dev Team
+ * Copyright (C) Kolab Systems AG
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -38,10 +38,18 @@ class managesieve extends rcube_plugin
     {
         $this->rc = rcube::get_instance();
 
+        $this->load_config();
+
+        $allowed_hosts = $this->rc->config->get('managesieve_allowed_hosts');
+        if (!empty($allowed_hosts) && !in_array($_SESSION['storage_host'], (array) $allowed_hosts)) {
+            return;
+        }
+
         // register actions
         $this->register_action('plugin.managesieve', array($this, 'managesieve_actions'));
         $this->register_action('plugin.managesieve-action', array($this, 'managesieve_actions'));
         $this->register_action('plugin.managesieve-vacation', array($this, 'managesieve_actions'));
+        $this->register_action('plugin.managesieve-forward', array($this, 'managesieve_actions'));
         $this->register_action('plugin.managesieve-save', array($this, 'managesieve_save'));
         $this->register_action('plugin.managesieve-saveraw', array($this, 'managesieve_saveraw'));
 
@@ -99,12 +107,11 @@ class managesieve extends rcube_plugin
      */
     function settings_actions($args)
     {
-        $this->load_config();
-
         $vacation_mode = (int) $this->rc->config->get('managesieve_vacation');
+        $forward_mode  = (int) $this->rc->config->get('managesieve_forward');
 
         // register Filters action
-        if ($vacation_mode != 2) {
+        if ($vacation_mode != 2 && $forward_mode != 2) {
             $args['actions'][] = array(
                 'action' => 'plugin.managesieve',
                 'class'  => 'filter',
@@ -125,6 +132,17 @@ class managesieve extends rcube_plugin
             );
         }
 
+        // register Forward action
+        if ($forward_mode > 0) {
+            $args['actions'][] = array(
+                'action' => 'plugin.managesieve-forward',
+                'class'  => 'forward',
+                'label'  => 'forward',
+                'domain' => 'managesieve',
+                'title'  => 'forwardtitle',
+            );
+        }
+
         return $args;
     }
 
@@ -138,34 +156,29 @@ class managesieve extends rcube_plugin
             return;
         }
 
-        $this->load_config();
-
         $vacation_mode = (int) $this->rc->config->get('managesieve_vacation');
-        if ($vacation_mode == 2) {
+        $forward_mode  = (int) $this->rc->config->get('managesieve_forward');
+
+        if ($vacation_mode == 2 || $forward_mode == 2) {
             return;
         }
-
-        // use jQuery for popup window
-        $this->require_plugin('jqueryui');
 
         // include js script and localization
         $this->init_ui();
 
         // add 'Create filter' item to message menu
-        $this->api->add_content(html::tag('li', null, 
-            $this->api->output->button(array(
+        $this->add_button(array(
                 'command'  => 'managesieve-create',
                 'label'    => 'managesieve.filtercreate',
-                'type'     => 'link',
+                'type'     => 'link-menuitem',
                 'classact' => 'icon filterlink active',
-                'class'    => 'icon filterlink',
+                'class'    => 'icon filterlink disabled',
                 'innerclass' => 'icon filterlink',
-            ))), 'messagemenu');
+            ), 'messagemenu');
 
         // register some labels/messages
         $this->rc->output->add_label('managesieve.newfilter', 'managesieve.usedata',
-            'managesieve.nodata', 'managesieve.nextstep', 'save'
-            /* PAMELA PAMELA - MANTIS 3334: Gestion des adresses mail multiple pour les identités */, 'managesieve.Subject', 'managesieve.From', 'managesieve.To');
+            'managesieve.nodata', 'managesieve.nextstep', 'save');
 
         $this->rc->session->remove('managesieve_current');
     }
@@ -212,8 +225,9 @@ class managesieve extends rcube_plugin
 
         // handle other actions
         $engine_type = $this->rc->action == 'plugin.managesieve-vacation' ? 'vacation' : '';
-        $engine      = $this->get_engine($engine_type);
+        $engine_type = $this->rc->action == 'plugin.managesieve-forward' ? 'forward' : $engine_type;
 
+        $engine      = $this->get_engine($engine_type);
         $this->init_ui();
         $engine->actions();
     }
@@ -258,14 +272,12 @@ class managesieve extends rcube_plugin
     public function get_engine($type = null)
     {
         if (!$this->engine) {
-            $this->load_config();
-
             // Add include path for internal classes
             $include_path = $this->home . '/lib' . PATH_SEPARATOR;
             $include_path .= ini_get('include_path');
             set_include_path($include_path);
 
-            $class_name = 'rcube_sieve_' . ($type ?: 'engine');
+            $class_name   = 'rcube_sieve_' . ($type ?: 'engine');
             $this->engine = new $class_name($this);
         }
 

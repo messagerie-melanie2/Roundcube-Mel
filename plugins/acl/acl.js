@@ -1,5 +1,18 @@
 /**
  * ACL plugin script
+ *
+ * @licstart  The following is the entire license notice for the
+ * JavaScript code in this file.
+ *
+ * Copyright (c) The Roundcube Dev Team
+ *
+ * The JavaScript code in this page is free software: you can redistribute it
+ * and/or modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation, either version 3 of
+ * the License, or (at your option) any later version.
+ *
+ * @licend  The above is the entire license notice
+ * for the JavaScript code in this file.
  */
 
 if (window.rcmail) {
@@ -30,7 +43,7 @@ if (window.rcmail) {
         rcmail.enable_command('acl-delete', 'acl-edit', false);
 
         if (rcmail.env.acl_advanced)
-            $('#acl-switch').addClass('selected');
+            $('#acl-switch').addClass('selected').find('input').prop('checked', true);
     });
 }
 
@@ -54,13 +67,14 @@ rcube_webmail.prototype.acl_delete = function()
 {
     var users = this.acl_get_usernames();
 
-    if (users && users.length && confirm(this.get_label('acl.deleteconfirm'))) {
-        this.http_post('settings/plugin.acl', {
+    if (users && users.length) {
+        this.confirm_dialog(this.get_label('acl.deleteconfirm'), 'delete', function(e, ref) {
+            ref.http_post('settings/plugin.acl', {
                 _act: 'delete',
                 _user: users.join(','),
-                _mbox: this.env.mailbox
-            },
-            this.set_busy(true, 'acl.deleting'));
+                _mbox: rcmail.env.mailbox
+            }, ref.set_busy(true, 'acl.deleting'));
+        });
     }
 }
 
@@ -80,11 +94,11 @@ rcube_webmail.prototype.acl_save = function()
     }
 
     if (!user) {
-        alert(this.get_label('acl.nouser'));
+        this.alert_dialog(this.get_label('acl.nouser'));
         return;
     }
     if (!rights) {
-        alert(this.get_label('acl.norights'));
+        this.alert_dialog(this.get_label('acl.norights'));
         return;
     }
 
@@ -157,8 +171,8 @@ rcube_webmail.prototype.acl_list_init = function()
 // ACL table row selection handler
 rcube_webmail.prototype.acl_list_select = function(list)
 {
-    rcmail.enable_command('acl-delete', list.selection.length > 0);
-    rcmail.enable_command('acl-edit', list.selection.length == 1);
+    rcmail.enable_command('acl-delete', list.get_selection().length > 0);
+    rcmail.enable_command('acl-edit', list.get_selection().length == 1);
     list.focus();
 }
 
@@ -188,7 +202,7 @@ rcube_webmail.prototype.acl_list_update = function(html)
 // Returns names of users in selected rows
 rcube_webmail.prototype.acl_get_usernames = function()
 {
-    var users = [], n, len, cell, row,
+    var users = [], n, len, id, row,
         list = this.acl_list,
         selection = list.get_selection();
 
@@ -196,10 +210,8 @@ rcube_webmail.prototype.acl_get_usernames = function()
         if (this.env.acl_specials.length && $.inArray(selection[n], this.env.acl_specials) >= 0) {
             users.push(selection[n]);
         }
-        else if (row = list.rows[selection[n]]) {
-            cell = $('td.user', row.obj);
-            if (cell.length == 1)
-                users.push(cell.text());
+        else if ((row = list.rows[selection[n]]) && (id = $(row.obj).data('userid'))) {
+            users.push(id);
         }
     }
 
@@ -218,8 +230,8 @@ rcube_webmail.prototype.acl_remove_row = function(id)
     $('#rcmrow'+id).remove();
     this.env.acl[id] = null;
 
-    this.enable_command('acl-delete', list.selection.length > 0);
-    this.enable_command('acl-edit', list.selection.length == 1);
+    this.enable_command('acl-delete', list.get_selection().length > 0);
+    this.enable_command('acl-edit', list.get_selection().length == 1);
 }
 
 // Adds ACL table row
@@ -243,15 +255,14 @@ rcube_webmail.prototype.acl_add_row = function(o, sel)
             cl = items[cl];
 
         if (cl == 'user')
-            td.addClass(cl).append($('<a>').text(o.username));
+            td.addClass(cl).attr('title', o.title).append($('<a>').text(o.display));
         else
-            td.addClass(this.className + ' ' + rcmail.acl_class(o.acl, cl)).text('');
+            td.addClass(this.className + ' ' + rcmail.acl_class(o.acl, cl)).html('<span/>');
 
         $(this).replaceWith(td);
     });
 
-    row.attr('id', 'rcmrow'+id);
-    row = row.get(0);
+    row = row.attr({id: 'rcmrow' + id, 'data-userid': o.username}).get(0);
 
     this.env.acl[id] = o.acl;
 
@@ -325,7 +336,7 @@ rcube_webmail.prototype.acl_init_form = function(id)
         });
 
         if (!this.env.acl_specials.length || $.inArray(id, this.env.acl_specials) < 0)
-            val = $('td.user', row).text();
+            val = $(row).data('userid');
         else
             type = id;
     }
@@ -350,7 +361,7 @@ rcube_webmail.prototype.acl_init_form = function(id)
         id ? this.get_label('acl.editperms') : this.get_label('acl.newuser'),
         buttons,
         {
-            button_classes: ['mainaction'],
+            button_classes: ['mainaction submit', 'cancel'],
             modal: true,
             closeOnEscape: true,
             close: function(e, ui) {

@@ -3,7 +3,8 @@
 /**
  +-----------------------------------------------------------------------+
  | This file is part of the Roundcube Webmail client                     |
- | Copyright (C) 2008-2012, The Roundcube Dev Team                       |
+ |                                                                       |
+ | Copyright (C) The Roundcube Dev Team                                  |
  |                                                                       |
  | Licensed under the GNU General Public License version 3 or            |
  | any later version with exceptions for skins & plugins.                |
@@ -16,7 +17,7 @@
  +-----------------------------------------------------------------------+
 */
 
-// location where plugins are loade from
+// location where plugins are loaded from
 if (!defined('RCUBE_PLUGINS_DIR')) {
     define('RCUBE_PLUGINS_DIR', RCUBE_INSTALL_PATH . 'plugins/');
 }
@@ -244,7 +245,7 @@ class rcube_plugin_api
 
     /**
      * Get information about a specific plugin.
-     * This is either provided my a plugin's info() method or extracted from a package.xml or a composer.json file
+     * This is either provided by a plugin's info() method or extracted from a package.xml or a composer.json file
      *
      * @param string Plugin name
      * @return array Meta information about a plugin or False if plugin was not found
@@ -315,17 +316,29 @@ class rcube_plugin_api
         if (!$info) {
             $composer = INSTALL_PATH . "/plugins/$plugin_name/composer.json";
             if (is_readable($composer) && ($json = @json_decode(file_get_contents($composer), true))) {
+                // Build list of plugins required
+                $require = array();
+                foreach (array_keys((array) $json['require']) as $dname) {
+                    if (!preg_match('|^([^/]+)/([a-zA-Z0-9_-]+)$|', $dname, $m)) {
+                        continue;
+                    }
+
+                    $vendor = $m[1];
+                    $name = $m[2];
+
+                    if ($name != 'plugin-installer' && $vendor != 'pear' && $vendor != 'pear-pear') {
+                        $dpath = unslashify($dir->path) . "/$name/$name.php";
+                        if (is_readable($dpath)) {
+                            $require[] = $name;
+                        }
+                    }
+                }
+
                 list($info['vendor'], $info['name']) = explode('/', $json['name']);
                 $info['version'] = $json['version'];
                 $info['license'] = $json['license'];
                 $info['uri']     = $json['homepage'];
-                $info['require'] = array_filter(array_keys((array)$json['require']), function($pname) {
-                    if (strpos($pname, '/') == false) {
-                        return false;
-                    }
-                    list($vendor, $name) = explode('/', $pname);
-                    return !($name == 'plugin-installer' || $vendor == 'pear-pear');
-                });
+                $info['require'] = $require;
             }
 
             // read local composer.lock file (once)
@@ -612,8 +625,7 @@ class rcube_plugin_api
     {
         if (is_object($this->output) && $this->output->type == 'html') {
             $src = $this->resource_url($fn);
-            $this->output->add_header(html::tag('script',
-                array('type' => "text/javascript", 'src' => $src)));
+            $this->output->include_script($src, 'head_bottom', false);
         }
     }
 
@@ -625,6 +637,31 @@ class rcube_plugin_api
     public function include_stylesheet($fn)
     {
         if (is_object($this->output) && $this->output->type == 'html') {
+            if ($fn[0] != '/' && !preg_match('|^https?://|i', $fn)) {
+                $rcube      = rcube::get_instance();
+                $devel_mode = $rcube->config->get('devel_mode');
+                $assets_dir = $rcube->config->get('assets_dir');
+                $path       = unslashify($assets_dir ?: RCUBE_INSTALL_PATH);
+
+                // Prefer .less files in devel_mode (assume less.js is loaded)
+                if ($devel_mode) {
+                    $less = preg_replace('/\.css$/i', '.less', $fn);
+                    if ($less != $fn && is_file("$path/plugins/$less")) {
+                        $fn = $less;
+                    }
+                }
+                else if (!preg_match('/\.min\.css$/', $fn)) {
+                    $min = preg_replace('/\.css$/i', '.min.css', $fn);
+                    if (is_file("$path/plugins/$min")) {
+                        $fn = $min;
+                    }
+                }
+
+                if (!is_file("$path/plugins/$fn")) {
+                    return;
+                }
+            }
+
             $src = $this->resource_url($fn);
             $this->output->include_css($src);
         }

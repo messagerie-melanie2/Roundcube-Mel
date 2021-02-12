@@ -2,23 +2,23 @@
 
 /*
  +-----------------------------------------------------------------------+
- | localization/<lang>/messages.inc                                      |
- |                                                                       |
  | Localization file of the Roundcube Webmail client                     |
- | Copyright (C) 2005-2015, The Roundcube Dev Team                       |
+ |                                                                       |
+ | Copyright (C) The Roundcube Dev Team                                  |
  |                                                                       |
  | Licensed under the GNU General Public License version 3 or            |
  | any later version with exceptions for skins & plugins.                |
  | See the README file for a full license statement.                     |
- |                                                                       |
  +-----------------------------------------------------------------------+
 
  For translation see https://www.transifex.com/projects/p/roundcube-webmail/resource/messages/
 */
+
 $messages['errortitle']  = 'Bir sorun çıktı!';
 $messages['loginfailed']  = 'Oturum açılamadı.';
 $messages['cookiesdisabled'] = 'Tarayıcınız çerezleri kabul etmiyor.';
 $messages['sessionerror'] = 'Oturumunuzun süresi geçmiş ya da geçersiz.';
+$messages['cookiesmismatch'] = 'Çerez uyuşmazlığı sorunu. Lütfen web tarayıcınızın çerezlerini silin.';
 $messages['storageerror'] = 'IMAP sunucusuna bağlanılamadı';
 $messages['servererror'] = 'Sunucu Sorunu!';
 $messages['servererrormsg'] = 'Sunucu Sorunu: $msg';
@@ -34,7 +34,7 @@ $messages['erroroverquotadelete'] = 'Diskte boş alan kalmadı. SHIFT+DEL tuşla
 $messages['invalidrequest'] = 'İstek geçersiz! Herhangi bir veri kaydedilmedi';
 $messages['invalidhost'] = 'Sunucu adı geçersiz.';
 $messages['nomessagesfound'] = 'Bu posta kutusunda bir ileti bulunamadı.';
-$messages['loggedout'] = 'Oturumunuzu kapattınız. Hoşçakalın....';
+$messages['loggedout'] = 'Oturumunuzu kapattınız. Hoşça kalın!';
 $messages['mailboxempty'] = 'Posta kutusu boş';
 $messages['nomessages'] = 'Herhangi bir ileti yok';
 $messages['refreshing'] = 'Yenileniyor...';
@@ -50,7 +50,7 @@ $messages['savingmessage'] = 'İleti kaydediliyor...';
 $messages['messagesaved'] = 'İleti taslaklara kaydedildi.';
 $messages['successfullysaved'] = 'Kaydedildi';
 $messages['savingresponse'] = 'Yanıt metni kaydediliyor...';
-$messages['deleteresponseconfirm'] = 'Cevabı silmek istiyor musunuz?';
+$messages['deleteresponseconfirm'] = 'Bu yanıt metnini silmek istediğinize emin misiniz?';
 $messages['nocontactselected'] = 'Henüz bir kişi seçmemişsiniz.';
 $messages['addedsuccessfully'] = 'Kişi adres defterine eklendi';
 $messages['contactexists'] = 'Bu e-posta adresi rehberde var.';
@@ -64,11 +64,11 @@ $messages['nopubkeyforsender'] = 'Gönderenin genel anahtar kimliği bulunamadı
 $messages['encryptnoattachments'] = 'Yüklediğiniz dosya ekleri şifrelenmemiş. Lütfen dosya eklerini yeniden şifreleme düzenleyicisine ekleyin.';
 $messages['searchpubkeyservers'] = 'Kayıp anahtarları anahtar sunucularında aramak ister misiniz?';
 $messages['encryptpubkeysfound'] = 'Aşağıdaki genel anahtarlar bulundu:';
-$messages['keyservererror'] = 'Anahtar sunucudan alınamadı';
-$messages['keyimportsuccess'] = ' $key genel anahtarı anahtarlığınıza alındı';
+$messages['keyservererror'] = 'Anahtar, anahtar sunucusundan alınamadı.';
+$messages['keyimportsuccess'] = '$key genel anahtarı, anahtarlığınızın içine aktarıldı.';
 $messages['nocontactsfound'] = 'Uygun bir kişi bulunamadı';
 $messages['contactnotfound'] = 'Aranan kişi bulunamadı';
-$messages['contactsearchonly'] = 'Aranacak kişi ifadelerini yazın';
+$messages['contactsearchonly'] = 'Seçilmiş adres defterindeki kişileri görüntülemek için bir arama formunu kullanmalısınız.';
 $messages['sendingfailed'] = 'İleti gönderilemedi.';
 $messages['senttooquickly'] = 'Lütfen bu iletiyi göndermeden önce $sec saniye bekleyin.';
 $messages['errorsavingsent'] = 'Gönderilen ileti kayıt edilirken bir sorun çıktı.';
@@ -83,6 +83,7 @@ $messages['deletecontactconfirm']  = 'Seçilmiş kişileri silmek istediğinize 
 $messages['deletegroupconfirm']  = 'Seçilmiş grupları silmek istediğinize emin misiniz?';
 $messages['deletemessagesconfirm'] = 'Seçilmiş iletileri silmek istediğinize emin misiniz?';
 $messages['deletefolderconfirm']  = 'Bu klasörü silmek istediğinize emin misiniz?';
+$messages['movefolderconfirm']  = 'Bu klasörü taşımak istediğinize emin misiniz?';
 $messages['purgefolderconfirm']  = 'Bu klasördeki tüm iletileri silmek istediğinize emin misiniz?';
 $messages['contactdeleting'] = 'Kişi(ler) siliniyor...';
 $messages['groupdeleting'] = 'Grup siliniyor...';
@@ -105,7 +106,7 @@ $messages['nobodywarning'] = 'İleti boş olarak gönderilsin mi?';
 $messages['notsentwarning'] = 'İleti gönderilmedi ve yaptığınız değişiklikler kaydedilmedi. Değişiklikler silinsin mi?';
 $messages['restoresavedcomposedata'] = 'Daha önce oluşturulmuş ancak gönderilmemiş bir ileti bulundu.\n\nKonu: $subject\Kaydetme zamanı: $date\n\nBu iletiyi geri yüklemek istiyor musunuz?';
 $messages['nosearchname'] = 'Lütfen bir kişi adı ya da e-posta adresi yazın.';
-$messages['notuploadedwarning'] = 'Henüz tüm ek dosyaları yüklenmedi. Lütfen bekleyin ya da yüklemeyi iptal edin.';
+$messages['notuploadedwarning'] = 'Henüz tüm dosya ekleri yüklenmedi. Lütfen bekleyin ya da yüklemeyi iptal edin.';
 $messages['searchsuccessful'] = '$nr ileti bulundu';
 $messages['contactsearchsuccessful'] = '$nr kişi bulundu.';
 $messages['searchnomatch'] = 'Arama ifadenize uygun bir sonuç bulunamadı.';
@@ -126,6 +127,7 @@ $messages['fileuploaderror'] = 'Dosya yüklenemedi.';
 $messages['filesizeerror'] = 'Dosya izin verilen en büyük değer olan $size boyutundan büyük.';
 $messages['filecounterror'] = 'Bir kerede en fazla $count dosya yüklenebilir.';
 $messages['msgsizeerror'] = 'Dosya eklenemedi. İzin verilen en büyük değer olan $size boyutundan büyük.';
+$messages['msgsizeerrorfwd'] = 'Bir ileti için belirlenmiş en büyük boyut değeri ($size) aşıldığından $num ileti eklenmedi.';
 $messages['copysuccess'] = '$nr kişi kopyalandı.';
 $messages['movesuccess'] = '$nr kişi taşındı.';
 $messages['copyerror'] = 'Herhangi bir kişi kopyalanamadı.';
@@ -178,11 +180,11 @@ $messages['contactrestoreerror'] = 'Silinen kişi(ler) geri yüklenemiyor.';
 $messages['contactrestored'] = 'Kişi(ler) geri yüklendi.';
 $messages['groupdeleted'] = 'Grup silindi';
 $messages['grouprenamed'] = 'Grup adı değiştirildi.';
-$messages['groupcreated'] = 'Grup oluşturuldu.';
+$messages['groupcreated'] = 'Grup eklendi.';
 $messages['savedsearchdeleted'] = 'Kayıtlı arama silindi.';
 $messages['savedsearchdeleteerror'] = 'Kayıtlı arama silinemedi.';
-$messages['savedsearchcreated'] = 'Kayıtlı arama oluşturuldu.';
-$messages['savedsearchcreateerror'] = 'Kayıtlı arama oluşturulamadı.';
+$messages['savedsearchcreated'] = 'Kayıtlı arama eklendi.';
+$messages['savedsearchcreateerror'] = 'Kayıtlı arama eklenemedi.';
 $messages['messagedeleted'] = 'İleti(ler) silindi.';
 $messages['messagemoved'] = 'İleti(ler) taşındı.';
 $messages['messagemovedtotrash'] = 'İleti(ler) çöpe atıldı.';
@@ -194,12 +196,12 @@ $messages['namecannotbeempty'] = 'Ad alanı boş olamaz.';
 $messages['nametoolong'] = 'Ad çok uzun.';
 $messages['namedotforbidden'] = 'Klasör adı nokta işareti ile başlayamaz.';
 $messages['folderupdated'] = 'Klasör güncellendi';
-$messages['foldercreated'] = 'Klasör oluşturuldu.';
+$messages['foldercreated'] = 'Klasör eklendi.';
 $messages['invalidimageformat'] = 'Geçerli bir görsel biçimi değil.';
 $messages['mispellingsfound'] = 'İletide yazım hataları var.';
-$messages['parentnotwritable'] = 'Klasör, seçilen üst klasöre taşınamıyor. Erişim izni yok.';
+$messages['parentnotwritable'] = 'Klasör, seçilen üst klasöre eklenemiyor ya da taşınamıyor. Erişim izni yok.';
 $messages['messagetoobig'] = 'Bu ileti parçası işlenemeyecek kadar büyük.';
-$messages['attachmentvalidationerror'] = 'Ek dosya türü ileti içinde belirtilen tür ile aynı değil ve bu dosya şüpheli. Bu dosyada zararlı bir içerik bulunuyor olabilir. O nedenle göndereni tanımıyor ya da güvenmiyorsanız bu dosyayı web tarayıcısı içinden açmayın. <br/><br/><em>Beklenen: $expected; Bulunan: $detected</em>';
+$messages['attachmentvalidationerror'] = 'Dosya eki türü ileti içinde belirtilen tür ile aynı değil ve bu dosya şüpheli. Bu dosyada zararlı bir içerik bulunuyor olabilir. O nedenle göndereni tanımıyor ya da güvenmiyorsanız bu dosyayı web tarayıcısı içinden açmayın. <br/><br/><em>Beklenen: $expected; Bulunan: $detected</em>';
 $messages['noscriptwarning'] = 'Uyarı: Bu web e-posta hizmetinin kullanılabilmesi için Javascript gereklidir! Hizmeti kullanabilmek için lütfen web tarayıcınızın Javascript ayarlarını etkinleştirin.';
 $messages['messageissent'] = 'İleti zaten gönderilmiş ancak henüz kaydedilmemiş. Şimdi kaydetmek ister misiniz?';
 $messages['errnotfound'] = 'Dosya bulunamadı.';
@@ -214,3 +216,9 @@ $messages['clicktoresumesession'] = 'Önceki oturuma devam etmek için buraya t�
 $messages['errcomposesession'] = 'Oturum oluşturma hatası';
 $messages['errcomposesessionexplain'] = 'Açılmak istenen ileti gönderme oturumu bulunamadı.';
 $messages['clicktocompose'] = 'Yeni bir ileti göndermek için buraya tıklayın.';
+$messages['nosupporterror'] = 'Bu özellik web tarayıcınız tarafından desteklenmiyor.';
+$messages['siginserted'] = 'İmza eklendi.';
+$messages['responseinserted'] = 'Yanıt eklendi.';
+$messages['listempty'] = 'Liste boş.';
+$messages['listusebutton'] = 'Yeni bir kayıt eklemek için Ekle düğmesine tıklayın.';
+$messages['keypaircreatesuccess'] = '$identity için yeni bir anahtar çifti oluşturuldu.';

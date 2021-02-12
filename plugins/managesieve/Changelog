@@ -1,10 +1,40 @@
+- Replace "Filter disabled" with "Filter enabled" (#7028)
+- Allow angle brackets in out-of-office message body (#7518)
+- Fix so modifier type select wasn't hidden after hiding modifier select on header change
+- Fix filter selection after removing a first filter (#7079)
+- Fix bug where it wasn't possible to save flag actions (#7188)
+
+* version 9.3 [2019-04-21]
+-----------------------------------------------------------
+- Use RFC-compliant line endings, CRLF instead of LF (#6686)
+- Fix bug where global includes were requested for vacation (#6716)
 - Fix so "Create filter" option does not show up when Filters menu is disabled (#6723)
+
+* version 9.2 [2018-11-08]
+-----------------------------------------------------------
+- Added support for 'editheader' extension - RFC5293 (#5954)
 - Fix bug where show_real_foldernames setting wasn't respected (#6422)
+- Fix bug where custom header or variable could be lost on form submission (#6594)
+
+* version 9.1 [2018-05-19]
+-----------------------------------------------------------
+- Added GSSAPI support (#5779)
+- Added option managesieve_default_headers
+- Added option managesieve_forward to enable settings dialog for simple forwarding (#6021)
+- Support filter action with custom IMAP flags (#6011)
+- Support 'mime' extension tests - RFC5703 (#5832)
+- Support enabling the plugin for specified hosts only (#6292)
+- Support Elastic skin
 - Fix bug where text: syntax was forced for strings longer than 1024 characters (#6143)
 - Fix missing Save button in Edit Filter Set page of Classic skin (#6154)
+- Rename "Vacation" to "Out of Office"
+
+* version 9.0 [2017-10-02]
+-----------------------------------------------------------
 - Fix parsing dot-staffed lines in multiline text (#5838)
 - Fix AM/PM suffix in vacation time selectors
 - Fix bug where 'exists' operator was reset to 'contains' (#5899)
+- Add ability to disable filter sets and other actions (#5496, #5898)
 
 * version 8.9 [2017-05-22]
 -----------------------------------------------------------

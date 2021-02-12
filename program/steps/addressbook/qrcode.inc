@@ -2,10 +2,9 @@
 
 /**
  +-----------------------------------------------------------------------+
- | program/steps/addressbook/qrcode.inc                                  |
- |                                                                       |
  | This file is part of the Roundcube Webmail client                     |
- | Copyright (C) 2005-2016, The Roundcube Dev Team                       |
+ |                                                                       |
+ | Copyright (C) The Roundcube Dev Team                                  |
  |                                                                       |
  | Licensed under the GNU General Public License version 3 or            |
  | any later version with exceptions for skins & plugins.                |
@@ -13,7 +12,6 @@
  |                                                                       |
  | PURPOSE:                                                              |
  |   Show contact data as QR code                                        |
- |                                                                       |
  +-----------------------------------------------------------------------+
  | Author: Aleksander Machniak <alec@alec.pl>                            |
  +-----------------------------------------------------------------------+
@@ -46,8 +44,8 @@ function rcmail_contact_qrcode($contact)
     $vcard = new rcube_vcard();
 
     // QR code input is limited, use only common fields
-    $fields = array('firstname', 'surname', 'middlename', 'nickname', 'organization',
-        'prefix', 'suffix', 'phone', 'email', 'jobtitle');
+    $fields = array('name', 'firstname', 'surname', 'middlename', 'nickname',
+         'organization', 'phone', 'email', 'jobtitle', 'prefix', 'suffix');
 
     foreach ($contact as $field => $value) {
         list($field, $section) = explode(':', $field, 2);

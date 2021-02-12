@@ -5,10 +5,10 @@
  *
  * Driver for passwords stored in SQL database
  *
- * @version 2.0
- * @author Aleksander 'A.L.E.C' Machniak <alec@alec.pl>
+ * @version 2.1
+ * @author Aleksander Machniak <alec@alec.pl>
  *
- * Copyright (C) 2005-2013, The Roundcube Dev Team
+ * Copyright (C) The Roundcube Dev Team
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,9 +23,16 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-
 class rcube_sql_password
 {
+    /**
+     * Update current user password
+     *
+     * @param string $curpass Current password
+     * @param string $passwd  New password
+     *
+     * @return int Result
+     */
     function save($curpass, $passwd)
     {
         $rcmail = rcmail::get_instance();
@@ -35,7 +42,7 @@ class rcube_sql_password
         }
 
         if ($dsn = $rcmail->config->get('password_db_dsn')) {
-            $db = rcube_db::factory($dsn, '', false);
+            $db = rcube_db::factory(self::parse_dsn($dsn), '', false);
             $db->set_debug((bool)$rcmail->config->get('sql_debug'));
         }
         else {
@@ -159,14 +166,37 @@ class rcube_sql_password
                 }
             }
             else {
-                // This is the good case: 1 row updated
-                if ($db->affected_rows($res) == 1)
+                // Note: Don't be tempted to check affected_rows = 1. For some queries
+                // (e.g. INSERT ... ON DUPLICATE KEY UPDATE) the result can be 2.
+                if ($db->affected_rows($res) > 0) {
                     return PASSWORD_SUCCESS;
-                // @TODO: Some queries don't affect any rows
-                // Should we assume a success if there was no error?
+                }
             }
         }
 
         return PASSWORD_ERROR;
+    }
+
+    /**
+     * Parse DSN string and replace host variables
+     *
+     * @param string $dsn DSN string
+     *
+     * @return string DSN string
+     */
+    protected static function parse_dsn($dsn)
+    {
+        if (strpos($dsn, '%')) {
+            // parse DSN and replace variables in hostname
+            $parsed = rcube_db::parse_dsn($dsn);
+            $host   = rcube_utils::parse_host($parsed['hostspec']);
+
+            // build back the DSN string
+            if ($host != $parsed['hostspec']) {
+                $dsn = str_replace('@' . $parsed['hostspec'], '@' . $host, $dsn);
+            }
+        }
+
+        return $dsn;
     }
 }

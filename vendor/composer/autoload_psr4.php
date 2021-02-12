@@ -6,6 +6,6 @@ $vendorDir = dirname(dirname(__FILE__));
 $baseDir = dirname($vendorDir);
 
 return array(
-    'Sabre\\VObject\\' => array($vendorDir . '/sabre/vobject/lib'),
+    'Masterminds\\' => array($vendorDir . '/masterminds/html5/src'),
     'Endroid\\QrCode\\' => array($vendorDir . '/endroid/qr-code/src'),
 );

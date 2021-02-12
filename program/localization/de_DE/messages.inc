@@ -2,23 +2,23 @@
 
 /*
  +-----------------------------------------------------------------------+
- | localization/<lang>/messages.inc                                      |
- |                                                                       |
  | Localization file of the Roundcube Webmail client                     |
- | Copyright (C) 2005-2015, The Roundcube Dev Team                       |
+ |                                                                       |
+ | Copyright (C) The Roundcube Dev Team                                  |
  |                                                                       |
  | Licensed under the GNU General Public License version 3 or            |
  | any later version with exceptions for skins & plugins.                |
  | See the README file for a full license statement.                     |
- |                                                                       |
  +-----------------------------------------------------------------------+
 
  For translation see https://www.transifex.com/projects/p/roundcube-webmail/resource/messages/
 */
+
 $messages['errortitle']  = 'Ein Fehler ist aufgetreten!';
 $messages['loginfailed']  = 'Die Anmeldung ist fehlgeschlagen.';
 $messages['cookiesdisabled'] = 'Ihr Browser akzeptiert keine Cookies.';
 $messages['sessionerror'] = 'Ihre Sitzung ist ungültig oder abgelaufen.';
+$messages['cookiesmismatch'] = 'Cookiefehler erkannt. Bitte die Browser Cookies löschen.';
 $messages['storageerror'] = 'Verbindung zum Speicherserver fehlgeschlagen.';
 $messages['servererror'] = 'Serverfehler!';
 $messages['servererrormsg'] = 'Serverfehler: $msg';
@@ -64,11 +64,11 @@ $messages['nopubkeyforsender'] = 'Kein gültiger öffentlicher Schlüssel für I
 $messages['encryptnoattachments'] = 'Bereits hochgeladene Anhänge können nicht verschlüsselt werden. Bitte fügen Sie sie erneut im Verschlüsselungseditor hinzu.';
 $messages['searchpubkeyservers'] = 'Möchten Sie öffentliche Schlüsselserver nach den fehlenden Schlüsseln durchsuchen?';
 $messages['encryptpubkeysfound'] = 'Die folgenden öffentlichen Schlüssel wurden gefunden:';
-$messages['keyservererror'] = 'Fehler beim Holen des Schlüssels vom Schlüsselserver';
-$messages['keyimportsuccess'] = 'Öffentlicher Schlüssel $key erfolgreich in Ihren Schlüsselbund importiert';
+$messages['keyservererror'] = 'Fehler beim Holen des Schlüssels vom Schlüsselserver.';
+$messages['keyimportsuccess'] = 'Öffentlicher Schlüssel $key erfolgreich in Ihren Schlüsselbund importiert.';
 $messages['nocontactsfound'] = 'Keine Kontakte gefunden.';
 $messages['contactnotfound'] = 'Der angeforderte Kontakt wurde nicht gefunden.';
-$messages['contactsearchonly'] = 'Geben Sie einen Suchbegriff ein, um Kontakte zu finden.';
+$messages['contactsearchonly'] = 'Du musst das Suchformular nutzen, um die Kontakte vom ausgewählten Adressbuch zu sehen.';
 $messages['sendingfailed'] = 'Versenden der Nachricht fehlgeschlagen.';
 $messages['senttooquickly'] = 'Bitte warten Sie $sec Sekunde(n) vor dem Senden dieser Nachricht.';
 $messages['errorsavingsent'] = 'Ein Fehler ist beim Speichern der gesendeten Nachricht aufgetreten.';
@@ -83,6 +83,7 @@ $messages['deletecontactconfirm']  = 'Wollen Sie die ausgewählten Kontakte wirk
 $messages['deletegroupconfirm']  = 'Wollen Sie die gewählte Gruppe wirklich löschen?';
 $messages['deletemessagesconfirm'] = 'Wollen Sie die ausgewählten Nachrichten wirklich löschen?';
 $messages['deletefolderconfirm']  = 'Wollen Sie diesen Ordner wirklich löschen?';
+$messages['movefolderconfirm']  = 'Wollen Sie diesen Ordner wirklich verschieben?';
 $messages['purgefolderconfirm']  = 'Wollen Sie diesen Ordner wirklich leeren?';
 $messages['contactdeleting'] = 'Kontakt(e) werden gelöscht …';
 $messages['groupdeleting'] = 'Gruppe wird gelöscht …';
@@ -126,6 +127,7 @@ $messages['fileuploaderror'] = 'Hochladen der Datei fehlgeschlagen.';
 $messages['filesizeerror'] = 'Die hochzuladende Datei überschreitet die Maximalgröße von $size.';
 $messages['filecounterror'] = 'Sie können maximal $count Dateien mit einmal hochladen.';
 $messages['msgsizeerror'] = 'Hinzufügen einer Datei fehlgeschlagen. Die maximale Größe einer Nachricht ($size) wurde überschritten.';
+$messages['msgsizeerrorfwd'] = 'Maximalgröße einer Nachricht ($size) überschritten. $num Nachricht(en) wird/wurden nicht angehängt.';
 $messages['copysuccess'] = 'Erfolgreich kopiert $nr Kontakte.';
 $messages['movesuccess'] = 'Erfolgreich verschoben $nr Kontakte.';
 $messages['copyerror'] = 'Die Kontakte konnten nicht kopiert werden.';
@@ -164,7 +166,7 @@ $messages['smtpconnerror'] = 'SMTP Fehler ($code): Die Verbindung ist fehlgeschl
 $messages['smtpautherror'] = 'SMTP Fehler ($code): Die Authentisierung ist fehlgeschlagen.';
 $messages['smtpfromerror'] = 'SMTP Fehler ($code): Der Absender "$from" konnte nicht gesetzt werden ($msg).';
 $messages['smtptoerror'] = 'SMTP Fehler ($code): Der Empfänger "$to" konnte nicht gesetzt werden ($msg).';
-$messages['smtprecipientserror'] = 'SMTP Fehler: Die Empfängerliste konnte nicht verarbeitet werden.';
+$messages['smtprecipientserror'] = 'SMTP-Fehler: die Empfängerliste konnte nicht verarbeitet werden.';
 $messages['smtputf8error'] = 'SMTP-Fehler: Der Server unterstützt Unicode in der E-Mail-Adresse nicht.';
 $messages['smtpsizeerror'] = 'SMTP-Fehler: Nachrichtengröße übersteigt die Servergrenze ($limit)';
 $messages['smtperror'] = 'SMTP Fehler: $msg';
@@ -208,10 +210,15 @@ $messages['errfailedrequest'] = 'Anforderung fehlgeschlagen';
 $messages['errauthorizationfailed'] = 'Autorisierung fehlgeschlagen';
 $messages['errunauthorizedexplain'] = 'Es konnte nicht überprüft werden, ob Sie berechtigt sind, auf diesen Dienst zuzugreifen!';
 $messages['errrequestcheckfailed'] = 'Anforderungsprüfung fehlgeschlagen';
-$messages['errcsrfprotectionexplain'] = "Zu Ihrer Sicherheit wird der Zugriff auf diese Ressource mit CSRF geschützt.\nWenn Sie dies sehen, haben Sie sich wahrscheinlich vor dem Verlassen der Webanwendung nicht abgemeldet.\n\nNun ist eine menschliche Interaktion erforderlich, um fortzusetzen.";
+$messages['errcsrfprotectionexplain'] = "Zu Ihrer Sicherheit wird der Zugriff auf diese Ressource gegen CSRF geschützt.\nWenn Sie dies sehen, haben Sie sich wahrscheinlich vor dem Verlassen der Webanwendung nicht abgemeldet.\n\nNun ist eine menschliche Interaktion erforderlich, um fortzusetzen.";
 $messages['errcontactserveradmin'] = 'Bitte kontaktieren Sie Ihren Server-Administrator.';
 $messages['clicktoresumesession'] = 'Klicken Sie hier, um Ihre vorherige Sitzung fortzusetzen';
 $messages['errcomposesession'] = 'Verfasssitzungsfehler';
 $messages['errcomposesessionexplain'] = 'Angeforderte Verfasssitzung nicht gefunden.';
 $messages['clicktocompose'] = 'Klicken Sie hier, um eine neue Nachricht zu verfassen';
 $messages['nosupporterror'] = 'Diese Funktion wird von Ihrem Webbrowser nicht unterstützt.';
+$messages['siginserted'] = 'Signatur erfolgreich eingefügt.';
+$messages['responseinserted'] = 'Antwort erfolgreich eingefügt.';
+$messages['listempty'] = 'Die Liste ist leer.';
+$messages['listusebutton'] = 'Um einen neuen Datensatz hinzufügen, verwenden Sie bitte die Schaltfläche \'Erstellen\'.';
+$messages['keypaircreatesuccess'] = 'En neues Schlüsselpaar wurde erfolgreich für $identity erstellt.';

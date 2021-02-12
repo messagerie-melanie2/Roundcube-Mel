@@ -9,7 +9,7 @@
  * @version 1.0
  * @author Mohammad Anwari <mdamt@mdamt.net>
  *
- * Copyright (C) 2005-2014, The Roundcube Dev Team
+ * Copyright (C) The Roundcube Dev Team
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,13 +27,12 @@
 
 class rcube_gearman_password
 {
-    function save($currpass, $newpass)
+    function save($currpass, $newpass, $username)
     {
         if (extension_loaded('gearman')) {
             $rcmail  = rcmail::get_instance();
-            $user    = $_SESSION['username'];
             $payload = array(
-                'username'    => $user,
+                'username'    => $username,
                 'oldPassword' => $currpass,
                 'newPassword' => $newpass,
             );
@@ -52,7 +51,7 @@ class rcube_gearman_password
                     'code' => 600,
                     'type' => 'php',
                     'file' => __FILE__, 'line' => __LINE__,
-                    'message' => "Password plugin: Gearman authentication failed for user $user: $error"
+                    'message' => "Password plugin: Gearman authentication failed for user $username"
                 ), true, false);
             }
         }

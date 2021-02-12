@@ -2,19 +2,18 @@
 
 /*
  +-----------------------------------------------------------------------+
- | localization/<lang>/messages.inc                                      |
- |                                                                       |
  | Localization file of the Roundcube Webmail client                     |
- | Copyright (C) 2005-2015, The Roundcube Dev Team                       |
+ |                                                                       |
+ | Copyright (C) The Roundcube Dev Team                                  |
  |                                                                       |
  | Licensed under the GNU General Public License version 3 or            |
  | any later version with exceptions for skins & plugins.                |
  | See the README file for a full license statement.                     |
- |                                                                       |
  +-----------------------------------------------------------------------+
 
  For translation see https://www.transifex.com/projects/p/roundcube-webmail/resource/messages/
 */
+
 $messages['errortitle']  = 'Ee Feeler ass opgetrueden!';
 $messages['loginfailed']  = 'Login feelgeschloen.';
 $messages['cookiesdisabled'] = 'Däi Browser acceptéiert keng Cookien.';
@@ -33,12 +32,12 @@ $messages['erroroverquotadelete'] = 'Et ass net méi genuch Plaz um Disk. Benotz
 $messages['invalidrequest'] = 'Ongëlteg Ufro! Et goufe keng Date gespäichert.';
 $messages['invalidhost'] = 'Ongëltege Server-Numm.';
 $messages['nomessagesfound'] = 'Keng Messagen an der Mailbox fonnt.';
-$messages['loggedout'] = 'Du hues dech erfollegräich ofgemellt. Äddi!';
 $messages['mailboxempty'] = 'D\'Mailbox ass eidel';
 $messages['nomessages'] = 'Keng Messagen';
 $messages['refreshing'] = 'Lueden nei...';
 $messages['loading'] = 'Lueden...';
 $messages['uploading'] = 'Fichier gëtt eropgelueden...';
+$messages['attaching'] = 'Fichier drunhänken...';
 $messages['uploadingmany'] = 'Fichiere ginn eropgelueden...';
 $messages['loadingdata'] = 'Date gi gelueden..';
 $messages['checkingmail'] = 'Nei Messagë ginn ofgeruff...';
@@ -55,7 +54,6 @@ $messages['blockedimages'] = 'Fir deng Privatsphär ze schütze, gi Biller vun e
 $messages['encryptedmessage'] = 'Dëst ass e verschlësselte Message a kann net ugewise ginn. Et deet eis Leed!';
 $messages['nocontactsfound'] = 'Keng Kontakter fonnt.';
 $messages['contactnotfound'] = 'Den ugefrotene Kontakt gouf net fonnt.';
-$messages['contactsearchonly'] = 'Gëff e puer Sichbegrëffer a fir Kontakter ze fannen';
 $messages['sendingfailed'] = 'De Message konnt net verschéckt ginn.';
 $messages['senttooquickly'] = 'Waart wann ech gelift $sec Sekonn(en) bevir s du de Message verschécks. ';
 $messages['errorsavingsent'] = 'Beim Späichere vum geschéckte Message ass e Feeler opgetruden.';
@@ -64,6 +62,7 @@ $messages['errormoving'] = 'D\'Messagë konnten net verréckelt ginn.';
 $messages['errorcopying'] = 'D\'Messagë konnten net kopéiert ginn.';
 $messages['errordeleting'] = 'D\'Messagë konnten net geläscht ginn.';
 $messages['errormarking'] = 'D\'Messagë konnten net markéiert ginn.';
+$messages['confirmationtitle'] = 'Bass du sécher...';
 $messages['deletecontactconfirm']  = 'Wëlls du wierklech déi ausgewielte Kontakter läschen?';
 $messages['deletegroupconfirm']  = 'Wëlls du wierklech déi ausgewielte Gruppe läschen?';
 $messages['deletemessagesconfirm'] = 'Wëlls du wierklech déi ausgewielte Messagë läschen?';
@@ -81,6 +80,7 @@ $messages['nonamewarning']  = 'Gëff w.e.gl en Numm an.';
 $messages['nopagesizewarning'] = 'Gëff w.e.gl eng Säitegréisst an.';
 $messages['norecipientwarning'] = 'Gëff w.e.gl op mannst een Empfänger an.';
 $messages['nosubjectwarning']  = 'D\'Feld "Sujet" ass eidel. Wëlls du elo eent uginn?';
+$messages['nosubjecttitle']  = 'Kee Sujet';
 $messages['nobodywarning'] = 'Soll dëse Message ouni Text verschéckt ginn?';
 $messages['restoresavedcomposedata'] = 'Et gouf e Message fonnt dee scho geschriwwen awer nach net verschéckt ginn ass.\n\nSujet: $subject\nGespäichert: $date\n\nSoll de Message recuperéiert ginn?';
 $messages['nosearchname'] = 'Gëff w.e.gl en Numm oder eng E-Mail-Adress fir de Kontakt an.';

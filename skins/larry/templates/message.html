@@ -1,7 +1,6 @@
 <roundcube:object name="doctype" value="html5" />
 <html>
 <head>
-<title><roundcube:object name="pagetitle" /></title>
 <roundcube:include file="/includes/links.html" />
 </head>
 <roundcube:if condition="env:extwin" /><body class="noscroll extwin"><roundcube:else /><body class="noscroll"><roundcube:endif />
@@ -69,7 +68,7 @@
 </div>
 <roundcube:endif />
 
-<h2 class="subject"><span onmouseover="rcube_webmail.long_subject_title(this)"><span class="voice"><roundcube:label name="subject" />: </span><roundcube:object name="messageHeaders" valueOf="subject" /></span></h2>
+<h2 class="subject"><span class="flag-icon"></span><span onmouseover="rcube_webmail.long_subject_title(this)"><span class="voice"><roundcube:label name="subject" />: </span><roundcube:object name="messageHeaders" valueOf="subject" /></span></h2>
 <div class="message-headers">
 <roundcube:object name="messageHeaders" class="headers-table" addicon="/images/addcontact.png" exclude="subject" max="20" />
 </div>

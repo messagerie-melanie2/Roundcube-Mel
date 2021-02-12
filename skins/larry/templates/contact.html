@@ -1,7 +1,6 @@
 <roundcube:object name="doctype" value="html5" />
 <html>
 <head>
-<title><roundcube:object name="pagetitle" /></title>
 <roundcube:include file="/includes/links.html" />
 </head>
 <body class="iframe">
@@ -25,9 +24,6 @@
 
 <div id="headerbuttons" class="formbuttons">
 	<roundcube:button command="edit" type="input" class="button mainaction" label="editcontact" condition="!ENV:readonly" />
-	<roundcube:if condition="env:qrcode" />
-	<roundcube:button command="qrcode" type="input" class="button" label="qrcode" />
-	<roundcube:endif />
 </div>
 
 <roundcube:include file="/includes/footer.html" />

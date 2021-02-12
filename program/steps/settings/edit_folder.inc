@@ -2,10 +2,9 @@
 
 /**
  +-----------------------------------------------------------------------+
- | program/steps/settings/edit_folder.inc                                |
- |                                                                       |
  | This file is part of the Roundcube Webmail client                     |
- | Copyright (C) 2005-2013, The Roundcube Dev Team                       |
+ |                                                                       |
+ | Copyright (C) The Roundcube Dev Team                                  |
  |                                                                       |
  | Licensed under the GNU General Public License version 3 or            |
  | any later version with exceptions for skins & plugins.                |
@@ -13,7 +12,6 @@
  |                                                                       |
  | PURPOSE:                                                              |
  |   Provide functionality to create/edit a folder                       |
- |                                                                       |
  +-----------------------------------------------------------------------+
  | Author: Aleksander Machniak <alec@alec.pl>                            |
  +-----------------------------------------------------------------------+
@@ -44,7 +42,8 @@ function rcmail_folder_form($attrib)
     $parent = rcube_utils::get_input_value('_path', rcube_utils::INPUT_GPC, true);
 
     $threading_supported = $storage->get_capability('THREAD');
-    $delimiter = $storage->get_hierarchy_delimiter();
+    $dual_use_supported  = $storage->get_capability(rcube_storage::DUAL_USE_FOLDERS);
+    $delimiter           = $storage->get_hierarchy_delimiter();
 
     // Get mailbox parameters
     if (strlen($mbox)) {
@@ -97,11 +96,13 @@ function rcmail_folder_form($attrib)
         }
 
         $foldername = new html_inputfield(array('name' => '_name', 'id' => '_name', 'size' => 30));
-        $foldername = $foldername->show($folder);
+        $foldername = '<span class="input-group">' . $foldername->show($folder);
 
         if ($options['special'] && ($sname = $RCMAIL->localize_foldername($mbox, false, true)) != $folder) {
-            $foldername .= '&nbsp;(' . rcube::Q($sname) .')';
+            $foldername .= ' <span class="input-group-append"><span class="input-group-text">(' . rcube::Q($sname) .')</span></span>';
         }
+
+        $foldername .= '</span>';
     }
 
     $form['props']['fieldsets']['location'] = array(
@@ -141,7 +142,7 @@ function rcmail_folder_form($attrib)
             'additional'  => strlen($selected) ? array($selected) : null,
         ));
 
-        $form['props']['fieldsets']['location']['content']['path'] = array(
+        $form['props']['fieldsets']['location']['content']['parent'] = array(
             'label' => $RCMAIL->gettext('parentfolder'),
             'value' => $select->show($selected),
         );
@@ -151,6 +152,27 @@ function rcmail_folder_form($attrib)
     $form['props']['fieldsets']['settings'] = array(
         'name'  => $RCMAIL->gettext('settings'),
     );
+
+    // For servers that do not support both sub-folders and messages in a folder
+    if (!$dual_use_supported) {
+        if (!strlen($mbox)) {
+            $select = new html_select(array('name' => '_type', 'id' => '_type'));
+            $select->add($RCMAIL->gettext('dualusemail'), 'mail');
+            $select->add($RCMAIL->gettext('dualusefolder'), 'folder');
+
+            $value  = rcube_utils::get_input_value('_type', rcube_utils::INPUT_POST);
+            $value = $select->show($value ?: 'mail');
+        }
+        else {
+            $value = $options['noselect'] ? 'folder' : 'mail';
+            $value = $RCMAIL->gettext('dualuse' . $value);
+        }
+
+        $form['props']['fieldsets']['settings']['content']['type'] = array(
+            'label' => $RCMAIL->gettext('dualuselabel'),
+            'value' => $value,
+        );
+    }
 
     // Settings: threading
     if ($threading_supported && ($mbox == 'INBOX' || (!$options['noselect'] && !$options['is_root']))) {

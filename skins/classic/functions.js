@@ -4,7 +4,7 @@
  * @licstart  The following is the entire license notice for the
  * JavaScript code in this file.
  *
- * Copyright (c) 2006-2014, The Roundcube Dev Team
+ * Copyright (c) The Roundcube Dev Team
  *
  * The JavaScript code in this page is free software: you can redistribute it
  * and/or modify it under the terms of the GNU General Public License
@@ -22,7 +22,7 @@
 function rcube_init_settings_tabs()
 {
   var el, cl, container = $('#tabsbar'),
-    last_tab = $('span:last', container),
+    last_tab = $('span', container).last(),
     tab = '#settingstabpreferences',
     action = window.rcmail && rcmail.env.action ? rcmail.env.action : null;
 
@@ -53,15 +53,18 @@ function rcube_init_tabs(id, current)
 
   current = current ? current : 0;
 
-  // first hide not selected tabs
-  fs.each(function(idx) { if (idx != current) $(this).hide(); });
-
-  // create tabs container
-  var tabs = $('<div>').addClass('tabsbar').appendTo(content);
+  // create tabs container (if not exists)
+  var tabs = content.find('.tabsbar');
+  if (!tabs.length)
+    tabs = $('<div>').addClass('tabsbar').appendTo(content);
 
   // convert fildsets into tabs
   fs.each(function(idx) {
     var tab, a, elm = $(this), legend = elm.children('legend');
+
+    // skip invisible or already initialized fieldsets
+    if (!elm.is(':visible') || elm.hasClass('tabbed'))
+      return;
 
     // create a tab
     a   = $('<a>').text(legend.text()).attr('href', '#');
@@ -79,6 +82,9 @@ function rcube_init_tabs(id, current)
     // add the tab to container
     tab.append(a).appendTo(tabs);
   });
+
+  // hide not selected tabs
+  fs.each(function(idx) { if (idx != current) $(this).hide(); });
 }
 
 function rcube_show_tab(id, index)
@@ -659,7 +665,11 @@ enable_command: function(p)
   }
   else if (p.command == 'compose-encrypted') {
     // show the toolbar button for Mailvelope
-    $('#messagetoolbar > a.encrypt').show();
+    $('#messagetoolbar a.encrypt').parent().show();
+  }
+  else if (p.command == 'compose-encrypted-signed') {
+    // enable selector for encrypt and sign
+    $('#encryptionmenulink').show();
   }
 },
 
@@ -1037,6 +1047,7 @@ function rcube_init_mail_ui()
         .addEventListener('menu-open', 'menu_open', rcmail_ui)
         .addEventListener('aftersend-attachment', 'uploadmenu', rcmail_ui)
         .addEventListener('aftertoggle-editor', 'resize_compose_body_ev', rcmail_ui)
+        .addEventListener('afterbounce', function(){ rcmail_ui.show_popup('forwardmenu', false); })
         .gui_object('dragmenu', 'dragmenu');
 
       if (rcmail.gui_objects.mailboxlist) {
@@ -1105,6 +1116,9 @@ function rcube_init_mail_ui()
       if (rcmail.env.action == 'folders') {
         rcmail_ui.folder_search_init($('#folder-manager'));
       }
+
+      $('#mainscreen > #prefs-title').detach().prependTo($('#mainscreen > .box'));
     }
   });
 }
+

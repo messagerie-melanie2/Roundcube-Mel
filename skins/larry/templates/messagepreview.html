@@ -1,7 +1,6 @@
 <roundcube:object name="doctype" value="html5" />
 <html>
 <head>
-<title><roundcube:object name="pagetitle" /></title>
 <roundcube:include file="/includes/links.html" />
 </head>
 <body class="iframe fullheight">
@@ -33,7 +32,7 @@
 <roundcube:endif />
 </div>
 
-<h3 class="subject"><span onmouseover="rcube_webmail.long_subject_title(this)"><span class="voice"><roundcube:label name="subject" />: </span><roundcube:object name="messageHeaders" valueOf="subject" /></span></h3>
+<h3 class="subject"><span class="flag-icon"></span><span onmouseover="rcube_webmail.long_subject_title(this)"><span class="voice"><roundcube:label name="subject" />: </span><roundcube:object name="messageHeaders" valueOf="subject" /></span></h3>
 
 <a href="#details" id="previewheaderstoggle" class="moreheaderstoggle" aria-expanded="false"><span class="iconlink" title="<roundcube:label name='togglemoreheaders' />"></span></a>
 <div id="contactphoto"><roundcube:object name="contactphoto" /></div>

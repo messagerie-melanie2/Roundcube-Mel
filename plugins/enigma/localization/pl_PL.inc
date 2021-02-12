@@ -2,19 +2,18 @@
 
 /**
  +-----------------------------------------------------------------------+
- | plugins/enigma/localization/<lang>.inc                                |
+ | Localization file of the Roundcube Webmail Enigma plugin              |
  |                                                                       |
- | Localization file of the Roundcube Webmail ACL plugin                 |
- | Copyright (C) 2012-2016, The Roundcube Dev Team                       |
+ | Copyright (C) The Roundcube Dev Team                                  |
  |                                                                       |
  | Licensed under the GNU General Public License version 3 or            |
  | any later version with exceptions for skins & plugins.                |
  | See the README file for a full license statement.                     |
- |                                                                       |
  +-----------------------------------------------------------------------+
 
  For translation see https://www.transifex.com/roundcube/roundcube-webmail/plugin-enigma/
 */
+
 $labels['encryption'] = 'Szyfrowanie';
 $labels['enigmacerts'] = 'Certyfikaty S/MIME';
 $labels['enigmakeys'] = 'Klucze PGP';
@@ -77,7 +76,6 @@ $labels['signmsg'] = 'Podpisz wiadomość';
 $labels['sendunencrypted'] = 'Wyślij niezaszyfrowaną';
 $labels['enterkeypasstitle'] = 'Wprowadź hasło klucza';
 $labels['enterkeypass'] = 'Wymagane jest hasło do klucza ($keyid) użytkownika: $user.';
-$labels['arialabelkeyexportoptions'] = 'Opcje eksportu kluczy';
 $labels['attachpubkeymsg'] = 'Załącz mój klucz publiczny';
 $labels['keyexportprompt'] = 'Czy chcesz dołączyć klucze prywatne do utworzonego pliku kluczy PGP?';
 $labels['onlypubkeys'] = 'Eksportuj tylko klucze publiczne';
@@ -85,6 +83,10 @@ $labels['withprivkeys'] = 'Eksportuj klucze prywatne';
 $labels['findkey'] = 'Wyszukaj na serwerach kluczy';
 $labels['keyimportlabel'] = 'Import z pliku';
 $labels['keyimportsearchlabel'] = 'Wyszukiwanie na serwerach kluczy';
+$labels['managekeys'] = 'Zarządzaj kluczami PGP';
+$labels['identitymatchingprivkeys'] = 'Masz $nr pasujących kluczy prywatnych PGP w bazie kluczy.';
+$labels['identitynoprivkeys'] = 'Brak klucza prywatnego PGP dla wybranej tożsamości nadawcy.';
+$labels['arialabelkeyexportoptions'] = 'Opcje eksportu kluczy';
 $messages['sigvalid'] = 'Zweryfikowany podpis nadawcy $sender.';
 $messages['sigvalidpartial'] = 'Zweryfikowany podpis od $sender, ale część wiadomości nie została podpisana.';
 $messages['siginvalid'] = 'Błędny podpis nadawcy $sender.';
@@ -94,6 +96,7 @@ $messages['sigerror'] = 'Podpis niezweryfikowany. Błąd wewnętrzny.';
 $messages['decryptok'] = 'Wiadomość odszyfrowana.';
 $messages['decrypterror'] = 'Nie udało się odszyfrować wiadomości.';
 $messages['decryptnokey'] = 'Odszyfrowanie nie powiodło się. Brak klucza prywatnego. ID klucza: $keyid.';
+$messages['decryptnomdc'] = 'Pominięto szyfrowanie. Wiadomość nie posiada ochrony integralności.';
 $messages['decryptbadpass'] = 'Odszyfrowanie nie powiodło się. Hasło jest nieprawidłowe.';
 $messages['decryptnopass'] = 'Odszyfrowanie nie powiodło się. Hasło jest wymagane.';
 $messages['decryptpartial'] = 'Wiadomość odszyfrowana, ale jej część nie była zaszyfrowana.';
@@ -103,6 +106,7 @@ $messages['signbadpass'] = 'Błąd podpisywania. Hasło jest nieprawidłowe.';
 $messages['signnopass'] = 'Błąd podpisywania. Wymagane hasło klucza.';
 $messages['encrypterror'] = 'Błąd szyfrowania.';
 $messages['encryptnokey'] = 'Błąd szyfrowania. Nie znaleziono klucza publicznego dla $email.';
+$messages['encryptnoprivkey'] = 'Błąd szyfrowania. Nie znaleziono klucza prywatnego.';
 $messages['nokeysfound'] = 'Nie znaleziono kluczy';
 $messages['keynotfound'] = 'Nie znaleziono klucza!';
 $messages['keyopenerror'] = 'Nie można odczytać informacji o kluczu! Błąd wewnętrzny.';

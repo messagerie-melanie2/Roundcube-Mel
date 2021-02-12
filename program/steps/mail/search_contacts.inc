@@ -2,10 +2,9 @@
 
 /**
  +-----------------------------------------------------------------------+
- | program/steps/mail/search_contacts.inc                                |
- |                                                                       |
  | This file is part of the Roundcube Webmail client                     |
- | Copyright (C) 2013-2014, The Roundcube Dev Team                       |
+ |                                                                       |
+ | Copyright (C) The Roundcube Dev Team                                  |
  |                                                                       |
  | Licensed under the GNU General Public License version 3 or            |
  | any later version with exceptions for skins & plugins.                |
@@ -13,7 +12,6 @@
  |                                                                       |
  | PURPOSE:                                                              |
  |   Search contacts from the address book widget                        |
- |                                                                       |
  +-----------------------------------------------------------------------+
  | Author: Thomas Bruederli <roundcube@gmail.com>                        |
  +-----------------------------------------------------------------------+
@@ -84,7 +82,7 @@ if (!empty($result) && $result->count > 0) {
         // (same as in list_contacts.inc)
         $emails = $source->get_col_values('email', $row, true);
         foreach ($emails as $i => $email) {
-            $row_id = $row['ID'].'-'.$i;
+            $row_id = $row['sourceid'].'-'.$row['ID'].'-'.$i;
             $jsresult[$row_id] = format_email_recipient($email, $name);
             $title = rcube_addressbook::compose_search_name($row, $email, $name);
 

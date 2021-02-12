@@ -1,7 +1,6 @@
 <roundcube:object name="doctype" value="html5" />
 <html>
 <head>
-<title><roundcube:object name="pagetitle" /></title>
 <roundcube:include file="/includes/links.html" />
 </head>
 <body class="extwin noscroll">
@@ -29,6 +28,11 @@
 		<a href="#forward" class="dropbuttontip" id="forwardmenulink" onclick="UI.toggle_popup('forwardmenu',event);return false" aria-haspopup="true" aria-expanded="false" aria-owns="forwardmenu-menu" tabindex="0">Forwarding options</a>
 	</span>
 	<roundcube:button name="messagemenulink" id="messagemenulink" type="link" class="button more" label="more" title="moreactions" onclick="UI.toggle_popup('messagemenu',event);return false" aria-haspopup="true" aria-expanded="false" aria-owns="messagemenu-menu" />
+	<roundcube:endif />
+	<roundcube:if condition="stripos(env:mimetype, 'image/') === 0" />
+		<roundcube:button command="image-scale" type="link" prop="+" data-hidden="small" class="button zoomin disabled" classAct="button zoomin" label="zoomin" title="increaseimage" innerclass="inner" />
+		<roundcube:button command="image-scale" type="link" prop="-" data-hidden="small" class="button zoomout disabled" classAct="button zoomout" label="zoomout" title="decreaseimage" innerclass="inner" />
+		<roundcube:button command="image-rotate" type="link" class="button rotate disabled" classAct="button rotate" data-hidden="small" label="rotate" title="rotateimage" innerclass="inner" />
 	<roundcube:endif />
 </div>
 

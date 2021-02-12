@@ -2,10 +2,9 @@
 
 /**
  +-----------------------------------------------------------------------+
- | program/steps/settings/edit_identity.inc                              |
- |                                                                       |
  | This file is part of the Roundcube Webmail client                     |
- | Copyright (C) 2005-2013, The Roundcube Dev Team                       |
+ |                                                                       |
+ | Copyright (C) The Roundcube Dev Team                                  |
  |                                                                       |
  | Licensed under the GNU General Public License version 3 or            |
  | any later version with exceptions for skins & plugins.                |
@@ -13,7 +12,6 @@
  |                                                                       |
  | PURPOSE:                                                              |
  |   Show edit form for a identity record or to add a new one            |
- |                                                                       |
  +-----------------------------------------------------------------------+
  | Author: Thomas Bruederli <roundcube@gmail.com>                        |
  +-----------------------------------------------------------------------+
@@ -52,7 +50,9 @@ else {
 $OUTPUT->include_script('list.js');
 $OUTPUT->add_handler('identityform', 'rcube_identity_form');
 $OUTPUT->set_env('identities_level', IDENTITIES_LEVEL);
-$OUTPUT->add_label('deleteidentityconfirm', 'uploading');
+$OUTPUT->add_label('deleteidentityconfirm', 'generate',
+    'encryptioncreatekey', 'openmailvelopesettings', 'encryptionprivkeysinmailvelope',
+    'encryptionnoprivkeysinmailvelope', 'keypaircreatesuccess');
 
 $OUTPUT->set_pagetitle($RCMAIL->gettext(($RCMAIL->action == 'add-identity' ? 'addidentity' : 'editidentity')));
 
@@ -93,11 +93,16 @@ function rcube_identity_form($attrib)
             'name'    => $RCMAIL->gettext('signature'),
             'content' => array(
                 'signature'      => array('type' => 'textarea', 'size' => $t_cols, 'rows' => $t_rows,
-                    'spellcheck' => true),
+                    'spellcheck' => true, 'data-html-editor' => true),
                 'html_signature' => array('type' => 'checkbox',
                     'label'   => $RCMAIL->gettext('htmlsignature'),
                     'onclick' => 'return rcmail.command(\'toggle-editor\', {id: \'rcmfd_signature\', html: this.checked}, \'\', event)'),
-        ))
+        )),
+        'encryption' => array(
+            'name' => $RCMAIL->gettext('identityencryption'),
+            'attrs' => array('class' => 'identity-encryption', 'style' => 'display:none'),
+            'content' => html::div('identity-encryption-block', '')
+        )
     );
 
     // Enable TinyMCE editor
@@ -173,7 +178,7 @@ function rcube_identity_form($attrib)
         }
 
         $content = html::tag('legend', null, rcube::Q($fieldset['name'])) . $content;
-        $out .= html::tag('fieldset', null, $content) . "\n";
+        $out .= html::tag('fieldset', $fieldset['attrs'], $content) . "\n";
     }
 
     $out .= $form_end;

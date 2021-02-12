@@ -2,11 +2,10 @@
 
 /**
  +-----------------------------------------------------------------------+
- | program/steps/mail/autocomplete.inc                                   |
- |                                                                       |
  | This file is part of the Roundcube Webmail client                     |
- | Copyright (C) 2008-2013, Roundcube Dev Team                           |
- | Copyright (C) 2011-2013, Kolab Systems AG                             |
+ |                                                                       |
+ | Copyright (C) The Roundcube Dev Team                                  |
+ | Copyright (C) Kolab Systems AG                                        |
  |                                                                       |
  | Licensed under the GNU General Public License version 3 or            |
  | any later version with exceptions for skins & plugins.                |
@@ -26,9 +25,8 @@ if ($RCMAIL->action == 'group-expand') {
         $abook->set_group($gid);
         $abook->set_pagesize(9999);  // TODO: limit number of group members by config?
 
-        $separator = trim($RCMAIL->config->get('recipients_separator', ',')) . ' ';
-        $result    = $abook->list_records($RCMAIL->config->get('contactlist_fields'));
-        $members   = array();
+        $result  = $abook->list_records($RCMAIL->config->get('contactlist_fields'));
+        $members = array();
 
         while ($result && ($record = $result->iterate())) {
             $emails = (array) $abook->get_col_values('email', $record, true);
@@ -37,7 +35,7 @@ if ($RCMAIL->action == 'group-expand') {
             }
         }
 
-        $OUTPUT->command('replace_group_recipients', $gid, join($separator, array_unique($members)));
+        $OUTPUT->command('replace_group_recipients', $gid, join(', ', array_unique($members)));
     }
 
     $OUTPUT->send();

@@ -3,7 +3,8 @@
 /**
  +-----------------------------------------------------------------------+
  | This file is part of the Roundcube Webmail client                     |
- | Copyright (C) 2005-2012, The Roundcube Dev Team                       |
+ |                                                                       |
+ | Copyright (C) The Roundcube Dev Team                                  |
  |                                                                       |
  | Licensed under the GNU General Public License version 3 or            |
  | any later version with exceptions for skins & plugins.                |
@@ -135,7 +136,6 @@ class rcube_db
 
         // connect to database
         if ($dbh = $this->conn_create($dsn)) {
-            $this->dbh          = $dbh;
             $this->dbhs[$mode]  = $dbh;
             $this->db_mode      = $mode;
             $this->db_connected = true;
@@ -160,12 +160,12 @@ class rcube_db
 
             $this->conn_prepare($dsn);
 
-            $dbh = new PDO($dsn_string, $dsn['username'], $dsn['password'], $dsn_options);
+            $this->dbh = new PDO($dsn_string, $dsn['username'], $dsn['password'], $dsn_options);
 
             // don't throw exceptions or warnings
-            $dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_SILENT);
+            $this->dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_SILENT);
 
-            $this->conn_configure($dsn, $dbh);
+            $this->conn_configure($dsn, $this->dbh);
         }
         catch (Exception $e) {
             $this->db_error     = true;
@@ -178,7 +178,7 @@ class rcube_db
             return null;
         }
 
-        return $dbh;
+        return $this->dbh;
     }
 
     /**
@@ -1010,7 +1010,7 @@ class rcube_db
             $args = $args[0];
         }
 
-        return '(' . join(' || ', $args) . ')';
+        return '(' . implode(' || ', $args) . ')';
     }
 
     /**
@@ -1184,7 +1184,6 @@ class rcube_db
         }
 
         // Find protocol and hostspec
-
         // $dsn => proto(proto_opts)/database
         if (preg_match('|^([^(]+)\((.*?)\)/?(.*?)$|', $dsn, $match)) {
             $proto       = $match[1];
@@ -1200,9 +1199,9 @@ class rcube_db
                 && strpos($dsn, '/', 2) !== false
                 && $parsed['phptype'] == 'oci8'
             ) {
-                //oracle's "Easy Connect" syntax:
-                //"username/password@[//]host[:port][/service_name]"
-                //e.g. "scott/tiger@//mymachine:1521/oracle"
+                // Oracle's "Easy Connect" syntax:
+                // "username/password@[//]host[:port][/service_name]"
+                // e.g. "scott/tiger@//mymachine:1521/oracle"
                 $proto_opts = $dsn;
                 $pos = strrpos($proto_opts, '/');
                 $dsn = substr($proto_opts, $pos + 1);
@@ -1230,17 +1229,18 @@ class rcube_db
             $parsed['socket'] = $proto_opts;
         }
 
-        // Get dabase if any
+        // Get database if any
         // $dsn => database
         if ($dsn) {
             // /database
             if (($pos = strpos($dsn, '?')) === false) {
                 $parsed['database'] = rawurldecode($dsn);
-            // /database?param1=value1&param2=value2
             }
             else {
+                // /database?param1=value1&param2=value2
                 $parsed['database'] = rawurldecode(substr($dsn, 0, $pos));
                 $dsn = substr($dsn, $pos + 1);
+
                 if (strpos($dsn, '&') !== false) {
                     $opts = explode('&', $dsn);
                 }
@@ -1254,6 +1254,19 @@ class rcube_db
                         $parsed[$key] = rawurldecode($value);
                     }
                 }
+            }
+
+            // remove problematic suffix (#7034)
+            $parsed['database'] = preg_replace('/;.*$/', '', $parsed['database']);
+
+            // Resolve relative path to the sqlite database file
+            // so for example it works with Roundcube Installer
+            if (!empty($parsed['phptype']) && !empty($parsed['database'])
+                && stripos($parsed['phptype'], 'sqlite') === 0
+                && $parsed['database'][0] != '/'
+                && strpos($parsed['database'], ':') === false
+            ) {
+                $parsed['database'] = INSTALL_PATH . $parsed['database'];
             }
         }
 
@@ -1369,8 +1382,8 @@ class rcube_db
         }
 
         $sql = preg_replace_callback(
-            '/((TABLE|TRUNCATE|(?<!ON )UPDATE|INSERT INTO|FROM'
-            . '| ON(?! (DELETE|UPDATE))|REFERENCES|CONSTRAINT|FOREIGN KEY|INDEX)'
+            '/((TABLE|TRUNCATE( TABLE)?|(?<!ON )UPDATE|INSERT INTO|FROM'
+            . '| ON(?! (DELETE|UPDATE))|REFERENCES|CONSTRAINT|FOREIGN KEY|INDEX|UNIQUE( INDEX)?)'
             . '\s+(IF (NOT )?EXISTS )?[`"]*)([^`"\( \r\n]+)/',
             array($this, 'fix_table_names_callback'),
             $sql

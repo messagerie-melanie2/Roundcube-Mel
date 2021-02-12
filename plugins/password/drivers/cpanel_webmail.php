@@ -9,7 +9,7 @@
  *
  * @author Maikel Linke <maikel@email.org.au>
  *
- * Copyright (C) 2005-2016, The Roundcube Dev Team
+ * Copyright (C) The Roundcube Dev Team
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -39,16 +39,14 @@ class rcube_cpanel_webmail_password
      */
     public function save($curpas, $newpass)
     {
-        $user    = $_SESSION['username'];
+        $url     = self::url();
+        $user    = password::username();
         $userpwd = "$user:$curpas";
-        list($login) = explode('@', $user);
-
-        $data = array(
-            'email'    => $login,
+        $data    = array(
+            'email'    => password::username('%l'),
             'password' => $newpass
         );
 
-        $url      = self::url();
         $response = $this->curl_auth_post($userpwd, $url, $data);
 
         return self::decode_response($response);

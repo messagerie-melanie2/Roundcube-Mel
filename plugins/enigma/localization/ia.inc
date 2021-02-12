@@ -2,19 +2,18 @@
 
 /**
  +-----------------------------------------------------------------------+
- | plugins/enigma/localization/<lang>.inc                                |
+ | Localization file of the Roundcube Webmail Enigma plugin              |
  |                                                                       |
- | Localization file of the Roundcube Webmail ACL plugin                 |
- | Copyright (C) 2012-2016, The Roundcube Dev Team                       |
+ | Copyright (C) The Roundcube Dev Team                                  |
  |                                                                       |
  | Licensed under the GNU General Public License version 3 or            |
  | any later version with exceptions for skins & plugins.                |
  | See the README file for a full license statement.                     |
- |                                                                       |
  +-----------------------------------------------------------------------+
 
  For translation see https://www.transifex.com/roundcube/roundcube-webmail/plugin-enigma/
 */
+
 $labels['encryption'] = 'Cryptographia';
 $labels['enigmacerts'] = 'Certificatos S/MIME';
 $labels['enigmakeys'] = 'Claves PGP';
@@ -73,7 +72,6 @@ $labels['signmsg'] = 'Signar digitalmente iste message';
 $labels['sendunencrypted'] = 'Inviar sin cryptation';
 $labels['enterkeypasstitle'] = 'Entra le contrasigno del clave';
 $labels['enterkeypass'] = 'Un contrasigno es necessari pro disblocar le clave secrete ($keyid) pro le usator: $user.';
-$labels['arialabelkeyexportoptions'] = 'Optiones de exportation de claves';
 $labels['attachpubkeymsg'] = 'Attachar mi clave public';
 $labels['keyexportprompt'] = 'Includer le claves secrete in le file de claves OpenPGP a salveguardar?';
 $labels['onlypubkeys'] = 'Exportar claves public solmente';
@@ -81,6 +79,7 @@ $labels['withprivkeys'] = 'Exportar claves secrete';
 $labels['findkey'] = 'Cercar in servitor(es) de claves';
 $labels['keyimportlabel'] = 'Importar ab file';
 $labels['keyimportsearchlabel'] = 'Cercar in servitor(es) de claves';
+$labels['arialabelkeyexportoptions'] = 'Optiones de exportation de claves';
 $messages['sigvalid'] = 'Signatura de $sender verificate.';
 $messages['sigvalidpartial'] = 'Signatura de $sender verificate, ma un parte del texto non ha essite signate.';
 $messages['siginvalid'] = 'Signatura de $sender invalide.';

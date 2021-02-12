@@ -3,7 +3,8 @@
 /**
  +-----------------------------------------------------------------------+
  | This file is part of the Roundcube Webmail client                     |
- | Copyright (C) 2005-2013, The Roundcube Dev Team                       |
+ |                                                                       |
+ | Copyright (C) The Roundcube Dev Team                                  |
  |                                                                       |
  | Licensed under the GNU General Public License version 3 or            |
  | any later version with exceptions for skins & plugins.                |
@@ -32,8 +33,8 @@ class html
     public static $doctype = 'xhtml';
     public static $lc_tags = true;
     public static $common_attrib = array('id','class','style','title','align','unselectable','tabindex','role');
-    public static $containers    = array('iframe','div','span','p','h1','h2','h3','ul','form','textarea','table','thead','tbody','tr','th','td','style','script');
-    public static $bool_attrib   = array('checked','multiple','disabled','selected','autofocus','readonly');
+    public static $containers    = array('iframe','div','span','p','h1','h2','h3','ul','form','textarea','table','thead','tbody','tr','th','td','style','script','a');
+    public static $bool_attrib   = array('checked','multiple','disabled','selected','autofocus','readonly','required');
 
 
     /**
@@ -225,7 +226,8 @@ class html
     /**
      * Derrived method to create <iframe></iframe>
      *
-     * @param mixed $attr Hash array with tag attributes or string with frame source (src)
+     * @param mixed  $attr Hash array with tag attributes or string with frame source (src)
+     * @param string $cont Tag content
      *
      * @return string HTML code
      * @see html::tag()
@@ -254,15 +256,21 @@ class html
         if (is_string($attr)) {
             $attr = array('src' => $attr);
         }
+
         if ($cont) {
-            if (self::$doctype == 'xhtml')
-                $cont = "\n/* <![CDATA[ */\n" . $cont . "\n/* ]]> */\n";
-            else
-                $cont = "\n" . $cont . "\n";
+            if (self::$doctype == 'xhtml') {
+                $cont = "/* <![CDATA[ */\n{$cont}\n/* ]]> */";
+            }
+
+            $cont = "\n{$cont}\n";
         }
 
-        return self::tag('script', $attr + array('type' => 'text/javascript', 'nl' => true),
-            $cont, array_merge(self::$common_attrib, array('src','type','charset')));
+        if (self::$doctype == 'xhtml') {
+            $attr += array('type' => 'text/javascript');
+        }
+
+        return self::tag('script', $attr + array('nl' => true), $cont,
+            array_merge(self::$common_attrib, array('src', 'type', 'charset')));
     }
 
     /**
@@ -375,16 +383,7 @@ class html
      */
     public static function quote($str)
     {
-        static $flags;
-
-        if (!$flags) {
-            $flags = ENT_COMPAT;
-            if (defined('ENT_SUBSTITUTE')) {
-                $flags |= ENT_SUBSTITUTE;
-            }
-        }
-
-        return @htmlspecialchars($str, $flags, RCUBE_CHARSET);
+        return @htmlspecialchars($str, ENT_COMPAT | ENT_SUBSTITUTE, RCUBE_CHARSET);
     }
 }
 
@@ -403,7 +402,7 @@ class html_inputfield extends html
         'type','name','value','size','tabindex','autocapitalize','required',
         'autocomplete','checked','onchange','onclick','disabled','readonly',
         'spellcheck','results','maxlength','src','multiple','accept',
-        'placeholder','autofocus','pattern',
+        'placeholder','autofocus','pattern','oninput'
     );
 
     /**
@@ -569,6 +568,38 @@ class html_checkbox extends html_inputfield
 
         // set value attribute
         $this->attrib['checked'] = ((string)$value == (string)$this->attrib['value']);
+
+        return parent::show();
+    }
+}
+
+/**
+ * Class to create HTML button
+ *
+ * @package    Framework
+ * @subpackage View
+ */
+class html_button extends html_inputfield
+{
+    protected $tagname = 'button';
+    protected $type    = 'button';
+
+    /**
+     * Get HTML code for this object
+     *
+     * @param string $content Text Content of the button
+     * @param array  $attrib  Additional attributes to override
+     *
+     * @return string HTML output
+     */
+    public function show($content = '', $attrib = null)
+    {
+        // overwrite object attributes
+        if (is_array($attrib)) {
+            $this->attrib = array_merge($this->attrib, $attrib);
+        }
+
+        $this->content = $content;
 
         return parent::show();
     }
@@ -875,26 +906,35 @@ class html_table extends html
             $this->attrib = array_merge($this->attrib, $attrib);
         }
 
-        $thead = $tbody = "";
+        $thead        = '';
+        $tbody        = '';
+        $col_tagname  = $this->_col_tagname();
+        $row_tagname  = $this->_row_tagname();
+        $head_tagname = $this->_head_tagname();
 
         // include <thead>
         if (!empty($this->header)) {
             $rowcontent = '';
             foreach ($this->header as $c => $col) {
-                $rowcontent .= self::tag($this->_head_tagname(), $col->attrib, $col->content);
+                $rowcontent .= self::tag($head_tagname, $col->attrib, $col->content);
             }
             $thead = $this->tagname == 'table' ? self::tag('thead', null, self::tag('tr', null, $rowcontent, parent::$common_attrib)) :
-                self::tag($this->_row_tagname(), array('class' => 'thead'), $rowcontent, parent::$common_attrib);
+                self::tag($row_tagname, array('class' => 'thead'), $rowcontent, parent::$common_attrib);
         }
 
         foreach ($this->rows as $r => $row) {
             $rowcontent = '';
             foreach ($row->cells as $c => $col) {
-                $rowcontent .= self::tag($this->_col_tagname(), $col->attrib, $col->content);
+                if ($row_tagname == 'li' && empty($col->attrib) && count($row->cells) == 1) {
+                    $rowcontent .= $col->content;
+                }
+                else {
+                    $rowcontent .= self::tag($col_tagname, $col->attrib, $col->content);
+                }
             }
 
             if ($r < $this->rowindex || count($row->cells)) {
-                $tbody .= self::tag($this->_row_tagname(), $row->attrib, $rowcontent, parent::$common_attrib);
+                $tbody .= self::tag($row_tagname, $row->attrib, $rowcontent, parent::$common_attrib);
             }
         }
 
@@ -906,13 +946,14 @@ class html_table extends html
         $this->content = $thead . ($this->tagname == 'table' ? self::tag('tbody', null, $tbody) : $tbody);
 
         unset($this->attrib['cols'], $this->attrib['rowsonly']);
+
         return parent::show();
     }
 
     /**
      * Count number of rows
      *
-     * @return The number of rows
+     * @return int The number of rows
      */
     public function size()
     {

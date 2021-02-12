@@ -2,19 +2,18 @@
 
 /**
  +-----------------------------------------------------------------------+
- | plugins/enigma/localization/<lang>.inc                                |
+ | Localization file of the Roundcube Webmail Enigma plugin              |
  |                                                                       |
- | Localization file of the Roundcube Webmail ACL plugin                 |
- | Copyright (C) 2012-2016, The Roundcube Dev Team                       |
+ | Copyright (C) The Roundcube Dev Team                                  |
  |                                                                       |
  | Licensed under the GNU General Public License version 3 or            |
  | any later version with exceptions for skins & plugins.                |
  | See the README file for a full license statement.                     |
- |                                                                       |
  +-----------------------------------------------------------------------+
 
  For translation see https://www.transifex.com/roundcube/roundcube-webmail/plugin-enigma/
 */
+
 $labels['encryption'] = 'Encriptación';
 $labels['enigmacerts'] = 'Certificados S/MIME';
 $labels['enigmakeys'] = 'Claves PGP';
@@ -64,6 +63,7 @@ $labels['keyrevoke'] = 'Revocar';
 $labels['keysend'] = 'Enviar clave pública en el mensaje';
 $labels['keychpass'] = 'Cambiar contraseña';
 $labels['newkeypass'] = 'Contraseña';
+$labels['newkeypassconfirm'] = 'Confirmar contraseña';
 $labels['key2048'] = '2048 bits - por defecto';
 $labels['key4096'] = '4096 bits - más seguro';
 $labels['keygenerating'] = 'Generando claves...';
@@ -72,7 +72,6 @@ $labels['encryptmsg'] = 'Encriptar este mensaje.';
 $labels['signmsg'] = 'Firmar digitalmente este mensaje';
 $labels['enterkeypasstitle'] = 'Escriba la frase de contraseña';
 $labels['enterkeypass'] = 'Se necesita una contraseña para desbloquear la clave secreta ($keyid) para el usuario: $user.';
-$labels['arialabelkeyexportoptions'] = 'Opciones de claves de exportación';
 $labels['attachpubkeymsg'] = 'Adjuntar mi clave pública';
 $labels['keyexportprompt'] = '¿Quiere incluir claves secretas en el archivo guardado de claves OpenPGP?';
 $labels['onlypubkeys'] = 'Exportar Sólo las Claves Públicas';
@@ -80,6 +79,7 @@ $labels['withprivkeys'] = 'Exportar las Claves Secretas';
 $labels['findkey'] = 'Buscar en servidor(es) de claves';
 $labels['keyimportlabel'] = 'Importar desde archivo';
 $labels['keyimportsearchlabel'] = 'Buscar en servidor(es) de claves';
+$labels['arialabelkeyexportoptions'] = 'Opciones de claves de exportación';
 $messages['sigvalid'] = 'Firma verificada por $sender.';
 $messages['sigvalidpartial'] = 'Firma verificada de $sender, pero parte parte del cuerpo no estaba firmado.';
 $messages['siginvalid'] = 'Firma inválida por $sender.';

@@ -18,6 +18,10 @@ class jqueryui extends rcube_plugin
 
     private static $features = array();
     private static $ui_theme;
+    private static $skin_map = array(
+        'larry' => 'larry',
+        'default' => 'elastic',
+    );
 
     public function init()
     {
@@ -25,7 +29,7 @@ class jqueryui extends rcube_plugin
 
         // the plugin might have been force-loaded so do some sanity check first
         if ($rcmail->output->type != 'html' || self::$ui_theme) {
-          return;
+            return;
         }
 
         $this->load_config();
@@ -35,31 +39,17 @@ class jqueryui extends rcube_plugin
 
         // include UI stylesheet
         $skin     = $rcmail->config->get('skin');
-        $ui_map   = $rcmail->config->get('jquery_ui_skin_map', array());
-        $ui_theme = $ui_map[$skin] ?: $skin;
+        $ui_map   = $rcmail->config->get('jquery_ui_skin_map', self::$skin_map);
+        $skins    = array_keys($rcmail->output->skins);
+        $skins[]  = 'elastic';
 
-        self::$ui_theme = $ui_theme;
+        foreach ($skins as $skin) {
+            self::$ui_theme = $ui_theme = $ui_map[$skin] ?: $skin;
 
-        if (file_exists($this->home . "/themes/$ui_theme/jquery-ui.css")) {
-            $this->include_stylesheet("themes/$ui_theme/jquery-ui.css");
-        }
-        else {
-            $this->include_stylesheet("themes/larry/jquery-ui.css");
-        }
-
-        if ($ui_theme == 'larry') {
-            // patch dialog position function in order to fully fit the close button into the window
-            $rcmail->output->add_script("jQuery.extend(jQuery.ui.dialog.prototype.options.position, {
-                using: function(pos) {
-                    var me = jQuery(this),
-                        offset = me.css(pos).offset(),
-                        topOffset = offset.top - 12;
-                    if (topOffset < 0)
-                        me.css('top', pos.top - topOffset);
-                    if (offset.left + me.outerWidth() + 12 > jQuery(window).width())
-                        me.css('left', pos.left - 12);
-                }
-            });", 'foot');
+            if (self::asset_exists("themes/$ui_theme/jquery-ui.css")) {
+                $this->include_stylesheet("themes/$ui_theme/jquery-ui.css");
+                break;
+            }
         }
 
         // jquery UI localization
@@ -69,18 +59,17 @@ class jqueryui extends rcube_plugin
             $lang_s = substr($_SESSION['language'], 0, 2);
 
             foreach ($jquery_ui_i18n as $package) {
-                if (file_exists($this->home . "/js/i18n/jquery.ui.$package-$lang_l.js")) {
+                if (self::asset_exists("js/i18n/jquery.ui.$package-$lang_l.js", false)) {
                     $this->include_script("js/i18n/jquery.ui.$package-$lang_l.js");
                 }
-                else
-                if (file_exists($this->home . "/js/i18n/jquery.ui.$package-$lang_s.js")) {
+                else if ($lang_s != 'en' && self::asset_exists("js/i18n/jquery.ui.$package-$lang_s.js", false)) {
                     $this->include_script("js/i18n/jquery.ui.$package-$lang_s.js");
                 }
             }
         }
 
         // Date format for datepicker
-        $date_format = $rcmail->config->get('date_format', 'Y-m-d');
+        $date_format = $date_format_localized = $rcmail->config->get('date_format', 'Y-m-d');
         $date_format = strtr($date_format, array(
                 'y' => 'y',
                 'Y' => 'yy',
@@ -89,7 +78,19 @@ class jqueryui extends rcube_plugin
                 'd' => 'dd',
                 'j' => 'd',
         ));
+
+        $replaces = array('Y' => 'yyyy', 'y' => 'yy', 'm' => 'mm', 'd' => 'dd', 'j' => 'd', 'n' => 'm');
+
+        foreach (array_keys($replaces) as $key) {
+            if ($rcmail->text_exists("dateformat$key")) {
+                $replaces[$key] = $rcmail->gettext("dateformat$key");
+            }
+        }
+
+        $date_format_localized = strtr($date_format_localized, $replaces);
+
         $rcmail->output->set_env('date_format', $date_format);
+        $rcmail->output->set_env('date_format_localized', $date_format_localized);
     }
 
     public static function miniColors()
@@ -103,15 +104,20 @@ class jqueryui extends rcube_plugin
         $ui_theme = self::$ui_theme;
         $rcube    = rcube::get_instance();
         $script   = 'plugins/jqueryui/js/jquery.minicolors.min.js';
-        $css      = "plugins/jqueryui/themes/$ui_theme/jquery.minicolors.css";
+        $css      = "themes/$ui_theme/jquery.minicolors.css";
 
-        if (!file_exists(INSTALL_PATH . $css)) {
-            $css = "plugins/jqueryui/themes/larry/jquery.minicolors.css";
+        if (!self::asset_exists($css)) {
+            $css = "themes/larry/jquery.minicolors.css";
         }
 
-        $rcube->output->include_css($css);
-        $rcube->output->add_header(html::tag('script', array('type' => "text/javascript", 'src' => $script)));
-        $rcube->output->add_script('$.fn.miniColors = $.fn.minicolors; $("input.colors").minicolors()', 'docready');
+        $colors_theme = $rcube->config->get('jquery_ui_colors_theme', 'default');
+        $config       = array('theme' => $colors_theme);
+        $config_str   = rcube_output::json_serialize($config);
+
+        $rcube->output->include_css('plugins/jqueryui/' . $css);
+        $rcube->output->include_script($script, 'head', false);
+        $rcube->output->add_script('$.fn.miniColors = $.fn.minicolors; $("input.colors").minicolors(' . $config_str . ')', 'docready');
+        $rcube->output->set_env('minicolors_config', $config);
     }
 
     public static function tagedit()
@@ -125,13 +131,26 @@ class jqueryui extends rcube_plugin
         $script   = 'plugins/jqueryui/js/jquery.tagedit.js';
         $rcube    = rcube::get_instance();
         $ui_theme = self::$ui_theme;
-        $css      = "plugins/jqueryui/themes/$ui_theme/tagedit.css";
+        $css      = "themes/$ui_theme/tagedit.css";
 
-        if (!file_exists(INSTALL_PATH . $css)) {
-            $css = "plugins/jqueryui/themes/larry/tagedit.css";
+        if (!array_key_exists('elastic', (array) $rcube->output->skins)) {
+            if (!self::asset_exists($css)) {
+                $css = "themes/larry/tagedit.css";
+            }
+
+            $rcube->output->include_css('plugins/jqueryui/' . $css);
         }
 
-        $rcube->output->include_css($css);
-        $rcube->output->add_header(html::tag('script', array('type' => "text/javascript", 'src' => $script)));
+        $rcube->output->include_script($script, 'head', false);
+    }
+
+    /**
+     * Checks if an asset file exists in specified location (with assets_dir support)
+     */
+    protected static function asset_exists($path, $minified = true)
+    {
+        $rcube = rcube::get_instance();
+
+        return $rcube->find_asset('/plugins/jqueryui/' . $path, $minified) !== null;
     }
 }

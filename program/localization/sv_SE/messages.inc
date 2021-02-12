@@ -2,23 +2,23 @@
 
 /*
  +-----------------------------------------------------------------------+
- | localization/<lang>/messages.inc                                      |
- |                                                                       |
  | Localization file of the Roundcube Webmail client                     |
- | Copyright (C) 2005-2015, The Roundcube Dev Team                       |
+ |                                                                       |
+ | Copyright (C) The Roundcube Dev Team                                  |
  |                                                                       |
  | Licensed under the GNU General Public License version 3 or            |
  | any later version with exceptions for skins & plugins.                |
  | See the README file for a full license statement.                     |
- |                                                                       |
  +-----------------------------------------------------------------------+
 
  For translation see https://www.transifex.com/projects/p/roundcube-webmail/resource/messages/
 */
+
 $messages['errortitle']  = 'Ett fel uppstod!';
 $messages['loginfailed']  = 'Inloggningen misslyckades';
-$messages['cookiesdisabled'] = 'Din webbläsare accepterar inte cookies';
+$messages['cookiesdisabled'] = 'Webbläsaren accepterar inte cookies.';
 $messages['sessionerror'] = 'Din inloggning är felaktig eller har gått ut';
+$messages['cookiesmismatch'] = 'Något är fel med webbläsarens cookie. Rensa bort den för att kunna fortsätta.';
 $messages['storageerror'] = 'Anslutning till lagringsservern misslyckades.';
 $messages['servererror'] = 'Serverfel!';
 $messages['servererrormsg'] = 'Serverfel: $msg';
@@ -64,11 +64,11 @@ $messages['nopubkeyforsender'] = 'Ingen giltig offentlig nyckel hittades för di
 $messages['encryptnoattachments'] = 'Redan uppladdade bilagor kan inte krypteras. Lägg till bilagorna i krypteringsredigeraren istället.';
 $messages['searchpubkeyservers'] = 'Ska saknade nycklar sökas i offentliga nyckelservrar?';
 $messages['encryptpubkeysfound'] = 'Följande offentliga nycklar hittades:';
-$messages['keyservererror'] = 'Nyckeln kunde inte hämtas från nyckelservern';
-$messages['keyimportsuccess'] = 'Offentlig nyckel $key är tillagd i din nyckelring';
+$messages['keyservererror'] = 'Nyckeln kunde inte hämtas från nyckelservern.';
+$messages['keyimportsuccess'] = 'Offentlig nyckel $key är tillagd i din nyckelring.';
 $messages['nocontactsfound'] = 'Inga kontakter hittades.';
 $messages['contactnotfound'] = 'Efterfrågad kontakt hittades inte.';
-$messages['contactsearchonly'] = 'Ange sökord för att hitta kontakter';
+$messages['contactsearchonly'] = 'Ange sökord för att hitta kontakter i vald adressbok.';
 $messages['sendingfailed'] = 'Meddelandet kunde inte skickas.';
 $messages['senttooquickly'] = 'Vänta ytterligare $sec sekunder med att skicka meddelandet.';
 $messages['errorsavingsent'] = 'Det skickade meddelandet kunde inte sparas.';
@@ -83,6 +83,7 @@ $messages['deletecontactconfirm']  = 'Vill du verkligen ta bort valda kontakter?
 $messages['deletegroupconfirm']  = 'Vill du verkligen ta bort den valda gruppen?';
 $messages['deletemessagesconfirm'] = 'Vill du verkligen ta bort valda meddelanden?';
 $messages['deletefolderconfirm']  = 'Vill du verkligen ta bort den här katalogen?';
+$messages['movefolderconfirm']  = 'Vill du verkligen flytta den här katalogen?';
 $messages['purgefolderconfirm']  = 'Vill du verkligen ta bort alla meddelanden i den här katalogen?';
 $messages['contactdeleting'] = 'Tar bort kontakt...';
 $messages['groupdeleting'] = 'Tar bort grupp...';
@@ -126,6 +127,7 @@ $messages['fileuploaderror'] = 'Filuppladdning misslyckades.';
 $messages['filesizeerror'] = 'Den uppladdade filens storlek överstiger högsta tillåtna $size.';
 $messages['filecounterror'] = 'Högst $count filer kan laddas upp samtidigt.';
 $messages['msgsizeerror'] = 'Filen kunde inte bifogas. Största tillåtna storlek ($size) överskreds.';
+$messages['msgsizeerrorfwd'] = 'Tillåten storlek på meddelandet ($size) är överskriden. $num meddelanden har inte bifogats.';
 $messages['copysuccess'] = '$nr kontakter har kopierats.';
 $messages['movesuccess'] = '$nr kontakter har flyttats.';
 $messages['copyerror'] = 'Några kontakter kunde inte kopieras.';
@@ -165,7 +167,7 @@ $messages['smtpautherror'] = 'SMTP-fel ($code): Inloggningen misslyckades.';
 $messages['smtpfromerror'] = 'SMTP-fel ($code): Kan inte sätta avsändaradress till "$from" ($msg).';
 $messages['smtptoerror'] = 'SMTP-fel ($code): Kan inte lägga till mottagaradress "$to" ($msg).';
 $messages['smtprecipientserror'] = 'SMTP-fel: Felaktigt formaterad lista med mottagaradresser.';
-$messages['smtputf8error'] = 'SMTP-fel: Mottagaradressen kan inte anges i unicode-format.';
+$messages['smtputf8error'] = 'SMTP-fel: Servern klarar inte mailadresser med Unicode.';
 $messages['smtpsizeerror'] = 'SMTP-fel: Meddelandet är för stort ($limit).';
 $messages['smtperror'] = 'SMTP-fel: $msg';
 $messages['emailformaterror'] = 'Ogiltig adress: $email';
@@ -214,3 +216,9 @@ $messages['clicktoresumesession'] = 'Klicka här för att återuppta föregåend
 $messages['errcomposesession'] = 'Fel i påbörjat meddelande';
 $messages['errcomposesessionexplain'] = 'Det påbörjade meddelandet hittades inte.';
 $messages['clicktocompose'] = 'Klicka här för att skriva ett nytt meddelande';
+$messages['nosupporterror'] = 'Funktionen finns inte i webbläsaren.';
+$messages['siginserted'] = 'Signatur infogad.';
+$messages['responseinserted'] = 'Respons infogad.';
+$messages['listempty'] = 'Listan är tom.';
+$messages['listusebutton'] = 'Använd Skapa-knappen för att lägga till information.';
+$messages['keypaircreatesuccess'] = 'Ett nytt nyckelpar har skapats för $identity.';

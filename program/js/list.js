@@ -6,7 +6,7 @@
  * @licstart  The following is the entire license notice for the
  * JavaScript code in this file.
  *
- * Copyright (c) 2005-2014, The Roundcube Dev Team
+ * Copyright (c) The Roundcube Dev Team
  *
  * The JavaScript code in this page is free software: you can
  * redistribute it and/or modify it under the terms of the GNU
@@ -62,6 +62,7 @@ function rcube_list_widget(list, p)
   this.toggleselect = false;
   this.aria_listbox = false;
   this.parent_focus = true;
+  this.checkbox_selection = false;
 
   this.drag_active = false;
   this.col_drag_active = false;
@@ -73,8 +74,8 @@ function rcube_list_widget(list, p)
   this.dblclick_time = 500; // default value on MS Windows is 500
   this.row_init = function(){};  // @deprecated; use list.addEventListener('initrow') instead
 
-  this.pointer_touch_start = 0; // start time of the touch event
-  this.pointer_touch_time = 500; // maximum time a touch should be considered a left mouse button event, after this its something else (eg contextmenu event)
+  this.touch_start_time = 0; // start time of the touch event
+  this.touch_event_time = 500; // maximum time a touch should be considered a left mouse button event, after this its something else (eg contextmenu event)
 
   // overwrite default paramaters
   if (p && typeof p === 'object')
@@ -138,6 +139,8 @@ init: function()
     this.list.parentNode.onclick = function(e) { me.focus(); };
   }
 
+  rcmail.triggerEvent('initlist', { obj: this.list });
+
   return this;
 },
 
@@ -158,7 +161,7 @@ init_row: function(row)
       // set eventhandlers to table row (only left-button-clicks in mouseup)
       .mousedown(function(e) { return self.drag_row(e, this.uid); })
       .mouseup(function(e) {
-        if (e.which == 1 && !self.drag_active)
+        if (e.which == 1 && !self.drag_active && !$(e.currentTarget).is('.ui-droppable-active'))
           return self.click_row(e, this.uid);
         else
           return true;
@@ -168,14 +171,14 @@ init_row: function(row)
     if ((bw.ie || bw.edge) && bw.pointer) {
       $(row).on('pointerdown', function(e) {
           if (e.pointerType == 'touch') {
-            self.pointer_touch_start = new Date().getTime();
+            self.touch_start_time = new Date().getTime();
             return false;
           }
         })
         .on('pointerup', function(e) {
           if (e.pointerType == 'touch') {
-            var duration = (new Date().getTime() - self.pointer_touch_start);
-            if (duration <= self.pointer_touch_time) {
+            var duration = (new Date().getTime() - self.touch_start_time);
+            if (duration <= self.touch_event_time) {
               self.drag_row(e, this.uid);
               return self.click_row(e, this.uid);
             }
@@ -186,12 +189,14 @@ init_row: function(row)
       row.addEventListener('touchstart', function(e) {
         if (e.touches.length == 1) {
           self.touchmoved = false;
-          self.drag_row(rcube_event.touchevent(e.touches[0]), this.uid)
+          self.drag_row(rcube_event.touchevent(e.touches[0]), this.uid);
+          self.touch_start_time = new Date().getTime();
         }
       }, false);
       row.addEventListener('touchend', function(e) {
         if (e.changedTouches.length == 1) {
-          if (!self.touchmoved && !self.click_row(rcube_event.touchevent(e.changedTouches[0]), this.uid))
+          var duration = (new Date().getTime() - self.touch_start_time);
+          if (!self.touchmoved && duration <= self.touch_event_time && !self.click_row(rcube_event.touchevent(e.changedTouches[0]), this.uid))
             e.preventDefault();
         }
       }, false);
@@ -210,7 +215,7 @@ init_row: function(row)
       $(row)
         .attr('role', 'option')
         .attr('aria-labelledby', lbl_id)
-        .find(this.col_tagname()).eq(this.subject_col).attr('id', lbl_id);
+        .find(this.col_tagname()).eq(this.subject_column()).attr('id', lbl_id);
     }
 
     if (document.all)
@@ -355,9 +360,7 @@ remove_row: function(uid, sel_next)
 
   node.style.display = 'none';
 
-  // Specify removed row uid in the select_next argument.
-  // It's needed because after removing a set of rows
-  // reference to the last selected message is lost.
+  // Select next row before deletion, because we need the reference
   if (sel_next)
     this.select_next(uid);
 
@@ -404,6 +407,10 @@ insert_row: function(row, before)
     row = domrow;
   }
 
+  if (this.checkbox_selection) {
+    this.insert_checkbox(row);
+  }
+
   if (before && tbody.childNodes.length)
     tbody.insertBefore(row, (typeof before == 'object' && before.parentNode == tbody) ? before : tbody.firstChild);
   else
@@ -418,7 +425,7 @@ insert_row: function(row, before)
 },
 
 /**
- * 
+ * Update existing record
  */
 update_row: function(id, cols, newid, select)
 {
@@ -444,6 +451,60 @@ update_row: function(id, cols, newid, select)
   }
 },
 
+/**
+ * Add selection checkbox to the list record
+ */
+insert_checkbox: function(row)
+{
+  var key, self = this,
+    cell = document.createElement(this.col_tagname()),
+    chbox = document.createElement('input');
+
+  chbox.type = 'checkbox';
+  chbox.tabIndex = -1;
+  chbox.onchange = function(e) {
+    self.select_row(row.uid, key || CONTROL_KEY, true);
+    e.stopPropagation();
+    key = null;
+  };
+  chbox.onmousedown = function(e) {
+    key = rcube_event.get_modifier(e);
+  };
+
+  cell.className = 'selection';
+  // make the whole cell "touchable" for touch devices
+  cell.onclick = function(e) {
+    if (!$(e.target).is('input')) {
+      key = rcube_event.get_modifier(e);
+      $(chbox).prop('checked', !chbox.checked).change();
+    }
+    e.stopPropagation();
+  };
+
+  cell.appendChild(chbox);
+
+  row.insertBefore(cell, row.firstChild);
+},
+
+/**
+ * Enable checkbox selection
+ */
+enable_checkbox_selection: function()
+{
+  this.checkbox_selection = true;
+
+  // Add checkbox to existing records if any
+  var r, len, cell, row_tag = this.row_tagname().toUpperCase(),
+    rows = this.tbody.childNodes;
+
+  for (r=0, len=rows.length; r<len; r++) {
+    if (rows[r].nodeName == row_tag && (cell = rows[r].firstChild)) {
+      if (cell.className == 'selection')
+        break;
+      this.insert_checkbox(rows[r]);
+    }
+  }
+},
 
 /**
  * Set focus to the list
@@ -461,7 +522,7 @@ focus: function(e)
   var focus_elem = null;
 
   if (this.last_selected && this.rows[this.last_selected]) {
-    focus_elem = $(this.rows[this.last_selected].obj).find(this.col_tagname()).eq(this.subject_col).attr('tabindex', '0');
+    focus_elem = $(this.rows[this.last_selected].obj).find(this.col_tagname()).eq(this.subject_column()).attr('tabindex', '0');
   }
 
   // Un-focus already focused elements (#1487123, #1487316, #1488600, #1488620)
@@ -496,7 +557,7 @@ blur: function(e)
 
   if (this.last_selected && this.rows[this.last_selected]) {
     $(this.rows[this.last_selected].obj)
-      .find(this.col_tagname()).eq(this.subject_col).removeAttr('tabindex');
+      .find(this.col_tagname()).eq(this.subject_column()).removeAttr('tabindex');
   }
 
   $(this.list).removeClass('focus');
@@ -649,7 +710,7 @@ is_event_target: function(e)
   var target = rcube_event.get_target(e),
     tagname = target.tagName.toLowerCase();
 
-  return !(target && (tagname == 'input' || tagname == 'img' || (tagname != 'a' && target.onclick)));
+  return !(target && (tagname == 'input' || tagname == 'img' || (tagname != 'a' && target.onclick) || $(target).data('action-link')));
 },
 
 
@@ -671,25 +732,13 @@ expand_row: function(e, id)
 {
   var row = this.rows[id],
     evtarget = rcube_event.get_target(e),
-    mod_key = rcube_event.get_modifier(e);
+    mod_key = rcube_event.get_modifier(e),
+    action = (row.expanded ? 'collapse' : 'expand') + (mod_key == CONTROL_KEY || this.multiexpand ? '_all' : '');
 
   // Don't treat double click on the expando as double click on the message.
   row.clicked = 0;
 
-  if (row.expanded) {
-    evtarget.className = 'collapsed';
-    if (mod_key == CONTROL_KEY || this.multiexpand)
-      this.collapse_all(row);
-    else
-      this.collapse(row);
-  }
-  else {
-    evtarget.className = 'expanded';
-    if (mod_key == CONTROL_KEY || this.multiexpand)
-      this.expand_all(row);
-    else
-     this.expand(row);
-  }
+  this[action](row);
 },
 
 collapse: function(row)
@@ -698,6 +747,7 @@ collapse: function(row)
     new_row = row ? row.obj.nextSibling : null;
 
   row.expanded = false;
+  this.update_expando(row.id);
   this.triggerEvent('expandcollapse', { uid:row.uid, expanded:row.expanded, obj:row.obj });
 
   while (new_row) {
@@ -753,6 +803,7 @@ expand: function(row)
               last_expanded_parent_depth = p.depth;
               $(new_row).css('display', '');
               r.expanded = true;
+              this.update_expando(r.id, true);
               this.triggerEvent('expandcollapse', { uid:r.uid, expanded:r.expanded, obj:new_row });
             }
           }
@@ -767,6 +818,7 @@ expand: function(row)
 
   this.resize();
   this.triggerEvent('listupdate');
+
   return false;
 },
 
@@ -782,7 +834,7 @@ collapse_all: function(row)
     this.update_expando(row.id);
     this.triggerEvent('expandcollapse', { uid:row.uid, expanded:row.expanded, obj:row.obj });
 
-    // don't collapse sub-root tree in multiexpand mode 
+    // don't collapse sub-root tree in multiexpand mode
     if (depth && this.multiexpand)
       return false;
   }
@@ -799,10 +851,12 @@ collapse_all: function(row)
 
         if (row || r.depth)
           $(new_row).css('display', 'none');
-        if (r.has_children && r.expanded) {
+        if (r.expanded) {
           r.expanded = false;
-          this.update_expando(r.id, false);
-          this.triggerEvent('expandcollapse', { uid:r.uid, expanded:r.expanded, obj:new_row });
+          if (r.has_children) {
+            this.update_expando(r.id);
+            this.triggerEvent('expandcollapse', { uid:r.uid, expanded:r.expanded, obj:new_row });
+          }
         }
       }
     }
@@ -811,6 +865,7 @@ collapse_all: function(row)
 
   this.resize();
   this.triggerEvent('listupdate');
+
   return false;
 },
 
@@ -838,10 +893,12 @@ expand_all: function(row)
           break;
 
         $(new_row).css('display', '');
-        if (r.has_children && !r.expanded) {
+        if (!r.expanded) {
           r.expanded = true;
-          this.update_expando(r.id, true);
-          this.triggerEvent('expandcollapse', { uid:r.uid, expanded:r.expanded, obj:new_row });
+          if (r.has_children) {
+            this.update_expando(r.id, true);
+            this.triggerEvent('expandcollapse', { uid:r.uid, expanded:r.expanded, obj:new_row });
+          }
         }
       }
     }
@@ -850,6 +907,7 @@ expand_all: function(row)
 
   this.resize();
   this.triggerEvent('listupdate');
+
   return false;
 },
 
@@ -914,7 +972,7 @@ get_first_row: function()
     var i, uid, rows = this.tbody.childNodes;
 
     for (i=0; i<rows.length; i++)
-      if (rows[i].id && (uid = this.get_row_uid(rows[i])))
+      if (rows[i].id && (uid = this.get_row_uid(rows[i])) && this.rows[uid])
         return uid;
   }
 
@@ -927,11 +985,27 @@ get_last_row: function()
     var i, uid, rows = this.tbody.childNodes;
 
     for (i=rows.length-1; i>=0; i--)
-      if (rows[i].id && (uid = this.get_row_uid(rows[i])))
+      if (rows[i].id && (uid = this.get_row_uid(rows[i])) && this.rows[uid])
         return uid;
   }
 
   return null;
+},
+
+get_next: function()
+{
+  var row;
+  if (row = this.get_next_row()) {
+    return row.uid;
+  }
+},
+
+get_prev: function()
+{
+  var row;
+  if (row = this.get_prev_row()) {
+    return row.uid;
+  }
 },
 
 row_tagname: function()
@@ -948,7 +1022,7 @@ col_tagname: function()
 
 get_cell: function(row, index)
 {
-  return $(this.col_tagname(), row).eq(index);
+  return $(this.col_tagname(), row).eq(index + (this.checkbox_selection ? 1 : 0));
 },
 
 /**
@@ -997,7 +1071,7 @@ select_row: function(id, mod_key, with_mouse)
 
   if (this.last_selected && this.rows[this.last_selected]) {
     $(this.rows[this.last_selected].obj).removeClass('focused')
-      .find(this.col_tagname()).eq(this.subject_col).removeAttr('tabindex');
+      .find(this.col_tagname()).eq(this.subject_column()).removeAttr('tabindex');
   }
 
   // unselect if toggleselect is active and the same row was clicked again
@@ -1013,7 +1087,7 @@ select_row: function(id, mod_key, with_mouse)
     $(this.rows[id].obj).addClass('focused');
     // set cursor focus to link inside selected row
     if (this.focused)
-      this.focus_noscroll($(this.rows[id].obj).find(this.col_tagname()).eq(this.subject_col).attr('tabindex', '0'));
+      this.focus_noscroll($(this.rows[id].obj).find(this.col_tagname()).eq(this.subject_column()).attr('tabindex', '0'));
   }
 
   if (!this.selection.length)
@@ -1046,14 +1120,16 @@ select_next: function(uid)
 
 
 /**
- * Select first row 
+ * Select first row
  */
-select_first: function(mod_key)
+select_first: function(mod_key, noscroll)
 {
   var row = this.get_first_row();
   if (row) {
     this.select_row(row, mod_key, false);
-    this.scrollto(row);
+
+    if (!noscroll)
+      this.scrollto(row);
   }
 },
 
@@ -1061,12 +1137,14 @@ select_first: function(mod_key)
 /**
  * Select last row
  */
-select_last: function(mod_key)
+select_last: function(mod_key, noscroll)
 {
   var row = this.get_last_row();
   if (row) {
     this.select_row(row, mod_key, false);
-    this.scrollto(row);
+
+    if (!noscroll)
+      this.scrollto(row);
   }
 },
 
@@ -1222,6 +1300,9 @@ clear_selection: function(id, no_event)
     this.selection = [];
   }
 
+  if (this.checkbox_selection)
+    $(this.row_tagname() + ':not(.selected) > .selection > input:checked', this.list).prop('checked', false);
+
   if (num_select && !this.selection.length && !no_event) {
     this.triggerEvent('select');
     this.last_selected = null;
@@ -1235,6 +1316,10 @@ clear_selection: function(id, no_event)
 get_selection: function(deep)
 {
   var res = $.merge([], this.selection);
+
+  var props = {deep: deep, res: res};
+  if (this.triggerEvent('getselection', props) === false)
+    return props.res;
 
   // return children of selected threads even if only root is selected
   if (deep !== false && res.length) {
@@ -1260,8 +1345,10 @@ get_selection: function(deep)
  */
 get_single_selection: function()
 {
-  if (this.selection.length == 1)
-    return this.selection[0];
+  var selection = this.get_selection(false);
+
+  if (selection.length == 1)
+    return selection[0];
   else
     return null;
 },
@@ -1280,6 +1367,9 @@ highlight_row: function(id, multiple, norecur)
       this.clear_selection(null, true);
       this.selection[0] = id;
       $(this.rows[id].obj).addClass('selected').attr('aria-selected', 'true');
+
+      if (this.checkbox_selection)
+        $('.selection > input', this.rows[id].obj).prop('checked', true);
     }
   }
   else {
@@ -1288,6 +1378,10 @@ highlight_row: function(id, multiple, norecur)
     if (p === false) { // select row
       this.selection.push(id);
       $(this.rows[id].obj).addClass('selected').attr('aria-selected', 'true');
+
+      if (this.checkbox_selection)
+        $('.selection > input', this.rows[id].obj).prop('checked', true);
+
       if (!norecur && !this.rows[id].expanded)
         this.highlight_children(id, true);
     }
@@ -1297,6 +1391,10 @@ highlight_row: function(id, multiple, norecur)
 
       this.selection = pre.concat(post);
       $(this.rows[id].obj).removeClass('selected').removeAttr('aria-selected');
+
+      if (this.checkbox_selection)
+        $('.selection > input', this.rows[id].obj).prop('checked', false);
+
       if (!norecur && !this.rows[id].expanded)
         this.highlight_children(id, false);
     }
@@ -1332,28 +1430,19 @@ key_press: function(e)
     mod_key = rcube_event.get_modifier(e);
 
   switch (keyCode) {
-    case 40:
-    case 38:
-    case 63233: // "down", in safari keypress
-    case 63232: // "up", in safari keypress
+    case 37:    // Left arrow
+    case 39:    // Right arrow
+    case 40:    // Up arrow
+    case 38:    // Down arrow
+    case 63233: // "down" in Safari keypress
+    case 63232: // "up" in Safari keypress
       // Stop propagation so that the browser doesn't scroll
       rcube_event.cancel(e);
       return this.use_arrow_key(keyCode, mod_key);
 
-    case 32:
+    case 32: // Space
       rcube_event.cancel(e);
       return this.select_row(this.last_selected, mod_key, true);
-
-    case 37: // Left arrow key
-    case 39: // Right arrow key
-      // Stop propagation
-      rcube_event.cancel(e);
-      var ret = this.use_arrow_key(keyCode, mod_key);
-      this.key_pressed = keyCode;
-      this.modkey = mod_key;
-      this.triggerEvent('keypress');
-      this.modkey = 0;
-      return ret;
 
     case 36: // Home
       this.select_first(mod_key);
@@ -1363,7 +1452,15 @@ key_press: function(e)
       this.select_last(mod_key);
       return rcube_event.cancel(e);
 
-    case 27:
+    case 65: // Ctrl + A
+      if (mod_key == CONTROL_KEY && this.multiselect) {
+        this.select_first(null, true);
+        this.select_last(SHIFT_KEY, true);
+        return rcube_event.cancel(e);
+      }
+      break;
+
+    case 27: // Esc
       if (this.drag_active)
         return this.drag_mouse_up(e);
 
@@ -1401,43 +1498,39 @@ key_press: function(e)
  */
 use_arrow_key: function(keyCode, mod_key)
 {
-  var new_row,
-    selected_row = this.rows[this.last_selected];
+  var new_row, selected_row = this.rows[this.last_selected];
 
-  // Safari uses the nonstandard keycodes 63232/63233 for up/down, if we're
+  if (!selected_row) {
+    // select the first row if none selected yet
+    this.select_first(CONTROL_KEY);
+  }
+  // Safari uses the non-standard keycodes 63232/63233 for up/down, if we're
   // using the keypress event (but not the keydown or keyup event).
-  if (keyCode == 40 || keyCode == 63233) // down arrow key pressed
+  else if (keyCode == 40 || keyCode == 63233) // Down arrow
     new_row = this.get_next_row();
-  else if (keyCode == 38 || keyCode == 63232) // up arrow key pressed
+  else if (keyCode == 38 || keyCode == 63232) // Up arrow
     new_row = this.get_prev_row();
-  else {
-    if (!selected_row || !selected_row.has_children)
-      return;
-
-    // expand
-    if (keyCode == 39) {
-      if (selected_row.expanded)
-        return;
-
-      if (mod_key == CONTROL_KEY || this.multiexpand)
-        this.expand_all(selected_row);
-      else
-        this.expand(selected_row);
-    }
-    // collapse
+  else if (keyCode == 39 && selected_row.has_children) { // Right arrow
+    if (!selected_row.expanded)
+      this.expand_all(selected_row);
     else {
-      if (!selected_row.expanded)
-        return;
-
-      if (mod_key == CONTROL_KEY || this.multiexpand)
-        this.collapse_all(selected_row);
-      else
-        this.collapse(selected_row);
+      // jump to the first child
+      new_row = this.get_next_row();
+      mod_key = null;
     }
+  }
+  else if (keyCode == 37) { // Left arrow
+    if (selected_row.expanded && selected_row.has_children && (!selected_row.parent_uid || !this.multiexpand))
+      this.collapse_all(selected_row);
+    else if (selected_row.parent_uid) {
+      // jump to the top-most or closest parent
+      if (mod_key == CONTROL_KEY)
+        new_row = this.rows[this.find_root(selected_row.uid)];
+      else
+        new_row = this.rows[selected_row.parent_uid];
 
-    this.update_expando(selected_row.id, selected_row.expanded);
-
-    return false;
+      mod_key = null;
+    }
   }
 
   if (new_row) {
@@ -1447,10 +1540,6 @@ use_arrow_key: function(keyCode, mod_key)
 
     this.select_row(new_row.uid, mod_key, false);
     this.scrollto(new_row.uid);
-  }
-  else if (!new_row && !selected_row) {
-    // select the first row if none selected yet
-    this.select_first(CONTROL_KEY);
   }
 
   return false;
@@ -1546,12 +1635,14 @@ drag_mouse_move: function(e)
     // append subject (of every row up to the limit) to the drag layer
     $.each(selection, function(i, uid) {
       if (i > limit) {
-        self.draglayer.append('...');
+        self.draglayer.append($('<div>').text('...'));
         return false;
       }
 
+      var subject_col = self.subject_column();
+
       $('> ' + self.col_tagname(), self.rows[uid].obj).each(function(n, cell) {
-        if (self.subject_col < 0 || (self.subject_col >= 0 && self.subject_col == n)) {
+        if (subject_col < 0 || (subject_col >= 0 && subject_col == n)) {
           // remove elements marked with "skip-on-drag" class
           cell = $(cell).clone();
           $(cell).find('.skip-on-drag').remove();
@@ -1845,6 +1936,11 @@ column_replace: function(from, to)
     this.init_header();
 
   this.triggerEvent('column_replace');
+},
+
+subject_column: function()
+{
+  return this.subject_col + (this.checkbox_selection ? 1 : 0);
 }
 
 };

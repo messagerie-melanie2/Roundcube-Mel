@@ -2,10 +2,9 @@
 
 /**
  +-----------------------------------------------------------------------+
- | program/steps/mail/getunread.inc                                      |
- |                                                                       |
  | This file is part of the Roundcube Webmail client                     |
- | Copyright (C) 2005-2013, The Roundcube Dev Team                       |
+ |                                                                       |
+ | Copyright (C) The Roundcube Dev Team                                  |
  |                                                                       |
  | Licensed under the GNU General Public License version 3 or            |
  | any later version with exceptions for skins & plugins.                |
@@ -13,7 +12,6 @@
  |                                                                       |
  | PURPOSE:                                                              |
  |   Check all mailboxes for unread messages and update GUI              |
- |                                                                       |
  +-----------------------------------------------------------------------+
  | Author: Thomas Bruederli <roundcube@gmail.com>                        |
  +-----------------------------------------------------------------------+
@@ -23,11 +21,7 @@ $a_folders = $RCMAIL->storage->list_folders_subscribed('', '*', 'mail');
 
 if (!empty($a_folders)) {
     $current   = $RCMAIL->storage->get_folder();
-    // PAMELA - Change the IMAP folder name with a plugin (change INBOX for shared mailboxes)
-    $data = $RCMAIL->plugins->exec_hook('mel_is_inbox',
-        array('mbox' => $current, 'isInbox' => $current == 'INBOX'));
-
-    $inbox     = $data['isInbox'];
+    $inbox     = ($current == 'INBOX');
     $trash     = $RCMAIL->config->get('trash_mbox');
     $check_all = (bool)$RCMAIL->config->get('check_all_folders');
 
@@ -45,8 +39,7 @@ if (!empty($a_folders)) {
         // after possible message status change when opening a message
         // not in preview frame
         if ($unseen || $unseen_old === null || $mbox == $current) {
-            // PAMELA - Change the IMAP folder name with a plugin (change INBOX for shared mailboxes)
-            $OUTPUT->command('set_unread_count', $mbox, $unseen, $inbox && $mbox_row == $data['folder']);
+            $OUTPUT->command('set_unread_count', $mbox, $unseen, $inbox && $mbox_row == 'INBOX');
         }
 
         rcmail_set_unseen_count($mbox, $unseen);

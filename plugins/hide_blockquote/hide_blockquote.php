@@ -58,7 +58,7 @@ class hide_blockquote extends rcube_plugin
         $input    = new html_inputfield(array('name' => '_'.$field_id, 'id' => $field_id, 'size' => 5));
 
         $args['blocks']['main']['options']['hide_blockquote_limit'] = array(
-            'title'   => $this->gettext('quotelimit'),
+            'title'   => html::label($field_id, $this->gettext('quotelimit')),
             'content' => $input->show($limit ?: '')
         );
 

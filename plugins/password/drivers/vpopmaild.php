@@ -8,7 +8,7 @@
  * @version 2.0
  * @author Johannes Hessellund
  *
- * Copyright (C) 2005-2013, The Roundcube Dev Team
+ * Copyright (C) The Roundcube Dev Team
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,7 +26,7 @@
 
 class rcube_vpopmaild_password
 {
-    function save($curpass, $passwd)
+    function save($curpass, $passwd, $username)
     {
         $rcmail    = rcmail::get_instance();
         $vpopmaild = new Net_Socket();
@@ -46,7 +46,7 @@ class rcube_vpopmaild_password
             return PASSWORD_CONNECT_ERROR;
         }
 
-        $vpopmaild->writeLine("slogin ". $_SESSION['username'] . " " . $curpass);
+        $vpopmaild->writeLine("slogin ". $username . " " . $curpass);
         $result = $vpopmaild->readLine();
 
         if(!preg_match('/^\+OK/', $result) ) {
@@ -55,7 +55,7 @@ class rcube_vpopmaild_password
             return PASSWORD_ERROR;
         }
 
-        $vpopmaild->writeLine("mod_user ". $_SESSION['username']);
+        $vpopmaild->writeLine("mod_user ". $username);
         $vpopmaild->writeLine("clear_text_password ". $passwd);
         $vpopmaild->writeLine(".");
         $result = $vpopmaild->readLine();

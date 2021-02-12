@@ -3,8 +3,8 @@
 /**
  * Classes for managesieve operations (using PEAR::Net_Sieve)
  *
- * Copyright (C) 2008-2011, The Roundcube Dev Team
- * Copyright (C) 2011, Kolab Systems AG
+ * Copyright (C) The Roundcube Dev Team
+ * Copyright (C) Kolab Systems AG
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,7 +25,7 @@
 class rcube_sieve
 {
     private $sieve;                 // Net_Sieve object
-    private $error = false;         // error flag
+    private $error      = false;    // error flag
     private $errorLines = array();  // array of line numbers within sieve script which raised an error
     private $list       = array();  // scripts list
     private $exts;                  // array of supported extensions
@@ -62,12 +62,21 @@ class rcube_sieve
      */
     public function __construct($username, $password='', $host='localhost', $port=2000,
         $auth_type=null, $usetls=true, $disabled=array(), $debug=false,
-        $auth_cid=null, $auth_pw=null, $options=array())
+        $auth_cid=null, $auth_pw=null, $options=array(), $gssapi_principal=null,
+        $gssapi_cname=null)
     {
         $this->sieve = new Net_Sieve();
 
         if ($debug) {
             $this->sieve->setDebug(true, array($this, 'debug_handler'));
+        }
+
+        if (isset($gssapi_principal)) {
+            $this->sieve->setServicePrincipal($gssapi_principal);
+        }
+
+        if (isset($gssapi_cname)) {
+            $this->sieve->setServiceCN($gssapi_cname);
         }
 
         $result = $this->sieve->connect($host, $port, $options, $usetls);
@@ -285,11 +294,13 @@ class rcube_sieve
      */
     public function get_extensions()
     {
-        if ($this->exts)
+        if ($this->exts) {
             return $this->exts;
+        }
 
-        if (!$this->sieve)
+        if (!$this->sieve) {
             return $this->_set_error(self::ERROR_INTERNAL);
+        }
 
         $ext = $this->sieve->getExtensions();
 
@@ -302,12 +313,10 @@ class rcube_sieve
 
         if ($this->script) {
             $supported = $this->script->get_extensions();
-            foreach ($ext as $idx => $ext_name)
-                if (!in_array($ext_name, $supported))
-                    unset($ext[$idx]);
+            $ext       = array_values(array_intersect($ext, $supported));
         }
 
-        return array_values($ext);
+        return $ext;
     }
 
     /**
@@ -316,9 +325,9 @@ class rcube_sieve
     public function get_scripts()
     {
         if (!$this->list) {
-
-            if (!$this->sieve)
+            if (!$this->sieve) {
                 return $this->_set_error(self::ERROR_INTERNAL);
+            }
 
             $list = $this->sieve->listScripts($active);
 
@@ -354,19 +363,17 @@ class rcube_sieve
      */
     public function load($name)
     {
-        if (!$this->sieve)
-            return $this->_set_error(self::ERROR_INTERNAL);
-
-        if ($this->current == $name)
+        if ($this->current === $name) {
             return true;
-
-        $script = $this->sieve->getScript($name);
-
-        if (is_a($script, 'PEAR_Error')) {
-            return $this->_set_error(self::ERROR_OTHER);
         }
 
-        // try to parse from Roundcube format
+        $script = $this->get_script($name);
+
+        if ($script === false) {
+            return false;
+        }
+
+        // try to parse to Roundcube format
         $this->script = $this->_parse($script);
 
         $this->current = $name;
@@ -379,10 +386,11 @@ class rcube_sieve
      */
     public function load_script($script)
     {
-        if (!$this->sieve)
+        if (!$this->sieve) {
             return $this->_set_error(self::ERROR_INTERNAL);
+        }
 
-        // try to parse from Roundcube format
+        // try to parse to Roundcube format
         $this->script = $this->_parse($script);
     }
 
@@ -410,6 +418,7 @@ class rcube_sieve
                         continue 2;
                     }
                 }
+
                 if (!empty($script->content[$idx+1]) && $script->content[$idx+1]['type'] != 'if') {
                     $script->content[$idx]['actions'][] = array('type' => 'stop');
                 }
@@ -424,8 +433,9 @@ class rcube_sieve
      */
     public function get_script($name)
     {
-        if (!$this->sieve)
+        if (!$this->sieve) {
             return $this->_set_error(self::ERROR_INTERNAL);
+        }
 
         $content = $this->sieve->getScript($name);
 
@@ -441,8 +451,9 @@ class rcube_sieve
      */
     public function copy($name, $copy)
     {
-        if (!$this->sieve)
+        if (!$this->sieve) {
             return $this->_set_error(self::ERROR_INTERNAL);
+        }
 
         if ($copy) {
             $content = $this->sieve->getScript($copy);

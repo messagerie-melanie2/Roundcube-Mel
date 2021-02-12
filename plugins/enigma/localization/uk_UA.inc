@@ -2,19 +2,18 @@
 
 /**
  +-----------------------------------------------------------------------+
- | plugins/enigma/localization/<lang>.inc                                |
+ | Localization file of the Roundcube Webmail Enigma plugin              |
  |                                                                       |
- | Localization file of the Roundcube Webmail ACL plugin                 |
- | Copyright (C) 2012-2016, The Roundcube Dev Team                       |
+ | Copyright (C) The Roundcube Dev Team                                  |
  |                                                                       |
  | Licensed under the GNU General Public License version 3 or            |
  | any later version with exceptions for skins & plugins.                |
  | See the README file for a full license statement.                     |
- |                                                                       |
  +-----------------------------------------------------------------------+
 
  For translation see https://www.transifex.com/roundcube/roundcube-webmail/plugin-enigma/
 */
+
 $labels['encryption'] = 'Шифрування';
 $labels['enigmacerts'] = 'Сертифікати S/MIME';
 $labels['enigmakeys'] = 'PGP-ключі';
@@ -72,7 +71,6 @@ $labels['encryptmsg'] = 'Шифрувати це повідомлення';
 $labels['signmsg'] = 'Поставити цифровий підпис під повідомленням';
 $labels['enterkeypasstitle'] = 'Введіть фразу-пароль ключа';
 $labels['enterkeypass'] = 'Необхідна фраза-пароль для відімкнення секретного ключа ($keyid) для користувача: $user.';
-$labels['arialabelkeyexportoptions'] = 'Опції експорту ключів';
 $labels['attachpubkeymsg'] = 'Приєднати мій публічний ключ';
 $labels['keyexportprompt'] = 'Бажаєте включити приватні ключі у файл-ключів OpenPGP?';
 $labels['onlypubkeys'] = 'Експортувати публічні ключі';
@@ -80,6 +78,7 @@ $labels['withprivkeys'] = 'Експортувати приватні ключі'
 $labels['findkey'] = 'Пошук по ключовому(вих) серверах';
 $labels['keyimportlabel'] = 'Імпортувати з файлу';
 $labels['keyimportsearchlabel'] = 'Пошук по ключовому(вих) серверах';
+$labels['arialabelkeyexportoptions'] = 'Опції експорту ключів';
 $messages['sigvalid'] = 'Перевірений підпис від $sender.';
 $messages['sigvalidpartial'] = 'Перевірений підпис від $sender, але частина тіла повідомлення не було підписано.';
 $messages['siginvalid'] = 'Недійсний підпис від $sender.';

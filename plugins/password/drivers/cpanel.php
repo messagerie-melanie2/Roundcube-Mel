@@ -16,7 +16,7 @@
  * @version 3.1
  * @author Christian Chech <christian@chech.fr>
  *
- * Copyright (C) 2005-2016, The Roundcube Dev Team
+ * Copyright (C) The Roundcube Dev Team
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -90,9 +90,10 @@ class rcube_cpanel_password
         // Get the cPanel user
         $query = $this->xmlapi->listaccts('domain', $data['domain']);
         $query = json_decode($query, true);
-        if ( $query['status'] != 1) {
+        if ($query['status'] != 1) {
             return false;
         }
+
         $cpanel_user = $query['acct'][0]['user'];
 
         $query  = $this->xmlapi->api2_query($cpanel_user, 'Email', 'passwdpop', $data);

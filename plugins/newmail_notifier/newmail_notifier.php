@@ -10,7 +10,7 @@
  *
  * @author Aleksander Machniak <alec@alec.pl>
  *
- * Copyright (C) 2011-2016, Kolab Systems AG
+ * Copyright (C) Kolab Systems AG
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -66,7 +66,7 @@ class newmail_notifier extends rcube_plugin
 
                 if (!empty($this->opt)) {
                     // Get folders to skip checking for
-                    $exceptions = array('drafts_mbox', 'sent_mbox', 'trash_mbox');
+                    $exceptions = array('drafts_mbox', 'sent_mbox', 'trash_mbox', 'junk_mbox');
                     foreach ($exceptions as $folder) {
                         $folder = $this->rc->config->get($folder);
                         if (strlen($folder) && $folder != 'INBOX') {
@@ -110,7 +110,7 @@ class newmail_notifier extends rcube_plugin
                 $field_id = '_' . $key;
                 $input    = new html_checkbox(array('name' => $field_id, 'id' => $field_id, 'value' => 1));
                 $content  = $input->show($this->rc->config->get($key))
-                    . ' ' . html::a(array('href' => '#', 'onclick' => 'newmail_notifier_test_'.$type.'()'),
+                    . ' ' . html::a(array('href' => '#', 'onclick' => 'newmail_notifier_test_'.$type.'(); return false'),
                         $this->gettext('test'));
 
                 $args['blocks']['new_message']['options'][$key] = array(
@@ -201,28 +201,12 @@ class newmail_notifier extends rcube_plugin
         if ($unseen->count()) {
             $this->notified = true;
 
-            // PAMELA - Gestion de la mailboxe
-            if (strpos($mbox, driver_mel::gi()->getBalpLabel()) === 0) {
-                $tmp = explode($_SESSION['imap_delimiter'], $mbox, 3);
-                $title = driver_mel::gi()->getUser($tmp[1])->fullname;
-                if (isset($tmp[2])) {
-                    $title = $title . " > " . $tmp[2];
-                }
-            }
-            else {
-                $title = driver_mel::gi()->getUser()->fullname;
-                if ($mbox != 'INBOX') {
-                    $title = $title . " > " . $mbox;
-                }
-            }
-
             $this->rc->output->set_env('newmail_notifier_timeout', $this->rc->config->get('newmail_notifier_desktop_timeout'));
             $this->rc->output->command('plugin.newmail_notifier',
                 array(
                     'basic'   => $this->opt['basic'],
                     'sound'   => $this->opt['sound'],
                     'desktop' => $this->opt['desktop'],
-                    'title'   => $title,
                 ));
         }
 

@@ -2,11 +2,10 @@
 
 /**
  +-----------------------------------------------------------------------+
- | program/steps/addressbook/search.inc                                  |
- |                                                                       |
  | This file is part of the Roundcube Webmail client                     |
- | Copyright (C) 2005-2011, The Roundcube Dev Team                       |
- | Copyright (C) 2011, Kolab Systems AG                                  |
+ |                                                                       |
+ | Copyright (C) The Roundcube Dev Team                                  |
+ | Copyright (C) Kolab Systems AG                                        |
  |                                                                       |
  | Licensed under the GNU General Public License version 3 or            |
  | any later version with exceptions for skins & plugins.                |
@@ -14,7 +13,6 @@
  |                                                                       |
  | PURPOSE:                                                              |
  |   Search action (and form) for address book contacts                  |
- |                                                                       |
  +-----------------------------------------------------------------------+
  | Author: Thomas Bruederli <roundcube@gmail.com>                        |
  | Author: Aleksander Machniak <machniak@kolabsys.com>                   |
@@ -96,8 +94,6 @@ function rcmail_contact_search()
     // get search criteria from saved search
     if ($sid && ($search = $RCMAIL->user->get_search($sid))) {
         $fields = $search['data']['fields'];
-        // PAMELA - Search contacts by source
-        $_source = $search['data']['source'];
         $search = $search['data']['search'];
     }
     // get fields/values from advanced search form
@@ -114,22 +110,11 @@ function rcmail_contact_search()
             // do nothing, show the form again
             return;
         }
-
-        // PAMELA - Search contacts by source
-        $_source = rcube_utils::get_input_value('_orig_source', rcube_utils::INPUT_GET);
-        if ($_source == 'all') {
-            $_source = '';
-        }
     }
     // quick-search
     else {
         $search = trim(rcube_utils::get_input_value('_q', rcube_utils::INPUT_GET, true));
         $fields = explode(',', rcube_utils::get_input_value('_headers', rcube_utils::INPUT_GET));
-        // PAMELA - Search contacts by source
-        $_source = rcube_utils::get_input_value('_source', rcube_utils::INPUT_GET);
-        if ($_source == 'all') {
-            $_source = '';
-        }
 
         if (empty($fields)) {
             $fields = array_keys($SEARCH_MODS_DEFAULT);
@@ -160,14 +145,9 @@ function rcmail_contact_search()
     $records    = array();
     $sort_col   = $RCMAIL->config->get('addressbook_sort_col', 'name');
     $afields = $RCMAIL->config->get('contactlist_fields');
-    
+
     foreach ($sources as $s) {
         $source = $RCMAIL->get_address_book($s['id']);
-        
-        // PAMELA - Search contacts by source
-        if (isset($_source) && !empty($_source) && $_source != $s['id']) {
-          continue;
-        }
 
         // check if search fields are supported....
         if (is_array($fields)) {
@@ -212,8 +192,7 @@ function rcmail_contact_search()
     }
 
     // sort the records
-    // PAMELA - Show contacts result by source
-    //ksort($records, SORT_LOCALE_STRING);
+    ksort($records, SORT_LOCALE_STRING);
 
     // create resultset object
     $count  = count($records);
@@ -254,43 +233,29 @@ function rcmail_contact_search()
     $OUTPUT->command('set_rowcount', rcmail_get_rowcount_text($result));
     // Re-set current source
     $OUTPUT->set_env('search_id', $sid);
-    // PAMELA - Search contacts by source
-    $OUTPUT->set_env('source', $_source);
+    $OUTPUT->set_env('source', '');
     $OUTPUT->set_env('group', '');
-    // PAMELA - Do not use advanced search
-    $OUTPUT->command('contacts_search_only_hide');
     // Re-set list header
     $OUTPUT->command('set_group_prop', null);
 
-    if ($adv) {
-        $OUTPUT->command('parent.set_env', array(
-                'search_request' => $search_request,
-                'pagecount'      => ceil($result->count / $PAGE_SIZE),
-                'search_id'      => $sid,
-                // PAMELA - Search contacts by source
-                'source'         => $_source,
-                'group'          => '',
-        ));
-    }
-
     if (!$sid) {
         // unselect currently selected directory/group
-        // PAMELA - Search contacts by source
-        //$OUTPUT->command('unselect_directory');
+        $OUTPUT->command('unselect_directory');
         // enable "Save search" command
         $OUTPUT->command('enable_command', 'search-create', true);
     }
     $OUTPUT->command('update_group_commands');
 
     // send response
-    $OUTPUT->send($adv ? 'iframe' : null);
+    $OUTPUT->send();
 }
 
 function rcmail_contact_search_form($attrib)
 {
     global $RCMAIL, $CONTACT_COLTYPES;
 
-    $i_size = $attrib['size'] ?: 30;
+    $i_size       = $attrib['size'] ?: 30;
+    $short_labels = rcube_utils::get_boolean($attrib['short-legend-labels']);
 
     $form = array(
         'main' => array(
@@ -299,7 +264,7 @@ function rcmail_contact_search_form($attrib)
             ),
         ),
         'personal' => array(
-            'name'    => $RCMAIL->gettext('personalinfo'),
+            'name'    => $RCMAIL->gettext($short_labels ? 'personal' : 'personalinfo'),
             'content' => array(
             ),
         ),
@@ -319,7 +284,7 @@ function rcmail_contact_search_form($attrib)
 
         if (is_array($CONTACTS->coltypes)) {
             $contact_cols = $CONTACTS->coltypes[0] ? array_flip($CONTACTS->coltypes) : $CONTACTS->coltypes;
-            $coltypes = array_merge($coltypes, $contact_cols);
+            $coltypes     = array_merge($coltypes, $contact_cols);
         }
     }
 
@@ -329,22 +294,24 @@ function rcmail_contact_search_form($attrib)
     }
 
     // build form fields list
-    foreach ($coltypes as $col => $colprop)
-    {
-        if ($colprop['type'] != 'image' && !$colprop['nosearch'])
-        {
+    foreach ($coltypes as $col => $colprop) {
+        if ($colprop['type'] != 'image' && !$colprop['nosearch']) {
             $ftype    = $colprop['type'] == 'select' ? 'select' : 'text';
             $label    = isset($colprop['label']) ? $colprop['label'] : $RCMAIL->gettext($col);
             $category = $colprop['category'] ?: 'other';
 
-            // load jquery UI datepicker for date fields 
-            if ($colprop['type'] == 'date')
+            // load jquery UI datepicker for date fields
+            if ($colprop['type'] == 'date') {
                 $colprop['class'] .= ($colprop['class'] ? ' ' : '') . 'datepicker';
-            else if ($ftype == 'text')
+            }
+            else if ($ftype == 'text') {
                 $colprop['size'] = $i_size;
+            }
 
+            $colprop['id'] = '_search_' . $col;
 
-            $content  = html::div('row', html::div('contactfieldlabel label', rcube::Q($label))
+            $content  = html::div('row',
+                html::label(array('class' => 'contactfieldlabel label', 'for' => $colprop['id']), rcube::Q($label))
                 . html::div('contactfieldcontent', rcube_output::get_edit_field('search_'.$col, '', $colprop, $ftype)));
 
             $form[$category]['content'][] = $content;
@@ -355,9 +322,12 @@ function rcmail_contact_search_form($attrib)
     $hiddenfields->add(array('name' => '_adv', 'value' => 1));
 
     $out = $RCMAIL->output->request_form(array(
-        'name' => 'form', 'method' => 'post',
-        'task' => $RCMAIL->task, 'action' => 'search',
-        'noclose' => true) + $attrib, $hiddenfields->show());
+            'name'    => 'form',
+            'method'  => 'post',
+            'task'    => $RCMAIL->task,
+            'action'  => 'search',
+            'noclose' => true,
+        ) + $attrib, $hiddenfields->show());
 
     $RCMAIL->output->add_gui_object('editform', $attrib['id']);
 

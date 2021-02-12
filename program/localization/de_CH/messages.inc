@@ -2,19 +2,18 @@
 
 /*
  +-----------------------------------------------------------------------+
- | localization/<lang>/messages.inc                                      |
- |                                                                       |
  | Localization file of the Roundcube Webmail client                     |
- | Copyright (C) 2005-2015, The Roundcube Dev Team                       |
+ |                                                                       |
+ | Copyright (C) The Roundcube Dev Team                                  |
  |                                                                       |
  | Licensed under the GNU General Public License version 3 or            |
  | any later version with exceptions for skins & plugins.                |
  | See the README file for a full license statement.                     |
- |                                                                       |
  +-----------------------------------------------------------------------+
 
  For translation see https://www.transifex.com/projects/p/roundcube-webmail/resource/messages/
 */
+
 $messages['errortitle']  = 'Fehlermeldung';
 $messages['loginfailed']  = 'Login fehlgeschlagen';
 $messages['cookiesdisabled'] = 'Ihr Browser akzeptiert keine Cookies';
@@ -34,7 +33,7 @@ $messages['erroroverquotadelete'] = 'Kein freier Speicherplatz. Drücken Sie SHI
 $messages['invalidrequest'] = 'Ungültige Anfrage! Es wurden keine Daten gespeichert.';
 $messages['invalidhost'] = 'Ungültiger Servername';
 $messages['nomessagesfound'] = 'Keine Nachrichten in diesem Ordner';
-$messages['loggedout'] = 'Sie haben Ihre Session erfolgreich beendet. Auf Wiedersehen!';
+$messages['loggedout'] = 'Sie haben die Sitzung erfolgreich beendet. Auf Wiedersehen!';
 $messages['mailboxempty'] = 'Ordner ist leer';
 $messages['nomessages'] = 'Keine Nachrichten';
 $messages['refreshing'] = 'Aktualisiere...';
@@ -51,10 +50,12 @@ $messages['messagesaved'] = 'Nachricht als Entwurf gespeichert';
 $messages['successfullysaved'] = 'Erfolgreich gespeichert';
 $messages['savingresponse'] = 'Antwort wird gespeichert...';
 $messages['deleteresponseconfirm'] = 'Wollen Sie diese Antwort wirklich löschen?';
+$messages['nocontactselected'] = 'Sie haben noch keinen Kontakt ausgewählt.';
 $messages['addedsuccessfully'] = 'Kontakt zum Adressbuch hinzugefügt';
 $messages['contactexists'] = 'Es existiert bereits ein Kontakt mit dieser E-Mail-Adresse.';
 $messages['contactnameexists'] = 'Es existiert bereits ein Kontakt mit diesem Namen';
 $messages['blockedimages'] = 'Um Ihre Privatsphäre zur schützen, wurden externe Bilder blockiert.';
+$messages['blockedresources'] = 'Um Ihre Privatsphäre zur schützen, wurden externe Ressourcen blockiert.';
 $messages['encryptedmessage'] = 'Dies ist eine verschlüsselte Nachricht und kann leider nicht angezeigt werden.';
 $messages['externalmessagedecryption'] = 'Dies ist eine verschlüsselte Nachricht und kann mit Ihrer Browser-Erweiterung entschlüsselt werden.';
 $messages['nopubkeyfor'] = 'Kein gültiger öffentlicher Schlüssel für $email gefunden';
@@ -62,11 +63,8 @@ $messages['nopubkeyforsender'] = 'Kein gültiger öffentlicher Schlüssel für I
 $messages['encryptnoattachments'] = 'Bereits hochgeladene Anhänge können nicht nachträglich verschlüsselt werden. Bitte fügen Sie sie erneut im Verschlüsselungs-Editor hinzu.';
 $messages['searchpubkeyservers'] = 'Möchten Sie öffentliche Schlüsselserver nach den fehlenden Schlüsseln durchsuchen?';
 $messages['encryptpubkeysfound'] = 'Die folgenden öffentlichen Schlüssel wurden gefunden:';
-$messages['keyservererror'] = 'Schlüssel konnte nicht vom Schlüsselserver geladen werden';
-$messages['keyimportsuccess'] = 'Öffentlicher Schlüssel $key erfolgreich in Schlüselbund importiert';
 $messages['nocontactsfound'] = 'Keine Kontakte gefunden';
 $messages['contactnotfound'] = 'Die gewählte Adresse wurde nicht gefunden';
-$messages['contactsearchonly'] = 'Geben Sie einen Suchbegriff ein, um Kontakte zu finden';
 $messages['sendingfailed'] = 'Versand der Nachricht fehlgeschlagen';
 $messages['senttooquickly'] = 'Bitte warten Sie $sec Sekunde(n) vor dem Senden dieser Nachricht';
 $messages['errorsavingsent'] = 'Beim Speichern der gesendeten Nachricht ist ein Fehler aufgetreten.';
@@ -75,10 +73,13 @@ $messages['errormoving'] = 'Nachricht(en) konnte(n) nicht verschoben werden.';
 $messages['errorcopying'] = 'Nachticht(en) konnte(n) nicht kopiert werden.';
 $messages['errordeleting'] = 'Nachricht(en) konnte(n) nicht gelöscht werden.';
 $messages['errormarking'] = 'Nachricht(en) konnte(n) nicht markiert werden.';
+$messages['alerttitle'] = 'Achtung';
+$messages['confirmationtitle'] = 'Sind Sie sicher...';
 $messages['deletecontactconfirm']  = 'Wollen Sie die ausgewählten Kontakte wirklich löschen?';
 $messages['deletegroupconfirm']  = 'Wollen Sie die gewählte Gruppe wirklich löschen?';
 $messages['deletemessagesconfirm'] = 'Wollen Sie die ausgewählten Nachrichten wirklich löschen?';
 $messages['deletefolderconfirm']  = 'Wollen Sie diesen Ordner wirklich löschen?';
+$messages['movefolderconfirm']  = 'Wollen Sie diesen Ordner wirklich verschieben?';
 $messages['purgefolderconfirm']  = 'Wollen Sie diesen Ordner wirklich leeren?';
 $messages['contactdeleting'] = 'Kontakte werden gelöscht...';
 $messages['groupdeleting'] = 'Gruppe wird gelöscht...';
@@ -91,6 +92,7 @@ $messages['noemailwarning'] = 'Bitte geben Sie eine gültige E-Mail-Adresse ein.
 $messages['nonamewarning']  = 'Bitte geben Sie einen Namen ein.';
 $messages['nopagesizewarning'] = 'Bitte geben Sie die Einträge pro Seite an.';
 $messages['nosenderwarning'] = 'Bitte geben Sie die E-Mail-Adresse des Senders an.';
+$messages['recipientsadded'] = 'Empfänger erfolgreich hinzugefügt.';
 $messages['norecipientwarning'] = 'Bitte geben Sie mindestens einen Empfänger an.';
 $messages['disclosedrecipwarning'] = 'Alle Empfänger sehen die E-Mail Adressen der anderen Empfänger. Um deren Privatsphäre zu schützen, können Sie das Bcc-Feld verwenden.';
 $messages['disclosedreciptitle'] = 'Zu viele öffentliche Empfänger';
@@ -160,6 +162,8 @@ $messages['smtpautherror'] = 'SMTP Fehler ($code): Die Authentisierung ist fehlg
 $messages['smtpfromerror'] = 'SMTP Fehler ($code): Der Absender "$from" konnte nicht gesetzt werden ($msg).';
 $messages['smtptoerror'] = 'SMTP Fehler ($code): Der Empfänger "$to" konnte nicht gesetzt werden ($msg).';
 $messages['smtprecipientserror'] = 'SMTP Fehler: Die Empfängerliste konnte nicht verarbeitet werden.';
+$messages['smtputf8error'] = 'SMTP Fehler: Der Server unterstützt keine Unicode-Zeichen in E-Mail-Adressen.';
+$messages['smtpsizeerror'] = 'SMTP Fehler: Nachrichtengrösse übersteigt die Servergrenze ($limit)';
 $messages['smtperror'] = 'SMTP Fehler: $msg';
 $messages['emailformaterror'] = 'Ungültige E-Mail-Adresse: $email';
 $messages['toomanyrecipients'] = 'Zuviele Empfänger angegeben. Reduzieren Sie die Empfängeradressen auf $max.';
@@ -192,6 +196,7 @@ $messages['invalidimageformat'] = 'Kein gültiges Bildformat.';
 $messages['mispellingsfound'] = 'Es wurden noch Rechtschreibfehler in der Nachricht gefunden.';
 $messages['parentnotwritable'] = 'Konnte den Ordner nicht erstellen/verschieben. Keine Berechtigung.';
 $messages['messagetoobig'] = 'Die Nachricht ist zu gross und kann nicht verarbeitet werden.';
+$messages['attachmentvalidationerror'] = 'Dieser Anhang ist verdächtig, weil sein Dateityp nicht mit dem in der Nachricht angegebenen Dateityp übereinstimmt. Wenn Sie dem Absender nicht vertrauen, sollten Sie ihn nicht im Browser öffnen, da er bösartige Inhalte enthalten kann. Erwartet: $expected; gefunden: $detected</em>';
 $messages['noscriptwarning'] = 'Achtung! Dieser Webmail-Service erfordert Javascript. Um ihn zu benutzten aktivieren Sie Javascript in ihren Browser-Einstellungen.';
 $messages['messageissent'] = 'Die Nachricht wurde bereits gesendet, aber noch nicht gespeichert. Jetzt speichern?';
 $messages['errnotfound'] = 'Datei nicht gefunden';
@@ -206,3 +211,9 @@ $messages['clicktoresumesession'] = 'Klicken Sie hier, um Ihre vorherige Sitzung
 $messages['errcomposesession'] = 'Sitzungsfehler';
 $messages['errcomposesessionexplain'] = 'Sitzungsdaten für den Nachrichtenentwurf nicht gefunden.';
 $messages['clicktocompose'] = 'Klicken Sie hier, um eine neue Nachricht zu verfassen';
+$messages['nosupporterror'] = 'Diese Funktion wird von Ihrem Webbrowser nicht unterstützt.';
+$messages['siginserted'] = 'Signatur erfolgreich eingefügt.';
+$messages['responseinserted'] = 'Antwort erfolgreich eingefügt.';
+$messages['listempty'] = 'Die Liste ist leer.';
+$messages['listusebutton'] = 'Benutzen Sie den Erstellen-Button, um einen neuen Eintrag zu erfassen.';
+$messages['keypaircreatesuccess'] = 'Neues Schlüsselpaar für $identity erfolgreich erstellt.';

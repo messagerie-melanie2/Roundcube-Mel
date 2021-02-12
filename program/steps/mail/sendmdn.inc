@@ -2,10 +2,9 @@
 
 /**
  +-----------------------------------------------------------------------+
- | program/steps/mail/sendmdn.inc                                        |
- |                                                                       |
  | This file is part of the Roundcube Webmail client                     |
- | Copyright (C) 2008-2013, The Roundcube Dev Team                       |
+ |                                                                       |
+ | Copyright (C) The Roundcube Dev Team                                  |
  |                                                                       |
  | Licensed under the GNU General Public License version 3 or            |
  | any later version with exceptions for skins & plugins.                |
@@ -13,7 +12,6 @@
  |                                                                       |
  | PURPOSE:                                                              |
  |   Send a message disposition notification for a specific mail         |
- |                                                                       |
  +-----------------------------------------------------------------------+
  | Author: Thomas Bruederli <roundcube@gmail.com>                        |
  +-----------------------------------------------------------------------+
@@ -33,7 +31,10 @@ if ($sent) {
     $OUTPUT->set_env('mdn_request', false);
     $OUTPUT->show_message('receiptsent', 'confirmation');
 }
-else if ($smtp_error) {
+else if ($smtp_error && is_string($smtp_error)) {
+    $OUTPUT->show_message($smtp_error, 'error');
+}
+else if ($smtp_error && !empty($smtp_error['label'])) {
     $OUTPUT->show_message($smtp_error['label'], 'error', $smtp_error['vars']);
 }
 else {
