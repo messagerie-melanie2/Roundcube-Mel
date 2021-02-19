@@ -17,10 +17,13 @@
         "pear/net_smtp": "~1.8.1",
         "pear/crypt_gpg": "~1.6.3",
         "pear/net_sieve": "~1.4.3",
-        "roundcube/plugin-installer": "~0.2.0",
+        "roundcube/plugin-installer": "~0.1.6",
         "masterminds/html5": "~2.5.0",
         "endroid/qr-code": "~1.6.5",
-        "kolab/net_ldap3": "~1.1.1"
+        "kolab/net_ldap3": "~1.1.1",
+        "sabre/vobject": "~3.5.3",
+        "pear/http_request2": "~2.3.0",
+        "caxy/php-htmldiff": "~0.1.7"
     },
     "require-dev": {
         "phpunit/phpunit": "^4.8.36 || ^5.7.21"

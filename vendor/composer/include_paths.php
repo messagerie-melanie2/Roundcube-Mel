@@ -17,4 +17,6 @@ return array(
     $vendorDir . '/pear/net_socket',
     $vendorDir . '/pear/pear-core-minimal/src',
     $vendorDir . '/pear/pear_exception',
+    $vendorDir . '/pear/net_url2',
+    $vendorDir . '/pear/http_request2',
 );

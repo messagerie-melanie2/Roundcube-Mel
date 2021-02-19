@@ -1,6 +1,20 @@
 ChangeLog
 =========
 
+3.5.3 (2016-10-06)
+------------------
+
+* #331: Fix dealing with multiple overridden instances falling on the same
+  date/time (@afedyk-sugarcrm).
+
+
+3.5.2 (2016-04-24)
+-----------------
+
+* #312: Backported a fix related to iTip processing of events with timezones,
+  without a master event.
+
+
 3.5.1 (2016-04-06)
 ------------------
 
