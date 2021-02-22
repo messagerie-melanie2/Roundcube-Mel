@@ -8,8 +8,10 @@
 /plugins/calendar
 /plugins/contextmenu
 /plugins/csv_export
+/plugins/electron
 /plugins/jquery_mobile
 /plugins/libcalendaring
+/plugins/libkolab
 /plugins/mel
 /plugins/mel_*
 /plugins/pdfviewer
@@ -21,3 +23,4 @@
 /plugins/tasklist
 
 /skins/mel_*
+/skins/melanie2_*
