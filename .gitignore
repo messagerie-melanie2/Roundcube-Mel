@@ -24,3 +24,6 @@
 
 /skins/mel_*
 /skins/melanie2_*
+plugins/electron
+plugins/libkolab
+skins/melanie2_larry
