@@ -864,6 +864,11 @@ class rcmail extends rcube
         $pre = array();
         $task = $p['_task'] ?: ($p['task'] ?: $this->task);
         $pre['_task'] = $task;
+        // PAMELA - Keep the courrielleur value in url generator
+        $_courrielleur = trim(rcube_utils::get_input_value('_courrielleur', rcube_utils::INPUT_GET));
+        if (isset($_courrielleur)) {
+          $p['_courrielleur'] = $_courrielleur;
+        }
         unset($p['task'], $p['_task']);
 
         $url  = $this->filename;
