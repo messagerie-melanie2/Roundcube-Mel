@@ -7122,7 +7122,7 @@ function rcube_webmail()
       function() {
         var name;
         if (name = input.val()) {
-          ref.http_post('search-create', {_search: ref.env.search_request, _name: name},
+          ref.http_post('search-create', {_search: ref.env.search_request, /* PAMELA - Search contacts by source */_source: rcmail.env.source, _name: name},
             ref.set_busy(true, 'loading'));
           return true;
         }
@@ -9218,7 +9218,8 @@ function rcube_webmail()
           this.enable_command('export', 'select-all', 'select-none', (list && list.rowcount > 0));
 
           if (response.action == 'list' || response.action == 'search') {
-            this.enable_command('search-create', this.env.source == '');
+            // PAMELA - Search contacts by source
+            this.enable_command('search-create', response.action == 'search');
             this.enable_command('search-delete', this.env.search_id);
             this.update_group_commands();
 

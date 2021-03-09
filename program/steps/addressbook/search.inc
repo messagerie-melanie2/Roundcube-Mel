@@ -94,6 +94,8 @@ function rcmail_contact_search()
     // get search criteria from saved search
     if ($sid && ($search = $RCMAIL->user->get_search($sid))) {
         $fields = $search['data']['fields'];
+        // PAMELA - Search contacts by source
+        $_source = $search['data']['source'];
         $search = $search['data']['search'];
     }
     // get fields/values from advanced search form
@@ -110,11 +112,22 @@ function rcmail_contact_search()
             // do nothing, show the form again
             return;
         }
+
+        // PAMELA - Search contacts by source
+        $_source = rcube_utils::get_input_value('_orig_source', rcube_utils::INPUT_GET);
+        if ($_source == 'all') {
+            $_source = '';
+        }
     }
     // quick-search
     else {
         $search = trim(rcube_utils::get_input_value('_q', rcube_utils::INPUT_GET, true));
         $fields = explode(',', rcube_utils::get_input_value('_headers', rcube_utils::INPUT_GET));
+        // PAMELA - Search contacts by source
+        $_source = rcube_utils::get_input_value('_source', rcube_utils::INPUT_GET);
+        if ($_source == 'all') {
+            $_source = '';
+        }
 
         if (empty($fields)) {
             $fields = array_keys($SEARCH_MODS_DEFAULT);
@@ -148,6 +161,11 @@ function rcmail_contact_search()
 
     foreach ($sources as $s) {
         $source = $RCMAIL->get_address_book($s['id']);
+        
+        // PAMELA - Search contacts by source
+        if (isset($_source) && !empty($_source) && $_source != $s['id']) {
+          continue;
+        }
 
         // check if search fields are supported....
         if (is_array($fields)) {
@@ -192,7 +210,8 @@ function rcmail_contact_search()
     }
 
     // sort the records
-    ksort($records, SORT_LOCALE_STRING);
+    // PAMELA - Show contacts result by source
+    //ksort($records, SORT_LOCALE_STRING);
 
     // create resultset object
     $count  = count($records);
@@ -233,14 +252,16 @@ function rcmail_contact_search()
     $OUTPUT->command('set_rowcount', rcmail_get_rowcount_text($result));
     // Re-set current source
     $OUTPUT->set_env('search_id', $sid);
-    $OUTPUT->set_env('source', '');
+    // PAMELA - Search contacts by source
+    $OUTPUT->set_env('source', $_source);
     $OUTPUT->set_env('group', '');
     // Re-set list header
     $OUTPUT->command('set_group_prop', null);
 
     if (!$sid) {
         // unselect currently selected directory/group
-        $OUTPUT->command('unselect_directory');
+        // PAMELA - Search contacts by source
+        //$OUTPUT->command('unselect_directory');
         // enable "Save search" command
         $OUTPUT->command('enable_command', 'search-create', true);
     }
