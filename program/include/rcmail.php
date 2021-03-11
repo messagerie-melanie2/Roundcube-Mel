@@ -1631,11 +1631,12 @@ class rcmail extends rcube
         $out = '';
         foreach ($arrFolders as $folder) {
             $title        = null;
-            $folder_class = $this->folder_classname($folder['id']);
+            $folder_class = $this->folder_classname($folder['id'], $folder['class'] ?: null);
             $is_collapsed = strpos($collapsed, '&'.rawurlencode($folder['id']).'&') !== false;
             $unread       = $msgcounts ? intval($msgcounts[$folder['id']]['UNSEEN']) : 0;
+            $realname     = $realnames || $folder['realname'] ?: false;
 
-            if ($folder_class && !$realnames) {
+            if ($folder_class && !$realname) {
                 $foldername = $this->gettext($folder_class);
             }
             else {
@@ -1733,7 +1734,7 @@ class rcmail extends rcube
                 }
             }
 
-            if (!$realnames && ($folder_class = $this->folder_classname($folder['id']))) {
+            if (!$realnames && ($folder_class = $this->folder_classname($folder['id'], $folder['class'] ?: null))) {
                 $foldername = $this->gettext($folder_class);
             }
             else {
@@ -1759,7 +1760,7 @@ class rcmail extends rcube
     /**
      * Return internal name for the given folder if it matches the configured special folders
      */
-    public function folder_classname($folder_id)
+    public function folder_classname($folder_id, $folder_class = null)
     {
         if ($folder_id == 'INBOX') {
             return 'inbox';
@@ -1772,6 +1773,7 @@ class rcmail extends rcube
                 return $smbx;
             }
         }
+        return $folder_class;
     }
 
     /**
