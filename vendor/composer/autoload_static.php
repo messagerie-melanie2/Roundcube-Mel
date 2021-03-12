@@ -50,8 +50,8 @@ class ComposerStaticInitf59da13b1fa2a3966544edcd7fbef9e8
         'phpDocumentor\\Reflection\\' => 
         array (
             0 => __DIR__ . '/..' . '/phpdocumentor/reflection-common/src',
-            1 => __DIR__ . '/..' . '/phpdocumentor/type-resolver/src',
-            2 => __DIR__ . '/..' . '/phpdocumentor/reflection-docblock/src',
+            1 => __DIR__ . '/..' . '/phpdocumentor/reflection-docblock/src',
+            2 => __DIR__ . '/..' . '/phpdocumentor/type-resolver/src',
         ),
         'Webmozart\\Assert\\' => 
         array (
@@ -152,7 +152,6 @@ class ComposerStaticInitf59da13b1fa2a3966544edcd7fbef9e8
     );
 
     public static $classMap = array (
-        'Composer\\InstalledVersions' => __DIR__ . '/..' . '/composer/InstalledVersions.php',
         'Crypt_GPG' => __DIR__ . '/..' . '/pear/crypt_gpg/Crypt/GPG.php',
         'Crypt_GPGAbstract' => __DIR__ . '/..' . '/pear/crypt_gpg/Crypt/GPGAbstract.php',
         'Crypt_GPG_BadPassphraseException' => __DIR__ . '/..' . '/pear/crypt_gpg/Crypt/GPG/Exceptions.php',

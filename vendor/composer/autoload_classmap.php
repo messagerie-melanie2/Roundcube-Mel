@@ -6,7 +6,6 @@ $vendorDir = dirname(dirname(__FILE__));
 $baseDir = dirname($vendorDir);
 
 return array(
-    'Composer\\InstalledVersions' => $vendorDir . '/composer/InstalledVersions.php',
     'Crypt_GPG' => $vendorDir . '/pear/crypt_gpg/Crypt/GPG.php',
     'Crypt_GPGAbstract' => $vendorDir . '/pear/crypt_gpg/Crypt/GPGAbstract.php',
     'Crypt_GPG_BadPassphraseException' => $vendorDir . '/pear/crypt_gpg/Crypt/GPG/Exceptions.php',

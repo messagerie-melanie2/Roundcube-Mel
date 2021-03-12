@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "09a1c1ef2bf5073ccd3edc39f4596d7e",
+    "content-hash": "fff7b6bb13603df0437b11ef92fb878a",
     "packages": [
         {
             "name": "caxy/php-htmldiff",
@@ -115,10 +115,6 @@
                 "qr",
                 "qrcode"
             ],
-            "support": {
-                "issues": "https://github.com/endroid/qr-code/issues",
-                "source": "https://github.com/endroid/qr-code/tree/1.6.6"
-            },
             "time": "2016-05-29T07:37:18+00:00"
         },
         {
@@ -294,10 +290,6 @@
                 "serializer",
                 "xml"
             ],
-            "support": {
-                "issues": "https://github.com/Masterminds/html5-php/issues",
-                "source": "https://github.com/Masterminds/html5-php/tree/master"
-            },
             "time": "2018-12-27T22:03:43+00:00"
         },
         {
@@ -351,10 +343,6 @@
                 }
             ],
             "description": "Abstraction of various SASL mechanism responses",
-            "support": {
-                "issues": "http://pear.php.net/bugs/search.php?cmd=display&package_name[]=Auth_SASL",
-                "source": "https://github.com/pear/Auth_SASL"
-            },
             "time": "2017-03-07T14:37:05+00:00"
         },
         {
@@ -411,10 +399,6 @@
             "keywords": [
                 "console"
             ],
-            "support": {
-                "issues": "http://pear.php.net/bugs/search.php?cmd=display&package_name[]=Console_CommandLine",
-                "source": "https://github.com/pear/Console_CommandLine"
-            },
             "time": "2020-04-16T15:04:15+00:00"
         },
         {
@@ -462,10 +446,6 @@
                 }
             ],
             "description": "More info available on: http://pear.php.net/package/Console_Getopt",
-            "support": {
-                "issues": "http://pear.php.net/bugs/search.php?cmd=display&package_name[]=Console_Getopt",
-                "source": "https://github.com/pear/Console_Getopt"
-            },
             "time": "2019-11-20T18:27:48+00:00"
         },
         {
@@ -532,10 +512,6 @@
                 "gnupg",
                 "gpg"
             ],
-            "support": {
-                "issues": "http://pear.php.net/bugs/search.php?cmd=display&package_name[]=Crypt_GPG",
-                "source": "https://github.com/pear/Crypt_GPG"
-            },
             "time": "2020-03-22T11:49:18+00:00"
         },
         {
@@ -603,20 +579,21 @@
         },
         {
             "name": "pear/mail_mime",
-            "version": "1.10.9",
+            "version": "1.10.10",
             "source": {
                 "type": "git",
                 "url": "https://github.com/pear/Mail_Mime.git",
-                "reference": "1e7ae4e5258b6c0d385a8e76add567934245d38d"
+                "reference": "ede6128af4c1474394a65f44bf20358c0bf1977f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/pear/Mail_Mime/zipball/1e7ae4e5258b6c0d385a8e76add567934245d38d",
-                "reference": "1e7ae4e5258b6c0d385a8e76add567934245d38d",
+                "url": "https://api.github.com/repos/pear/Mail_Mime/zipball/ede6128af4c1474394a65f44bf20358c0bf1977f",
+                "reference": "ede6128af4c1474394a65f44bf20358c0bf1977f",
                 "shasum": ""
             },
             "require": {
-                "pear/pear-core-minimal": "*"
+                "pear/pear-core-minimal": "*",
+                "php": ">=5.2.0"
             },
             "type": "library",
             "autoload": {
@@ -645,11 +622,7 @@
             ],
             "description": "Mail_Mime provides classes to create MIME messages",
             "homepage": "http://pear.php.net/package/Mail_Mime",
-            "support": {
-                "issues": "http://pear.php.net/bugs/search.php?cmd=display&package_name[]=Mail_Mime",
-                "source": "https://github.com/pear/Mail_Mime"
-            },
-            "time": "2020-06-27T08:35:27+00:00"
+            "time": "2021-01-17T08:30:22+00:00"
         },
         {
             "name": "pear/net_idna2",
@@ -697,10 +670,6 @@
                 }
             ],
             "description": "More info available on: https://pear.php.net/package/Net_IDNA2",
-            "support": {
-                "issues": "https://pear.php.net/bugs/search.php?cmd=display&package_name[]=Net_IDNA2",
-                "source": "https://github.com/pear/Net_IDNA2"
-            },
             "time": "2017-03-06T20:46:41+00:00"
         },
         {
@@ -740,10 +709,6 @@
                 "PEAR",
                 "ldap"
             ],
-            "support": {
-                "issues": "http://pear.php.net/bugs/search.php?cmd=display&package_name[]=Net_LDAP2",
-                "source": "https://github.com/pear/Net_LDAP2"
-            },
             "time": "2015-10-30T20:34:22+00:00"
         },
         {
@@ -808,10 +773,6 @@
                 }
             ],
             "description": "More info available on: http://pear.php.net/package/Net_Sieve",
-            "support": {
-                "issues": "http://pear.php.net/bugs/search.php?cmd=display&package_name[]=Net_Sieve",
-                "source": "https://github.com/pear/Net_Sieve"
-            },
             "time": "2018-09-09T07:09:54+00:00"
         },
         {
@@ -872,10 +833,6 @@
                 "mail",
                 "smtp"
             ],
-            "support": {
-                "issues": "https://github.com/pear/Net_SMTP/issues",
-                "source": "https://github.com/pear/Net_SMTP"
-            },
             "time": "2018-09-25T00:21:03+00:00"
         },
         {
@@ -929,10 +886,6 @@
                 }
             ],
             "description": "More info available on: http://pear.php.net/package/Net_Socket",
-            "support": {
-                "issues": "http://pear.php.net/bugs/search.php?cmd=display&package_name[]=Net_Socket",
-                "source": "https://github.com/pear/Net_Socket"
-            },
             "time": "2015-03-22T15:48:19+00:00"
         },
         {
@@ -1045,10 +998,6 @@
                 }
             ],
             "description": "Minimal set of PEAR core files to be used as composer dependency",
-            "support": {
-                "issues": "http://pear.php.net/bugs/search.php?cmd=display&package_name[]=PEAR",
-                "source": "https://github.com/pear/pear-core-minimal"
-            },
             "time": "2019-11-19T19:00:24+00:00"
         },
         {
@@ -1104,24 +1053,20 @@
             "keywords": [
                 "exception"
             ],
-            "support": {
-                "issues": "http://pear.php.net/bugs/search.php?cmd=display&package_name[]=PEAR_Exception",
-                "source": "https://github.com/pear/PEAR_Exception"
-            },
             "time": "2019-12-10T10:24:42+00:00"
         },
         {
             "name": "roundcube/plugin-installer",
-            "version": "0.1.10",
+            "version": "0.2.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/roundcube/plugin-installer.git",
-                "reference": "98af3c61566b4387aeae76cfa89076a8c39a0ddc"
+                "reference": "10148d050ee2db019d83113a479fb7716fd04d48"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/roundcube/plugin-installer/zipball/98af3c61566b4387aeae76cfa89076a8c39a0ddc",
-                "reference": "98af3c61566b4387aeae76cfa89076a8c39a0ddc",
+                "url": "https://api.github.com/repos/roundcube/plugin-installer/zipball/10148d050ee2db019d83113a479fb7716fd04d48",
+                "reference": "10148d050ee2db019d83113a479fb7716fd04d48",
                 "shasum": ""
             },
             "require": {
@@ -1157,11 +1102,7 @@
                 }
             ],
             "description": "A composer-installer for Roundcube plugins.",
-            "support": {
-                "issues": "https://github.com/roundcube/plugin-installer/issues",
-                "source": "https://github.com/roundcube/plugin-installer/tree/0.1.10"
-            },
-            "time": "2019-04-13T07:06:54+00:00"
+            "time": "2020-11-02T20:04:07+00:00"
         },
         {
             "name": "sabre/vobject",
@@ -2651,16 +2592,16 @@
         },
         {
             "name": "symfony/yaml",
-            "version": "v4.4.19",
+            "version": "v4.4.20",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/yaml.git",
-                "reference": "17ed9f14c1aa05b1a5cf2e2c5ef2d0be28058ef9"
+                "reference": "29e61305e1c79d25f71060903982ead8f533e267"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/yaml/zipball/17ed9f14c1aa05b1a5cf2e2c5ef2d0be28058ef9",
-                "reference": "17ed9f14c1aa05b1a5cf2e2c5ef2d0be28058ef9",
+                "url": "https://api.github.com/repos/symfony/yaml/zipball/29e61305e1c79d25f71060903982ead8f533e267",
+                "reference": "29e61305e1c79d25f71060903982ead8f533e267",
                 "shasum": ""
             },
             "require": {
@@ -2701,9 +2642,6 @@
             ],
             "description": "Loads and dumps YAML files",
             "homepage": "https://symfony.com",
-            "support": {
-                "source": "https://github.com/symfony/yaml/tree/v4.4.19"
-            },
             "funding": [
                 {
                     "url": "https://symfony.com/sponsor",
@@ -2718,34 +2656,39 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2021-01-27T09:09:26+00:00"
+            "time": "2021-02-22T15:36:50+00:00"
         },
         {
             "name": "webmozart/assert",
-            "version": "1.9.1",
+            "version": "1.10.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/webmozarts/assert.git",
-                "reference": "bafc69caeb4d49c39fd0779086c03a3738cbb389"
+                "reference": "6964c76c7804814a842473e0c8fd15bab0f18e25"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/webmozarts/assert/zipball/bafc69caeb4d49c39fd0779086c03a3738cbb389",
-                "reference": "bafc69caeb4d49c39fd0779086c03a3738cbb389",
+                "url": "https://api.github.com/repos/webmozarts/assert/zipball/6964c76c7804814a842473e0c8fd15bab0f18e25",
+                "reference": "6964c76c7804814a842473e0c8fd15bab0f18e25",
                 "shasum": ""
             },
             "require": {
-                "php": "^5.3.3 || ^7.0 || ^8.0",
+                "php": "^7.2 || ^8.0",
                 "symfony/polyfill-ctype": "^1.8"
             },
             "conflict": {
                 "phpstan/phpstan": "<0.12.20",
-                "vimeo/psalm": "<3.9.1"
+                "vimeo/psalm": "<4.6.1 || 4.6.2"
             },
             "require-dev": {
-                "phpunit/phpunit": "^4.8.36 || ^7.5.13"
+                "phpunit/phpunit": "^8.5.13"
             },
             "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "1.10-dev"
+                }
+            },
             "autoload": {
                 "psr-4": {
                     "Webmozart\\Assert\\": "src/"
@@ -2767,11 +2710,7 @@
                 "check",
                 "validate"
             ],
-            "support": {
-                "issues": "https://github.com/webmozarts/assert/issues",
-                "source": "https://github.com/webmozarts/assert/tree/1.9.1"
-            },
-            "time": "2020-07-08T17:02:28+00:00"
+            "time": "2021-03-09T10:59:23+00:00"
         }
     ],
     "aliases": [],
@@ -2780,8 +2719,8 @@
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
-        "php": ">=5.4.0"
+        "php": ">=5.4.0 <8"
     },
     "platform-dev": [],
-    "plugin-api-version": "2.0.0"
+    "plugin-api-version": "1.1.0"
 }

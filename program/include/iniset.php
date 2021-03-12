@@ -19,8 +19,12 @@
  +-----------------------------------------------------------------------+
 */
 
+if (PHP_VERSION_ID >= 80000) {
+    die("Unsupported PHP version. Required PHP >= 5.4 and < 8.0.");
+}
+
 // application constants
-define('RCMAIL_VERSION', '1.4.10');
+define('RCMAIL_VERSION', '1.4.11');
 define('RCMAIL_START', microtime(true));
 
 if (!defined('INSTALL_PATH')) {
