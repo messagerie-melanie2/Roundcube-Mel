@@ -827,14 +827,14 @@ class rcmail extends rcube
         $task = $p['_task'] ?: ($p['task'] ?: $this->task);
         $pre['_task'] = $task;
         // PAMELA - Keep the account value in url generator
-        // $_account = mel::get_account();
-        // if (isset($_account)
-        //     && strpos($_account, '%40') !== false) {
-        //   $_account = urldecode($_account);
-        // }
-        // if (isset($_account)
-        //     && $task != 'login'
-        //     && $task != 'logout') $p['_account'] = $_account;
+        $_account = mel::get_account();
+        if (isset($_account)
+            && strpos($_account, '%40') !== false) {
+          $_account = urldecode($_account);
+        }
+        if (isset($_account)
+            && $task != 'login'
+            && $task != 'logout') $p['_account'] = $_account;
         // PAMELA - Keep the courrielleur value in url generator
         $_courrielleur = trim(rcube_utils::get_input_value('_courrielleur', rcube_utils::INPUT_GET));
         if (isset($_courrielleur)) {
