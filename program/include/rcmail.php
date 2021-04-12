@@ -2330,10 +2330,14 @@ class rcmail extends rcube
             'Arial'         => 'Arial,Helvetica,sans-serif',
             'Arial Black'   => '"Arial Black","Avant Garde",sans-serif',
             'Book Antiqua'  => '"Book Antiqua",Palatino,serif',
+            // PAMELA - 0006054: Divergence entre liste des polices disponibles
+            'Comic Sans MS' => '"Comic Sans MS",sans-serif',
             'Courier New'   => '"Courier New",Courier,monospace',
             'Georgia'       => 'Georgia,Palatino,serif',
             'Helvetica'     => 'Helvetica,Arial,sans-serif',
             'Impact'        => 'Impact,Chicago,sans-serif',
+            // PAMELA - 0006054: Divergence entre liste des polices disponibles
+            'Symbol'        => 'symbol',
             'Tahoma'        => 'Tahoma,Arial,Helvetica,sans-serif',
             'Terminal'      => 'Terminal,Monaco,monospace',
             'Times New Roman' => '"Times New Roman",Times,serif',
