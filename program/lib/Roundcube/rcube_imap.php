@@ -2529,6 +2529,11 @@ class rcube_imap extends rcube_storage
         $flag = strtoupper($flag);
         list($uids, $all_mode) = $this->parse_uids($uids);
 
+        // PAMELA - Change the IMAP folder name with a plugin (change INBOX for shared mailboxes)
+        $data = $this->plugins->exec_hook('m2_set_folder_name',
+            array('folder' => $folder));
+        if (isset($data) && isset($data['folder'])) $folder = $data['folder'];
+
         if (strpos($flag, 'UN') === 0) {
             $result = $this->conn->unflag($folder, $uids, substr($flag, 2));
         }
@@ -2587,6 +2592,11 @@ class rcube_imap extends rcube_storage
         if (!$this->check_connection()) {
             return false;
         }
+
+        // PAMELA - Change the IMAP folder name with a plugin (change INBOX for shared mailboxes)
+        $data = $this->plugins->exec_hook('m2_set_folder_name',
+            array('folder' => $folder));
+        if (isset($data) && isset($data['folder'])) $folder = $data['folder'];
 
         // make sure folder exists
         if (!$this->folder_exists($folder)) {
@@ -2767,6 +2777,11 @@ class rcube_imap extends rcube_storage
             return false;
         }
 
+        // PAMELA - Change the IMAP folder name with a plugin (change INBOX for shared mailboxes)
+        $data = $this->plugins->exec_hook('m2_set_folder_name',
+            array('folder' => $folder));
+        if (isset($data) && isset($data['folder'])) $folder = $data['folder'];
+
         $deleted = $this->conn->flag($folder, $uids, 'DELETED');
 
         if ($deleted) {
@@ -2823,6 +2838,11 @@ class rcube_imap extends rcube_storage
         if (!$this->check_connection()) {
             return false;
         }
+
+        // PAMELA - Change the IMAP folder name with a plugin (change INBOX for shared mailboxes)
+        $data = $this->plugins->exec_hook('m2_set_folder_name',
+            array('folder' => $folder));
+        if (isset($data) && isset($data['folder'])) $folder = $data['folder'];
 
         // force folder selection and check if folder is writeable
         // to prevent a situation when CLOSE is executed on closed
