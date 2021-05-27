@@ -25,15 +25,25 @@ if (!$OUTPUT->ajax_call) {
 // copy messages
 if (!empty($_POST['_uid']) && strlen($_POST['_target_mbox'])) {
     $target  = rcube_utils::get_input_value('_target_mbox', rcube_utils::INPUT_POST, true);
-    $sources = array();
+    
+    // PAMELA - Gérer la corbeille individuelle
+    $data = $RCMAIL->plugins->exec_hook('mel_copy_message',
+                array('target' => $target, 'continue' => true, 'copied' => 0, 'sources' => array()));
 
-    foreach (rcmail::get_uids(null, null, $multifolder, rcube_utils::INPUT_POST) as $mbox => $uids) {
-        if ($mbox === $target) {
-            $copied++;
-        }
-        else {
-            $copied += (int)$RCMAIL->storage->copy_message($uids, $target, $mbox);
-            $sources[] = $mbox;
+    $copied  = $data['copied'];
+    $sources = $data['sources'];
+    
+    if ($data['continue']) {
+        $target = $data['target'];
+        
+        foreach (rcmail::get_uids(null, null, $multifolder, rcube_utils::INPUT_POST) as $mbox => $uids) {
+            if ($mbox === $target) {
+                $copied++;
+            }
+            else {
+                $copied += (int)$RCMAIL->storage->copy_message($uids, $target, $mbox);
+                $sources[] = $mbox;
+            }
         }
     }
 

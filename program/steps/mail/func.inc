@@ -269,8 +269,12 @@ function rcmail_message_list_smart_column_name()
     $sent_mbox   = $RCMAIL->config->get('sent_mbox');
     $drafts_mbox = $RCMAIL->config->get('drafts_mbox');
 
+    // PAMELA - Gérer les INBOX des BALP en plus
+    $data = $RCMAIL->plugins->exec_hook('mel_is_inbox',
+    			array('mbox' => $mbox, 'isInbox' => strtoupper($mbox) == 'INBOX', 'smart' => true));
+
     if ((strpos($mbox.$delim, $sent_mbox.$delim) === 0 || strpos($mbox.$delim, $drafts_mbox.$delim) === 0)
-        && strtoupper($mbox) != 'INBOX'
+        && !$data['isInbox']
     ) {
         return 'to';
     }
@@ -747,19 +751,27 @@ function rcmail_send_unread_count($mbox_name, $force=false, $count=null, $mark='
 {
     global $RCMAIL;
 
-    $old_unseen = rcmail_get_unseen_count($mbox_name);
+    // PAMELA - Gestion du cache pour les Corbeilles
+    $cache = $RCMAIL->plugins->exec_hook('mel_folder_cache',
+        array('folder' => $mbox_name));
+
+    $old_unseen = rcmail_get_unseen_count($cache['folder']);
     $unseen     = $count;
 
     if ($unseen === null) {
         $unseen = $RCMAIL->storage->count($mbox_name, 'UNSEEN', $force);
     }
 
-    if ($unseen !== $old_unseen || ($mbox_name == 'INBOX')) {
-        $RCMAIL->output->command('set_unread_count', $mbox_name, $unseen,
-            ($mbox_name == 'INBOX'), $unseen && $mark ? $mark : '');
+    // PAMELA - Change the IMAP folder name with a plugin (change INBOX for shared mailboxes)
+    $data = $RCMAIL->plugins->exec_hook('mel_is_inbox',
+        array('mbox' => $mbox_name, 'isInbox' => $mbox_name == 'INBOX'));
+
+    if ($unseen !== $old_unseen || $data['isInbox']) {
+        $RCMAIL->output->command('set_unread_count', $cache['folder'], $unseen,
+            $data['isInbox'], $unseen && $mark ? $mark : '');
     }
 
-    rcmail_set_unseen_count($mbox_name, $unseen);
+    rcmail_set_unseen_count($cache['folder'], $unseen);
 
     return $unseen;
 }

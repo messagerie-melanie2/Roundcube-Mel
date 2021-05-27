@@ -118,7 +118,7 @@ class rcube_utils
 
             // last domain part
             $last_part = array_pop($domain_array);
-            if (strpos($last_part, 'xn--') !== 0 && preg_match('/[^a-zA-Z]/', $last_part)) {
+            if (/** PAMELA - MANTIS 3439: Les adresses mail en .i2 ne sont pas acceptées **/ $last_part != 'i2' && strpos($last_part, 'xn--') !== 0 && preg_match('/[^a-zA-Z]/', $last_part)) {
                 return false;
             }
 

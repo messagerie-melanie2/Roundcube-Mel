@@ -34,18 +34,28 @@ if ($_POST['_from'] != 'show') {
 // move messages
 if ($RCMAIL->action == 'move' && !empty($_POST['_uid']) && strlen($_POST['_target_mbox'])) {
     $target  = rcube_utils::get_input_value('_target_mbox', rcube_utils::INPUT_POST, true);
-    $success = true;
+    
+    // PAMELA - Gérer la corbeille individuelle
+    $data = $RCMAIL->plugins->exec_hook('mel_move_message',
+                array('target' => $target, 'continue' => true, 'success' => true, 'count' => 0));
 
-    foreach (rcmail::get_uids(null, null, $multifolder, rcube_utils::INPUT_POST) as $mbox => $uids) {
-        if ($mbox === $target) {
-            $count += is_array($uids) ? count($uids) : 1;
-        }
-        else if ($RCMAIL->storage->move_message($uids, $target, $mbox)) {
-            $count += is_array($uids) ? count($uids) : 1;
-            $sources[] = $mbox;
-        }
-        else {
-            $success = false;
+    $success    = $data['success'];
+    $count      = $data['count'];
+    
+    if ($data['continue']) {
+        $target = $data['target'];
+    
+        foreach (rcmail::get_uids(null, null, $multifolder, rcube_utils::INPUT_POST) as $mbox => $uids) {
+            if ($mbox === $target) {
+                $count += is_array($uids) ? count($uids) : 1;
+            }
+            else if ($RCMAIL->storage->move_message($uids, $target, $mbox)) {
+                $count += is_array($uids) ? count($uids) : 1;
+                $sources[] = $mbox;
+            }
+            else {
+                $success = false;
+            }
         }
     }
 
