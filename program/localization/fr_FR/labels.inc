@@ -69,7 +69,7 @@ $labels['showanyway'] = 'Afficher quand même';
 $labels['filename'] = 'Nom du fichier';
 $labels['filesize'] = 'Taille du fichier';
 $labels['addtoaddressbook'] = 'Ajouter au carnet d\'adresses';
-//PAMELA
+// PAMELA
 $labels['sun_min'] = 'D';
 $labels['mon_min'] = 'L';
 $labels['tue_min'] = 'M';
