@@ -255,6 +255,8 @@ function rcmail_contact_search()
     // PAMELA - Search contacts by source
     $OUTPUT->set_env('source', $_source);
     $OUTPUT->set_env('group', '');
+    // PAMELA - Do not use advanced search
+    $OUTPUT->command('contacts_search_only_hide');
     // Re-set list header
     $OUTPUT->command('set_group_prop', null);
 

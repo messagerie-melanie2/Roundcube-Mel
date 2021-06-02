@@ -201,12 +201,28 @@ class newmail_notifier extends rcube_plugin
         if ($unseen->count()) {
             $this->notified = true;
 
+            // PAMELA - Gestion de la mailboxe
+            if (strpos($mbox, driver_mel::gi()->getBalpLabel()) === 0) {
+                $tmp = explode($_SESSION['imap_delimiter'], $mbox, 3);
+                $title = driver_mel::gi()->getUser($tmp[1])->fullname;
+                if (isset($tmp[2])) {
+                    $title = $title . " > " . $tmp[2];
+                }
+            }
+            else {
+                $title = driver_mel::gi()->getUser()->fullname;
+                if ($mbox != 'INBOX') {
+                    $title = $title . " > " . $mbox;
+                }
+            }
+
             $this->rc->output->set_env('newmail_notifier_timeout', $this->rc->config->get('newmail_notifier_desktop_timeout'));
             $this->rc->output->command('plugin.newmail_notifier',
                 array(
                     'basic'   => $this->opt['basic'],
                     'sound'   => $this->opt['sound'],
                     'desktop' => $this->opt['desktop'],
+                    'title'   => $title,
                 ));
         }
 

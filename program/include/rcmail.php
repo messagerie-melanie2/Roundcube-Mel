@@ -864,18 +864,25 @@ class rcmail extends rcube
         $pre = array();
         $task = $p['_task'] ?: ($p['task'] ?: $this->task);
         $pre['_task'] = $task;
+	    // PAMELA - Keep the account value in url generator
+        if ($task == 'settings') {
+            $_account = mel::get_account();
+            if (isset($_account)
+                && strpos($_account, '%40') !== false) {
+              $_account = urldecode($_account);
+            }
+            if (isset($_account)) $p['_account'] = $_account;
+        }
         // PAMELA - Keep the courrielleur value in url generator
         $_courrielleur = trim(rcube_utils::get_input_value('_courrielleur', rcube_utils::INPUT_GET));
         if (isset($_courrielleur)) {
           $p['_courrielleur'] = $_courrielleur;
         }
-
-        // PAMELA - Keep the courrielleur value in url generator
+        // PAMELA - Keep the from value in url generator
         $_from = trim(rcube_utils::get_input_value('_from', rcube_utils::INPUT_GET));
         if (isset($_from)) {
           $p['_from'] = $_from;
         }
-
         unset($p['task'], $p['_task']);
 
         $url  = $this->filename;
@@ -1769,12 +1776,17 @@ class rcmail extends rcube
      */
     public function folder_classname($folder_id, $folder_class = null)
     {
-        if ($folder_id == 'INBOX') {
+        // PAMELA - Gérer les INBOX des BALP en plus
+        $data = $this->plugins->exec_hook('mel_is_inbox',
+            array('mbox' => $folder_id, 'isInbox' => $folder_id == 'INBOX'));
+
+        if ($data['isInbox']) {
             return 'inbox';
         }
 
         // for these mailboxes we have localized labels and css classes
-        foreach (array('sent', 'drafts', 'trash', 'junk') as $smbx)
+        // PAMELA - Modèles
+        foreach (array('sent', 'drafts', 'models', 'trash', 'junk') as $smbx)
         {
             if ($folder_id === $this->config->get($smbx.'_mbox')) {
                 return $smbx;
@@ -2350,10 +2362,14 @@ class rcmail extends rcube
             'Arial'         => 'Arial,Helvetica,sans-serif',
             'Arial Black'   => '"Arial Black","Avant Garde",sans-serif',
             'Book Antiqua'  => '"Book Antiqua",Palatino,serif',
+            // PAMELA - 0006054: Divergence entre liste des polices disponibles
+            'Comic Sans MS' => '"Comic Sans MS",sans-serif',
             'Courier New'   => '"Courier New",Courier,monospace',
             'Georgia'       => 'Georgia,Palatino,serif',
             'Helvetica'     => 'Helvetica,Arial,sans-serif',
             'Impact'        => 'Impact,Chicago,sans-serif',
+            // PAMELA - 0006054: Divergence entre liste des polices disponibles
+            'Symbol'        => 'symbol',
             'Tahoma'        => 'Tahoma,Arial,Helvetica,sans-serif',
             'Terminal'      => 'Terminal,Monaco,monospace',
             'Times New Roman' => '"Times New Roman",Times,serif',
