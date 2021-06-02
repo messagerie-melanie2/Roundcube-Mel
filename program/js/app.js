@@ -277,6 +277,14 @@ function rcube_webmail()
             .addEventListener('column_replace', function(o) { ref.msglist_set_coltypes(o); })
             .init();
 
+            //Pamela - Rendre le drag'n'drop possible pour les messages dans une frame.
+          if (parent !== window)
+          {
+            setTimeout(() => {
+              this.message_list.draggable = true;
+            }, 111);
+          }
+
           // TODO: this should go into the list-widget code
           $(this.message_list.thead).on('click', 'a.sortcol', function(e){
             return ref.command('sort', $(this).attr('rel'), this);
@@ -734,19 +742,16 @@ function rcube_webmail()
     if (obj && obj.blur && !(event && rcube_event.is_keyboard(event)))
       obj.blur();
 
-      console.log(1);
     // do nothing if interface is locked by another command
     // with exception for searching reset and menu
     if (this.busy && !(command == 'reset-search' && this.last_command == 'search') && !command.match(/^menu-/))
       return false;
 
-      console.log(2);
-
     // let the browser handle this click (shift/ctrl usually opens the link in a new window/tab)
     if ((obj && obj.href && String(obj.href).indexOf('#') < 0) && rcube_event.get_modifier(event)) {
       return true;
     }
-    console.log(3);
+
     // command not supported or allowed
     if (!allow_disabled && !this.commands[command]) {
       // pass command to parent window
@@ -755,7 +760,7 @@ function rcube_webmail()
 
       return false;
     }
-    console.log(4);
+ 
     // check input before leaving compose step
     if (this.task == 'mail' && this.env.action == 'compose' && !this.env.server_error && command != 'save-pref'
       && $.inArray(command, this.env.compose_commands) < 0 && !this.compose_skip_unsavedcheck
