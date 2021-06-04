@@ -879,9 +879,12 @@ class rcmail extends rcube
           $p['_courrielleur'] = $_courrielleur;
         }
         // PAMELA - Keep the from value in url generator
-        $_from = trim(rcube_utils::get_input_value('_from', rcube_utils::INPUT_GET));
-        if (isset($_from)) {
-          $p['_from'] = $_from;
+        if (in_array("mel_metapage",$this->plugins->active_plugins))
+        {
+            $_from = trim(rcube_utils::get_input_value(mel_metapage::FROM_KEY, rcube_utils::INPUT_GET));
+            if (isset($_from)) {
+                $p[mel_metapage::FROM_KEY] = $_from;
+            }
         }
         unset($p['task'], $p['_task']);
 
