@@ -2319,7 +2319,6 @@ function rcube_elastic_ui()
                 if ($(item).data('event') == 'key') {
                     popover.off('keydown.popup').on('keydown.popup', 'a.active', function(e) {
                         var entry, node, mode = 'next';
-
                         switch (e.which) {
                             case 27: // ESC
                             case 9:  // TAB
@@ -2334,7 +2333,9 @@ function rcube_elastic_ui()
                                 entry = e.target.parentNode;
                                 while (entry = entry[mode + 'Sibling']) {
                                     if (node = $(entry).children('.active')[0]) {
-                                        node.focus();
+                                        setTimeout(() => {
+                                            $(node).focus();
+                                        }, 1);
                                         break;
                                     }
                                 }
@@ -2342,7 +2343,9 @@ function rcube_elastic_ui()
                         }
                     });
 
-                    popover.find('a.active').first().focus();
+                    setTimeout(() => {
+                        $(popover.find('a.active').first()).focus();
+                    }, 1);
                 }
 
                 if (popup_id && menus[popup_id]) {
