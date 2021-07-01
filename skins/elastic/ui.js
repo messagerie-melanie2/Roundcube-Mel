@@ -2533,7 +2533,9 @@ function rcube_elastic_ui()
                 }
 
                 menus[p.name] = {target: target};
-                $(target).popover('show');
+                setTimeout(() => {
+                    $(target).popover('show');
+                }, 1);  
             }
 
             fn();
