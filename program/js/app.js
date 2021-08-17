@@ -5354,6 +5354,10 @@ function rcube_webmail()
 
     if (mbox)
       this.env.search_mods[mbox] = mods;
+
+    // MANTIS 0005913: Problème pour une recherche dans tous les dossiers
+    if (mbox != '*')
+      this.env.search_mods['*'] = mods;
   };
 
   this.is_multifolder_listing = function()
