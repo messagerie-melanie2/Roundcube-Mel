@@ -2173,6 +2173,7 @@ function rcube_webmail()
   // create a table row in the message list
   this.add_message_row = function(uid, cols, flags, attop)
   {
+    //console.log("here 2", uid, cols, flags, attop);
     if (!this.gui_objects.messagelist || !this.message_list)
       return false;
 
@@ -2343,8 +2344,10 @@ function rcube_webmail()
       }
       else if (c == 'threads')
         html = expando;
-      else if (c == 'subject') {
+      else if (c == "fromto")//PAMELA
         html = tree + cols[c];
+      else if (c == 'subject') {
+        html = cols[c];
       }
       else if (c == 'priority') {
         if (flags.prio > 0 && flags.prio < 6) {
