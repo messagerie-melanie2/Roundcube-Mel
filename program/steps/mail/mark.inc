@@ -53,6 +53,12 @@ if ($_uids && $flag) {
 
     if ($folders == 'all') {
         $mboxes = $RCMAIL->storage->list_folders_subscribed('', '*', 'mail');
+        // MANTIS 0006140: Clic droit > Passer tous les dossiers en lus sur une BALP marque aussi l'INBOX de la BALI
+        $sent_mbox = $RCMAIL->config->get('sent_mbox');
+        // Si le dossier envoyé est un dossier de boite partagée, on supprime l'INBOX
+        if (strpos($sent_mbox, driver_mel::gi()->getBalpLabel()) === 0 && ($key = array_search('INBOX', $mboxes)) !== false) {
+            unset($mboxes[$key]);
+        }
         $input  = array_combine($mboxes, array_fill(0, count($mboxes), '*'));
     }
     else if ($folders == 'sub') {
