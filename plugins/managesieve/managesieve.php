@@ -82,7 +82,10 @@ class managesieve extends rcube_plugin
         }
 
         // load localization
-        $this->add_texts('localization/');
+        if ($this->rc->task == 'settings' && $this->rc->action == "plugin.managesieve")
+            $this->add_texts('localization/', true);
+        else
+            $this->add_texts('localization/');
 
         $sieve_action = strpos($this->rc->action, 'plugin.managesieve') === 0;
 
