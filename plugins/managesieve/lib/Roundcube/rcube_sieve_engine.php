@@ -157,6 +157,12 @@ class rcube_sieve_engine
         if (in_array('list_sets', $this->disabled_actions))
             $this->rc->output->set_env('managesieve_no_set_list', true);
 
+        // PAMELA - Change the default filterset name
+        $this->rc->output->set_env('filterset_specials', [
+            'managesieve'   => $this->rc->gettext('managesieve.managesieve_filters'),
+            'old_ingo'      => $this->rc->gettext('managesieve.ingo_filters'),
+        ]);
+
         return $error;
     }
 
