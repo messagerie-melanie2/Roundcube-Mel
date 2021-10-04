@@ -1574,18 +1574,37 @@ function rcube_elastic_ui()
      */
     function screen_mode()
     {
+        let tests = {
+            large:1200,
+            normal:768,
+            phone:480,
+            touch:1024
+        }
+
         var size, width = $(window).width();
 
-        if (width <= 480)
-            size = 'phone';
-        else if (width > 1200)
-            size = 'large';
-        else if (width > 768)
-            size = 'normal';
-        else
-            size = 'small';
+        const customTests = rcmail.triggerEvent("elastic.UI.screen_mode.tests", {tests:tests, width:width});
 
-        touch = width <= 1024;
+        if (customTests !== undefined)
+            tests = customTests;
+
+        const customSize = rcmail.triggerEvent("elastic.UI.screen_mode.customSize", {tests:tests, width:width});
+
+        if (customSize !== undefined && customSize !== null)
+            size = customSize;
+        else {
+            if (width <= tests.phone)
+                size = 'phone';
+            else if (width > tests.large)
+                size = 'large';
+            else if (width > tests.normal)
+                size = 'normal';
+            else
+                size = 'small';
+        }
+
+
+        touch = width <= tests.touch;
         mode = size;
     };
 
