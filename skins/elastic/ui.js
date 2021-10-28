@@ -1632,6 +1632,10 @@ function rcube_elastic_ui()
 
         // Hide content frame buttons on small devices (with frame toolbar in parent window)
         $.each(content_buttons, function() { $(this)[mobile ? 'hide' : 'show'](); });
+
+        rcmail.triggerEvent("ui.resize", {
+            mobile:mobile
+        })
     };
 
     function screen_resize()
@@ -1748,7 +1752,12 @@ function rcube_elastic_ui()
     function screen_resize_small()
     {
         screen_resize_small_all();
-        app_menu(true);
+
+        //PAMELLA
+        if ($("html").hasClass("touch"))
+            app_menu(false);
+        else
+            app_menu(true);
     };
 
     function screen_resize_normal()
@@ -1765,7 +1774,13 @@ function rcube_elastic_ui()
         }
 
         layout.content.removeClass('hidden');
-        app_menu(true);
+
+        //PAMELLA
+        if ($("html").hasClass("touch"))
+            app_menu(false);
+        else
+            app_menu(true);
+
         screen_resize_small_none();
 
         if (layout.list.length) {
@@ -1900,17 +1915,21 @@ function rcube_elastic_ui()
     function app_menu(show)
     {
         if (show) {
-            if (mode == 'phone') {
+            if (mode == 'phone' /* PAMELLA ==> */|| $("html").hasClass("touch")) {
                 $('<div id="menu-overlay" class="popover-overlay">')
                     .on('click', function() { app_menu(false); })
                     .appendTo('body');
 
                 if (!env.menu_initialized) {
                     env.menu_initialized = true;
-                    $('a', layout.menu).on('click', function(e) { if (mode == 'phone') app_menu(); });
+                    $('a', layout.menu).on('click', function(e) { 
+                        if (mode == 'phone' || /* PAMELLA ==> */$("html").hasClass("touch")) 
+                            app_menu(); 
+                    });
                 }
 
-                layout.menu.addClass('popover');
+                if (mode == "phone") //PAMELLA
+                    layout.menu.addClass('popover');
             }
 
             layout.menu.removeClass('hidden');
