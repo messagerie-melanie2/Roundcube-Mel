@@ -1356,7 +1356,9 @@ class rcmail extends rcube
             if ($stz) {
                 date_default_timezone_set($stz);
             }
-            return $today ? ($this->gettext('today') . ' ' . $format) : $format;
+            // PAMELA - Ne pas mettre Aujourd'hui
+            //return $today ? ($this->gettext('today') . ' ' . $format) : $format;
+            return $format;
         }
 
         // parse format string manually in order to provide localized weekday and month names
@@ -1395,16 +1397,17 @@ class rcmail extends rcube
             }
         }
 
-        if ($today) {
-            $label = $this->gettext('today');
-            // replcae $ character with "Today" label (#1486120)
-            if (strpos($out, '$') !== false) {
-                $out = preg_replace('/\$/', $label, $out, 1);
-            }
-            else {
-                $out = $label . ' ' . $out;
-            }
-        }
+        // PAMELA - Ne pas mettre Aujourd'hui
+        // if ($today) {
+        //     $label = $this->gettext('today');
+        //     // replcae $ character with "Today" label (#1486120)
+        //     if (strpos($out, '$') !== false) {
+        //         $out = preg_replace('/\$/', $label, $out, 1);
+        //     }
+        //     else {
+        //         $out = $label . ' ' . $out;
+        //     }
+        // }
 
         if ($stz) {
             date_default_timezone_set($stz);
