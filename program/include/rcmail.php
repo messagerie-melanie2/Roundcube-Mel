@@ -151,7 +151,8 @@ class rcmail extends rcube
             $task = 'login';
         }
         else {
-            $task = asciiwords($task, true) ?: 'mail';
+            //PAMELLA, remplacer "mail" par défaut par une configuration
+            $task = asciiwords($task, true) ?: $this->config->get('default_task', 'mail');
         }
 
         $this->task      = $task;
