@@ -60,8 +60,7 @@ if ($RCMAIL->action == 'move' && !empty($_POST['_uid']) && strlen($_POST['_targe
                 $success = false;
             }
         }
-    }
-    
+    }    
 
     if (!$success) {
         // send error message
