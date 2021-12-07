@@ -117,7 +117,7 @@ rcube_webmail.prototype.enigma_key_import = function()
     this.enigma_import_dialog = this.simple_dialog(dialog, this.gettext('enigma.importkeys'), import_func, {
         button: 'import',
         width: 500,
-        height: 150
+        height: 180
     });
 };
 
@@ -156,7 +156,7 @@ rcube_webmail.prototype.enigma_key_create_save = function()
     var options, lock, users = [],
         password = $('#key-pass').val(),
         confirm = $('#key-pass-confirm').val(),
-        size = $('#key-size').val();
+        type = $('#key-type').val();
 
     $('[name="identity[]"]:checked').each(function() {
         users.push({name: $(this).data('name') || '', email: $(this).data('email')});
@@ -183,10 +183,16 @@ rcube_webmail.prototype.enigma_key_create_save = function()
     if (window.openpgp && (window.msCrypto || (window.crypto && (window.crypto.getRandomValues || window.crypto.subtle)))) {
         lock = this.set_busy(true, 'enigma.keygenerating');
         options = {
-            numBits: size,
             userIds: users,
             passphrase: password
         };
+
+        if (type == 'ecc')
+            options.curve = 'ed25519';
+        else if (type == 'rsa4096')
+            options.rsaBits = 4096;
+        else
+            options.rsaBits = 2048;
 
         openpgp.generateKey(options).then(function(keypair) {
             // success
@@ -288,7 +294,7 @@ rcube_webmail.prototype.enigma_export = function(selected)
     this.enigma_export_submit(args);
 };
 
-// Sumbitting request for key(s) export
+// Submitting request for key(s) export
 // Done this way to handle password input
 rcube_webmail.prototype.enigma_export_submit = function(data)
 {
@@ -327,7 +333,7 @@ rcube_webmail.prototype.enigma_import = function()
     }
 };
 
-// Ssearch for key(s) for import
+// Search for key(s) for import
 rcube_webmail.prototype.enigma_import_search = function()
 {
     var form, search;
@@ -540,11 +546,7 @@ rcube_webmail.prototype.enigma_password_request = function(data)
         myprompt = $('<div class="prompt">'),
         myprompt_content = $('<p class="message">')
             .appendTo(myprompt),
-        myprompt_input = $('<input>').attr({type: 'password', size: 30})
-            .keypress(function(e) {
-                if (e.which == 13)
-                    (ref.is_framed() ? window.parent.$ : $)('.ui-dialog-buttonpane button.mainaction:visible').click();
-            })
+        myprompt_input = $('<input>').attr({type: 'password', size: 30, 'data-submit': 'true'})
             .appendTo(myprompt);
 
     data.key = data.keyid;

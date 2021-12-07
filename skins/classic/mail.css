@@ -36,7 +36,7 @@
   padding: 0;
   margin: 0 5px;
   overflow: hidden;
-  background: url(images/mail_toolbar.png?v=2271.13035) 0 0 no-repeat transparent;
+  background: url(images/mail_toolbar.png) 0 0 no-repeat transparent;
   opacity: 0.99; /* this is needed to make buttons appear correctly in Chrome */
 }
 
@@ -203,7 +203,7 @@
 #messagemenu li a,
 #attachmentmenu li a
 {
-  background: url(images/messageactions.png?v=8c64.2615) no-repeat 7px 0;
+  background: url(images/messageactions.png) no-repeat 7px 0;
   background-position: 7px 20px;
 }
 
@@ -253,7 +253,7 @@
 #compose-attachments li a.delete,
 #compose-attachments li a.cancelupload
 {
-  background: url(images/messageicons.png?v=c493.2511) no-repeat;
+  background: url(images/messageicons.png) no-repeat;
 }
 
 #markmessagemenu li a.readlink
@@ -469,7 +469,7 @@
   margin-top: 4px;
   margin-right: 2px;
   overflow: hidden;
-  background: url(images/mail_footer.png?v=1c4b.774) 0 0 no-repeat transparent;
+  background: url(images/mail_footer.png) 0 0 no-repeat transparent;
   opacity: 0.99; /* this is needed to make buttons appear correctly in Chrome */
 }
 
@@ -589,7 +589,7 @@ table.messagelist.fixedcopy
   vertical-align: middle;
   border-bottom: 1px solid #999999;
   color: #333333;
-  background: url(images/listheader.gif?v=ab42.314) top left repeat-x #CCC;
+  background: url(images/listheader.gif) top left repeat-x #CCC;
   font-size: 11px;
   font-weight: bold;
   text-align: left;
@@ -603,12 +603,12 @@ table.messagelist.fixedcopy
 
 .messagelist thead tr > .sortedASC a
 {
-  background: url(images/icons/sort.gif?v=92aa.144) right 0 no-repeat;
+  background: url(images/icons/sort.gif) right 0 no-repeat;
 }
 
 .messagelist thead tr > .sortedDESC a
 {
-  background: url(images/icons/sort.gif?v=92aa.144) right -14px no-repeat;
+  background: url(images/icons/sort.gif) right -14px no-repeat;
 }
 
 .messagelist thead tr a
@@ -711,7 +711,7 @@ table.messagelist.fixedcopy
   vertical-align: middle;
   height: 17px;
   width: 15px;
-  background: url(images/messageicons.png?v=c493.2511) center no-repeat;
+  background: url(images/messageicons.png) center no-repeat;
 }
 
 .messagelist tr .attachment span.attachment
@@ -998,7 +998,7 @@ td span.branch div.tree
 {
   height: 17px;
   width: 15px;
-  background: url(images/tree.gif?v=9b73.92) 0px 0px no-repeat;
+  background: url(images/tree.gif) 0px 0px no-repeat;
 }
 
 td span.branch div.l1
@@ -1110,7 +1110,7 @@ table.headers-table tr td.header span
   min-height: 16px;
   list-style-image: none;
   list-style-type: none;
-  background: url(images/icons/attachment.png?v=ee4e.516) 4px 2px no-repeat #DFDFDF;
+  background: url(images/icons/attachment.png) 4px 2px no-repeat #DFDFDF;
 }
 
 #messageframe #attachment-list
@@ -1153,7 +1153,7 @@ table.headers-table tr td.header span
 }
 
 #attachment-list li a.drop {
-  background: url(images/icons/down_small.gif?v=f368.105) no-repeat center 6px;
+  background: url(images/icons/down_small.gif) no-repeat center 6px;
   width: 12px;
   height: 16px;
   cursor: pointer;
@@ -1359,12 +1359,12 @@ div.more-headers
 
 div.show-headers
 {
-  background: url(images/icons/down_small.gif?v=f368.105) no-repeat center;
+  background: url(images/icons/down_small.gif) no-repeat center;
 }
 
 div.hide-headers
 {
-  background: url(images/icons/up_small.gif?v=c56c.106) no-repeat center;
+  background: url(images/icons/up_small.gif) no-repeat center;
 }
 
 #headers-source
@@ -1414,13 +1414,9 @@ div.hide-headers
   border: 1px solid #999;
 }
 
-#compose-body-div .mce-tinymce {
+#compose-body-div .tox-tinymce {
   border: 0 !important;
   width: 100% !important;
-}
-
-.mce-top-part::before {
-  box-shadow: none !important;
 }
 
 #compose-div .boxlistcontent
@@ -1602,7 +1598,7 @@ input.from_address
 }
 
 #compose-attachments li a.drop {
-  background: url(images/icons/down_small.gif?v=f368.105) no-repeat center 8px;
+  background: url(images/icons/down_small.gif) no-repeat center 8px;
   width: 16px;
   height: 22px;
   cursor: pointer;
@@ -1660,7 +1656,7 @@ input.from_address
 {
   display: block;
   font-size: 11px;
-  background: url(images/icons/folders.png?v=7c4f.5218) 5px -108px no-repeat;
+  background: url(images/icons/folders.png) 5px -108px no-repeat;
   border-bottom: 1px solid #EBEBEB;
   white-space: nowrap;
 }
@@ -1736,7 +1732,7 @@ input.from_address
   padding-left: 5px;
   padding-right: 5px;
   text-shadow: 1px 1px white;
-  background: url(images/icons/groupactions.png?v=6760.604) no-repeat right -70px;
+  background: url("images/icons/groupactions.png") no-repeat right -70px;
 }
 
 #abookactions a.disabled
@@ -1762,10 +1758,6 @@ input.from_address
 {
   top: 45px;
   position: absolute;
-}
-
-#image-selector {
-  padding-bottom: 0 !important;
 }
 
 /**** Styles for widescreen (3-column) view ****/
@@ -1817,7 +1809,7 @@ input.from_address
   vertical-align: middle;
   line-height: 16px;
   width: 15px;
-  background: url(images/messageicons.png?v=c493.2511) 4px -236px no-repeat;
+  background: url(images/messageicons.png) 4px -236px no-repeat;
   cursor: pointer;
   overflow: hidden;
   text-indent: -5000px;
@@ -1863,6 +1855,10 @@ input.from_address
   overflow: hidden;
   text-overflow: ellipsis;
   color: #666;
+}
+
+.widescreen .messagelist td.subject span.size {
+  display: none;
 }
 
 .widescreen .messagelist tr.flagged td.subject span.date,

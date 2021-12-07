@@ -20,7 +20,7 @@
 */
 
 /**
- * Interface class for accessing Memcached cache
+ * Interface implementation class for accessing Memcached cache
  *
  * @package    Framework
  * @subpackage Cache
@@ -36,18 +36,11 @@ class rcube_cache_memcached extends rcube_cache
 
 
     /**
-     * Object constructor.
-     *
-     * @param int    $userid User identifier
-     * @param string $prefix Key name prefix
-     * @param string $ttl    Expiration time of memcache/apc items
-     * @param bool   $packed Enables/disabled data serialization.
-     *                       It's possible to disable data serialization if you're sure
-     *                       stored data will be always a safe string
+     * {@inheritdoc}
      */
-    public function __construct($userid, $prefix = '', $ttl = 0, $packed = true)
+    public function __construct($userid, $prefix = '', $ttl = 0, $packed = true, $indexed = false)
     {
-        parent::__construct($userid, $prefix, $ttl, $packed);
+        parent::__construct($userid, $prefix, $ttl, $packed, $indexed);
 
         $this->type  = 'memcache';
         $this->debug = rcube::get_instance()->config->get('memcache_debug');
@@ -76,10 +69,10 @@ class rcube_cache_memcached extends rcube_cache
         if (!class_exists('Memcached')) {
             self::$memcache = false;
 
-            rcube::raise_error(array(
+            rcube::raise_error([
                     'code' => 604, 'type' => 'memcache', 'line' => __LINE__, 'file' => __FILE__,
                     'message' => "Failed to find Memcached. Make sure php-memcached is installed"
-                ),
+                ],
                 true, true);
         }
 
@@ -93,12 +86,12 @@ class rcube_cache_memcached extends rcube_cache
 
         self::$memcache = new Memcached($persistent_id);
 
-        self::$memcache->setOptions(array(
+        self::$memcache->setOptions([
                 Memcached::OPT_CONNECT_TIMEOUT => $timeout * 1000,
                 Memcached::OPT_RETRY_TIMEOUT   => $timeout,
                 Memcached::OPT_DISTRIBUTION    => Memcached::DISTRIBUTION_CONSISTENT,
                 Memcached::OPT_COMPRESSION     => true,
-        ));
+        ]);
 
         if (!$pconnect || !count(self::$memcache->getServerList())) {
             foreach ((array) $hosts as $host) {
@@ -121,10 +114,10 @@ class rcube_cache_memcached extends rcube_cache
         if ($result === false && ($res_code = self::$memcache->getResultCode()) !== Memcached::RES_NOTFOUND) {
             self::$memcache = false;
 
-            rcube::raise_error(array(
+            rcube::raise_error([
                     'code' => 604, 'type' => 'memcache', 'line' => __LINE__, 'file' => __FILE__,
                     'message' => "Memcache connection failure (code: $res_code)."
-                ),
+                ],
                 true, false);
         }
 
@@ -175,7 +168,7 @@ class rcube_cache_memcached extends rcube_cache
      * @param string $key  Cache internal key name
      * @param mixed  $data Serialized cache data
      *
-     * @param boolean True on success, False on failure
+     * @param bool True on success, False on failure
      */
     protected function add_item($key, $data)
     {
@@ -197,7 +190,7 @@ class rcube_cache_memcached extends rcube_cache
      *
      * @param string $key Cache internal key name
      *
-     * @param boolean True on success, False on failure
+     * @param bool True on success, False on failure
      */
     protected function delete_item($key)
     {

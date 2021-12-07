@@ -151,7 +151,7 @@ input.smart-upload {
         }
     }
 
-    &.groupped {
+    &.grouped {
         &.readonly {
             legend {
                 margin: 0;
@@ -214,6 +214,7 @@ input.smart-upload {
                 display: flex;
                 flex-wrap: wrap;
                 border-radius: 0;
+                border-left-color: transparent;
 
                 input {
                     border-radius: 0;
@@ -471,7 +472,7 @@ html.ms .propform {
     }
 
     .row {
-        margin-right: 0; // without these the form is too wide causing horizontal scrollbar appearence
+        margin-right: 0; // without these the form is too wide causing horizontal scrollbar appearance
         margin-left: 0;
 
         // Note: We never use odd numbers here
@@ -505,7 +506,7 @@ html.ms .propform {
         display: flex; // https://github.com/twbs/bootstrap/issues/22348
         flex-wrap: nowrap;
 
-        // alignment fixes needed because we do not stick precissely to Bootstrap's form structure
+        // alignment fixes needed because we do not stick precisely to Bootstrap's form structure
         @media screen and (max-width: @screen-width-bs-phone) {
             .col-6 {
                 max-width: 100%;
@@ -976,15 +977,15 @@ html.ms .propform {
     }
 
     a.button.icon {
-        font-size: .8em;
+        font-size: .75em;
         cursor: pointer;
         padding: 0;
+        color: @color-font;
 
         &:before {
-            float: none;
             display: inline-block;
             width: 1em;
-            line-height: 1.5;
+            line-height: 1.6;
         }
     }
 
@@ -1271,6 +1272,13 @@ html.ms .propform {
     margin-bottom: .5rem;
 }
 
+// This one is to fix height of an input-group child that usually we put
+// in between inputs, e.g. in managesieve forms it is '@' in email input
+// with a separate local part and domain selector.
+.input-group-append.input-group-prepend {
+    display: inline;
+}
+
 .input-group-text {
     color: @color-input;
     background-color: @color-input-addon-background;
@@ -1287,6 +1295,7 @@ html.ms .propform {
 
     .custom-control-input {
         left: 0;
+        opacity: 0 !important; // fixes input in dark mode
 
         &:focus ~ .custom-control-label:before {
             box-shadow: 0 0 0 .2rem @color-checkbox-focus-shadow;
@@ -1379,7 +1388,6 @@ html.ms .propform {
         white-space: nowrap;
         .overflow-ellipsis();
         padding-right: 100px;
-        line-height: 1.5 !important;
     }
 
     & + .hint {

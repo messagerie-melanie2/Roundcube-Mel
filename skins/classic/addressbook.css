@@ -22,7 +22,7 @@
   padding: 0;
   margin: 0 5px;
   overflow: hidden;
-  background: url(images/abook_toolbar.png?v=8259.4881) 0 0 no-repeat transparent;
+  background: url(images/abook_toolbar.png) 0 0 no-repeat transparent;
   opacity: 0.99; /* this is needed to make buttons appear correctly in Chrome */
 }
 
@@ -43,12 +43,12 @@
 }
 
 #abooktoolbar a.print {
-  background: url(images/mail_toolbar.png?v=2271.13035) 0 0 no-repeat transparent;
+  background: url(images/mail_toolbar.png) 0 0 no-repeat transparent;
   background-position: -256px 0;
 }
 
 #abooktoolbar a.printSel {
-  background: url(images/mail_toolbar.png?v=2271.13035) 0 0 no-repeat transparent;
+  background: url(images/mail_toolbar.png) 0 0 no-repeat transparent;
   background-position: -256px -32px;
 }
 
@@ -93,14 +93,14 @@
 }
 
 #abooktoolbar a.contactmenu {
-  background: url(images/mail_toolbar.png?v=2271.13035) 0 0 no-repeat transparent;
+  background: url(images/mail_toolbar.png) 0 0 no-repeat transparent;
   background-position: -320px 0;
   width: 34px;
 }
 
 #contactmenu li a
 {
-  background: url(images/contactactions.png?v=c9af.1114) no-repeat 7px 0;
+  background: url(images/contactactions.png) no-repeat 7px 0;
   background-position: 7px 20px;
 }
 
@@ -121,13 +121,13 @@
 
 #contactmenu li a.movelink
 {
-  background: url(images/messageactions.png?v=8c64.2615) no-repeat 7px 0;
+  background: url(images/messageactions.png) no-repeat 7px 0;
   background-position: 6px -160px;
 }
 
 #contactmenu li a.copylink
 {
-  background: url(images/messageactions.png?v=8c64.2615) no-repeat 7px 0;
+  background: url(images/messageactions.png) no-repeat 7px 0;
   background-position: 6px -142px;
 }
 
@@ -193,7 +193,7 @@
   height: 16px;
   text-decoration: none;
   white-space: nowrap;
-  background-image: url(images/icons/folders.png?v=7c4f.5218);
+  background-image: url(images/icons/folders.png);
   background-position: 5px -108px;
   background-repeat: no-repeat;
 }

@@ -116,7 +116,7 @@
 }
 
 .googie_ok_button {
-  background: url(images/googiespell/ok.gif?v=36c3.143) no-repeat center center transparent;
+  background: url(images/googiespell/ok.gif) no-repeat center center transparent;
   width: 32px;
   height: 16px;
   cursor: pointer;

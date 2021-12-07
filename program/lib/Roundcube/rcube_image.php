@@ -27,19 +27,21 @@
  */
 class rcube_image
 {
-    private $image_file;
-
     const TYPE_GIF = 1;
     const TYPE_JPG = 2;
     const TYPE_PNG = 3;
     const TYPE_TIF = 4;
 
-    public static $extensions = array(
+    /** @var array Image file type to extension map */
+    public static $extensions = [
         self::TYPE_GIF => 'gif',
         self::TYPE_JPG => 'jpg',
         self::TYPE_PNG => 'png',
         self::TYPE_TIF => 'tif',
-    );
+    ];
+
+    /** @var string Image file location */
+    private $image_file;
 
 
     /**
@@ -55,33 +57,41 @@ class rcube_image
     /**
      * Get image properties.
      *
-     * @return mixed Hash array with image props like type, width, height
+     * @return array|null Hash array with image props like type, width, height
      */
     public function props()
     {
+        $gd_type  = null;
+        $channels = null;
+        $width    = null;
+        $height   = null;
+
         // use GD extension
         if (function_exists('getimagesize') && ($imsize = @getimagesize($this->image_file))) {
             $width   = $imsize[0];
             $height  = $imsize[1];
             $gd_type = $imsize[2];
             $type    = image_type_to_extension($gd_type, false);
-            $channels = $imsize['channels'];
+
+            if (isset($imsize['channels'])) {
+                $channels = $imsize['channels'];
+            }
         }
 
         // use ImageMagick
-        if (!$type && ($data = $this->identify())) {
+        if (empty($type) && ($data = $this->identify())) {
             list($type, $width, $height) = $data;
             $channels = null;
         }
 
-        if ($type) {
-            return array(
-                'type'    => $type,
-                'gd_type' => $gd_type,
-                'width'   => $width,
-                'height'  => $height,
+        if (!empty($type)) {
+            return [
+                'type'     => $type,
+                'gd_type'  => $gd_type,
+                'width'    => $width,
+                'height'   => $height,
                 'channels' => $channels,
-            );
+            ];
         }
     }
 
@@ -89,11 +99,11 @@ class rcube_image
      * Resize image to a given size. Use only to shrink an image.
      * If an image is smaller than specified size it will be not resized.
      *
-     * @param int     $size           Max width/height size
-     * @param string  $filename       Output filename
-     * @param boolean $browser_compat Convert to image type displayable by any browser
+     * @param int    $size           Max width/height size
+     * @param string $filename       Output filename
+     * @param bool   $browser_compat Convert to image type displayable by any browser
      *
-     * @return mixed Output type on success, False on failure
+     * @return string|false Output type on success, False on failure
      */
     public function resize($size, $filename = null, $browser_compat = false)
     {
@@ -120,11 +130,11 @@ class rcube_image
                 $type = $data[0];
             }
 
-            $type = strtr($type, array("jpeg" => "jpg", "tiff" => "tif", "ps" => "eps", "ept" => "eps"));
+            $type = strtr($type, ["jpeg" => "jpg", "tiff" => "tif", "ps" => "eps", "ept" => "eps"]);
             $p['intype'] = $type;
 
             // convert to an image format every browser can display
-            if ($browser_compat && !in_array($type, array('jpg','gif','png'))) {
+            if ($browser_compat && !in_array($type, ['jpg', 'gif', 'png'])) {
                 $type = 'jpg';
             }
 
@@ -152,11 +162,11 @@ class rcube_image
 
                     // use ImageMagick in command line
                     if ($convert) {
-                        $p += array(
+                        $p += [
                             'type'    => $type,
                             'quality' => 75,
                             'size'    => $width . 'x' . $height,
-                        );
+                        ];
 
                         $result = rcube::exec($convert
                             . ' 2>&1 -flatten -auto-orient -colorspace sRGB -strip'
@@ -259,7 +269,7 @@ class rcube_image
                 // fix orientation of image if EXIF data exists and specifies orientation (GD strips the EXIF data)
                 if ($this->image_file && $type == 'jpg' && function_exists('exif_read_data')) {
                     $exif = @exif_read_data($this->image_file);
-                    if ($exif && $exif['Orientation']) {
+                    if ($exif && !empty($exif['Orientation'])) {
                         switch ($exif['Orientation']) {
                             case 3:
                                 $image = imagerotate($image, 180, 0);
@@ -385,7 +395,7 @@ class rcube_image
                 $result = imagepng($image, $filename, 6, PNG_ALL_FILTERS);
             }
 
-            if ($result) {
+            if (!empty($result)) {
                 @chmod($filename, 0600);
                 return true;
             }
@@ -400,7 +410,7 @@ class rcube_image
      *
      * @param string $mimetype Mimetype name
      *
-     * @return boolean True if specified format can be converted to another format
+     * @return bool True if specified format can be converted to another format
      */
     public static function is_convertable($mimetype = null)
     {
@@ -419,7 +429,7 @@ class rcube_image
 
         // use ImageMagick in command line
         if ($cmd = self::getCommand('im_identify_path')) {
-            $args = array('in' => $this->image_file, 'format' => "%m %[fx:w] %[fx:h]");
+            $args = ['in' => $this->image_file, 'format' => "%m %[fx:w] %[fx:h]"];
             $id   = rcube::exec($cmd . ' 2>/dev/null -format {format} {in}', $args);
 
             if ($id) {
@@ -432,13 +442,15 @@ class rcube_image
             try {
                 $image = new Imagick($this->image_file);
 
-                return array(
+                return [
                     strtolower($image->getImageFormat()),
                     $image->getImageWidth(),
                     $image->getImageHeight(),
-                );
+                ];
             }
-            catch (Exception $e) {}
+            catch (Exception $e) {
+                // ignore
+            }
         }
     }
 
@@ -461,6 +473,7 @@ class rcube_image
 
         // calculate image size in memory (in bytes)
         $size = $props['width'] * $props['height'] * $multip;
+
         return rcube_utils::mem_check($size);
     }
 
