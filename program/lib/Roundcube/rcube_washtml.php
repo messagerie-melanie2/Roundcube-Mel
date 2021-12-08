@@ -99,7 +99,7 @@ class rcube_washtml
      */
     static $html_attribs = ['name', 'class', 'title', 'alt', 'width', 'height',
         'align', 'nowrap', 'col', 'row', 'id', 'rowspan', 'colspan', 'cellspacing',
-        'cellpadding', 'valign', 'bgcolor', 'color', 'border', 'bordercolorlight',
+        'cellpadding', 'valign', 'bgcolor',/* PAMELA */ 'text', 'color', 'border', 'bordercolorlight',
         'bordercolordark', 'face', 'marginwidth', 'marginheight', 'axis', 'border',
         'abbr', 'char', 'charoff', 'clear', 'compact', 'coords', 'vspace', 'hspace',
         'cellborder', 'size', 'lang', 'dir', 'usemap', 'shape', 'media',
