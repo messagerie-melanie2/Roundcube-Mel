@@ -802,6 +802,7 @@ function rcube_elastic_ui()
                 color_mode = color_mode === 'dark' ? 'light' : 'dark';
                 switch_color_mode();
                 rcmail.set_cookie('colorMode', color_mode, false);
+                rcmail.triggerEvent("switched_color_theme", color_mode);
             };
 
         if (rcmail.env.dark_mode_support === false) {
