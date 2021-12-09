@@ -16,8 +16,10 @@
 /plugins/removeattachments
 /plugins/right_panel
 /plugins/rocket_chat
+/plugins/roundcube_auth
 /plugins/roundpad
 /plugins/roundrive
 /plugins/tasklist
 
 /skins/mel_*
+
