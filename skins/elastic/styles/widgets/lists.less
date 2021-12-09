@@ -279,6 +279,7 @@ html.touch {
     &.enigma.keys > a:before {
         content: @fa-var-key;
     }
+    &.info > a:before,
     &.userinfo > a:before {
         content: @fa-var-info-circle;
     }
@@ -343,7 +344,7 @@ html.ie11 .listing.iconized li a:before {
     &.server > td.section:before {
         content: @fa-var-server;
     }
-    &.enigma > td.section:before {
+    &.encryption > td.section:before {
         content: @fa-var-lock;
     }
     &.calendar > td.section:before {
@@ -354,7 +355,7 @@ html.ie11 .listing.iconized li a:before {
     }
 }
 
-/* selecatable list: e.g. spellcheck language selection */
+/* selectable list: e.g. spellcheck language selection */
 .listing.iconized.selectable li {
     a:before {
         &:extend(.font-icon-class);
@@ -542,6 +543,12 @@ ul.treelist {
         &.archive > a:before {
             .font-icon-solid(@fa-var-archive);
         }
+        &.ns-shared > a:before {
+            .font-icon-solid(@fa-var-share-alt);
+        }
+        &.ns-other > a:before {
+            .font-icon-solid(@fa-var-user-friends);
+        }
     }
 
     // folder-selector fix for left padding
@@ -581,6 +588,7 @@ table.fixedcopy {
         span {
             line-height: 2em;
 
+            &.size,
             &.date {
                 font-size: 90%;
                 color: @color-list-secondary;
@@ -598,6 +606,7 @@ table.fixedcopy {
             &.subject {
                 .overflow-ellipsis();
                 width: 100%;
+                user-select: none
             }
         }
     }
@@ -745,6 +754,37 @@ table.fixedcopy {
         &:extend(.font-icon-class);
         .font-icon-regular(@fa-var-flag);
     }
+
+    span.size {
+        display: none;
+    }
+
+    tr:hover {
+        span.date {
+            display: none;
+        }
+        span.size {
+            display: inline;
+        }
+    }
+
+    &.sort-size {
+        span.date {
+            display: none;
+        }
+        span.size {
+            display: inline;
+        }
+
+        tr:hover {
+            span.date {
+                display: inline;
+            }
+            span.size {
+                display: none;
+            }
+        }
+    }
 }
 
 // On touch devices hide flag icon, but do it in a way
@@ -756,9 +796,11 @@ html.touch {
             position: relative;
         }
         td.flags {
+            position: absolute;
             top: .25rem;
             right: 0;
             bottom: 0;
+            background-color: transparent;
 
             .flag {
                 visibility: hidden;

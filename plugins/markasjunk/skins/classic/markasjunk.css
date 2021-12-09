@@ -2,7 +2,7 @@
 #messagetoolbar a.notjunk
 {
   text-indent: -5000px;
-  background-image: url(images/mail_toolbar.png?v=939b.7565);
+  background-image: url(images/mail_toolbar.png);
 }
 
 #messagetoolbar a.junk
@@ -28,7 +28,7 @@
 ul.toolbarmenu li a.junk,
 ul.toolbarmenu li a.notjunk
 {
-  background-image: url(images/messageactions.png?v=d108.1798) !important;
+  background-image: url(images/messageactions.png) !important;
   background-repeat: no-repeat;
 }
 

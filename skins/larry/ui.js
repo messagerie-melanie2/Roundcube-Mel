@@ -42,7 +42,6 @@ function rcube_mail_ui()
   this.add_popup = add_popup;
   this.import_dialog = import_dialog;
   this.set_searchmod = set_searchmod;
-  this.set_searchscope = set_searchscope;
   this.show_header_row = show_header_row;
   this.hide_header_row = hide_header_row;
   this.update_quota = update_quota;
@@ -109,9 +108,7 @@ function rcube_mail_ui()
     // write prefs to local storage (if supported)
     if (!rcmail.local_storage_set_item('prefs.larry', prefs)) {
       // store value in cookie
-      var exp = new Date();
-      exp.setYear(exp.getFullYear() + 1);
-      rcmail.set_cookie(key, val, exp);
+      rcmail.set_cookie(key, val, false);
     }
   }
 
@@ -172,7 +169,7 @@ function rcube_mail_ui()
           attachmentmenu_append(this);
         });
 
-        if (get_pref('previewheaders') == '1') {
+        if (rcmail.env.action == 'preview' && get_pref('previewheaders') == '1') {
           toggle_preview_headers();
         }
 
@@ -600,8 +597,8 @@ function rcube_mail_ui()
     h = body.parent().height() - 8;
     body.width(w).height(h);
 
-    $('#composebodycontainer > div').width(w+8);
-    $('#composebody_ifr').height(h + 4 - $('div.mce-toolbar').height());
+    $('#composebodycontainer > div').width(w+7);
+    $('#composebody_ifr').height(h + 4 - $('div.tox-toolbar').height());
     $('#googie_edit_layer').width(w).height(h);
 //    $('#composebodycontainer')[(btns ? 'addClass' : 'removeClass')]('buttons');
 //    $('#composeformbuttons')[(btns ? 'show' : 'hide')]();
@@ -816,7 +813,7 @@ function rcube_mail_ui()
   function searchmenu(show)
   {
     if (show && rcmail.env.search_mods) {
-      var n, all,
+      var n, all = '*',
         obj = popups['searchmenu'],
         list = $('input:checkbox[name="s_mods[]"]', obj),
         mbox = rcmail.env.mailbox,
@@ -824,21 +821,17 @@ function rcube_mail_ui()
         scope = rcmail.env.search_scope || 'base';
 
       if (rcmail.env.task == 'mail') {
-        if (scope == 'all')
-          mbox = '*';
-        mods = mods[mbox] ? mods[mbox] : mods['*'];
+        mods = mods[mbox] || mods['*'];
         all = 'text';
         $('input:radio[name="s_scope"]').prop('checked', false).filter('#s_scope_'+scope).prop('checked', true);
       }
-      else {
-        all = '*';
-      }
 
-      if (mods[all])
+      if (mods[all]) {
         list.map(function() {
           this.checked = true;
           this.disabled = this.value != all;
         });
+      }
       else {
         list.prop('disabled', false).prop('checked', false);
         for (n in mods)
@@ -905,7 +898,7 @@ function rcube_mail_ui()
   {
     item = $(item);
 
-    if (!item.children('.drop').length) {
+    if (!item.children('.drop').length && !item.is('.no-menu')) {
       var label = rcmail.gettext('options'),
         fname = item.find('a.filename'),
         tabindex = fname.attr('tabindex') || 0;
@@ -1000,15 +993,9 @@ function rcube_mail_ui()
   function set_searchmod(elem)
   {
     var all, m, task = rcmail.env.task,
-      mods = rcmail.env.search_mods,
+      mods = rcmail.env.search_mods || {},
       mbox = rcmail.env.mailbox,
       scope = $('input[name="s_scope"]:checked').val();
-
-    if (scope == 'all')
-      mbox = '*';
-
-    if (!mods)
-      mods = {};
 
     if (task == 'mail') {
       if (!mods[mbox])
@@ -1028,10 +1015,7 @@ function rcube_mail_ui()
 
     // mark all fields
     if (elem.value == all) {
-      $('input:checkbox[name="s_mods[]"]').map(function() {
-        if (this == elem)
-          return;
-
+      $('input:checkbox[name="s_mods[]"]').not(elem).map(function() {
         this.checked = true;
         if (elem.checked) {
           this.disabled = true;
@@ -1045,11 +1029,6 @@ function rcube_mail_ui()
     }
 
     rcmail.set_searchmods(m);
-  }
-
-  function set_searchscope(elem)
-  {
-    rcmail.set_searchscope(elem.value);
   }
 
   function push_contactgroup(p)
@@ -1159,7 +1138,7 @@ function rcube_mail_ui()
     // create tabs container
     var tabs = $('<ul>').addClass('tabsbar').prependTo(content);
 
-    // convert fildsets into tabs
+    // convert fieldsets into tabs
     fs.each(function(idx) {
       var tab, a, elm = $(this),
         legend = elm.children('legend'),

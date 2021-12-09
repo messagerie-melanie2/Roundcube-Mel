@@ -69,7 +69,7 @@
 	font-size: 11px;
 	width: 20px;
 	height: 18px;
-	background: url(images/listicons.png?v=4f40.10460) 0 -1157px no-repeat;
+	background: url('images/listicons.png') 0 -1157px no-repeat;
 	text-indent: -5000px;
 	overflow: hidden;
 }
@@ -98,7 +98,7 @@
 #settings-sections .listitem a,
 #settings-sections .tablink a {
 	padding-left: 36px;
-	background-image: url(images/listicons.png?v=4f40.10460);
+	background-image: url(images/listicons.png);
 	background-position: -100px 0;
 	background-repeat: no-repeat;
 }
@@ -224,6 +224,14 @@
 
 #sections-table #rcmrowcalendar.selected .section {
 	background-position: 4px -550px;
+}
+
+#sections-table #rcmrowencryption .section {
+	background-position: 7px -2437px;
+}
+
+#sections-table #rcmrowencryption.selected .section {
+	background-position: 7px -2461px;
 }
 
 #folderslist .boxtitle a.iconbutton.search {

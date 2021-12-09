@@ -58,7 +58,7 @@ function roundcube_browser()
   this.dom = document.getElementById ? true : false;
   this.dom2 = document.addEventListener && document.removeEventListener;
 
-  this.edge = this.agent_lc.indexOf(' edge/') > 0;
+  this.edge = this.agent_lc.indexOf(' edge/') > 0 || this.agent_lc.indexOf(' edg/') > 0; // "edg" in Chromium based Edge
   this.webkit = !this.edge && this.agent_lc.indexOf('applewebkit') > 0;
   this.ie = (document.all && !window.opera) || (this.win && this.agent_lc.indexOf('trident/') > 0);
 
@@ -77,12 +77,25 @@ function roundcube_browser()
   }
 
   if (!this.vendver) {
-    // common version strings
-    this.vendver = /(opera|opr|khtml|chrome|safari|applewebkit|msie)(\s|\/)([0-9\.]+)/.test(this.agent_lc) ? parseFloat(RegExp.$3) : 0;
+    if (this.ie)
+      pattern = /(msie|rv)(\s|:)([0-9\.]+)/;
+    else if (this.edge)
+      pattern = /(edge?)(\/)([0-9\.]+)/;
+    else if (this.opera)
+      pattern = /(opera|opr)(\/)([0-9\.]+)/;
+    else if (this.konq)
+      pattern = /(konqueror)(\/)([0-9\.]+)/;
+    else if (this.safari)
+      pattern = /(version)(\/)([0-9\.]+)/;
+    else if (this.chrome)
+      pattern = /(chrome)(\/)([0-9\.]+)/;
+    else if (this.mz)
+      pattern = /(firefox)(\/)([0-9\.]+)/;
+    else
+      pattern = /(khtml|safari|applewebkit|rv)(\s|\/|:)([0-9\.]+)/;
 
-    // any other (Mozilla, Camino, IE>=11)
-    if (!this.vendver)
-      this.vendver = /rv:([0-9\.]+)/.test(this.agent) ? parseFloat(RegExp.$1) : 0;
+    // common version strings
+    this.vendver = pattern.test(this.agent_lc) ? parseFloat(RegExp.$3) : 0;
   }
 
   // get real language out of safari's user agent
@@ -95,14 +108,6 @@ function roundcube_browser()
   this.pointer = typeof window.PointerEvent == "function";
   this.cookies = n.cookieEnabled;
 
-  // test for XMLHTTP support
-  this.xmlhttp_test = function()
-  {
-    var activeX_test = new Function("try{var o=new ActiveXObject('Microsoft.XMLHTTP');return true;}catch(err){return false;}");
-    this.xmlhttp = window.XMLHttpRequest || (('ActiveXObject' in window) && activeX_test());
-    return this.xmlhttp;
-  };
-
   // set class names to html tag according to the current user agent detection
   // this allows browser-specific css selectors like "html.chrome .someclass"
   this.set_html_class = function()
@@ -111,6 +116,8 @@ function roundcube_browser()
 
     if (this.ie)
       classname += ' ms ie ie'+parseInt(this.vendver);
+    else if (this.edge && this.vendver > 74)
+      classname += ' chrome';
     else if (this.edge)
       classname += ' ms edge';
     else if (this.opera)
@@ -425,10 +432,8 @@ function rcube_check_email(input, inline, count, strict)
       // So, e-mail address should be validated also on server side after idn_to_ascii() use
       //domain_literal = '\\x5b('+dtext+'|'+quoted_pair+')*\\x5d',
       //sub_domain = '('+atom+'|'+domain_literal+')',
-      // allow punycode/unicode top-level domain
-      // PAMELA - MANTIS 3439: Les adresses mail en .i2 ne sont pas acceptées
-      //domain = '(('+ip_addr+')|(([^@\\x2e]+\\x2e)+([^\\x00-\\x40\\x5b-\\x60\\x7b-\\x7f]{2,}|xn--[a-z0-9]{2,})))',
-      domain = '(('+ip_addr+')|(([^@\\x2e]+\\x2e)+([^\\x00-\\x40\\x5b-\\x60\\x7b-\\x7f]{2,}|xn--[a-z0-9]{2,}|i2)))',
+      // allow punycode/unicode top-level domain, allow extended domains (#5588)
+      domain = '(('+ip_addr+')|(([^@\\x2e]+\\x2e)+([^\\x00-\\x2f\\x3a-\\x40\\x5b-\\x60\\x7b-\\x7f]{2,}|xn--[a-z0-9]{2,})))',
       // ICANN e-mail test (http://idn.icann.org/E-mail_test)
       icann_domains = [
         '\\u0645\\u062b\\u0627\\u0644\\x2e\\u0625\\u062e\\u062a\\u0628\\u0627\\u0631',
@@ -543,7 +548,7 @@ function setCookie(name, value, expires, path, domain, secure)
       (expires ? "; expires=" + expires.toGMTString() : "") +
       (path ? "; path=" + path : "") +
       (domain ? "; domain=" + domain : "") +
-      (secure ? "; secure" : "");
+      (secure ? "; secure" : "") + '; SameSite=Lax';
 
   document.cookie = curCookie;
 };

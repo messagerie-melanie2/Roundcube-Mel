@@ -34,20 +34,8 @@ function newmail_notifier_run(prop)
         newmail_notifier_basic();
     if (prop.sound)
         newmail_notifier_sound();
-    if (prop.desktop) {
-      // PAMELA - Afficher le nom de la boite mail
-      if (prop.title) {
-        var body = prop.title;
-      }
-      else {
-        var body = rcmail.get_label('body', 'newmail_notifier');
-        if ($('.sharesmailboxesul').length) {
-          body = $('.sharesmailboxesul li.current > a > span.button-inner-m2').text();
-        }
-      }
-      newmail_notifier_desktop(body);
-    }
-        
+    if (prop.desktop)
+        newmail_notifier_desktop(rcmail.get_label('body', 'newmail_notifier'));
 }
 
 // Stops notification
@@ -113,7 +101,7 @@ function newmail_notifier_sound()
     catch (e) {
         elem = $('<embed id="sound" src="' + src + '" hidden=true autostart=true loop=false />');
         elem.appendTo($('body'));
-        window.setTimeout("$('#sound').remove()", 5000);
+        setTimeout("$('#sound').remove()", 5000);
     }
 }
 

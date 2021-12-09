@@ -141,6 +141,7 @@ function rcube_text_editor(config, id)
 
   // textarea identifier
   this.id = id;
+  this._conf = conf;
   // reference to active editor (if in HTML mode)
   this.editor = null;
 
@@ -195,6 +196,14 @@ function rcube_text_editor(config, id)
     // Trigger resize (needed for proper editor resizing in some browsers)
     $(window).resize();
   };
+
+
+  this.update = function(editedConf)
+  {
+    this.editor.editor.remove();
+    this._conf = editedConf;
+    tinymce.init(this._conf);
+  }
 
   // set tabIndex on tinymce editor
   this.tabindex = function(focus)
