@@ -85,7 +85,13 @@ if (window.rcmail) {
         rcmail.filtersets_list.init().focus();
 
         if (set != null) {
-          $('#filterset-name').text(set);
+          // PAMELA - Change the default filterset name
+          if (rcmail.env.filterset_specials[set]) {
+            $('#filterset-name').text(rcmail.env.filterset_specials[set]);
+          }
+          else {
+            $('#filterset-name').text(set);
+          }
           set = rcmail.managesieve_setid(set);
           rcmail.filtersets_list.select(set);
         }
@@ -169,7 +175,13 @@ rcube_webmail.prototype.managesieve_setselect = function(list)
   var id = list.get_single_selection();
   if (id != null) {
     this.managesieve_list(this.env.filtersets[id]);
-    $('#filterset-name').text(this.env.filtersets[id]);
+    // PAMELA - Change the default filterset name
+    if (this.env.filterset_specials[this.env.filtersets[id]]) {
+      $('#filterset-name').text(this.env.filterset_specials[this.env.filtersets[id]]);
+    }
+    else {
+      $('#filterset-name').text(this.env.filtersets[id]);
+    }
   }
 };
 
