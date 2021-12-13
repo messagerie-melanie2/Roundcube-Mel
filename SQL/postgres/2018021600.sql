@@ -13,3 +13,6 @@ CREATE TABLE "filestore" (
     data text NOT NULL,
     CONSTRAINT filestore_user_id_filename UNIQUE (user_id, filename)
 );
+
+UPDATE system SET value = '2018021600' WHERE name = 'roundcube-version';
+

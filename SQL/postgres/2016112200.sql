@@ -19,3 +19,5 @@ CREATE TABLE "cache_shared" (
 );
 
 CREATE INDEX cache_shared_expires_idx ON "cache_shared" (expires);
+
+UPDATE system SET value = '2016112200' WHERE name = 'roundcube-version';
