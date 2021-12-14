@@ -600,6 +600,12 @@ function rcube_elastic_ui()
                 // Also disable double-click to prevent from opening items
                 // in a new page, and prevent from zoom issues (#7732)
                 rcmail[list].dblclick_time = 0;
+
+                //PAMELA - Corrige si la page est en mode frame
+                setTimeout(() => {
+                    if (!$("html").hasClass("touch"))
+                        rcmail[list].dblclick_time = 500;
+                }, 500);
             }
         });
 
