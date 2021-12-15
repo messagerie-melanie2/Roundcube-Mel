@@ -25,7 +25,7 @@ $labels['menu'] = 'Menu';
 $labels['logout'] = 'Déconnexion';
 // Pamela - Maquette
 $labels['mail'] = 'Ma messagerie Mèl';
-$labels['settings'] = 'Paramètres';
+$labels['settings'] = 'Configuration du bureau numérique';
 $labels['addressbook'] = 'Carnet d’adresses';
 $labels['darkmode'] = 'Mode sombre';
 $labels['lightmode'] = 'Mode clair';
