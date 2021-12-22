@@ -15,7 +15,7 @@
 */
 
 $labels['basic'] = 'Afficher les notifications du navigateur pour les nouveaux courriels';
-$labels['desktop'] = 'Afficher les notifications de bureau pour les nouveaux courriels ';
+$labels['desktop'] = 'Afficher les notifications de bureau pour les nouveaux courriels';
 $labels['sound'] = 'Jouer le son pour les nouveaux courriels';
 $labels['test'] = 'Test';
 $labels['title'] = 'Nouveau courriel';
