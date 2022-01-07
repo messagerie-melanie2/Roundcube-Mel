@@ -102,7 +102,8 @@ class Net_Sieve
         'EXTERNAL',
         'PLAIN' ,
         'LOGIN',
-        'GSSAPI'
+        'GSSAPI',
+        'XOAUTH2'
     );
 
     /**
@@ -333,12 +334,14 @@ class Net_Sieve
         if (is_a($res, 'PEAR_Error')) {
             return $res;
         }
+
         if ($this->_bypassAuth === false) {
             $res = $this->login($this->_data['user'], $this->_data['pass'], $this->_data['logintype'], $this->_data['euser'], $this->_bypassAuth);
             if (is_a($res, 'PEAR_Error')) {
                 return $res;
             }
         }
+
         return true;
     }
 
@@ -510,7 +513,7 @@ class Net_Sieve
      * @param string $scriptname The name of the script to be retrieved.
      *
      * @return string  The script on success, PEAR_Error on failure.
-    */
+     */
     function getScript($scriptname)
     {
         return $this->_cmdGetScript($scriptname);
@@ -691,6 +694,9 @@ class Net_Sieve
             break;
         case 'GSSAPI':
             $result = $this->_authGSSAPI($pwd);
+            break;
+        case 'XOAUTH2':
+            $result = $this->_authXOAUTH2($uid, $pwd, $euser);
             break;
         default :
             $result = $this->_pear->raiseError(
@@ -916,6 +922,26 @@ class Net_Sieve
     }
 
     /**
+     * Authenticates the user using the XOAUTH2 method.
+     *
+     * @param string $user  The userid to authenticate as.
+     * @param string $token The token to authenticate with.
+     * @param string $euser The effective uid to authenticate as.
+     *
+     * @return void
+     */
+    function _authXOAUTH2($user, $token, $euser)
+    {
+        // default to $user if $euser is not set
+        if (! $euser) {
+            $euser = $user;
+        }
+
+        $auth = base64_encode("user=$euser\001auth=$token\001\001");
+        return $this->_sendCmd("AUTHENTICATE \"XOAUTH2\" \"$auth\"");
+    }
+
+    /**
      * Removes a script from the server.
      *
      * @param string $scriptname Name of the script to delete.
@@ -964,7 +990,7 @@ class Net_Sieve
      * @param string $scriptname The name of the script to mark as active.
      *
      * @return boolean  True on success, PEAR_Error otherwise.
-    */
+     */
     function _cmdSetActive($scriptname)
     {
         if (NET_SIEVE_STATE_TRANSACTION != $this->_state) {

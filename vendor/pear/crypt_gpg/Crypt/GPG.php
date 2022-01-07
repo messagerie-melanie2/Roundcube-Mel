@@ -25,8 +25,6 @@
  * ?>
  * </code>
  *
- * PHP version 5
- *
  * LICENSE:
  *
  * This library is free software; you can redistribute it and/or modify
@@ -64,8 +62,6 @@ require_once 'Crypt/GPGAbstract.php';
  */
 require_once 'Crypt/GPG/Exceptions.php';
 
-// {{{ class Crypt_GPG
-
 /**
  * A class to use GPG from PHP
  *
@@ -85,8 +81,6 @@ require_once 'Crypt/GPG/Exceptions.php';
  */
 class Crypt_GPG extends Crypt_GPGAbstract
 {
-    // {{{ class constants for data signing modes
-
     /**
      * Signing mode for normal signing of data. The signed message will not
      * be readable without special software.
@@ -121,9 +115,6 @@ class Crypt_GPG extends Crypt_GPGAbstract
      */
     const SIGN_MODE_DETACHED = 3;
 
-    // }}}
-    // {{{ class constants for fingerprint formats
-
     /**
      * No formatting is performed.
      *
@@ -153,9 +144,6 @@ class Crypt_GPG extends Crypt_GPGAbstract
      */
     const FORMAT_X509 = 3;
 
-    // }}}
-    // {{{ class constants for boolean options
-
     /**
      * Use to specify ASCII armored mode for returned data
      */
@@ -175,9 +163,6 @@ class Crypt_GPG extends Crypt_GPGAbstract
      * Use to specify that line breaks in signed text should not be normalized
      */
     const TEXT_RAW = false;
-
-    // }}}
-    // {{{ protected class properties
 
     /**
      * Keys used to encrypt
@@ -250,9 +235,6 @@ class Crypt_GPG extends Crypt_GPGAbstract
      */
     protected $passphrases = array();
 
-    // }}}
-    // {{{ importKey()
-
     /**
      * Imports a public or private key into the keyring
      *
@@ -292,9 +274,6 @@ class Crypt_GPG extends Crypt_GPGAbstract
     {
         return $this->_importKey($data, false);
     }
-
-    // }}}
-    // {{{ importKeyFile()
 
     /**
      * Imports a public or private key file into the keyring
@@ -336,9 +315,6 @@ class Crypt_GPG extends Crypt_GPGAbstract
         return $this->_importKey($filename, true);
     }
 
-    // }}}
-    // {{{ exportPrivateKey()
-
     /**
      * Exports a private key from the keyring
      *
@@ -376,9 +352,6 @@ class Crypt_GPG extends Crypt_GPGAbstract
         return $this->_exportKey($keyId, $armor, true);
     }
 
-    // }}}
-    // {{{ exportPublicKey()
-
     /**
      * Exports a public key from the keyring
      *
@@ -411,9 +384,6 @@ class Crypt_GPG extends Crypt_GPGAbstract
     {
         return $this->_exportKey($keyId, $armor, false);
     }
-
-    // }}}
-    // {{{ deletePublicKey()
 
     /**
      * Deletes a public key from the keyring
@@ -468,9 +438,6 @@ class Crypt_GPG extends Crypt_GPGAbstract
         $this->engine->run();
     }
 
-    // }}}
-    // {{{ deletePrivateKey()
-
     /**
      * Deletes a private key from the keyring
      *
@@ -518,9 +485,6 @@ class Crypt_GPG extends Crypt_GPGAbstract
         $this->engine->run();
     }
 
-    // }}}
-    // {{{ getKeys()
-
     /**
      * Gets the available keys in the keyring
      *
@@ -548,9 +512,6 @@ class Crypt_GPG extends Crypt_GPGAbstract
     {
         return parent::_getKeys($keyId);
     }
-
-    // }}}
-    // {{{ getFingerprint()
 
     /**
      * Gets a key fingerprint from the keyring
@@ -623,9 +584,6 @@ class Crypt_GPG extends Crypt_GPGAbstract
         return $fingerprint;
     }
 
-    // }}}
-    // {{{ getLastSignatureInfo()
-
     /**
      * Get information about the last signature that was created.
      *
@@ -635,9 +593,6 @@ class Crypt_GPG extends Crypt_GPGAbstract
     {
         return $this->engine->getProcessData('SignatureInfo');
     }
-
-    // }}}
-    // {{{ encrypt()
 
     /**
      * Encrypts string data
@@ -665,9 +620,6 @@ class Crypt_GPG extends Crypt_GPGAbstract
     {
         return $this->_encrypt($data, false, null, $armor);
     }
-
-    // }}}
-    // {{{ encryptFile()
 
     /**
      * Encrypts a file
@@ -705,9 +657,6 @@ class Crypt_GPG extends Crypt_GPGAbstract
         return $this->_encrypt($filename, true, $encryptedFile, $armor);
     }
 
-    // }}}
-    // {{{ encryptAndSign()
-
     /**
      * Encrypts and signs data
      *
@@ -744,9 +693,6 @@ class Crypt_GPG extends Crypt_GPGAbstract
     {
         return $this->_encryptAndSign($data, false, null, $armor);
     }
-
-    // }}}
-    // {{{ encryptAndSignFile()
 
     /**
      * Encrypts and signs a file
@@ -799,9 +745,6 @@ class Crypt_GPG extends Crypt_GPGAbstract
         return $this->_encryptAndSign($filename, true, $signedFile, $armor);
     }
 
-    // }}}
-    // {{{ decrypt()
-
     /**
      * Decrypts string data
      *
@@ -832,9 +775,6 @@ class Crypt_GPG extends Crypt_GPGAbstract
     {
         return $this->_decrypt($encryptedData, false, null);
     }
-
-    // }}}
-    // {{{ decryptFile()
 
     /**
      * Decrypts a file
@@ -876,9 +816,6 @@ class Crypt_GPG extends Crypt_GPGAbstract
         return $this->_decrypt($encryptedFile, true, $decryptedFile);
     }
 
-    // }}}
-    // {{{ decryptAndVerify()
-
     /**
      * Decrypts and verifies string data
      *
@@ -918,9 +855,6 @@ class Crypt_GPG extends Crypt_GPGAbstract
     {
         return $this->_decryptAndVerify($encryptedData, false, null, $ignoreVerifyErrors);
     }
-
-    // }}}
-    // {{{ decryptAndVerifyFile()
 
     /**
      * Decrypts and verifies a signed, encrypted file
@@ -971,9 +905,6 @@ class Crypt_GPG extends Crypt_GPGAbstract
         return $this->_decryptAndVerify($encryptedFile, true, $decryptedFile, $ignoreVerifyErrors);
     }
 
-    // }}}
-    // {{{ sign()
-
     /**
      * Signs data
      *
@@ -1023,9 +954,6 @@ class Crypt_GPG extends Crypt_GPGAbstract
     ) {
         return $this->_sign($data, false, null, $mode, $armor, $textmode);
     }
-
-    // }}}
-    // {{{ signFile()
 
     /**
      * Signs a file
@@ -1096,9 +1024,6 @@ class Crypt_GPG extends Crypt_GPGAbstract
         );
     }
 
-    // }}}
-    // {{{ verify()
-
     /**
      * Verifies signed data
      *
@@ -1132,9 +1057,6 @@ class Crypt_GPG extends Crypt_GPGAbstract
     {
         return $this->_verify($signedData, false, $signature);
     }
-
-    // }}}
-    // {{{ verifyFile()
 
     /**
      * Verifies a signed file
@@ -1172,9 +1094,6 @@ class Crypt_GPG extends Crypt_GPGAbstract
         return $this->_verify($filename, true, $signature);
     }
 
-    // }}}
-    // {{{ addDecryptKey()
-
     /**
      * Adds a key to use for decryption
      *
@@ -1200,9 +1119,6 @@ class Crypt_GPG extends Crypt_GPGAbstract
         return $this;
     }
 
-    // }}}
-    // {{{ addEncryptKey()
-
     /**
      * Adds a key to use for encryption
      *
@@ -1223,9 +1139,6 @@ class Crypt_GPG extends Crypt_GPGAbstract
         $this->_addKey($this->encryptKeys, true, false, $key);
         return $this;
     }
-
-    // }}}
-    // {{{ addSignKey()
 
     /**
      * Adds a key to use for signing
@@ -1252,9 +1165,6 @@ class Crypt_GPG extends Crypt_GPGAbstract
         return $this;
     }
 
-    // }}}
-    // {{{ addPassphrase()
-
     /**
      * Register a private key passphrase for import/export (GnuPG 2.1)
      *
@@ -1276,9 +1186,6 @@ class Crypt_GPG extends Crypt_GPGAbstract
         return $this;
     }
 
-    // }}}
-    // {{{ clearDecryptKeys()
-
     /**
      * Clears all decryption keys
      *
@@ -1292,9 +1199,6 @@ class Crypt_GPG extends Crypt_GPGAbstract
         $this->decryptKeys = array();
         return $this;
     }
-
-    // }}}
-    // {{{ clearEncryptKeys()
 
     /**
      * Clears all encryption keys
@@ -1310,9 +1214,6 @@ class Crypt_GPG extends Crypt_GPGAbstract
         return $this;
     }
 
-    // }}}
-    // {{{ clearSignKeys()
-
     /**
      * Clears all signing keys
      *
@@ -1326,9 +1227,6 @@ class Crypt_GPG extends Crypt_GPGAbstract
         $this->signKeys = array();
         return $this;
     }
-
-    // }}}
-    // {{{ clearPassphrases()
 
     /**
      * Clears all private key passphrases
@@ -1345,9 +1243,6 @@ class Crypt_GPG extends Crypt_GPGAbstract
         return $this;
     }
 
-    // }}}
-    // {{{ hasEncryptKeys()
-
     /**
      * Tell if there are encryption keys registered
      *
@@ -1357,9 +1252,6 @@ class Crypt_GPG extends Crypt_GPGAbstract
     {
         return count($this->encryptKeys) > 0;
     }
-
-    // }}}
-    // {{{ hasSignKeys()
 
     /**
      * Tell if there are signing keys registered
@@ -1371,9 +1263,6 @@ class Crypt_GPG extends Crypt_GPGAbstract
         return count($this->signKeys) > 0;
     }
 
-    // }}}
-    // {{{ getWarnins()
-
     /**
      * Get list of GnuPG warnings collected on last operation.
      *
@@ -1384,16 +1273,13 @@ class Crypt_GPG extends Crypt_GPGAbstract
         return $this->engine->getProcessData('Warnings');
     }
 
-    // }}}
-    // {{{ _addKey()
-
     /**
      * Adds a key to one of the internal key arrays
      *
      * This handles resolving full key objects from the provided
      * <kbd>$key</kbd> value.
      *
-     * @param array   &$array     the array to which the key should be added.
+     * @param &array  $array      the array to which the key should be added.
      * @param boolean $encrypt    whether or not the key must be able to
      *                            encrypt.
      * @param boolean $sign       whether or not the key must be able to sign.
@@ -1480,9 +1366,6 @@ class Crypt_GPG extends Crypt_GPGAbstract
         }
     }
 
-    // }}}
-    // {{{ _importKey()
-
     /**
      * Imports a public or private key into the keyring
      *
@@ -1540,9 +1423,6 @@ class Crypt_GPG extends Crypt_GPGAbstract
         return $this->engine->getProcessData('Import');
     }
 
-    // }}}
-    // {{{ _exportKey()
-
     /**
      * Exports a private or public key from the keyring
      *
@@ -1596,9 +1476,6 @@ class Crypt_GPG extends Crypt_GPGAbstract
         return $keyData;
     }
 
-    // }}}
-    // {{{ _encrypt()
-
     /**
      * Encrypts data
      *
@@ -1650,9 +1527,6 @@ class Crypt_GPG extends Crypt_GPGAbstract
         }
     }
 
-    // }}}
-    // {{{ _decrypt()
-
     /**
      * Decrypts data
      *
@@ -1698,9 +1572,6 @@ class Crypt_GPG extends Crypt_GPGAbstract
             return $output;
         }
     }
-
-    // }}}
-    // {{{ _sign()
 
     /**
      * Signs data
@@ -1796,9 +1667,6 @@ class Crypt_GPG extends Crypt_GPGAbstract
         }
     }
 
-    // }}}
-    // {{{ _encryptAndSign()
-
     /**
      * Encrypts and signs data
      *
@@ -1869,9 +1737,6 @@ class Crypt_GPG extends Crypt_GPGAbstract
         }
     }
 
-    // }}}
-    // {{{ _verify()
-
     /**
      * Verifies data
      *
@@ -1928,9 +1793,6 @@ class Crypt_GPG extends Crypt_GPGAbstract
 
         return $this->engine->getProcessData('Signatures');
     }
-
-    // }}}
-    // {{{ _decryptAndVerify()
 
     /**
      * Decrypts and verifies encrypted, signed data
@@ -1998,9 +1860,6 @@ class Crypt_GPG extends Crypt_GPGAbstract
         return $return;
     }
 
-    // }}}
-    // {{{ _prepareInput()
-
     /**
      * Prepares command input
      *
@@ -2010,6 +1869,8 @@ class Crypt_GPG extends Crypt_GPGAbstract
      *
      * @throws Crypt_GPG_NoDataException if the key data is missing.
      * @throws Crypt_GPG_FileException if the file is not readable.
+     *
+     * @return string The command input
      */
     protected function _prepareInput($data, $isFile = false, $allowEmpty = true)
     {
@@ -2035,9 +1896,6 @@ class Crypt_GPG extends Crypt_GPGAbstract
         return $input;
     }
 
-    // }}}
-    // {{{ _prepareOutput()
-
     /**
      * Prepares command output
      *
@@ -2048,6 +1906,8 @@ class Crypt_GPG extends Crypt_GPGAbstract
      *                            to be released (closed) on exception.
      *
      * @throws Crypt_GPG_FileException if the file is not writeable.
+     *
+     * @return string The command output
      */
     protected function _prepareOutput($outputFile, $input = null)
     {
@@ -2069,10 +1929,4 @@ class Crypt_GPG extends Crypt_GPGAbstract
 
         return $output;
     }
-
-    // }}}
 }
-
-// }}}
-
-?>

@@ -171,10 +171,7 @@ function rcube_text_editor(config, id)
   this.id = id;
   // reference to active editor (if in HTML mode)
   this.editor = null;
-  //PAMELA - Garder la conf en mémoire
-  this._conf = conf;
-  this._initial_conf = {...conf};
-  
+
   tinymce.init(conf);
 
   // react to real individual tinyMCE editor init
@@ -217,31 +214,6 @@ function rcube_text_editor(config, id)
     // Trigger resize (needed for proper editor resizing in some browsers)
     $(window).resize();
   };
-
-  //PAMELA - MAJ de l'éditeur
-  this.update = function(editedConf)
-  {
-    this.editor.remove();
-    this._conf = editedConf;
-    tinymce.init(this._conf);
-
-    return this;
-  }
-
-  //PAMELA - MAJ de l'éditeur
-  this.update_to_dark = function()
-  {
-    let conf = this._conf;
-    conf.content_css = "dark";
-    
-    return this.update(conf);
-  }
-
-  //PAMELA - Restart l'éditeur
-  this.restart = function()
-  {
-    return this.update({...this._initial_conf});
-  }
 
   // set tabIndex on tinymce editor
   this.tabindex = function(focus)

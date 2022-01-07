@@ -15,8 +15,7 @@
 */
 
 $messages['errortitle']  = 'Une erreur est survenue';
-// PAMELA
-$messages['loginfailed']  = 'La connexion a échoué (Nom d\'utilisateur ou mot de passe incorrect).';
+$messages['loginfailed']  = 'La connexion a échoué.';
 $messages['cookiesdisabled'] = 'Votre navigateur n’accepte pas les témoins.';
 $messages['sessionerror'] = 'Votre session est invalide ou a expiré.';
 $messages['cookiesmismatch'] = 'Une non-concordance de témoin a été détectée. Veuillez effacer les témoins de votre navigateur.';
@@ -32,8 +31,7 @@ $messages['requesttimedout'] = 'Délai de la requête expiré';
 $messages['errorreadonly'] = 'Impossible d’effectuer l’opération. Le dossier est en lecture seule.';
 $messages['errornoperm'] = 'Impossible d’effectuer l’opération. Permission refusée.';
 $messages['erroroverquota'] = 'Impossible d’effectuer l’opération. L’espace disque est saturé.';
-// PAMELA
-$messages['erroroverquotadelete'] = 'Votre corbeille est pleine. Vous pouvez utiliser Maj+Suppr pour supprimer définitivement un courriel.';
+$messages['erroroverquotadelete'] = 'L’espace disque est saturé. Utilisez Maj+Suppr pour supprimer un courriel.';
 $messages['invalidrequest'] = 'La requête est invalide. Aucune donnée n’a été enregistrée.';
 $messages['invalidhost'] = 'Nom du serveur invalide.';
 $messages['nomessagesfound'] = 'Aucun courriel n’a été trouvé dans cette boîte de courriel';
@@ -154,8 +152,7 @@ $messages['errorsendingreceipt'] = 'Impossible d’envoyer l’avis.';
 $messages['deleteidentityconfirm'] = 'Voulez-vous vraiment supprimer cette identité ?';
 $messages['nodeletelastidentity'] = 'Vous ne pouvez pas effacer cette identité, c’est votre dernière.';
 $messages['forbiddencharacter'] = 'Le nom du dossier contient un caractère interdit.';
-// PAMELA
-$messages['selectimportfile'] = 'Veuillez choisir un fichier à charger.';
+$messages['selectimportfile'] = 'Veuillez choisir un fichier à téléverser.';
 $messages['addresswriterror'] = 'Impossible d’écrire dans le carnet d’adresse choisi.';
 $messages['contactaddedtogroup'] = 'Les contacts ont été ajoutés à ce groupe avec succès.';
 $messages['contactremovedfromgroup'] = 'Les contacts ont été supprimés de ce groupe avec succès.';

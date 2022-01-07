@@ -37,10 +37,10 @@ http://pear.php.net/dtd/package-2.0.xsd">
   <email>amistry@am-productions.biz</email>
   <active>no</active>
  </lead>
- <date>2018-09-09</date>
+ <date>2021-04-24</date>
  <version>
-  <release>1.4.4</release>
-  <api>1.4.2</api>
+  <release>1.4.5</release>
+  <api>1.4.3</api>
  </version>
  <stability>
   <release>stable</release>
@@ -48,7 +48,7 @@ http://pear.php.net/dtd/package-2.0.xsd">
  </stability>
  <license uri="http://www.opensource.org/licenses/bsd-license.php">BSD</license>
  <notes>
-* Fix PHP 7.3: Declaration of case-insensitive constants is deprecated
+* Support XOAUTH2 authorization method
  </notes>
  <contents>
   <dir name="/" baseinstalldir="Net">
@@ -56,11 +56,11 @@ http://pear.php.net/dtd/package-2.0.xsd">
     <file name="largescript.siv" role="test" />
     <file name="config.php.dist" role="test" />
     <file name="SieveTest.php" role="test" />
-   </dir> <!-- /tests -->
+   </dir>
    <file name="Sieve.php" role="php">
     <tasks:replace from="@package_version@" to="version" type="package-info" />
    </file>
-  </dir> <!-- / -->
+  </dir>
  </contents>
  <dependencies>
   <required>
@@ -517,6 +517,21 @@ it affects you or disable DIGEST-MD5
    <date>2002-05-10</date>
    <license uri="http://www.php.net/license">PHP</license>
    <notes>Initial release
+   </notes>
+  </release>
+  <release>
+   <date>2018-09-09</date>
+   <version>
+    <release>1.4.4</release>
+    <api>1.4.2</api>
+   </version>
+   <stability>
+    <release>stable</release>
+    <api>stable</api>
+   </stability>
+   <license uri="http://www.opensource.org/licenses/bsd-license.php">BSD</license>
+   <notes>
+* Fix PHP 7.3: Declaration of case-insensitive constants is deprecated
    </notes>
   </release>
  </changelog>

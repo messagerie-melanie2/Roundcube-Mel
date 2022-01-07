@@ -277,14 +277,6 @@ function rcube_webmail()
             .addEventListener('column_replace', function(o) { ref.msglist_set_coltypes(o); })
             .init();
 
-          //Pamela - Rendre le drag'n'drop possible pour les messages dans une frame.
-          if (parent !== window)
-          {
-            setTimeout(() => {
-              this.message_list.draggable = true;
-            }, 111);
-          }
-
           // TODO: this should go into the list-widget code
           $(this.message_list.thead).on('click', 'a.sortcol', function(e){
             return ref.command('sort', $(this).attr('rel'), this);
@@ -2403,10 +2395,8 @@ function rcube_webmail()
       }
       else if (c == 'threads')
         html = expando;
-      else if (c == "fromto")//PAMELA
-        html = tree + cols[c];
       else if (c == 'subject') {
-        html = cols[c];
+        html = tree + cols[c];
       }
       else if (c == 'priority') {
         if (flags.prio > 0 && flags.prio < 6) {
@@ -7259,7 +7249,7 @@ function rcube_webmail()
       function() {
         var name;
         if (name = input.val()) {
-          ref.http_post('search-create', {_search: ref.env.search_request, /* PAMELA - Search contacts by source */_source: rcmail.env.source, _name: name},
+          ref.http_post('search-create', {_search: ref.env.search_request, _name: name},
             ref.set_busy(true, 'loading'));
           return true;
         }
@@ -9381,7 +9371,7 @@ function rcube_webmail()
           this.enable_command('export', 'select-all', 'select-none', (list && list.rowcount > 0));
 
           if (response.action == 'list' || response.action == 'search') {
-            this.enable_command('search-create', response.action == 'search');
+            this.enable_command('search-create', this.env.source == '');
             this.enable_command('search-delete', this.env.search_id);
             this.update_group_commands();
 

@@ -101,11 +101,6 @@ class rcube_message
         $this->storage = $this->app->get_storage();
         $this->folder  = strlen($folder) ? $folder : $this->storage->get_folder();
 
-        // PAMELA - Gestion du cache pour les Corbeilles
-        $data = $this->app->plugins->exec_hook('mel_folder_cache',
-            array('folder' => $this->folder));
-        $this->folder = $data['folder'];
-
         // Set current folder
         $this->storage->set_folder($this->folder);
         $this->storage->set_options(['all_headers' => true]);

@@ -167,8 +167,7 @@ class rcmail extends rcube
             $task = 'login';
         }
         else {
-            //PAMELLA, remplacer "mail" par défaut par une configuration
-            $task = asciiwords($task, true) ?: $this->config->get('default_task', 'mail');
+            $task = asciiwords($task, true) ?: 'mail';
         }
 
         // Re-initialize plugins if task is changing
@@ -1058,29 +1057,6 @@ class rcmail extends rcube
             $task = $p['task'];
         }
 
-        // PAMELA - Keep the account value in url generator
-        if ($task == 'settings') {
-            $_account = mel::get_account();
-            if (isset($_account)
-                && strpos($_account, '%40') !== false) {
-                $_account = urldecode($_account);
-            }
-            if (isset($_account)) $p['_account'] = $_account;
-        }
-        // PAMELA - Keep the courrielleur value in url generator
-        $_courrielleur = trim(rcube_utils::get_input_value('_courrielleur', rcube_utils::INPUT_GET));
-        if (isset($_courrielleur)) {
-            $p['_courrielleur'] = $_courrielleur;
-        }
-        // PAMELA - Keep the from value in url generator
-        if (in_array("mel_metapage",$this->plugins->active_plugins))
-        {
-            $_from = trim(rcube_utils::get_input_value(mel_metapage::FROM_KEY, rcube_utils::INPUT_GET));
-            if (isset($_from)) {
-                $p[mel_metapage::FROM_KEY] = $_from;
-            }
-        }
-
         unset($p['task'], $p['_task']);
 
         $pre  = ['_task' => $task];
@@ -1624,9 +1600,7 @@ class rcmail extends rcube
                 date_default_timezone_set($stz);
             }
 
-            // PAMELA - Ne pas mettre Aujourd'hui
-            return $format;
-            //return !empty($today) ? ($this->gettext('today') . ' ' . $format) : $format;
+            return !empty($today) ? ($this->gettext('today') . ' ' . $format) : $format;
         }
 
         // parse format string manually in order to provide localized weekday and month names
@@ -1665,17 +1639,16 @@ class rcmail extends rcube
             }
         }
 
-        // PAMELA - Ne pas mettre Aujourd'hui
-        // if (!empty($today)) {
-        //     $label = $this->gettext('today');
-        //     // replace $ character with "Today" label (#1486120)
-        //     if (strpos($out, '$') !== false) {
-        //         $out = preg_replace('/\$/', $label, $out, 1);
-        //     }
-        //     else {
-        //         $out = $label . ' ' . $out;
-        //     }
-        // }
+        if (!empty($today)) {
+            $label = $this->gettext('today');
+            // replace $ character with "Today" label (#1486120)
+            if (strpos($out, '$') !== false) {
+                $out = preg_replace('/\$/', $label, $out, 1);
+            }
+            else {
+                $out = $label . ' ' . $out;
+            }
+        }
 
         if (isset($stz)) {
             date_default_timezone_set($stz);

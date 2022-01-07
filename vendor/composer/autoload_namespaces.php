@@ -7,12 +7,9 @@ $baseDir = dirname($vendorDir);
 
 return array(
     'Roundcube\\Composer' => array($vendorDir . '/roundcube/plugin-installer/src'),
-    'Net' => array($vendorDir . '/pear/net_idna2', $vendorDir . '/pear/net_smtp', $vendorDir . '/pear/net_socket'),
+    'Net' => array($vendorDir . '/pear/net_socket', $vendorDir . '/pear/net_smtp'),
     'Mail' => array($vendorDir . '/pear/mail_mime'),
-    'HTTP_Request2' => array($vendorDir . '/pear/http_request2'),
-    'HTMLPurifier' => array($vendorDir . '/ezyang/htmlpurifier/library'),
-    'Console' => array($vendorDir . '/pear/console_commandline', $vendorDir . '/pear/console_getopt'),
-    'Caxy\\HtmlDiff' => array($vendorDir . '/caxy/php-htmldiff/lib'),
+    'Console' => array($vendorDir . '/pear/console_getopt', $vendorDir . '/pear/console_commandline'),
     'Auth' => array($vendorDir . '/pear/auth_sasl'),
     '' => array($vendorDir . '/pear/pear-core-minimal/src'),
 );

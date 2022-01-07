@@ -147,7 +147,7 @@ class rcmail_sendmail
         }
         else {
             // ... if there is no identity record, this might be a custom from
-            $from_addresses = rcube_mime::decode_address_list($from);
+            $from_addresses = rcube_mime::decode_address_list($from, null, true, $charset);
 
             if (count($from_addresses) == 1) {
                 $from        = $from_addresses[1]['mailto'];
@@ -1353,7 +1353,7 @@ class rcmail_sendmail
             $mdn_default = $_POST['_mdn'];
         }
         else if (in_array($this->data['mode'], [self::MODE_DRAFT, self::MODE_EDIT])) {
-            $mdn_default = (bool) $this->options['message']->headers->mdn_to;
+            $mdn_default = !empty($this->options['message']->headers->mdn_to);
         }
         else {
             $mdn_default = $this->rcmail->config->get('mdn_default');

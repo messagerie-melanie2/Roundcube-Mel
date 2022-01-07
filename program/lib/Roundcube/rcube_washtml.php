@@ -99,7 +99,7 @@ class rcube_washtml
      */
     static $html_attribs = ['name', 'class', 'title', 'alt', 'width', 'height',
         'align', 'nowrap', 'col', 'row', 'id', 'rowspan', 'colspan', 'cellspacing',
-        'cellpadding', 'valign', 'bgcolor',/* PAMELA */ 'text', 'color', 'border', 'bordercolorlight',
+        'cellpadding', 'valign', 'bgcolor', 'color', 'border', 'bordercolorlight',
         'bordercolordark', 'face', 'marginwidth', 'marginheight', 'axis', 'border',
         'abbr', 'char', 'charoff', 'clear', 'compact', 'coords', 'vspace', 'hspace',
         'cellborder', 'size', 'lang', 'dir', 'usemap', 'shape', 'media',
@@ -347,7 +347,7 @@ class rcube_washtml
                             if ($url = $this->wash_uri($match[2])) {
                                 $result .= ' ' . $attr->nodeName . '="' . $match[1]
                                     . '(' . htmlspecialchars($url, ENT_QUOTES, $this->config['charset']) . ')'
-                                    . substr($value, strlen($match[0])) . '"';
+                                    . htmlspecialchars(substr($value, strlen($match[0])), ENT_QUOTES, $this->config['charset']) . '"';
                                 continue;
                             }
                         }

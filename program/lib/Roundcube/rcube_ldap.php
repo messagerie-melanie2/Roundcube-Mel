@@ -840,11 +840,6 @@ class rcube_ldap extends rcube_addressbook
                 return $this->result;
             }
 
-             // PAMELA - Slow autocomplete - MANTIS 3508: L'autocomplétion LDAP n'est pas efficace
-            if (implode(',', (array)$fields) == implode(',', $list_fields)) {
-                $fields = array('name');
-            }
-
             // get all entries of this page and post-filter those that really match the query
             $search = mb_strtolower($value);
             foreach ($ldap_data as $entry) {
@@ -863,11 +858,6 @@ class rcube_ldap extends rcube_addressbook
             return $this->result;
         }
 
-        // PAMELA - Slow autocomplete - MANTIS 3508: L'autocomplétion LDAP n'est pas efficace
-        if (implode(',', (array)$fields) == implode(',', $list_fields)) {
-            $fields = array('name');
-            }
-
         // advanced per-attribute search
         if (is_array($value)) {
             // use AND operator for advanced searches
@@ -879,14 +869,6 @@ class rcube_ldap extends rcube_addressbook
                 $ws = '*';
                 if (!($mode & rcube_addressbook::SEARCH_PREFIX)) {
                     $wp = '*';
-                }
-            }
-
-            // PAMELA - Search by phone number in LDAP
-            foreach ((array) $fields as $idx => $field) {
-                if (count($fields) == 1 && $fields[0] == 'phone' && isset($value[0]) && strlen($value[0]) >= 4) {
-                    // MANTIS 3622: Permettre la recherche LDAP par numéro de téléphone
-                    $wp = '*'; $ws = '';
                 }
             }
 
