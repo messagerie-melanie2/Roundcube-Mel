@@ -35,10 +35,21 @@ class rcmail_action_mail_folder_purge extends rcmail_action_mail_index
         $mbox         = rcube_utils::get_input_value('_mbox', rcube_utils::INPUT_POST, true);
         $trash_mbox   = $rcmail->config->get('trash_mbox');
         $trash_regexp = '/^' . preg_quote($trash_mbox . $delimiter, '/') . '/';
+        // PAMELA
+        $junk_mbox    = $rcmail->config->get('junk_mbox');
+        $archive_mbox = $rcmail->config->get('mel_archivage_folder');
+        $junk_regexp  = '/^' . preg_quote($junk_mbox . $delimiter, '/') . '/';
 
         // we should only be purging trash (or their subfolders)
-        if (!strlen($trash_mbox) || $mbox === $trash_mbox || preg_match($trash_regexp, $mbox)) {
-            $success = $storage->delete_message('*', $mbox);
+        if (!strlen($trash_mbox) || $mbox === $trash_mbox ||/* PAMELA */ 
+        $mbox == $junk_mbox || $mbox == $archive_mbox || preg_match($junk_regexp, $mbox) || /**/
+        preg_match($trash_regexp, $mbox)) {
+
+            // PAMELA - Corbeille name converter
+            $data = $RCMAIL->plugins->exec_hook('m2_set_folder_name',
+                array('folder' => $mbox));
+
+            $success = $storage->delete_message('*', $data['folder']);
             $delete  = true;
         }
         // move to Trash

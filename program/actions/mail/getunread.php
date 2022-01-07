@@ -34,7 +34,12 @@ class rcmail_action_mail_getunread extends rcmail_action_mail_index
 
         if (!empty($a_folders)) {
             $current   = $rcmail->storage->get_folder();
-            $inbox     = $current == 'INBOX';
+
+            // PAMELA - Change the IMAP folder name with a plugin (change INBOX for shared mailboxes)
+            $data = $rcmail->plugins->exec_hook('mel_is_inbox',
+                array('mbox' => $current, 'isInbox' => $current == 'INBOX'));
+
+            $inbox     = $data['isInbox'];
             $trash     = $rcmail->config->get('trash_mbox');
             $check_all = (bool) $rcmail->config->get('check_all_folders');
 
@@ -52,7 +57,8 @@ class rcmail_action_mail_getunread extends rcmail_action_mail_index
                 // after possible message status change when opening a message
                 // not in preview frame
                 if ($unseen || $unseen_old === null || $mbox == $current) {
-                    $rcmail->output->command('set_unread_count', $mbox, $unseen, $inbox && $mbox == 'INBOX');
+                    // PAMELA - Change the IMAP folder name with a plugin (change INBOX for shared mailboxes)
+                    $rcmail->output->command('set_unread_count', $mbox, $unseen, $inbox && $mbox == $data['folder']);
                 }
 
                 self::set_unseen_count($mbox, $unseen);

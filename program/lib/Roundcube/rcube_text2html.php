@@ -51,7 +51,9 @@ class rcube_text2html
         // string replacer class
         'replacer' => 'rcube_string_replacer',
         // prefix and suffix of unwrappable line
-        'nobr_start' => '<span style="white-space:nowrap">',
+      // PAMELA - MANTIS 0004162: Pliage de lignes longues avec balise pre dans des messages html
+        // 'nobr_start' => '<span style="white-space:nowrap">',
+        'nobr_start' => '<span style="">',
         'nobr_end'   => '</span>',
     ];
 

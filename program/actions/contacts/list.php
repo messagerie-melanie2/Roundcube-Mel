@@ -59,6 +59,9 @@ class rcmail_action_contacts_list extends rcmail_action_contacts_index
             }
 
             $result->records = array_values($records);
+
+            // PAMELA - Do not use advanced search
+            $rcmail->output->command('contacts_search_only_hide');
         }
         // List selected directory
         else {
@@ -69,7 +72,8 @@ class rcmail_action_contacts_list extends rcmail_action_contacts_index
             $result = $contacts->list_records($afields);
 
             if (!$result->count && $result->searchonly) {
-                $rcmail->output->show_message('contactsearchonly', 'notice');
+                // PAMELA - Do not use advanced search
+                $rcmail->output->command('contacts_search_only');//show_message('contactsearchonly', 'notice');
                 // Don't invoke advanced search dialog automatically from here (#6679)
             }
 
