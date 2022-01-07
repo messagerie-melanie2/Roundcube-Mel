@@ -277,6 +277,15 @@ function rcube_webmail()
             .addEventListener('column_replace', function(o) { ref.msglist_set_coltypes(o); })
             .init();
 
+
+          //Pamela - Rendre le drag'n'drop possible pour les messages dans une frame.
+          if (parent !== window)
+          {
+            setTimeout(() => {
+              this.message_list.draggable = true;
+            }, 111);
+          }
+
           // TODO: this should go into the list-widget code
           $(this.message_list.thead).on('click', 'a.sortcol', function(e){
             return ref.command('sort', $(this).attr('rel'), this);
@@ -2395,6 +2404,8 @@ function rcube_webmail()
       }
       else if (c == 'threads')
         html = expando;
+      else if (c == "fromto")//PAMELA
+        html = tree + cols[c];
       else if (c == 'subject') {
         html = tree + cols[c];
       }
@@ -7249,8 +7260,8 @@ function rcube_webmail()
       function() {
         var name;
         if (name = input.val()) {
-          ref.http_post('search-create', {_search: ref.env.search_request, _name: name},
-            ref.set_busy(true, 'loading'));
+          ref.http_post('search-create', {_search: ref.env.search_request, /* PAMELA - Search contacts by source */_source: rcmail.env.source, _name: name},
+          ref.set_busy(true, 'loading'));
           return true;
         }
       }

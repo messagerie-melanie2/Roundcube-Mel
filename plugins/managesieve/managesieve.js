@@ -175,7 +175,7 @@ rcube_webmail.prototype.managesieve_setselect = function(list)
   var id = list.get_single_selection();
   if (id != null) {
     this.managesieve_list(this.env.filtersets[id]);
-    // PAMELA - Change the default filterset name
+    // PAMELA - Change the default filterset name //
     if (this.env.filterset_specials[this.env.filtersets[id]]) {
       $('#filterset-name').text(this.env.filterset_specials[this.env.filtersets[id]]);
     }
