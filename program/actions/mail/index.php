@@ -829,7 +829,7 @@ class rcmail_action_mail_index extends rcmail_action
         }
 
         // PAMELA - Change the IMAP folder name with a plugin (change INBOX for shared mailboxes)
-        $data = $RCMAIL->plugins->exec_hook('mel_is_inbox',
+        $data = $rcmail->plugins->exec_hook('mel_is_inbox',
         array('mbox' => $mbox_name, 'isInbox' => $mbox_name == 'INBOX'));
 
         if ($unseen !== $old_unseen || $data['isInbox']) {
