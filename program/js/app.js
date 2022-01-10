@@ -2407,7 +2407,7 @@ function rcube_webmail()
       else if (c == "fromto")//PAMELA
         html = tree + cols[c];
       else if (c == 'subject') {
-        html = tree + cols[c];
+        html = cols[c]; //PAMELA
       }
       else if (c == 'priority') {
         if (flags.prio > 0 && flags.prio < 6) {
