@@ -600,6 +600,12 @@ function rcube_elastic_ui()
                 // Also disable double-click to prevent from opening items
                 // in a new page, and prevent from zoom issues (#7732)
                 rcmail[list].dblclick_time = 0;
+
+                //PAMELA - Corrige si la page est en mode frame
+                setTimeout(() => {
+                    if (!$("html").hasClass("touch"))
+                        rcmail[list].dblclick_time = 500;
+                }, 500);
             }
         });
 
@@ -796,6 +802,14 @@ function rcube_elastic_ui()
                 screen_logo(mode);
                 $('iframe').each(switch_iframe_color_mode);
             };
+            //PAMELA
+            var switch_theme = function ()
+            {
+                color_mode = color_mode === 'dark' ? 'light' : 'dark';
+                switch_color_mode();
+                rcmail.set_cookie('colorMode', color_mode, false);
+                rcmail.triggerEvent("switched_color_theme", color_mode);
+            };
 
         if (rcmail.env.dark_mode_support === false) {
             if (pref == 'dark') {
@@ -807,9 +821,13 @@ function rcube_elastic_ui()
 
         // Add onclick action to the menu button
         $('#taskmenu a.theme').on('click', function() {
-            color_mode = $(this).is('.dark') ? 'dark' : 'light';
-            switch_color_mode();
-            rcmail.set_cookie('colorMode', color_mode, false);
+            //PAMELA
+            switch_theme();
+        });
+
+        //PAMELA
+        rcmail.addEventListener("switch_color_theme", () => {
+            switch_theme();
         });
 
         // Note: this does not work in IE and Safari
@@ -817,6 +835,8 @@ function rcube_elastic_ui()
             color_mode = e.matches ? 'dark' : 'light';
             switch_color_mode();
             reset_cookie();
+            //PAMELA
+            rcmail.triggerEvent("switched_color_theme", color_mode);
         });
 
         if (pref) {
@@ -1790,7 +1810,12 @@ function rcube_elastic_ui()
     function screen_resize_small()
     {
         screen_resize_small_all();
-        app_menu(true);
+
+        //PAMELLA
+        if ($("html").hasClass("touch"))
+            app_menu(false);
+        else
+            app_menu(true);
     };
 
     function screen_resize_normal()
@@ -1807,7 +1832,13 @@ function rcube_elastic_ui()
         }
 
         layout.content.removeClass('hidden');
-        app_menu(true);
+
+        //PAMELLA
+        if ($("html").hasClass("touch"))
+            app_menu(false);
+        else
+            app_menu(true);
+
         screen_resize_small_none();
 
         if (layout.list.length) {
@@ -1942,17 +1973,18 @@ function rcube_elastic_ui()
     function app_menu(show)
     {
         if (show) {
-            if (mode == 'phone') {
+            if (mode == 'phone' /* PAMELLA ==> */|| $("html").hasClass("touch")) {
                 $('<div id="menu-overlay" class="popover-overlay">')
                     .on('click', function() { app_menu(false); })
                     .appendTo('body');
 
                 if (!env.menu_initialized) {
                     env.menu_initialized = true;
-                    $('a', layout.menu).on('click', function(e) { if (mode == 'phone') app_menu(); });
+                    $('a', layout.menu).on('click', function(e) { if (mode == 'phone' /* PAMELLA ==> */ || $("html").hasClass("touch")) app_menu(); });
                 }
 
-                layout.menu.addClass('popover');
+                if (mode == "phone") //PAMELLA
+                    layout.menu.addClass('popover');
             }
 
             layout.menu.removeClass('hidden');
