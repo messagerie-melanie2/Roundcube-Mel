@@ -15,7 +15,8 @@
 */
 
 
-$labels['welcome'] = 'Bienvenue à $product';
+// MANTIS 3601: Ajouter le nom de l'application dans le titre de la page de login
+$labels['welcome']   = 'Bienvenue sur Mél';
 $labels['username'] = 'Nom d’utilisateur';
 $labels['password'] = 'Mot de passe';
 $labels['server'] = 'Serveur';
@@ -28,11 +29,16 @@ $labels['settings'] = 'Paramètres';
 $labels['addressbook'] = 'Carnet d’adresses';
 $labels['darkmode'] = 'Mode sombre';
 $labels['lightmode'] = 'Mode clair';
-$labels['inbox'] = 'Boîte de réception';
+/* PAMELA MANTIS 3518: Mail : Aligner certains aspects visuels sur le Courrielleur */
+$labels['inbox']  = 'Courrier entrant';
 $labels['drafts'] = 'Brouillons';
-$labels['sent'] = 'Envoyés';
-$labels['trash'] = 'Corbeille';
-$labels['junk'] = 'Pourriels';
+$labels['sent']   = 'Éléments envoyés';
+$labels['trash']  = 'Corbeille';
+/* PAMELA - Modeles */
+$labels['models'] = 'Modèles';
+$labels['local'] = 'Archives locales';
+/* PAMELA MANTIS 3518: Mail : Aligner certains aspects visuels sur le Courrielleur */
+$labels['junk']   = 'Indésirables';
 $labels['show_real_foldernames'] = 'Montrer les noms réels des dossiers spéciaux';
 $labels['subject'] = 'Objet';
 $labels['from'] = 'De';
@@ -65,6 +71,14 @@ $labels['showanyway'] = 'Afficher quand même';
 $labels['filename'] = 'Nom du fichier';
 $labels['filesize'] = 'Taille du fichier';
 $labels['addtoaddressbook'] = 'Ajouter au carnet d’adresses';
+// PAMELA
+$labels['sun_min'] = 'D';
+$labels['mon_min'] = 'L';
+$labels['tue_min'] = 'M';
+$labels['wed_min'] = 'M';
+$labels['thu_min'] = 'J';
+$labels['fri_min'] = 'V';
+$labels['sat_min'] = 'S';
 $labels['sun'] = 'Dim';
 $labels['mon'] = 'Lun';
 $labels['tue'] = 'Mar';
@@ -106,7 +120,8 @@ $labels['longdec'] = 'Décembre';
 $labels['today'] = 'Aujourd’hui';
 $labels['refresh'] = 'Actualiser';
 $labels['checkmail'] = 'Relever les nouveaux courriels';
-$labels['compose'] = 'Rédiger';
+// MANTIS 3699: nommage des boutons
+$labels['compose']          = 'Nouveau';
 $labels['writenewmessage'] = 'Créer un nouveau courriel';
 $labels['reply'] = 'Répondre';
 $labels['replytomessage'] = 'Répondre à l’expéditeur';
@@ -117,7 +132,8 @@ $labels['forward'] = 'Transférer';
 $labels['forwardinline'] = 'Transférer dans le courriel';
 $labels['forwardattachment'] = 'Transférer comme pièce jointe';
 $labels['forwardmessage'] = 'Transférer le courriel';
-$labels['bouncemsg'] = 'Renvoyer (retourné)';
+// PAMELA - 0006334: La fonction Rediriger n'a pas le bon nom
+$labels['bouncemsg'] = 'Rediriger';
 $labels['bounce'] = 'Renvoyer';
 $labels['deletemessage'] = 'Supprimer le courriel';
 $labels['movemessagetotrash'] = 'Déplacer le courriel vers la corbeille';
@@ -132,8 +148,9 @@ $labels['mark'] = 'Marquer';
 $labels['markmessages'] = 'Marquer les courriels';
 $labels['markread'] = 'Comme lu';
 $labels['markunread'] = 'Comme non lu';
-$labels['markflagged'] = 'Comme signalé';
-$labels['markunflagged'] = 'Comme non signalé';
+/* PAMELA MANTIS 3518: Mail : Aligner certains aspects visuels sur le Courrielleur */
+$labels['markflagged']      = 'Comme suivi';
+$labels['markunflagged']    = 'Comme non suivi';
 $labels['markundeleted'] = 'Comme non supprimé';
 $labels['moreactions'] = 'Plus d’actions…';
 $labels['markallread'] = 'Tout marquer comme lu';
@@ -157,8 +174,9 @@ $labels['none'] = 'Aucun';
 $labels['currpage'] = 'Page courante';
 $labels['isread'] = 'Lu';
 $labels['unread'] = 'Non lu';
-$labels['flagged'] = 'Signalé';
-$labels['unflagged'] = 'Non signalé';
+/* PAMELA MANTIS 3518: Mail : Aligner certains aspects visuels sur le Courrielleur */
+$labels['flagged'] = 'Suivi';
+$labels['unflagged'] = 'Non suivi';
 $labels['unanswered'] = 'Sans réponse';
 $labels['withattachment'] = 'Avec pièce jointe';
 $labels['deleted'] = 'Supprimé';
@@ -178,7 +196,8 @@ $labels['autoexpand_threads'] = 'Développer les fils de courriel';
 $labels['do_expand'] = 'Tous les fils';
 $labels['expand_only_unread'] = 'seulement avec des courriels non lus';
 $labels['fromto'] = 'De/À';
-$labels['flag'] = 'Signaler';
+/* PAMELA MANTIS 3518: Mail : Aligner certains aspects visuels sur le Courrielleur */
+$labels['flag'] = 'Suivi';
 $labels['attachment'] = 'Pièce jointe';
 $labels['nonesort'] = 'Aucun';
 $labels['sentdate'] = 'Date d’envoi';
@@ -241,6 +260,9 @@ $labels['send'] = 'Envoyer';
 $labels['sendmessage'] = 'Envoyer un courriel';
 $labels['savemessage'] = 'Enregistrer comme brouillon';
 $labels['addattachment'] = 'Joindre un fichier';
+// PAMELA
+$labels['morefieldsoptions']  = 'Ajouter de nouveaux champs pour les destinataires (Cc, Cci, Répondre à, ...)';
+$labels['formattextoptions']  = 'Ouvrir les options de formatage de texte';
 $labels['charset'] = 'Jeu de caractères';
 $labels['editortype'] = 'Type d’éditeur';
 $labels['returnreceipt'] = 'Avis d’ouverture du courriel';
@@ -287,7 +309,8 @@ $labels['responsename'] = 'Nom';
 $labels['responsetext'] = 'Texte de la réponse';
 $labels['attach'] = 'Joindre';
 $labels['attachments'] = 'Pièces jointes';
-$labels['upload'] = 'Téléverser';
+// PAMELA
+$labels['upload'] = 'Charger';
 $labels['uploadprogress'] = '$percent ($current de $total)';
 $labels['close'] = 'Fermer';
 $labels['messageoptions'] = 'Options de courriel…';
@@ -404,6 +427,8 @@ $labels['ok'] = 'OK';
 $labels['rename'] = 'Renommer';
 $labels['addphoto'] = 'Ajouter';
 $labels['replacephoto'] = 'Remplacer';
+// PAMELA
+$labels['add'] = 'Nouveau';
 $labels['uploadphoto'] = 'Téléverser une photo';
 $labels['choosefile'] = 'Choisir un fichier…';
 $labels['choosefiles'] = 'Choisir des fichiers…';
@@ -453,11 +478,12 @@ $labels['about'] = 'À propos de';
 $labels['preferences'] = 'Préférences';
 $labels['userpreferences'] = 'Préférences utilisateur';
 $labels['editpreferences'] = 'Modifier les préférences utilisateur';
-$labels['identities'] = 'Identités';
-$labels['manageidentities'] = 'Gérer les identités';
-$labels['newidentity'] = 'Créer une nouvelle identité';
-$labels['addidentity'] = 'Ajouter une identité';
-$labels['editidentity'] = 'Modifier l’identité';
+// PAMELA - Identités -> Signatures
+$labels['identities'] = 'Signatures';
+$labels['manageidentities'] = 'Gérer les signatures';
+$labels['newidentity'] = 'Créer une nouvelle signature';
+$labels['addidentity'] = 'Ajouter une signature';
+$labels['editidentity'] = 'Modifier la signature';
 $labels['identityencryption'] = 'Chiffrement';
 $labels['preferhtml'] = 'Afficher en HTML';
 $labels['defaultcharset'] = 'Jeu de caractère par défaut';
@@ -626,7 +652,8 @@ $labels['version'] = 'Version';
 $labels['source'] = 'Source';
 $labels['destination'] = 'Destination';
 $labels['license'] = 'Licence';
-$labels['support'] = 'Obtenir du soutien';
+// PAMELA
+$labels['support'] = 'Afficher l\'aide';
 $labels['savedsearches'] = 'Recherches enregistrées';
 $labels['dateformatY'] = 'AAAA';
 $labels['dateformaty'] = 'AA';

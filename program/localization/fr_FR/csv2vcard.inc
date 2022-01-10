@@ -83,3 +83,74 @@ $map['work_address'] = "Adresse professionnelle";
 $map['work_country'] = "Région";
 $map['work_zipcode'] = "Code postal";
 $map['_home_city'] = "Ville";
+// Champs manquants - 0005948: Améliorer l'import csv des contacts
+$map['city'] = "Ville";
+$map['countryregion'] = "Pays/Région";
+$map['fax'] = "Télécopie";
+$map['phone'] = "Téléphone";
+$map['postal_code'] = "Code postal";
+$map['state'] = "Dép/Région";
+$map['street'] = "Rue";
+$map['address'] = "Adresse";
+
+$map['work_city'] = "Ville (travail)";
+$map['work_countryregion'] = "Pays/Région (travail)";
+$map['work_fax'] = "Télécopie (travail)";
+$map['work_phone'] = "Téléphone (travail)";
+$map['work_postal_code'] = "Code postal (travail)";
+$map['work_state'] = "Dép/Région (travail)";
+$map['work_street'] = "Rue (travail)";
+
+// Export Roundcube - 0005948: Améliorer l'import csv des contacts
+$map['full_name'] = "Nom complet"; // equivalent display_name
+$map['name_prefix'] = "Préfixe";
+$map['name_suffix'] = "Suffixe";
+$map['home_email'] = "E-mail domicile"; // equivalent email_address
+$map['work_email'] = "E-mail travail"; // equivalent primary_email
+$map['other_email'] = "E-mail autre"; // equivalent secondary_email
+
+$map['home_address_street'] = "Adresse domicile rue"; // equivalent home_street
+$map['home_address_city'] = "Adresse domicile ville"; // equivalent home_city
+$map['home_address_postal_code'] = "Adresse domicile code postal"; // equivalent home_postal_code
+$map['home_address_region'] = "Adresse domicile région"; // equivalent home_countryregion
+$map['home_address_country'] = "Adresse domicile pays"; // equivalent home_countryregion
+
+$map['work_address_street'] = "Adresse travail rue"; // equivalent work_street
+$map['work_address_city'] = "Adresse travail ville"; // equivalent work_city
+$map['work_address_postal_code'] = "Adresse travail code postal"; // equivalent work_postal_code
+$map['work_address_region'] = "Adresse travail région"; // equivalent work_countryregion
+$map['work_address_country'] = "Adresse travail pays"; // equivalent work_countryregion
+
+$map['other_address_street'] = "Adresse autre rue"; // equivalent other_street
+$map['other_address_city'] = "Adresse autre ville"; // equivalent other_city
+$map['other_address_postal_code'] = "Adresse autre code postal"; // equivalent other_postal_code
+$map['other_address_region'] = "Adresse autre région"; // equivalent other_countryregion
+$map['other_address_country'] = "Adresse autre pays"; // equivalent other_countryregion
+
+$map['_home_phone'] = "Téléphone maison"; // equivalent home_phone
+$map['_work_phone'] = "Téléphone travail"; // equivalent work_phone
+$map['_other_phone'] = "Téléphone autre"; // equivalent other_phone
+
+$map['mobile'] = "Mobile";
+
+$map['other_phone_2'] = "Autre téléphone"; // equivalent other_phone
+$map['_home_fax'] = "Fax maison"; // equivalent home_fax
+$map['_work_fax'] = "Fax travail"; // equivalent work_fax
+
+$map['structure'] = "Structure";
+$map['function'] = "Fonction";
+$map['manager'] = "Manageur";
+$map['groups'] = "Groupes";
+$map['room'] = "Bureau";
+
+$map['home_website'] = "Page web domicile";
+$map['work_website'] = "Page web travail";
+
+// Export Pauline - 0005948: Améliorer l'import csv des contacts
+$map['unity'] = "Unité";
+$map['_email'] = "Messagerie";
+$map['_room'] = "Pièce";
+$map['description'] = "Description";
+$map['_function_manager'] = "Fonction hiérarchique";
+$map['_function_jobtitle'] = "Fonction métier";
+$map['_missions'] = "Missions";
