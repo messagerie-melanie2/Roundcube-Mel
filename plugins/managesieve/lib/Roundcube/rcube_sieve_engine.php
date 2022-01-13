@@ -1368,8 +1368,16 @@ class rcube_sieve_engine
             if ($list) {
                 foreach ($list as $idx => $set) {
                     $scripts['S' . $idx] = $set;
+                    // PAMELA - Change the default filterset name
+                    $nameset = $set;
+                    if ($nameset == 'managesieve') {
+                      $nameset = $this->rc->gettext('managesieve.managesieve_filters');
+                    }
+                    elseif ($nameset == 'old_ingo') {
+                      $nameset = $this->rc->gettext('managesieve.ingo_filters');
+                    }
                     $result[] = [
-                        'name'  => $set,
+                        'name'  => $nameset,
                         'id'    => 'S' . $idx,
                         'class' => !in_array($set, $this->active) ? 'disabled' : '',
                     ];
@@ -1392,7 +1400,15 @@ class rcube_sieve_engine
 
             if ($list) {
                 foreach ($list as $set) {
-                    $select->add($set, $set);
+                    // PAMELA - Change the default filterset name
+                    $nameset = $set;
+                    if ($nameset == 'managesieve') {
+                      $nameset = $this->rc->gettext('managesieve.managesieve_filters');
+                    }
+                    elseif ($nameset == 'old_ingo') {
+                      $nameset = $this->rc->gettext('managesieve.ingo_filters');
+                    }
+                    $select->add($nameset, $set);
                 }
             }
 
@@ -1504,7 +1520,15 @@ class rcube_sieve_engine
             }
 
             foreach ($list as $set) {
-                $select->add($set, $set);
+                // PAMELA - Change the default filterset name
+                $nameset = $set;
+                if ($nameset == 'managesieve') {
+                  $nameset = $this->rc->gettext('managesieve.managesieve_filters');
+                }
+                elseif ($nameset == 'old_ingo') {
+                  $nameset = $this->rc->gettext('managesieve.ingo_filters');
+                }
+                $select->add($nameset, $set);
             }
 
             $filters .= '<li>' . html::label('from_set', html::tag('input', [
@@ -1538,7 +1562,9 @@ class rcube_sieve_engine
         $table->add('title', html::label('from_none', rcube::Q($this->plugin->gettext('filters'))));
         $table->add('', $filters);
 
-        $out = '<form name="filtersetform" action="./" method="post" enctype="multipart/form-data">'
+        // PAMELA - MANTIS 3662: La création d'un groupe de regle sur une balp fait le groupe sur la bali
+        $out = '<form name="filtersetform" action="#" method="post" enctype="multipart/form-data">'
+        //$out = '<form name="filtersetform" action="./" method="post" enctype="multipart/form-data">'
             . "\n" . $hiddenfields->show() . "\n" . $table->show();
 
         $this->rc->output->add_gui_object('sieveform', 'filtersetform');
@@ -1724,7 +1750,9 @@ class rcube_sieve_engine
         $this->rc->output->add_gui_object('sieveform', 'filterform');
 
         $attrib['name']   = 'filterform';
-        $attrib['action'] = './';
+        // PAMELA - MANTIS 3662: La création d'un groupe de regle sur une balp fait le groupe sur la bali
+        // $attrib['action'] = './';
+        $attrib['action'] = '#';
         $attrib['method'] = 'post';
 
         $out = html::tag('form', $attrib, $out, ['name', 'action', 'method', 'class']);
@@ -3006,6 +3034,10 @@ class rcube_sieve_engine
             if (!empty($exceptions)) {
                 $this->list = array_diff($this->list, (array)$exceptions);
             }
+
+            // PAMELA - Ici on pourrait reprendre le code pour migrer les listes ingo, 
+            // mais ça ne doit plus être nécessaire dans le Bnum.
+            // Si jamais ça manque quand même, voir le code de migration dans Mél web
         }
 
         // When no script listing allowed limit the list to the defined script
