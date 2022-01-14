@@ -24,8 +24,10 @@ $labels['login'] = 'Connexion';
 $labels['oauthlogin'] = 'Connexion à $provider';
 $labels['menu'] = 'Menu';
 $labels['logout'] = 'Déconnexion';
-$labels['mail'] = 'Courriel';
-$labels['settings'] = 'Paramètres';
+// PAMELLA
+$labels['mail'] = 'Ma messagerie Mèl';
+// PAMELLA
+$labels['settings'] = 'Configuration du bureau numérique';
 $labels['addressbook'] = 'Carnet d’adresses';
 $labels['darkmode'] = 'Mode sombre';
 $labels['lightmode'] = 'Mode clair';
@@ -411,7 +413,8 @@ $labels['typeprofile'] = 'Profil';
 $labels['addfield'] = 'Ajouter un champ…';
 $labels['addcontact'] = 'Ajouter un contact';
 $labels['editcontact'] = 'Modifier le contact';
-$labels['contacts'] = 'Contacts';
+// PAMELA
+$labels['contacts'] = 'Annuaire';
 $labels['contactproperties'] = 'Propriétés du contact';
 $labels['contactnameandorg'] = 'Nom et organisation';
 $labels['personalinfo'] = 'Renseignements personnels';
