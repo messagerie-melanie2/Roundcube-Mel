@@ -46,7 +46,7 @@ class rcmail_action_mail_folder_purge extends rcmail_action_mail_index
         preg_match($trash_regexp, $mbox)) {
 
             // PAMELA - Corbeille name converter
-            $data = $RCMAIL->plugins->exec_hook('m2_set_folder_name',
+            $data = $rcmail->plugins->exec_hook('m2_set_folder_name',
                 array('folder' => $mbox));
 
             $success = $storage->delete_message('*', $data['folder']);
