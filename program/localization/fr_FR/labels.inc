@@ -28,7 +28,8 @@ $labels['logout'] = 'Déconnexion';
 $labels['mail'] = 'Ma messagerie Mèl';
 // PAMELLA
 $labels['settings'] = 'Configuration du bureau numérique';
-$labels['addressbook'] = 'Carnet d’adresses';
+// PAMELA
+$labels['addressbook'] = 'Annuaire';
 $labels['darkmode'] = 'Mode sombre';
 $labels['lightmode'] = 'Mode clair';
 /* PAMELA MANTIS 3518: Mail : Aligner certains aspects visuels sur le Courrielleur */
