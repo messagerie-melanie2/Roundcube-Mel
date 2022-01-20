@@ -86,7 +86,7 @@ if (window.rcmail) {
 
         if (set != null) {
           // PAMELA - Change the default filterset name
-          if (rcmail.env.filterset_specials[set]) {
+          if (rcmail.env.filterset_specials && rcmail.env.filterset_specials[set]) {
             $('#filterset-name').text(rcmail.env.filterset_specials[set]);
           }
           else {
@@ -176,7 +176,7 @@ rcube_webmail.prototype.managesieve_setselect = function(list)
   if (id != null) {
     this.managesieve_list(this.env.filtersets[id]);
     // PAMELA - Change the default filterset name
-    if (this.env.filterset_specials[this.env.filtersets[id]]) {
+    if (this.env.filterset_specials && this.env.filterset_specials[this.env.filtersets[id]]) {
       $('#filterset-name').text(this.env.filterset_specials[this.env.filtersets[id]]);
     }
     else {
