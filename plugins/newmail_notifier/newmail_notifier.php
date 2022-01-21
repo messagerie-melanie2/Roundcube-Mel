@@ -204,7 +204,7 @@ class newmail_notifier extends rcube_plugin
         if ($unseen->count()) {
             $this->notified = true;
 
-            // PAMELA - Gestion de la mailboxe
+            // PAMELA - Gestion de la mailbox
             if (strpos($mbox, driver_mel::gi()->getBalpLabel()) === 0) {
                 $tmp = explode($_SESSION['imap_delimiter'], $mbox, 3);
                 $title = driver_mel::gi()->getUser($tmp[1])->fullname;
