@@ -36,18 +36,27 @@ class rcmail_action_mail_copy extends rcmail_action_mail_index
             $rcmail->output->show_message('internalerror', 'error');
         }
 
-        $uids    = self::get_uids(null, null, $multifolder, rcube_utils::INPUT_POST);
         $target  = rcube_utils::get_input_value('_target_mbox', rcube_utils::INPUT_POST, true);
-        $sources = [];
-        $copied  = false;
 
-        foreach ($uids as $mbox => $uids) {
-            if ($mbox === $target) {
-                $copied++;
-            }
-            else {
-                $copied += (int) $rcmail->storage->copy_message($uids, $target, $mbox);
-                $sources[] = $mbox;
+        // PAMELA - Gérer la corbeille individuelle
+        $data = $rcmail->plugins->exec_hook('mel_copy_message',
+            array('target' => $target, 'continue' => true, 'copied' => 0, 'sources' => array()));
+
+        $copied  = $data['copied'];
+        $sources = $data['sources'];
+
+        if ($data['continue']) {
+            $target = $data['target'];
+            $uids    = self::get_uids(null, null, $multifolder, rcube_utils::INPUT_POST);
+
+            foreach ($uids as $mbox => $uids) {
+                if ($mbox === $target) {
+                    $copied++;
+                }
+                else {
+                    $copied += (int) $rcmail->storage->copy_message($uids, $target, $mbox);
+                    $sources[] = $mbox;
+                }
             }
         }
 

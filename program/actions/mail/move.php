@@ -46,21 +46,30 @@ class rcmail_action_mail_move extends rcmail_action_mail_index
             $rcmail->output->send();
         }
 
-        $success = true;
+        // PAMELA - Gérer la corbeille individuelle
+        $data = $rcmail->plugins->exec_hook('mel_move_message',
+            array('target' => $target, 'continue' => true, 'success' => true, 'count' => 0));
+
+        $success    = $data['success'];
+        $count      = $data['count'];
+
         $addrows = false;
-        $count   = 0;
         $sources = [];
 
-        foreach (rcmail::get_uids(null, null, $multifolder, rcube_utils::INPUT_POST) as $mbox => $uids) {
-            if ($mbox === $target) {
-                $count += is_array($uids) ? count($uids) : 1;
-            }
-            else if ($rcmail->storage->move_message($uids, $target, $mbox)) {
-                $count += is_array($uids) ? count($uids) : 1;
-                $sources[] = $mbox;
-            }
-            else {
-                $success = false;
+        if ($data['continue']) {
+            $target = $data['target'];
+
+            foreach (rcmail::get_uids(null, null, $multifolder, rcube_utils::INPUT_POST) as $mbox => $uids) {
+                if ($mbox === $target) {
+                    $count += is_array($uids) ? count($uids) : 1;
+                }
+                else if ($rcmail->storage->move_message($uids, $target, $mbox)) {
+                    $count += is_array($uids) ? count($uids) : 1;
+                    $sources[] = $mbox;
+                }
+                else {
+                    $success = false;
+                }
             }
         }
 
