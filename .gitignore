@@ -2,6 +2,7 @@
 /.project
 /.settings/
 **/config.inc.php
+.vscode/*
 
 /plugins/annuaire
 /plugins/bounce
