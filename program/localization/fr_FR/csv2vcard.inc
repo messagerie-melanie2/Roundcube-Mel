@@ -17,8 +17,9 @@
 */
 $map = array();
 $map['anniversary'] = "Anniversaire de mariage ou fête";
-$map['assistants_name'] = "Nom de l''assistant(e)";
-$map['assistants_phone'] = "Téléphone de l''assistant(e)";
+// PAMELA - Typo
+$map['assistants_name'] = "Nom de l'assistant(e)";
+$map['assistants_phone'] = "Téléphone de l'assistant(e)";
 $map['birthday'] = "Anniversaire";
 $map['business_city'] = "Ville (bureau)";
 $map['business_countryregion'] = "Pays/Région (bureau)";

@@ -139,7 +139,7 @@ $labels['forwardattachment'] = 'Transférer comme pièce jointe';
 $labels['forwardmessage'] = 'Transférer le courriel';
 //PAMELA - Mantis 0006334 : La fonction Rediriger n'a pas le bon nom
 $labels['bouncemsg'] = 'Rediriger';
-$labels['bounce'] = 'Renvoyer';
+$labels['bounce'] = 'Rediriger';
 $labels['deletemessage'] = 'Supprimer le courriel';
 $labels['movemessagetotrash'] = 'Déplacer le courriel vers la corbeille';
 $labels['printmessage'] = 'Imprimer ce courriel';
