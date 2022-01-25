@@ -695,11 +695,10 @@ class rcube_imap extends rcube_storage
             $folder = $this->folder;
         }
 
-            // PAMELA - Change the IMAP folder name with a plugin (change INBOX for shared mailboxes)
-            $data = $this->plugins->exec_hook('m2_set_folder_name',
+        // PAMELA - Change the IMAP folder name with a plugin (change INBOX for shared mailboxes)
+        $data = $this->plugins->exec_hook('m2_set_folder_name',
             array('folder' => $folder));
-
-            if (isset($data) && isset($data['folder'])) $folder = $data['folder'];
+        if (isset($data) && isset($data['folder'])) $folder = $data['folder'];
 
         return $this->countmessages($folder, $mode, $force, $status);
     }
@@ -740,16 +739,17 @@ class rcube_imap extends rcube_storage
         $a_folder_cache = $this->get_cache('messagecount');
 
         // PAMELA - Gestion du cache pour les Corbeilles
+        // Remplacer $folder par $data['folder'] pour la lecture du cache
         $data = $this->plugins->exec_hook('mel_folder_cache',
-        array('folder' => $folder));
+            array('folder' => $folder));
 
         // return cached value
-        if (!$force && isset($a_folder_cache[$folder][$mode])) {
-            return $a_folder_cache[$folder][$mode];
+        if (!$force && isset($a_folder_cache[$data['folder']][$mode])) {
+            return $a_folder_cache[$data['folder']][$mode];
         }
 
-        if (!isset($a_folder_cache[$folder]) || !is_array($a_folder_cache[$folder])) {
-            $a_folder_cache[$folder] = [];
+        if (!isset($a_folder_cache[$data['folder']]) || !is_array($a_folder_cache[$data['folder']])) {
+            $a_folder_cache[$data['folder']] = [];
         }
 
         if ($mode == 'THREADS') {
@@ -819,8 +819,8 @@ class rcube_imap extends rcube_storage
 
         $count = (int) $count;
 
-        if (!isset($a_folder_cache[$folder][$mode]) || $a_folder_cache[$folder][$mode] !== $count) {
-            $a_folder_cache[$folder][$mode] = $count;
+        if (!isset($a_folder_cache[$data['folder']][$mode]) || $a_folder_cache[$data['folder']][$mode] !== $count) {
+            $a_folder_cache[$data['folder']][$mode] = $count;
 
             // write back to cache
             $this->update_cache('messagecount', $a_folder_cache);
@@ -846,8 +846,7 @@ class rcube_imap extends rcube_storage
 
         // PAMELA - Change the IMAP folder name with a plugin (change INBOX for shared mailboxes)
         $data = $this->plugins->exec_hook('m2_set_folder_name',
-                array('folder' => $folder));
-
+            array('folder' => $folder));
         if (isset($data) && isset($data['folder'])) $folder = $data['folder'];
 
         if (!$this->check_connection()) {
@@ -888,8 +887,7 @@ class rcube_imap extends rcube_storage
 
         // PAMELA - Change the IMAP folder name with a plugin (change INBOX for shared mailboxes)
         $data = $this->plugins->exec_hook('m2_set_folder_name',
-        		array('folder' => $folder));
-
+            array('folder' => $folder));
         if (isset($data) && isset($data['folder'])) $folder = $data['folder'];
 
         return $this->_list_messages($folder, $page, $sort_field, $sort_order, $slice);
@@ -1372,8 +1370,7 @@ class rcube_imap extends rcube_storage
 
         // PAMELA - Change the IMAP folder name with a plugin (change INBOX for shared mailboxes)
         $data = $this->plugins->exec_hook('m2_set_folder_name',
-        array('folder' => $folder));
-
+            array('folder' => $folder));
         if (isset($data) && isset($data['folder'])) $folder = $data['folder'];
 
         $old = $this->get_folder_stats($folder);
@@ -1463,7 +1460,7 @@ class rcube_imap extends rcube_storage
 
         // PAMELA - Change the IMAP folder name with a plugin (change INBOX for shared mailboxes)
         $data = $this->plugins->exec_hook('m2_set_folder_name',
-        		array('folder' => $folder));
+            array('folder' => $folder));
         if (isset($data) && isset($data['folder'])) $folder = $data['folder'];
 
         // we have a saved search result, get index from there
@@ -1602,7 +1599,7 @@ class rcube_imap extends rcube_storage
 
         // PAMELA - Change the IMAP folder name with a plugin (change INBOX for shared mailboxes)
         $data = $this->plugins->exec_hook('m2_set_folder_name',
-        		array('folder' => $folder));
+            array('folder' => $folder));
         if (isset($data) && isset($data['folder'])) $folder = $data['folder'];
 
         // we have a saved search result, get index from there
@@ -1758,13 +1755,13 @@ class rcube_imap extends rcube_storage
             if (!strlen($folder)) {
                 $folder = $this->folder;
             }
+            // PAMELA - Change the IMAP folder name with a plugin (change INBOX for shared mailboxes)
+            $data = $this->plugins->exec_hook('m2_set_folder_name',
+                array('folder' => $folder));
+            if (isset($data) && isset($data['folder'])) $folder = $data['folder'];
+
             $index = $this->conn->search($folder, $str, true);
         }
-
-        // PAMELA - Change the IMAP folder name with a plugin (change INBOX for shared mailboxes)
-        $data = $this->plugins->exec_hook('m2_set_folder_name',
-            array('folder' => $folder));
-        if (isset($data) && isset($data['folder'])) $folder = $data['folder'];
 
         return $index;
     }
@@ -1939,7 +1936,7 @@ class rcube_imap extends rcube_storage
 
         // PAMELA - Change the IMAP folder name with a plugin (change INBOX for shared mailboxes)
         $data = $this->plugins->exec_hook('m2_set_folder_name',
-        		array('folder' => $folder));
+            array('folder' => $folder));
         if (isset($data) && isset($data['folder'])) $folder = $data['folder'];
 
         // get cached headers
@@ -1978,7 +1975,7 @@ class rcube_imap extends rcube_storage
 
         // PAMELA - Change the IMAP folder name with a plugin (change INBOX for shared mailboxes)
         $data = $this->plugins->exec_hook('m2_set_folder_name',
-        		array('folder' => $folder));
+            array('folder' => $folder));
         if (isset($data) && isset($data['folder'])) $folder = $data['folder'];
 
         // decode combined UID-folder identifier
@@ -3286,9 +3283,10 @@ class rcube_imap extends rcube_storage
      */
     public function get_quota($folder = null)
     {
-        // PAMELA - Add user account (for shared mailboxes) in cache key
-        $account = rcube::get_instance()->plugins->exec_hook('m2_get_account', array());
-        if (isset($account) && isset($account['account'])) $cache_key .= ':'.$account['account'];
+        // PAMELA - Change the IMAP folder name with a plugin (change INBOX for shared mailboxes)
+      	$data = $this->plugins->exec_hook('m2_set_folder_name',
+          array('folder' => $folder));
+      	if (isset($data) && isset($data['folder'])) $folder = $data['folder'];
 
         if ($this->get_capability('QUOTA') && $this->check_connection()) {
             return $this->conn->getQuota($folder);
@@ -3743,9 +3741,9 @@ class rcube_imap extends rcube_storage
         }
         // get cached folder attributes
         else if (!$force) {
-           // PAMELA - Gestion du cache pour les Corbeilles
-           $data = $this->plugins->exec_hook('mel_folder_cache',
-           array('folder' => $folder));
+            // PAMELA - Gestion du cache pour les Corbeilles
+            $data = $this->plugins->exec_hook('mel_folder_cache',
+                array('folder' => $folder));
 
             $opts = $this->get_cache('mailboxes.attributes');
             if ($opts && isset($opts[$data['folder']])) {
@@ -3832,7 +3830,7 @@ class rcube_imap extends rcube_storage
             array('folder' => $folder));
 
         // get cached metadata
-        $cache_key = rcube_cache::key_name('mailboxes.folder-info', [$folder]);
+        $cache_key = rcube_cache::key_name('mailboxes.folder-info', [$data['folder']]);
         $cached    = $this->get_cache($cache_key);
 
         if (is_array($cached)) {
@@ -4188,7 +4186,7 @@ class rcube_imap extends rcube_storage
             $data = $this->plugins->exec_hook('mel_folder_cache',
                 array('folder' => $folder));
 
-            $cache_key = rcube_cache::key_name('mailboxes.metadata', [$folder, $options, $entries]);
+            $cache_key = rcube_cache::key_name('mailboxes.metadata', [$data['folder'], $options, $entries]);
 
             // get cached data
             $cached_data = $this->get_cache($cache_key);
@@ -4661,19 +4659,19 @@ class rcube_imap extends rcube_storage
             array('folder' => $folder));
 
         if (
-            !isset($a_folder_cache[$folder])
-            || !is_array($a_folder_cache[$folder])
-            || !isset($a_folder_cache[$folder][$mode])
+            !isset($a_folder_cache[$data['folder']])
+            || !is_array($a_folder_cache[$data['folder']])
+            || !isset($a_folder_cache[$data['folder']][$mode])
         ) {
             return false;
         }
 
         // add incremental value to messagecount
-        $a_folder_cache[$folder][$mode] += $increment;
+        $a_folder_cache[$data['folder']][$mode] += $increment;
 
         // there's something wrong, delete from cache
-        if ($a_folder_cache[$folder][$mode] < 0) {
-            unset($a_folder_cache[$folder][$mode]);
+        if ($a_folder_cache[$data['folder']][$mode] < 0) {
+            unset($a_folder_cache[$data['folder']][$mode]);
         }
 
         // write back to cache
@@ -4693,14 +4691,14 @@ class rcube_imap extends rcube_storage
         $data = $this->plugins->exec_hook('mel_folder_cache',
             array('folder' => $folder));
 
-        if (isset($a_folder_cache[$folder]) && is_array($a_folder_cache[$folder])) {
+        if (isset($a_folder_cache[$data['folder']]) && is_array($a_folder_cache[$data['folder']])) {
             if (!empty($mode)) {
                 foreach ((array) $mode as $key) {
-                    unset($a_folder_cache[$folder][$key]);
+                    unset($a_folder_cache[$data['folder']][$key]);
                 }
             }
             else {
-                unset($a_folder_cache[$folder]);
+                unset($a_folder_cache[$data['folder']]);
             }
 
             $this->update_cache('messagecount', $a_folder_cache);
