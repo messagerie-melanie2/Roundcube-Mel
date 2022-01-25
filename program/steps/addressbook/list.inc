@@ -42,7 +42,8 @@ if (($records = rcmail_search_update(true)) !== false) {
     $result->records = array_values($records);
 
     // PAMELA - Do not use advanced search
-    $OUTPUT->command('contacts_search_only_hide');
+    // TODO: Vérifier si c'est toujours un problème dans le Bnum ?
+    // $OUTPUT->command('contacts_search_only_hide');
 }
 // List selected directory
 else {
@@ -54,13 +55,14 @@ else {
 
     if (!$result->count && $result->searchonly) {
         // PAMELA - Do not use advanced search
-        // $OUTPUT->show_message('contactsearchonly', 'notice');
-        // $OUTPUT->command('command', 'advanced-search');
-        $OUTPUT->command('contacts_search_only');
+        // TODO: Vérifier si c'est toujours un problème dans le Bnum ?
+        $OUTPUT->show_message('contactsearchonly', 'notice');
+        $OUTPUT->command('command', 'advanced-search');
+        // $OUTPUT->command('contacts_search_only');
     }
-    else {
-        $OUTPUT->command('contacts_search_only_hide');
-    }
+    // else {
+    //     $OUTPUT->command('contacts_search_only_hide');
+    // }
 
     if ($CONTACTS->group_id) {
         $group_data = array('ID' => $CONTACTS->group_id)
