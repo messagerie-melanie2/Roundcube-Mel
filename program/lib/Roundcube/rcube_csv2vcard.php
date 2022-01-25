@@ -52,11 +52,13 @@ class rcube_csv2vcard
         'company'               => 'organization',
         //'company_main_phone'    => '',
         'department'            => 'department',
-        'email_2_address'       => 'email:other',
+        // PAMELA - MANTIS 0005045: CSV contact import for multiple email addresses doesn't work
+        'email_2_address'       => 'email:home',
         //'email_2_type'          => '',
         'email_3_address'       => 'email:other',
         //'email_3_type'          => '',
-        'email_address'         => 'email:pref',
+        // PAMELA - MANTIS 0005045: CSV contact import for multiple email addresses doesn't work
+        'email_address'         => 'email:work',
         //'email_type'            => '',
         'first_name'            => 'firstname',
         'gender'                => 'gender',
@@ -168,6 +170,72 @@ class rcube_csv2vcard
         'phone1'                => 'phone:home',
         'phone'                 => 'phone:work',
         'email'                 => 'email:home',
+
+        // 0005948: Améliorer l'import csv des contacts
+        'city'                  => 'locality:work',
+        'countryregion'         => 'country:work',
+        'fax'                   => 'phone:work,fax',
+        'phone'                 => 'phone:work',
+        'postal_code'           => 'zipcode:work',
+        'state'                 => 'region:work',
+        'street'                => 'street:work',
+        'address'               => 'street:work',
+
+        'work_city'             => 'locality:work',
+        'work_countryregion'    => 'country:work',
+        'work_fax'              => 'phone:work,fax',
+        'work_phone'            => 'phone:work',
+        'work_postal_code'      => 'zipcode:work',
+        'work_state'            => 'region:work',
+        'work_street'           => 'street:work',
+
+        'full_name'             => 'displayname',
+        'home_email'            => 'email:home',
+        'work_email'            => 'email:work',
+        'other_email'           => 'email:other',
+
+        'home_address_street'       => 'street:home',
+        'home_address_city'         => 'locality:home',
+        'home_address_postal_code'  => 'zipcode:home',
+        'home_address_region'       => 'region:home',
+        'home_address_country'      => 'country:home',
+
+        'work_address_street'       => 'street:work',
+        'work_address_city'         => 'locality:work',
+        'work_address_postal_code'  => 'zipcode:work',
+        'work_address_region'       => 'region:work',
+        'work_address_country'      => 'country:work',
+
+        'other_address_street'       => 'street:other',
+        'other_address_city'         => 'locality:other',
+        'other_address_postal_code'  => 'zipcode:other',
+        'other_address_region'       => 'region:other',
+        'other_address_country'      => 'country:other',
+
+        '_home_phone'           => 'phone:home',
+        '_work_phone'           => 'phone:work',
+        '_other_phone'          => 'phone:other',
+        'other_phone_2'         => 'phone:other',
+        'mobile'                => 'phone:cell',
+
+        '_home_fax'           => 'phone:home,fax',
+        '_work_fax'           => 'phone:work,fax',
+
+        'structure'          => 'organization',
+        'function'           => 'jobtitle',
+        'manager'            => 'manager',
+        'groups'             => 'groups',
+        'room'               => 'room',
+
+        'home_website'       => 'website:homepage',
+        'work_website'       => 'website:other',
+
+        'unity'                => 'department',
+        'email'                => 'email:work',
+        'office'               => 'office',
+        'description'          => 'description',
+        'function_manager'     => 'manager',
+        'function_jobtitle'    => 'jobtitle',
     ];
 
     /**
