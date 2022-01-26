@@ -816,16 +816,24 @@ class rcmail_action_mail_index extends rcmail_action
     public static function send_unread_count($mbox_name, $force = false, $count = null, $mark = '')
     {
         $rcmail     = rcmail::get_instance();
-        $old_unseen = self::get_unseen_count($mbox_name);
+
+        // PAMELA - Gestion du cache pour les Corbeilles
+        $cache = $rcmail->plugins->exec_hook('mel_folder_cache', ['folder' => $mbox_name]);
+
+        $old_unseen = self::get_unseen_count($cache['folder']);
         $unseen     = $count;
 
         if ($unseen === null) {
             $unseen = $rcmail->storage->count($mbox_name, 'UNSEEN', $force);
         }
 
-        if ($unseen !== $old_unseen || ($mbox_name == 'INBOX')) {
-            $rcmail->output->command('set_unread_count', $mbox_name, $unseen,
-                ($mbox_name == 'INBOX'), $unseen && $mark ? $mark : '');
+        // PAMELA - Change the IMAP folder name with a plugin (change INBOX for shared mailboxes)
+        $data = $rcmail->plugins->exec_hook('mel_is_inbox',
+            ['mbox' => $mbox_name, 'isInbox' => $mbox_name == 'INBOX']);
+
+        if ($unseen !== $old_unseen || $data['isInbox']) {
+            $rcmail->output->command('set_unread_count', $cache['folder'], $unseen,
+                $data['isInbox'], $unseen && $mark ? $mark : '');
         }
 
         self::set_unseen_count($mbox_name, $unseen);
