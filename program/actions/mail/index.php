@@ -291,8 +291,12 @@ class rcmail_action_mail_index extends rcmail_action
             $mbox = $rcmail->storage->get_folder();
         }
 
+        // PAMELA - Gérer les INBOX des BALP en plus
+        $data = $rcmail->plugins->exec_hook('mel_is_inbox',
+            ['mbox' => $mbox, 'isInbox' => strtoupper($mbox) == 'INBOX', 'smart' => true]);
+
         if ((strpos($mbox.$delim, $sent_mbox.$delim) === 0 || strpos($mbox.$delim, $drafts_mbox.$delim) === 0)
-            && strtoupper($mbox) != 'INBOX'
+            && !$data['isInbox']
         ) {
             return 'to';
         }
