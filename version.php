@@ -16,3 +16,8 @@ class Version {
    */
   const BUILD = '20220207161052';
 }
+
+// Afficher le numéro de version si demandé
+if (isset($_GET['version'])) {
+  echo "Version : " . Version::VERSION . " | Build : " . Version::BUILD;
+}
