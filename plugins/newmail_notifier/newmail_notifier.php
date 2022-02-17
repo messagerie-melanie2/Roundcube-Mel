@@ -227,6 +227,8 @@ class newmail_notifier extends rcube_plugin
                     'basic'   => $this->opt['basic'],
                     'sound'   => $this->opt['sound'],
                     'desktop' => $this->opt['desktop'],
+                    // PAMELA - Mél title
+                    'title'   => $title,
                 ]
             );
         }
