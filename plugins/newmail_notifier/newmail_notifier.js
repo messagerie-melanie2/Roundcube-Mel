@@ -39,10 +39,6 @@ function newmail_notifier_run(prop)
         }
         else {
             var body = rcmail.get_label('body', 'newmail_notifier');
-
-            if ($('.sharesmailboxesul').length) {
-                body = $('.sharesmailboxesul li.current > a > span.button-inner-m2').text();
-            }
         }
 
         newmail_notifier_desktop(body);
