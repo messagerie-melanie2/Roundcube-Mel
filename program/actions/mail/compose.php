@@ -92,6 +92,8 @@ class rcmail_action_mail_compose extends rcmail_action_mail_index
                     '_action' => 'compose',
                     '_id'     => self::$COMPOSE['id'],
                     '_search' => !empty($_REQUEST['_search']) ? $_REQUEST['_search'] : null,
+                    //PAMELA - 	0006360: ajouter "nouveau message aux mêmes destinataires"
+                    '_option' => rcube_utils::get_input_value('_option', rcube_utils::INPUT_GET)
             ]);
         }
 
@@ -311,6 +313,12 @@ class rcmail_action_mail_compose extends rcmail_action_mail_index
 
         // process self::$MESSAGE body/attachments, set self::$MESSAGE_BODY/$HTML_MODE vars and some session data
         self::$MESSAGE_BODY = self::prepare_message_body();
+
+        //PAMELA - 	0006360: ajouter "nouveau message aux mêmes destinataires"
+        if (self::$COMPOSE['param']['option'] === "empty" && self::$COMPOSE['attachments'] !== null)
+        {
+            unset(self::$COMPOSE['attachments']);
+        }
 
         // register UI objects (Note: some objects are registered by rcmail_sendmail above)
         $rcmail->output->add_handlers([
