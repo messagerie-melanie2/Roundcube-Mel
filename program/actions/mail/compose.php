@@ -315,9 +315,15 @@ class rcmail_action_mail_compose extends rcmail_action_mail_index
         self::$MESSAGE_BODY = self::prepare_message_body();
 
         //PAMELA - 	0006360: ajouter "nouveau message aux mêmes destinataires"
-        if (self::$COMPOSE['param']['option'] === "empty" && self::$COMPOSE['attachments'] !== null)
+        if (self::$COMPOSE['param']['option'] === "empty" )
         {
-            unset(self::$COMPOSE['attachments']);
+            self::$MESSAGE_BODY = '';
+            self::$MESSAGE->headers->subject = '';
+
+            if (self::$COMPOSE['attachments'] !== null)
+            {
+                unset(self::$COMPOSE['attachments']);
+            }
         }
 
         // register UI objects (Note: some objects are registered by rcmail_sendmail above)
