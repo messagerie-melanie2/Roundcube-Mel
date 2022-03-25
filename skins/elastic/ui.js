@@ -2615,7 +2615,10 @@ function rcube_elastic_ui()
             // we have to wait until the previous menu hides before we can open it again
             fn = function() {
                 if (menus[p.name] && menus[p.name].transitioning) {
-                    return setTimeout(fn, 50);
+                    //PAMELLA - Eviter les popups qui ne s'affichent pas
+                    if (fn.number === undefined) fn.number = 0;
+                    if (fn.number++ < 5)
+                        return setTimeout(fn, 50);
                 }
 
                 if (!$(target).data('popup')) {
