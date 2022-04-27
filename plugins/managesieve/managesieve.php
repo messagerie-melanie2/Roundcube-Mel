@@ -185,7 +185,9 @@ class managesieve extends rcube_plugin
 
         // register some labels/messages
         $this->rc->output->add_label('managesieve.newfilter', 'managesieve.usedata',
-            'managesieve.nodata', 'managesieve.nextstep', 'save');
+            'managesieve.nodata', 'managesieve.nextstep', 'save'
+        /* PAMELA PAMELA - MANTIS 3334: Gestion des adresses mail multiple pour les identités */, 'managesieve.Subject', 'managesieve.From', 'managesieve.To'
+        );
 
         $this->rc->session->remove('managesieve_current');
     }

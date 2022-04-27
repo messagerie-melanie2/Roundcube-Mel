@@ -919,6 +919,11 @@ function smart_field_row(value, idx, field)
       $('input', span).val('').focus();
   });
 
+    // PAMELA - add element event
+    $('span[class="add"]', elem).click(function() {
+      $(this.parentNode).parent().append(smart_field_row("", $(this.parentNode).find('input').attr('name').replace('[]', ''), null, $(this.parentNode).find('input').attr('size')));
+    });
+
   return elem;
 }
 
@@ -1181,6 +1186,9 @@ rcube_webmail.prototype.managesieve_create = function(force)
     var url = rcmail.get_task_url('mail');
     url = rcmail.add_url(url, '_action', 'plugin.managesieve');
     url = rcmail.add_url(url, '_framed', 1);
+
+    // PAMELA - Add mbox for sieve connect
+    url = rcmail.add_url(url, '_mbox', rcmail.env.mailbox);
 
     hdrs.map(function() {
       var val = rcmail.env.sieve_headers[this.value];
