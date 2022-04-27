@@ -17,15 +17,20 @@
 		<roundcube:endif />
 		<a class="button icon toolbar-menu-button" href="#list-menu"><span class="inner"><roundcube:label name="menu" /></span></a>
 	</div>
+
+	<div>
+						<!-- PAMELA Ajout d'un conteneur pour le nom de la boite -->
+	<roundcube:container name="mailboxselector" id="folderlistheader-settings" />
+	</div>
+
 	<roundcube:if condition="!env:managesieve_no_set_list" />
 	<div class="pagenav pagenav-list menu" onclick="UI.switch_nav_list(this)">
 		<a class="expand"><span class="inner"></span></a>
 		<span id="filterset-name" class="pagenav-text"></span>
 		<h2 class="voice" id="aria-label-filtersets"><roundcube:label name="managesieve.filtersets" /></h2>
 	</div>
+
 	<div id="filtersetslistbox" class="navlist scroller" aria-labelledby="aria-label-filtersets">
-		<!-- PAMELA Ajout d'un conteneur pour le nom de la boite -->
-<roundcube:container name="folderlistheader-settings" id="folderlistheader-settings" />
 		<roundcube:object name="filtersetslist" id="filtersetslist" class="listing"
 			summary="managesieve.ariasummaryfiltersetslist" type="list" noheader="true" role="listbox" />
 	</div>
