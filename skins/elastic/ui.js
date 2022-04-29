@@ -1657,6 +1657,7 @@ function rcube_elastic_ui()
      */
     function resize()
     {
+        debugger;
         var mobile;
 
         screen_mode();
@@ -1809,7 +1810,7 @@ function rcube_elastic_ui()
         screen_resize_small_all();
 
         //PAMELLA
-        if ($("html").hasClass("touch"))
+        if (touch === true)
             app_menu(false);
         else
             app_menu(true);
@@ -1831,7 +1832,7 @@ function rcube_elastic_ui()
         layout.content.removeClass('hidden');
 
         //PAMELLA
-        if ($("html").hasClass("touch"))
+        if (touch === true)
             app_menu(false);
         else
             app_menu(true);
@@ -1970,7 +1971,7 @@ function rcube_elastic_ui()
     function app_menu(show)
     {
         if (show) {
-            if (mode == 'phone' /* PAMELLA ==> */|| $("html").hasClass("touch")) {
+            if (mode == 'phone' /* PAMELLA ==> */|| touch === true) {
                 $('<div id="menu-overlay" class="popover-overlay">')
                     .on('click', function() { app_menu(false); })
                     .appendTo('body');
