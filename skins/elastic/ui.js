@@ -1657,7 +1657,6 @@ function rcube_elastic_ui()
      */
     function resize()
     {
-        debugger;
         var mobile;
 
         screen_mode();
