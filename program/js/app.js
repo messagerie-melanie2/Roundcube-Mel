@@ -2404,7 +2404,9 @@ function rcube_webmail()
       else if (c == 'threads')
         html = expando;
       else if (c == "fromto")//PAMELA
+      {
         html = tree + cols[c];
+      }
       else if (c == 'subject') {
         html = cols[c];
       }
@@ -2422,7 +2424,8 @@ function rcube_webmail()
       else
         html = cols[c];
 
-      col.innerHTML = html;
+      // PAMELA
+      col.innerHTML = rcmail.triggerEvent('rcmail.addrow.update_html', {html, uid, cols, flags, attop, c}) ?? html;;
       row.cols.push(col);
     }
 

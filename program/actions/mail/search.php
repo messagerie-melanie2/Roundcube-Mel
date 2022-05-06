@@ -169,6 +169,8 @@ class rcmail_action_mail_search extends rcmail_action_mail_index
         $rcmail->output->set_env('messagecount', $count);
         $rcmail->output->set_env('pagecount', ceil($count / $rcmail->storage->get_pagesize()));
         $rcmail->output->set_env('exists', $mbox === null ? 0 : $rcmail->storage->count($mbox, 'EXISTS'));
+        // PAMELA
+        $rcmail->output->set_env('current_search_scope', $scope);
         $rcmail->output->command('set_rowcount', self::get_messagecount_text($count, 1), $mbox);
 
         self::list_pagetitle();
