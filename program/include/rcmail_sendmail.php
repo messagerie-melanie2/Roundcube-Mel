@@ -480,6 +480,11 @@ class rcmail_sendmail
         if (!empty($this->options['savedraft'])) {
             $store_target = $this->rcmail->config->get('drafts_mbox');
         }
+        //PAMELA
+        else if (!empty($this->options['savemodel']))
+        {
+            $store_target = $this->rcmail->config->get('models_mbox');
+        }
         else if (!$this->rcmail->config->get('no_save_sent_messages')) {
             if (isset($_POST['_store_target'])) {
                 $store_target = rcube_utils::get_input_value('_store_target', rcube_utils::INPUT_POST, true);
