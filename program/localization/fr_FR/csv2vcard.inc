@@ -73,7 +73,8 @@ $map['home_country'] = "Région";
 $map['home_zipcode'] = "Code postal";
 $map['mobile_number'] = "Portable";
 $map['nickname'] = "Surnom";
-$map['organization'] = "Société";
+// Export Roundcube - 0005948: Améliorer l'import csv des contacts
+$map['organization'] = "Structure";
 $map['pager_number'] = "Pager";
 $map['primary_email'] = "Adresse électronique principale";
 $map['secondary_email'] = "Adresse électronique secondaire";
@@ -106,7 +107,8 @@ $map['work_street'] = "Rue (travail)";
 // Export Roundcube - 0005948: Améliorer l'import csv des contacts
 $map['full_name'] = "Nom complet"; // equivalent display_name
 $map['name_prefix'] = "Préfixe";
-$map['name_suffix'] = "Suffixe";
+// Export Roundcube - 0005948: Améliorer l'import csv des contacts
+$map['name_suffix'] = "Nom Suffixe";
 $map['home_email'] = "E-mail domicile"; // equivalent email_address
 $map['work_email'] = "E-mail travail"; // equivalent primary_email
 $map['other_email'] = "E-mail autre"; // equivalent secondary_email
@@ -139,7 +141,8 @@ $map['other_phone_2'] = "Autre téléphone"; // equivalent other_phone
 $map['_home_fax'] = "Fax maison"; // equivalent home_fax
 $map['_work_fax'] = "Fax travail"; // equivalent work_fax
 
-$map['structure'] = "Structure";
+// Export Roundcube - 0005948: Améliorer l'import csv des contacts
+$map['structure'] = "Structure de travail";
 $map['function'] = "Fonction";
 $map['manager'] = "Manageur";
 $map['groups'] = "Groupes";

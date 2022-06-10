@@ -389,6 +389,9 @@ class rcmail_action_contacts_import extends rcmail_action_contacts_index
         $fieldlist = new html_select(['name' => '_map[]']);
         $fieldlist->add($rcmail->gettext('fieldnotmapped'), '');
         foreach ($params['fields'] as $id => $name) {
+            /**PAMELA */
+            if (!isset($name)) continue;
+            
             $fieldlist->add($name, $id);
         }
 
