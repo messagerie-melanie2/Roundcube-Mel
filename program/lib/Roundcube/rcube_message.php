@@ -289,6 +289,13 @@ class rcube_message
                 return $body !== false;
             }
 
+            // PAMELA
+            // allow plugins to modify body after formating
+            $plugin = $this->app->plugins->exec_hook('message_part_body_after',
+                ['object' => $this, 'part' => $part, 'body' => $body]);
+
+            if (isset($plugin['body']) && $body !== $plugin['body']) $body = $plugin['body'];
+
             return $body;
         }
 
