@@ -355,9 +355,12 @@ class rcube_plugin_api
                     }
                 }
 
-                list($info['vendor'], $info['name']) = explode('/', $json['name']);
-                $info['version'] = $json['version'];
-                $info['license'] = $json['license'];
+                if (!empty($json['name']) && is_string($json['name']) && strpos($json['name'], '/') !== false) {
+                    list($info['vendor'], $info['name']) = explode('/', $json['name'], 2);
+                }
+
+                $info['version'] = isset($json['version']) ? $json['version'] : null;
+                $info['license'] = isset($json['license']) ? $json['license'] : null;
                 $info['require'] = $require;
 
                 if (!empty($json['homepage'])) {
@@ -381,8 +384,8 @@ class rcube_plugin_api
             ) {
                 $lock            = $composer_lock['installed'][$json['name']];
                 $info['version'] = $lock['version'];
-                $info['uri']     = $lock['homepage'] ?: $lock['source']['uri'];
-                $info['src_uri'] = $lock['dist']['uri'] ?: $lock['source']['uri'];
+                $info['uri']     = !empty($lock['homepage']) ? $lock['homepage'] : $lock['source']['url'];
+                $info['src_uri'] = !empty($lock['dist']['url']) ? $lock['dist']['url'] : $lock['source']['url'];
             }
         }
 

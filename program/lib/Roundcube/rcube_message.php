@@ -385,19 +385,20 @@ class rcube_message
                     continue;
                 }
 
+                // The HTML body part extracted from a winmail.dat attachment part
+                if (strpos($part->mime_id, 'winmail.') === 0) {
+                    return true;
+                }
+
                 $level = explode('.', $part->mime_id);
                 $depth = count($level);
                 $last  = '';
 
                 // Check if the part belongs to higher-level's multipart part
-                // this can be alternative/related/signed/encrypted or mixed
                 while (array_pop($level) !== null) {
                     $parent_depth = count($level);
-                    if (!$parent_depth) {
-                        return true;
-                    }
 
-                    if (empty($this->mime_parts[implode('.', $level)])) {
+                    if (!count($level)) {
                         return true;
                     }
 
@@ -407,17 +408,7 @@ class rcube_message
                         return true;
                     }
 
-                    $max_delta = $depth - (1 + ($last == 'multipart/alternative' ? 1 : 0));
-                    $last      = !empty($parent->real_mimetype) ? $parent->real_mimetype : $parent->mimetype;
-
-                    if (!preg_match('/^multipart\/(alternative|related|signed|encrypted|mixed)$/', $last)
-                        || ($last == 'multipart/mixed' && $parent_depth < $max_delta)
-                    ) {
-                        // The HTML body part extracted from a winmail.dat attachment part
-                        if (strpos($part->mime_id, 'winmail.') === 0) {
-                            return true;
-                        }
-
+                    if ($parent->mimetype == 'message/rfc822') {
                         continue 2;
                     }
                 }
@@ -459,7 +450,7 @@ class rcube_message
 
                 $level = explode('.', $part->mime_id);
 
-                // Check if the part belongs to higher-level's alternative/related
+                // Check if the part does not belong to a message/rfc822 part
                 while (array_pop($level) !== null) {
                     if (!count($level)) {
                         return true;
@@ -471,7 +462,7 @@ class rcube_message
                         return true;
                     }
 
-                    if ($parent->mimetype != 'multipart/alternative' && $parent->mimetype != 'multipart/related') {
+                    if ($parent->mimetype == 'message/rfc822') {
                         continue 2;
                     }
                 }
@@ -617,7 +608,9 @@ class rcube_message
 
             // parse headers from message/rfc822 part
             if (!isset($structure->headers['subject']) && !isset($structure->headers['from'])) {
-                list($headers, $body) = explode("\r\n\r\n", $this->get_part_body($structure->mime_id, false, 32768), 2);
+                $part_body = $this->get_part_body($structure->mime_id, false, 32768);
+
+                list($headers, ) = rcube_utils::explode("\r\n\r\n", $part_body, 2);
                 $structure->headers = rcube_mime::parse_headers($headers);
 
                 if ($this->context === $structure->mime_id) {
@@ -625,8 +618,22 @@ class rcube_message
                 }
 
                 // For small text messages we can optimize, so an additional FETCH is not needed
-                if ($structure->size < 32768 && count($structure->parts) == 1 && $structure->parts[0]->ctype_primary == 'text') {
-                    $structure->parts[0]->body = $body;
+                if ($structure->size < 32768) {
+                    $decoder = new rcube_mime_decode();
+                    $decoded = $decoder->decode($part_body);
+
+                    // Non-multipart message
+                    if (isset($decoded->body) && count($structure->parts) == 1) {
+                        $structure->parts[0]->body = $decoded->body;
+                    }
+                    // Multipart message
+                    else {
+                        foreach ($decoded->parts as $idx => $p) {
+                            if (array_key_exists($idx, $structure->parts)) {
+                                $structure->parts[$idx]->body = $p->body;
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -921,7 +928,7 @@ class rcube_message
                 // part is a file/attachment
                 else if (
                     preg_match('/^(inline|attach)/', $mail_part->disposition)
-                    || $mail_part->headers['content-id']
+                    || !empty($mail_part->headers['content-id'])
                     || ($mail_part->filename &&
                         (empty($mail_part->disposition) || preg_match('/^[a-z0-9!#$&.+^_-]+$/i', $mail_part->disposition)))
                 ) {
@@ -935,7 +942,11 @@ class rcube_message
                     }
 
                     if (!empty($mail_part->headers['content-location'])) {
-                        $mail_part->content_location = $mail_part->headers['content-base'] . $mail_part->headers['content-location'];
+                        $mail_part->content_location = '';
+                        if (!empty($mail_part->headers['content-base'])) {
+                            $mail_part->content_location = $mail_part->headers['content-base'];
+                        }
+                        $mail_part->content_location .= $mail_part->headers['content-location'];
                     }
 
                     // part belongs to a related message and is linked
@@ -996,7 +1007,7 @@ class rcube_message
                         // MS Outlook sends sometimes non-related attachments as related
                         // In this case multipart/related message has only one text part
                         // We'll add all such attachments to the attachments list
-                        if (!isset($this->got_html_part)) {
+                        if ($this->got_html_part === false) {
                             $this->add_part($inline_object, 'attachment');
                         }
                         // MS Outlook sometimes also adds non-image attachments as related
@@ -1103,6 +1114,7 @@ class rcube_message
             $tpart->mime_id         = 'winmail.' . $part->mime_id . '.html';
             $tpart->size            = strlen($tnef_arr['message']);
             $tpart->body            = $tnef_arr['message'];
+            $tpart->charset         = RCUBE_CHARSET;
 
             $parts[] = $tpart;
         }
