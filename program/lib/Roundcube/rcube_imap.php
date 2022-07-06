@@ -2275,8 +2275,28 @@ class rcube_imap extends rcube_storage
                 if (!is_array($part[8][$i])) {
                     break;
                 }
-                $struct->parts[] = $this->structure_part($part[8][$i], ++$count, $struct->mime_id);
+                $subpart_id = $struct->mime_id ? $struct->mime_id . '.' . ($i+1) : $i+1;
+
+                if ($this->is_attachment_part($part[8][$i])) {
+                    $mime_part_headers[] = $subpart_id;
+                }
+
+                $struct->parts[$subpart_id] = $part[8][$i];
             }
+
+            // Fetch attachment parts' headers in one go
+            if (!empty($mime_part_headers)) {
+                $mime_part_headers = $this->conn->fetchMIMEHeaders($this->folder, $this->msg_uid, $mime_part_headers);
+                
+            }
+
+            $count = 0;
+            foreach ($struct->parts as $idx => $subpart) {
+                $struct->parts[$idx] = $this->structure_part($subpart, ++$count, $struct->mime_id,
+                    !empty($mime_part_headers[$idx]) ? $mime_part_headers[$idx] : null);
+            }
+
+            $struct->parts = array_values($struct->parts);
         }
 
         // get part ID
