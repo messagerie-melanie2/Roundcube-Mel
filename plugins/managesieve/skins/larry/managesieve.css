@@ -179,12 +179,12 @@ td.advbutton a span
 
 td.advbutton a.show
 {
-  background: url(images/down_small.gif) center no-repeat;
+  background: url(images/down_small.gif?v=8629.106) center no-repeat;
 }
 
 td.advbutton a.hide
 {
-  background: url(images/up_small.gif) center no-repeat;
+  background: url(images/up_small.gif?v=c56c.106) center no-repeat;
 }
 
 td.rowbuttons
@@ -328,7 +328,7 @@ span.sieve.error
 
 #filter-form a.button.add
 {
-  background: url(images/add.png) no-repeat;
+  background: url(images/add.png?v=a165.280) no-repeat;
   width: 30px;
   height: 20px;
   margin-right: 4px;
@@ -337,7 +337,7 @@ span.sieve.error
 
 #filter-form a.button.del
 {
-  background: url(images/del.png) no-repeat;
+  background: url(images/del.png?v=3c27.247) no-repeat;
   width: 30px;
   height: 20px;
   display: inline-block;
@@ -449,7 +449,7 @@ td.rowtargets > span.listarea
   display: inline-block;
   width: 16px;
   height: 16px;
-  background: url(images/erase.png) -1px -1px no-repeat #eee;
+  background: url(images/erase.png?v=3052.453) -1px -1px no-repeat #eee;
   cursor: pointer;
 }
 
@@ -470,7 +470,7 @@ body.iframe.mail #filter-form
 
 /* vacation form */
 #settings-sections .vacation a {
-  background-image: url(images/vacation_icons.png);
+  background-image: url(images/vacation_icons.png?v=e738.767);
   background-repeat: no-repeat;
   background-position: 7px 1px;
 }

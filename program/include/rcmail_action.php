@@ -728,7 +728,7 @@ abstract class rcmail_action
      */
     public static function font_defs($font = null)
     {
-        $fonts = array(
+        $fonts = [
             'Andale Mono'   => '"Andale Mono",Times,monospace',
             'Arial'         => 'Arial,Helvetica,sans-serif',
             'Arial Black'   => '"Arial Black","Avant Garde",sans-serif',
@@ -746,7 +746,7 @@ abstract class rcmail_action
             'Times New Roman' => '"Times New Roman",Times,serif',
             'Trebuchet MS'  => '"Trebuchet MS",Geneva,sans-serif',
             'Verdana'       => 'Verdana,Geneva,sans-serif',
-        );
+        ];
 
         if ($font) {
             return !empty($fonts[$font]) ? $fonts[$font] : null;

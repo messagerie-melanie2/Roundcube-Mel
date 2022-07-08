@@ -538,7 +538,7 @@ class rcmail_oauth
         $this->no_redirect = true;
         return $options;
     }
-    
+
     /**
      * Callback for 'unauthenticated' hook
      *
@@ -560,7 +560,8 @@ class rcmail_oauth
         return $options;
     }
 
-        /**
+
+    /**
      * Callback for 'refresh' hook
      *
      * @param array $options

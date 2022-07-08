@@ -143,7 +143,7 @@ class rcmail_action_mail_compose extends rcmail_action_mail_index
 
         $compose_mode = null;
         $msg_uid      = null;
-        $options = [];
+        $options      = [];
 
         // get reference message and set compose mode
         if (!empty(self::$COMPOSE['param']['draft_uid'])) {
@@ -316,7 +316,7 @@ class rcmail_action_mail_compose extends rcmail_action_mail_index
         }
 
         $options['message'] = self::$MESSAGE;
-        
+
         // Initialize helper class to build the UI
         self::$SENDMAIL = new rcmail_sendmail(self::$COMPOSE, $options);
 

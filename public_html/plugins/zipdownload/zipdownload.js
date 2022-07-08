@@ -4,7 +4,7 @@
  * @licstart  The following is the entire license notice for the
  * JavaScript code in this file.
  *
- * Copyright (c) 2013-2014, The Roundcube Dev Team
+ * Copyright (c) The Roundcube Dev Team
  *
  * The JavaScript code in this page is free software: you can redistribute it
  * and/or modify it under the terms of the GNU General Public License
@@ -26,8 +26,6 @@ window.rcmail && rcmail.addEventListener('init', function(evt) {
         var selected = list.get_selection().length;
 
         rcmail.enable_command('download', selected > 0);
-        rcmail.enable_command('download-eml', selected == 1);
-        rcmail.enable_command('download-mbox', 'download-maildir', selected > 1);
     });
 
     // hook before default download action
@@ -42,6 +40,8 @@ window.rcmail && rcmail.addEventListener('init', function(evt) {
             span = $('<span>');
             link.html('').append(span);
         }
+
+        link.attr('aria-haspopup', 'true');
 
         span.text(rcmail.get_label('zipdownload.download'));
         rcmail.env.download_link = link;
@@ -60,8 +60,16 @@ function rcmail_zipdownload(mode)
 
     // multi-message download, use hidden form to POST selection
     if (rcmail.message_list && rcmail.message_list.get_selection().length > 1) {
-        var inputs = [], form = $('#zipdownload-form'),
-            post = rcmail.selection_post_data();
+        var inputs = [],
+            post = rcmail.selection_post_data(),
+            id = 'zipdownload-' + new Date().getTime(),
+            iframe = $('<iframe>').attr({name: id, style: 'display:none'}),
+            form = $('<form>').attr({
+                    target: id,
+                    style: 'display: none',
+                    method: 'post',
+                    action: rcmail.url('mail/plugin.zipdownload.messages')
+                });
 
         post._mode = mode;
         post._token = rcmail.env.request_token;
@@ -76,21 +84,19 @@ function rcmail_zipdownload(mode)
             }
         });
 
-        if (!form.length)
-            form = $('<form>').attr({
-                    style: 'display: none',
-                    method: 'POST',
-                    action: '?_task=mail&_action=plugin.zipdownload.messages'
-                })
-                .appendTo('body');
-
-        form.html('').append(inputs).submit();
+        iframe.appendTo(document.body);
+        form.append(inputs).appendTo(document.body).submit();
     }
 }
 
 // display download options menu
 function rcmail_zipdownload_menu(e)
 {
+    // Menu option status
+    var selected = rcmail.message_list.get_selection().length;
+    rcmail.enable_command('download-eml', selected == 1);
+    rcmail.enable_command('download-mbox', 'download-maildir', selected > 1);
+
     // show (sub)menu for download selection
     rcmail.command('menu-open', 'zipdownload-menu', e && e.target ? e.target : rcmail.env.download_link, e);
 

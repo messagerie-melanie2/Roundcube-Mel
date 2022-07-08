@@ -4,7 +4,7 @@
  * SASL Password Driver
  *
  * Driver that adds functionality to change the users Cyrus/SASL password.
- * The code is derrived from the Squirrelmail "Change SASL Password" Plugin
+ * The code is derived from the Squirrelmail "Change SASL Password" Plugin
  * by Galen Johnson.
  *
  * It only works with saslpasswd2 on the same host where Roundcube runs
@@ -15,7 +15,7 @@
  * @version 2.0
  * @author Thomas Bruederli
  *
- * Copyright (C) 2005-2013, The Roundcube Dev Team
+ * Copyright (C) The Roundcube Dev Team
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -33,27 +33,28 @@
 
 class rcube_sasl_password
 {
-    function save($currpass, $newpass)
+    function save($currpass, $newpass, $username)
     {
         $curdir   = RCUBE_PLUGINS_DIR . 'password/helpers';
-        $username = escapeshellarg($_SESSION['username']);
+        $username = escapeshellarg($username);
         $args     = rcmail::get_instance()->config->get('password_saslpasswd_args', '');
 
         if ($fh = popen("$curdir/chgsaslpasswd -p $args $username", 'w')) {
             fwrite($fh, $newpass."\n");
             $code = pclose($fh);
 
-            if ($code == 0)
+            if ($code == 0) {
                 return PASSWORD_SUCCESS;
+            }
         }
-        else {
-            rcube::raise_error(array(
+
+        rcube::raise_error([
                 'code' => 600,
-                'type' => 'php',
-                'file' => __FILE__, 'line' => __LINE__,
+                'file' => __FILE__,
+                'line' => __LINE__,
                 'message' => "Password plugin: Unable to execute $curdir/chgsaslpasswd"
-                ), true, false);
-        }
+            ], true, false
+        );
 
         return PASSWORD_ERROR;
     }

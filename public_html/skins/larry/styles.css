@@ -1,7 +1,7 @@
 /**
  * Roundcube webmail styles for skin "Larry"
  *
- * Copyright (c) 2012-2017, The Roundcube Dev Team
+ * Copyright (c) The Roundcube Dev Team
  * Screendesign by FLINT / Büro für Gestaltung, bueroflint.com
  *
  * The contents are subject to the Creative Commons Attribution-ShareAlike
@@ -61,6 +61,7 @@ button {
 }
 
 input[type="text"],
+input[type="email"],
 input[type="password"],
 textarea {
 	margin: 0; /* Safari by default adds a margin */
@@ -70,7 +71,9 @@ textarea {
 }
 
 input[type="text"]:focus,
+input[type="email"]:focus,
 input[type="password"]:focus,
+button:focus,
 input.button:focus,
 textarea:focus {
 	border-color: #4787b1;
@@ -79,6 +82,7 @@ textarea:focus {
 }
 
 input[type="text"]:required,
+input[type="email"]:required,
 input[type="password"]:required {
 	border-color: #4787b1;
 }
@@ -105,8 +109,13 @@ label input + span {
 	-webkit-user-select: none;
 }
 
+li > .input-group {
+	display: inline;
+}
+
 /*** buttons ***/
 
+button,
 input.button {
 	display: inline-block;
 	margin: 0 2px;
@@ -119,7 +128,9 @@ input.button {
 	outline: none;
 }
 
-.formbuttons input.button {
+.formbuttons button,
+.formbuttons input.button,
+.oauthlogin .button {
 	color: #ddd;
 	font-size: 110%;
 	padding: 4px 12px;
@@ -129,6 +140,8 @@ input.button {
 	box-shadow: 0 1px 1px 0 #ccc;
 }
 
+.formbuttons button:hover,
+.formbuttons button:focus,
 .formbuttons input.button:hover,
 .formbuttons input.button:focus,
 input.button.mainaction:hover,
@@ -138,17 +151,20 @@ input.button.mainaction:focus {
 	box-shadow: 0 0 5px 2px rgba(71,135,177, 0.6);
 }
 
+.formbuttons button:active,
 .formbuttons input.button:active {
 	color: #fff;
 	background: #5f5f5f;
 }
 
+button.mainaction,
 input.button.mainaction {
 	color: #ededed;
 	border-color: #1f262c;
 	background: #2c2f33;
 }
 
+button.mainaction:active,
 input.button.mainaction:active {
 	color: #fff;
 	background: #515151;
@@ -158,14 +174,21 @@ input.button.mainaction:active {
 	background: linear-gradient(to bottom, #2a2e31 0%, #505050 100%);
 }
 
+button[disabled],
+button[disabled]:hover,
 input.button[disabled],
 input.button[disabled]:hover,
 input.button.mainaction[disabled] {
 	color: #aaa !important;
 }
 
+button.mainaction,
 input.mainaction {
-	font-weight: bold;
+	font-weight: bold !important;
+}
+
+button:not(:disabled) {
+	cursor: pointer;
 }
 
 form.smart-upload,
@@ -195,6 +218,7 @@ a.button,
 	white-space: nowrap;
 }
 
+button:focus,
 a.button:focus,
 input.button:focus {
 	border-color: #017db6;
@@ -203,6 +227,7 @@ input.button:focus {
 }
 
 label.disabled,
+button.disabled,
 a.button.disabled {
 	color: #999;
 }
@@ -210,14 +235,14 @@ a.button.disabled {
 a.button.disabled,
 input.button.disabled,
 input.button[disabled],
+button.disabled,
+button[disabled],
+button.disabled:hover,
+button[disabled]:hover,
 a.button.disabled:hover,
 input.button.disabled:hover,
 input.button[disabled]:hover {
 	border-color: #c6c6c6;
-}
-
-a.button.disabled span.inner {
-	opacity: 0.4;
 }
 
 .buttongroup a.button {
@@ -241,6 +266,7 @@ a.button.disabled span.inner {
 
 a.button.pressed,
 a.button:active,
+button:active,
 input.button:active {
 	background: #f7f7f7;
 }
@@ -292,7 +318,7 @@ a.button span.icon,
 	height: 13px;
 	text-indent: 1000px;
 	overflow: hidden;
-	background: url(images/buttons.png?v=d70c.9130) -6px -211px no-repeat;
+	background: url(images/buttons.png?v=2e08.13608) -6px -211px no-repeat;
 }
 
 a.button.prevpage span.icon,
@@ -389,7 +415,7 @@ a.iconbutton {
 	height: 18px;
 	text-decoration: none;
 	text-indent: -5000px;
-	background: url(images/buttons.png?v=d70c.9130) -1000px 0 no-repeat;
+	background: url(images/buttons.png?v=2e08.13608) -1000px 0 no-repeat;
 }
 
 a.iconbutton.disabled {
@@ -448,7 +474,7 @@ a.iconlink {
 	text-decoration: none;
 	white-space: nowrap;
 	padding: 2px 8px 2px 20px;
-	background: url(images/buttons.png?v=d70c.9130) -1000px 0 no-repeat;
+	background: url(images/buttons.png?v=2e08.13608) -1000px 0 no-repeat;
 }
 
 a.iconlink:hover {
@@ -738,7 +764,7 @@ a.iconlink.upload {
 #topline a.button-logout {
 	display: inline-block;
 	padding: 2px 10px 2px 20px;
-	background: url(images/buttons.png?v=d70c.9130) -6px -193px no-repeat;
+	background: url(images/buttons.png?v=2e08.13608) -6px -193px no-repeat;
 	color: #fff;
 }
 
@@ -878,7 +904,7 @@ a.iconlink.upload {
 	font-weight: normal;
 	padding: 5px 0 0 34px;
 	height: 19px;
-	background: url(images/buttons.png?v=d70c.9130) -1000px 0 no-repeat;
+	background: url(images/buttons.png?v=2e08.13608) -1000px 0 no-repeat;
 }
 
 #taskbar a:focus {
@@ -936,7 +962,7 @@ a.iconlink.upload {
 	width: 19px;
 	height: 46px;
 	cursor: pointer;
-	background: url(images/buttons.png?v=d70c.9130) -35px -1778px no-repeat;
+	background: url(images/buttons.png?v=2e08.13608) -35px -1778px no-repeat;
 }
 
 .minimal #taskbar .minmodetoggle {
@@ -1062,7 +1088,6 @@ a.iconlink.upload {
 .uibox .listing thead td {
 	background: #b0ccd7;
 	color: #004458;
-	border-radius: 4px 4px 0 0;
 }
 
 .listbox .listitem,
@@ -1231,7 +1256,7 @@ ul.treelist li div.treetoggle {
 	left: 4px;
 	width: 13px;
 	height: 13px;
-	background: url(images/listicons.png?v=c458.10409) -3px -144px no-repeat;
+	background: url(images/listicons.png?v=ce39.10766) -3px -144px no-repeat;
 	cursor: pointer;
 }
 
@@ -1305,7 +1330,7 @@ ul.treelist li.selected > div.expanded {
 	width: 48px;
 	height: 35px;
 	text-indent: -5000px;
-	background-image: url(images/buttons.png?v=d70c.9130);
+	background-image: url(images/buttons.png?v=2e08.13608);
 	background-position: -1000px 0;
 	background-repeat: no-repeat;
 }
@@ -1370,7 +1395,7 @@ ul.treelist li.selected > div.expanded {
 	text-indent: 1000px;
 	vertical-align: bottom;
 	overflow: hidden;
-	background: url(images/buttons.png?v=d70c.9130) -4px -286px no-repeat;
+	background: url(images/buttons.png?v=2e08.13608) -4px -286px no-repeat;
 }
 
 .boxpagenav a.icon.prevpage {
@@ -1577,6 +1602,15 @@ body.iframe .footerleft.floating:before,
 	padding: 6px 12px 6px 30px;
 }
 
+.boxcontent .boxinformation {
+	margin: 0 0 10px;
+	display: block;
+	color: #444;
+	border: 1px solid #888;
+	background: url(images/messages.png?v=72e9.1264) #ddd 5px 4px no-repeat;
+	padding: 6px 12px 6px 30px;
+}
+
 .contentbox .scroller {
 	position: absolute;
 	top: 34px;
@@ -1664,11 +1698,6 @@ table.propform td.title {
 	white-space: nowrap;
 }
 
-table.propform .mceLayout td {
-	padding: 0;
-	border-bottom: 0;
-}
-
 ul.proplist {
 	list-style: none;
 	margin: 0;
@@ -1679,6 +1708,11 @@ ul.proplist li {
 	width: auto;
 }
 
+ul.proplist.simplelist li {
+	border: 0;
+	background: transparent;
+}
+
 #pluginbody {
 	position: absolute;
 	top: 0;
@@ -1687,6 +1721,15 @@ ul.proplist li {
 	bottom: 0;
 }
 
+.formcontent input,
+.formcontent textarea {
+	width: 95%;
+}
+
+.formcontent .hint {
+	font-style: italic;
+	margin-bottom: 1em;
+}
 
 /*** Login form ***/
 
@@ -1726,18 +1769,19 @@ ul.proplist li {
 }
 
 #login-form input[type="text"],
+#login-form input[type="email"],
 #login-form input[type="password"] {
 	width: 100%;
 	border-color: #666;
 }
 
-#login-form input.button {
+#login-form .button {
 	color: #444;
 	border-color: #f9f9f9;
 	background-color: #f9f9f9;
 }
 
-#login-form input.button:active {
+#login-form .button:active {
 	color: #333;
 	background-color: #dcdcdc;
 }
@@ -1758,6 +1802,41 @@ ul.proplist li {
 	margin-top: 2em;
 	text-align: center;
 }
+
+#login-form p.oauthlogin {
+	margin-top: 1.5em;
+	padding-top: 1.5em;
+	text-align: center;
+}
+
+#login-form p.formbuttons + p.oauthlogin {
+	border-top: 1px solid #666;
+}
+
+#login-form p.oauthlogin .button.oauth.google,
+#login-form p.oauthlogin .button.oauth.outlook {
+	line-height: 1.5;
+}
+
+#login-form p.oauthlogin .button.oauth.google:before,
+#login-form p.oauthlogin .button.oauth.outlook:before {
+	content: " ";
+	display: inline-block !important;
+	height: 1.6em;
+	width: 1.4em;
+	margin-right: .5em !important;
+	background-size: 100% auto;
+	vertical-align: middle;
+}
+
+#login-form p.oauthlogin .button.oauth.google:before {
+	background: url('./images/google-icon.svg') top left no-repeat;
+}
+
+#login-form p.oauthlogin .button.oauth.outlook:before {
+	background: url('./images/microsoft-icon.svg') top left no-repeat;
+}
+
 
 #login-form #logo {
 	margin-bottom: 20px;
@@ -1859,7 +1938,7 @@ ul.proplist li {
 	text-overflow: ellipsis;
 	white-space: nowrap;
 	padding: 28px 2px 0 2px;
-	background: url(images/buttons.png?v=d70c.9130) -100px 0 no-repeat transparent;
+	background: url(images/buttons.png?v=2e08.13608) -100px 0 no-repeat transparent;
 	border: 0;
 	border-radius: 0;
 }
@@ -1901,7 +1980,7 @@ ul.proplist li {
 	width: 18px;
 	overflow: hidden;
 	text-indent: -5000px;
-	background: url(images/buttons.png?v=d70c.9130) 0 -1255px no-repeat;
+	background: url(images/buttons.png?v=2e08.13608) 0 -1255px no-repeat;
 	cursor: pointer;
 	outline: none;
 }
@@ -2032,11 +2111,24 @@ ul.proplist li {
 }
 
 .toolbar a.button.encrypt {
+	min-width: 66px;
 	background-position: center -2025px;
 }
 
 .toolbar a.button.encrypt.selected {
 	background-position: center -2065px;
+}
+
+.toolbar a.button.rotate {
+	background-position: center -2148px;
+}
+
+.toolbar a.button.zoomin {
+	background-position: center -2190px;
+}
+
+.toolbar a.button.zoomout {
+	background-position: center -2230px;
 }
 
 a.menuselector {
@@ -2272,7 +2364,7 @@ ul.toolbarmenu li span.icon,
 	min-height: 14px;
 	padding: 4px 4px 1px 24px;
 	height: 17px;
-	background-image: url(images/listicons.png?v=c458.10409);
+	background-image: url(images/listicons.png?v=ce39.10766);
 	background-position: -100px 0;
 	background-repeat: no-repeat;
 	opacity: 0.2;
@@ -2382,6 +2474,8 @@ ul.toolbarmenu li span.copy {
 	border: 0;
 	cursor: default;
 	position: relative;
+	overflow: hidden;
+	text-overflow: ellipsis;
 }
 
 #rcmKSearchpane ul li i.icon {
@@ -2411,6 +2505,17 @@ ul.toolbarmenu li span.copy {
 .ui-dialog .prompt input {
 	display: block;
 	margin: 8px 0;
+}
+
+.ui-dialog iframe {
+	width: 100%;
+	height: 100%;
+	border: 0;
+}
+
+.ui-dialog-content.iframe {
+	padding: 0 !important;
+	overflow: hidden !important;
 }
 
 .hint {
@@ -2478,7 +2583,7 @@ ul.toolbarmenu li span.copy {
 	content: " ";
 	width: 16px;
 	height: 16px;
-	background: url(images/buttons.png?v=d70c.9130) -7px -358px no-repeat;
+	background: url(images/buttons.png?v=2e08.13608) -7px -358px no-repeat;
 	z-index: 255;
 }
 
@@ -2493,7 +2598,7 @@ ul.toolbarmenu li span.copy {
 }
 
 #folder-selector li a span {
-	background: url(images/listicons.png?v=c458.10409) 4px -2021px no-repeat;
+	background: url(images/listicons.png?v=ce39.10766) 4px -2021px no-repeat;
 	display: block;
 	height: 17px;
 	min-height: 14px;
@@ -2503,23 +2608,23 @@ ul.toolbarmenu li span.copy {
 	text-overflow: ellipsis;
 }
 
-#folder-selector li a.virtual {
+#folder-selector li a.virtual span {
 	opacity: .2;
 }
 
-#folder-selector li a.inbox span {
+#folder-selector li.inbox span {
 	background-position: 4px -2049px;
 }
-#folder-selector li a.drafts span {
+#folder-selector li.drafts span {
 	background-position: 4px -1388px;
 }
-#folder-selector li a.sent span {
+#folder-selector li.sent span {
 	background-position: 4px -2074px;
 }
-#folder-selector li a.trash span {
+#folder-selector li.trash span {
 	background-position: 4px -1508px;
 }
-#folder-selector li a.junk span {
+#folder-selector li.junk span {
 	background-position: 4px -2100px;
 }
 
@@ -2530,7 +2635,7 @@ ul.toolbarmenu li span.copy {
 	white-space: nowrap;
 	overflow: hidden;
 	text-overflow: ellipsis;
-	background-image: url(images/listicons.png?v=c458.10409);
+	background-image: url(images/listicons.png?v=ce39.10766);
 	background-repeat: no-repeat;
 	background-position: 6px 3px;
 }
@@ -2882,7 +2987,7 @@ ul.toolbarmenu li span.copy {
 }
 
 .attachmentslist li a.drop {
-	background: url(images/buttons.png?v=d70c.9130) no-repeat scroll center -1570px;
+	background: url(images/buttons.png?v=2e08.13608) no-repeat scroll center -1570px;
 	width: 14px;
 	height: 20px;
 	cursor: pointer;
@@ -2928,7 +3033,7 @@ ul.toolbarmenu li span.copy {
 	padding: 0;
 	text-decoration: none;
 	text-indent: -5000px;
-	background-image: url(images/buttons.png?v=d70c.9130);
+	background-image: url(images/buttons.png?v=2e08.13608);
 	background-position: -6px -338px;
 	background-repeat: no-repeat;
 }
@@ -2936,6 +3041,20 @@ ul.toolbarmenu li span.copy {
 .attachmentslist li a.cancelupload {
 	background-position: -6px -378px;
 }
+
+.attachmentslist li a.filename {
+	display: flex;
+	overflow: hidden;
+}
+.attachmentslist li .attachment-name {
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.attachmentslist li .attachment-size {
+	padding: 0 .25em;
+}
+
 
 /*** fieldset tabs ***/
 
@@ -2986,33 +3105,45 @@ ul.toolbarmenu li span.copy {
 	padding: 0.5em 1em;
 }
 
-#image-selector-form.droptarget {
+/** Common TinyMCE fixes **/
+
+#image-selector.droptarget {
 	background: url(images/filedrop.png?v=be5d.415) center bottom no-repeat;
 }
 
-/** Common TinyMCE fixes **/
-.mce-btn-small .mce-ico {
-	display: inline; /* for old Firefox */
+div.tox .tox-toolbar,
+div.tox .tox-toolbar__overflow,
+div.tox .tox-toolbar__primary {
+	background-color: #f0f0f0;
 }
 
-.mce-btn-small i {
-	line-height: 16px !important;
-	vertical-align: text-top !important;
+div.tox .tox-toolbar__primary {
+	border: 0;
 }
 
-_:not(), _:-moz-handler-blocked, .mozilla .mce-btn-small i {
-	line-height: 20px !important;
+div.tox div.tox-dialog-wrap__backdrop {
+	background: #aaa;
+	opacity: .3;
 }
 
-.mce-textbox {
-	border-radius: 0;
+div.tox div.tox-dialog {
+	box-shadow: 1px 1px 18px #666;
+	border-width: 0;
+}
+
+
+.mce-menu {
+	z-index: 65537 !important;
+}
+
+.mce-tinymce.mce-container {
 	box-shadow: none;
 }
 
-.mce-textbox:focus {
-	box-shadow: none;
-	outline: none;
+.mce-toolbar.mce-container {
+	background: #f0f0f0;
 }
+
 
 /** PGP Key import dialog **/
 .pgpkeyimport div.key {
@@ -3057,13 +3188,13 @@ _:not(), _:-moz-handler-blocked, .mozilla .mce-btn-small i {
 	padding: 0.3em;
 }
 
-.pgpkeyimport div.key input.button.importkey {
+.pgpkeyimport div.key button.importkey {
 	position: absolute;
 	top: 0.8em;
 	right: 0.8em;
 	padding: 4px 6px;
 }
 
-.pgpkeyimport div.key input.button[disabled] {
+.pgpkeyimport div.key button[disabled] {
 	display: none;
 }

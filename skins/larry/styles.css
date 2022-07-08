@@ -318,7 +318,7 @@ a.button span.icon,
 	height: 13px;
 	text-indent: 1000px;
 	overflow: hidden;
-	background: url(images/buttons.png) -6px -211px no-repeat;
+	background: url(images/buttons.png?v=2e08.13608) -6px -211px no-repeat;
 }
 
 a.button.prevpage span.icon,
@@ -415,7 +415,7 @@ a.iconbutton {
 	height: 18px;
 	text-decoration: none;
 	text-indent: -5000px;
-	background: url(images/buttons.png) -1000px 0 no-repeat;
+	background: url(images/buttons.png?v=2e08.13608) -1000px 0 no-repeat;
 }
 
 a.iconbutton.disabled {
@@ -474,7 +474,7 @@ a.iconlink {
 	text-decoration: none;
 	white-space: nowrap;
 	padding: 2px 8px 2px 20px;
-	background: url(images/buttons.png) -1000px 0 no-repeat;
+	background: url(images/buttons.png?v=2e08.13608) -1000px 0 no-repeat;
 }
 
 a.iconlink:hover {
@@ -520,7 +520,7 @@ a.iconlink.upload {
 	padding: 6px 30px 6px 25px;
 	display: inline-block;
 	white-space: nowrap;
-	background: url(images/messages.png) 0 5px no-repeat;
+	background: url(images/messages.png?v=72e9.1264) 0 5px no-repeat;
 	cursor: default;
 }
 
@@ -540,7 +540,7 @@ a.iconlink.upload {
 }
 
 #message div.loading {
-	background: url(images/ajaxloader.gif) 2px 6px no-repeat;
+	background: url(images/ajaxloader.gif?v=c252.1434) 2px 6px no-repeat;
 }
 
 #message div a,
@@ -617,7 +617,7 @@ a.iconlink.upload {
 	left: 4px;
 	width: 20px;
 	height: 24px;
-	background: url(images/messages_dark.png) 0 7px no-repeat;
+	background: url(images/messages_dark.png?v=8e53.601) 0 7px no-repeat;
 }
 
 #messagestack div.error {
@@ -653,7 +653,7 @@ a.iconlink.upload {
 #messagestack div.loading:after {
 	top: 4px;
 	left: 6px;
-	background: url(images/ajaxloader_dark.gif) 0 4px no-repeat;
+	background: url(images/ajaxloader_dark.gif?v=cf1b.1849) 0 4px no-repeat;
 }
 
 #messagestack div.voice {
@@ -674,7 +674,7 @@ a.iconlink.upload {
 .ui-dialog.warning .ui-dialog-title,
 .ui-dialog.confirmation .ui-dialog-title {
 	padding-left: 25px;
-	background: url(images/messages.png) 0 5px no-repeat;
+	background: url(images/messages.png?v=72e9.1264) 0 5px no-repeat;
 }
 
 .ui-dialog.warning .ui-dialog-title {
@@ -764,7 +764,7 @@ a.iconlink.upload {
 #topline a.button-logout {
 	display: inline-block;
 	padding: 2px 10px 2px 20px;
-	background: url(images/buttons.png) -6px -193px no-repeat;
+	background: url(images/buttons.png?v=2e08.13608) -6px -193px no-repeat;
 	color: #fff;
 }
 
@@ -904,7 +904,7 @@ a.iconlink.upload {
 	font-weight: normal;
 	padding: 5px 0 0 34px;
 	height: 19px;
-	background: url(images/buttons.png) -1000px 0 no-repeat;
+	background: url(images/buttons.png?v=2e08.13608) -1000px 0 no-repeat;
 }
 
 #taskbar a:focus {
@@ -962,7 +962,7 @@ a.iconlink.upload {
 	width: 19px;
 	height: 46px;
 	cursor: pointer;
-	background: url(images/buttons.png) -35px -1778px no-repeat;
+	background: url(images/buttons.png?v=2e08.13608) -35px -1778px no-repeat;
 }
 
 .minimal #taskbar .minmodetoggle {
@@ -1026,7 +1026,7 @@ a.iconlink.upload {
 }
 
 .watermark {
-	background-image: url(images/watermark.jpg);
+	background-image: url(images/watermark.jpg?v=e784.5000);
 	background-position: center;
 	background-repeat: no-repeat;
 }
@@ -1256,7 +1256,7 @@ ul.treelist li div.treetoggle {
 	left: 4px;
 	width: 13px;
 	height: 13px;
-	background: url(images/listicons.png) -3px -144px no-repeat;
+	background: url(images/listicons.png?v=ce39.10766) -3px -144px no-repeat;
 	cursor: pointer;
 }
 
@@ -1330,7 +1330,7 @@ ul.treelist li.selected > div.expanded {
 	width: 48px;
 	height: 35px;
 	text-indent: -5000px;
-	background-image: url(images/buttons.png);
+	background-image: url(images/buttons.png?v=2e08.13608);
 	background-position: -1000px 0;
 	background-repeat: no-repeat;
 }
@@ -1395,7 +1395,7 @@ ul.treelist li.selected > div.expanded {
 	text-indent: 1000px;
 	vertical-align: bottom;
 	overflow: hidden;
-	background: url(images/buttons.png) -4px -286px no-repeat;
+	background: url(images/buttons.png?v=2e08.13608) -4px -286px no-repeat;
 }
 
 .boxpagenav a.icon.prevpage {
@@ -1586,7 +1586,7 @@ body.iframe .footerleft.floating:before,
 	left: 0;
 	width: 100%;
 	height: 6px;
-	background: url(images/overflowshadow.png) top center no-repeat;
+	background: url(images/overflowshadow.png?v=ac21.201) top center no-repeat;
 }
 
 .boxcontent {
@@ -1598,7 +1598,7 @@ body.iframe .footerleft.floating:before,
 	display: block;
 	color: #960;
 	border: 1px solid #ffdf0e;
-	background: url(images/messages.png) #fef893 5px -85px no-repeat;
+	background: url(images/messages.png?v=72e9.1264) #fef893 5px -85px no-repeat;
 	padding: 6px 12px 6px 30px;
 }
 
@@ -1607,7 +1607,7 @@ body.iframe .footerleft.floating:before,
 	display: block;
 	color: #444;
 	border: 1px solid #888;
-	background: url(images/messages.png) #ddd 5px 4px no-repeat;
+	background: url(images/messages.png?v=72e9.1264) #ddd 5px 4px no-repeat;
 	padding: 6px 12px 6px 30px;
 }
 
@@ -1938,7 +1938,7 @@ ul.proplist.simplelist li {
 	text-overflow: ellipsis;
 	white-space: nowrap;
 	padding: 28px 2px 0 2px;
-	background: url(images/buttons.png) -100px 0 no-repeat transparent;
+	background: url(images/buttons.png?v=2e08.13608) -100px 0 no-repeat transparent;
 	border: 0;
 	border-radius: 0;
 }
@@ -1980,7 +1980,7 @@ ul.proplist.simplelist li {
 	width: 18px;
 	overflow: hidden;
 	text-indent: -5000px;
-	background: url(images/buttons.png) 0 -1255px no-repeat;
+	background: url(images/buttons.png?v=2e08.13608) 0 -1255px no-repeat;
 	cursor: pointer;
 	outline: none;
 }
@@ -2147,7 +2147,7 @@ a.menuselector .handle {
 	padding: 0 32px 0 6px;
 	height: 20px;
 	line-height: 19px;
-	background: url(images/selector.png) right center no-repeat;
+	background: url(images/selector.png?v=0d5b.118) right center no-repeat;
 	border-radius: 4px;
 }
 
@@ -2205,7 +2205,7 @@ a.iconbutton:focus,
 	font-size: 12px;
 	font-weight: bold;
 	padding-left: 30px;
-	background: url(images/quota.png) -100px 0 no-repeat;
+	background: url(images/quota.png?v=aaa4.1389) -100px 0 no-repeat;
 }
 
 #quotadisplay.p90,
@@ -2333,7 +2333,7 @@ ul.toolbarmenu.selectable li a {
 }
 
 ul.toolbarmenu.selectable li a.selected {
-	background: url(images/messages.png) 4px -27px no-repeat;
+	background: url(images/messages.png?v=72e9.1264) 4px -27px no-repeat;
 }
 
 ul.toolbarmenu li label {
@@ -2364,7 +2364,7 @@ ul.toolbarmenu li span.icon,
 	min-height: 14px;
 	padding: 4px 4px 1px 24px;
 	height: 17px;
-	background-image: url(images/listicons.png);
+	background-image: url(images/listicons.png?v=ce39.10766);
 	background-position: -100px 0;
 	background-repeat: no-repeat;
 	opacity: 0.2;
@@ -2528,7 +2528,7 @@ ul.toolbarmenu li span.copy {
 	-moz-user-select: none;
 	-khtml-user-select: none;
 	position: absolute;
-	background: url(images/splitter.png) center no-repeat;
+	background: url(images/splitter.png?v=6d32.134) center no-repeat;
 }
 
 .splitter-h {
@@ -2583,7 +2583,7 @@ ul.toolbarmenu li span.copy {
 	content: " ";
 	width: 16px;
 	height: 16px;
-	background: url(images/buttons.png) -7px -358px no-repeat;
+	background: url(images/buttons.png?v=2e08.13608) -7px -358px no-repeat;
 	z-index: 255;
 }
 
@@ -2598,7 +2598,7 @@ ul.toolbarmenu li span.copy {
 }
 
 #folder-selector li a span {
-	background: url("images/listicons.png") 4px -2021px no-repeat;
+	background: url(images/listicons.png?v=ce39.10766) 4px -2021px no-repeat;
 	display: block;
 	height: 17px;
 	min-height: 14px;
@@ -2635,7 +2635,7 @@ ul.toolbarmenu li span.copy {
 	white-space: nowrap;
 	overflow: hidden;
 	text-overflow: ellipsis;
-	background-image: url(images/listicons.png);
+	background-image: url(images/listicons.png?v=ce39.10766);
 	background-repeat: no-repeat;
 	background-position: 6px 3px;
 }
@@ -2859,7 +2859,7 @@ ul.toolbarmenu li span.copy {
 .attachmentslist li {
 	display: block;
 	position: relative;
-	background: url(images/filetypes.png) 0 0 no-repeat;
+	background: url(images/filetypes.png?v=a0f5.4718) 0 0 no-repeat;
 	margin-bottom: 1px;
 	line-height: 24px;
 }
@@ -2987,7 +2987,7 @@ ul.toolbarmenu li span.copy {
 }
 
 .attachmentslist li a.drop {
-	background: url(images/buttons.png) no-repeat scroll center -1570px;
+	background: url(images/buttons.png?v=2e08.13608) no-repeat scroll center -1570px;
 	width: 14px;
 	height: 20px;
 	cursor: pointer;
@@ -3019,7 +3019,7 @@ ul.toolbarmenu li span.copy {
 }
 
 .attachmentslist li.uploading {
-	background: url(images/ajaxloader.gif) 4px 4px no-repeat;
+	background: url(images/ajaxloader.gif?v=c252.1434) 4px 4px no-repeat;
 	padding-left: 30px;
 }
 
@@ -3033,7 +3033,7 @@ ul.toolbarmenu li span.copy {
 	padding: 0;
 	text-decoration: none;
 	text-indent: -5000px;
-	background-image: url(images/buttons.png);
+	background-image: url(images/buttons.png?v=2e08.13608);
 	background-position: -6px -338px;
 	background-repeat: no-repeat;
 }
@@ -3108,7 +3108,7 @@ ul.toolbarmenu li span.copy {
 /** Common TinyMCE fixes **/
 
 #image-selector.droptarget {
-	background: url(images/filedrop.png) center bottom no-repeat;
+	background: url(images/filedrop.png?v=be5d.415) center bottom no-repeat;
 }
 
 div.tox .tox-toolbar,

@@ -293,7 +293,7 @@ table.messagelist.fixedcopy {
 .messagelist thead tr th.sortedDESC a {
 	color: #004458;
 	text-decoration: underline;
-	background-image: url(images/listicons.png);
+	background-image: url(images/listicons.png?v=ce39.10766);
 	background-repeat: no-repeat;
 	background-position: right -912px;
 }
@@ -361,7 +361,7 @@ table.messagelist.fixedcopy {
 	height: 18px;
 	width: 20px;
 	padding: 0;
-	background: url(images/listicons.png) -100px 0 no-repeat;
+	background: url(images/listicons.png?v=ce39.10766) -100px 0 no-repeat;
 }
 
 .messagelist tbody tr .attachment span.attachment {
@@ -678,7 +678,7 @@ h3.subject {
 	left: 0;
 	width: 18px;
 	height: 16px;
-	background: url(images/buttons.png) -27px -242px no-repeat;
+	background: url(images/buttons.png?v=2e08.13608) -27px -242px no-repeat;
 }
 
 .moreheaderstoggle.remove .iconlink {
@@ -698,7 +698,7 @@ div.more-headers {
 	width: 12px;
 	height: 10px;
 	cursor: pointer;
-	background: url(images/buttons.png) center -1579px no-repeat;
+	background: url(images/buttons.png?v=2e08.13608) center -1579px no-repeat;
 }
 
 div.hide-headers {
@@ -751,7 +751,7 @@ div.hide-headers {
 	width: 32px;
 	height: 32px;
 	overflow: hidden;
-	background: url(images/contactpic_32px.png) center center no-repeat #fff;
+	background: url(images/contactpic_32px.png?v=ee80.246) center center no-repeat #fff;
 	border-radius: 3px;
 }
 
@@ -775,7 +775,7 @@ div.hide-headers {
 	overflow: hidden;
 	border-radius: 4px;
 	border: 1px solid #e6e6e6;
-	background: url(images/contactpic_48px.png) center center no-repeat #fff;
+	background: url(images/contactpic_48px.png?v=1bc4.353) center center no-repeat #fff;
 }
 
 #messageheader #contactphoto img {
@@ -1016,7 +1016,7 @@ div.message-partheaders .headers-table td.header {
 
 body.status-flagged .flag-icon {
 	display: inline-block;
-	background: url(images/listicons.png) 0 -1038px no-repeat;
+	background: url(images/listicons.png?v=ce39.10766) 0 -1038px no-repeat;
 	width: 20px;
 	height: 16px;
 	vertical-align: text-top;
@@ -1082,7 +1082,7 @@ body.status-flagged .flag-icon {
 
 #compose-contacts li a,
 #contacts-table td {
-	background-image: url(images/listicons.png);
+	background-image: url(images/listicons.png?v=ce39.10766);
 	background-position: -100px 0;
 	background-repeat: no-repeat;
 	overflow: hidden;
@@ -1306,7 +1306,7 @@ body.status-flagged .flag-icon {
 }
 
 #compose-attachments.droptarget {
-	background-image: url(images/filedrop.png);
+	background-image: url(images/filedrop.png?v=be5d.415);
 	background-position: center bottom;
 	background-repeat: no-repeat;
 }
@@ -1407,7 +1407,7 @@ body.status-flagged .flag-icon {
 	text-indent: -5000px;
 	overflow: hidden;
 	display: inline-block;
-	background: url(images/listicons.png) 0 -2328px no-repeat;
+	background: url(images/listicons.png?v=ce39.10766) 0 -2328px no-repeat;
 }
 
 .widescreen #messagelistheader .listmenu:focus {

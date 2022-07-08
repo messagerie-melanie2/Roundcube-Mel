@@ -1,5 +1,5 @@
 /**
- * PublicKey.js - v0e011cb
+ * PublicKey.js - v0e011cb1
  *
  * @source https://github.com/diafygi/publickeyjs/blob/master/publickey.js
  *

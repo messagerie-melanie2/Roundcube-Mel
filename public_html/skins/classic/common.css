@@ -70,8 +70,10 @@ hr
 }
 
 input[type="text"],
+input[type="email"],
 input[type="button"],
 input[type="password"],
+button,
 textarea
 {
   border: 1px solid #666;
@@ -79,7 +81,7 @@ textarea
   background-color: #FFF;
 }
 
-input, textarea
+button, input, textarea
 {
   color: black;
   padding: 1px 3px;
@@ -93,6 +95,7 @@ textarea:-moz-placeholder
   color: #aaa;
 }
 
+button,
 input.button
 {
   height: 20px;
@@ -104,11 +107,14 @@ input.button
   border: 1px solid #a4a4a4;
 }
 
+button:hover,
 input.button:hover
 {
   color: black;
 }
 
+button[disabled],
+button[disabled]:hover,
 input.button[disabled],
 input.button[disabled]:hover
 {
@@ -116,6 +122,7 @@ input.button[disabled]:hover
   border-color: #ccc;
 }
 
+button.mainaction,
 input.mainaction
 {
   font-weight: bold;
@@ -171,6 +178,13 @@ label input,
 label span
 {
   vertical-align: middle;
+}
+
+ul.proplist
+{
+  padding: 0;
+  margin: 0;
+  list-style: none;
 }
 
 
@@ -368,6 +382,16 @@ body.iframe .boxtitle
   min-height: 22px;
   background: url(images/display/icons.png?v=e866.4201) #EF9398 6px -95px no-repeat;
   border: 1px solid #DC5757;
+  padding: 8px 10px 8px 46px;
+}
+
+.boxcontent .boxinformation
+{
+  margin: 0 0 10px;
+  display: block;
+  min-height: 22px;
+  background: url(images/display/icons.png?v=e866.4201) #ddd 6px 4px no-repeat;
+  border: 1px solid #888;
   padding: 8px 10px 8px 46px;
 }
 
@@ -670,6 +694,18 @@ img.uploading
 .popup label > input {
   margin-left: 10px;
 }
+
+.ui-dialog iframe {
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+.ui-dialog-content.iframe {
+  padding: 0 !important;
+  overflow: hidden !important;
+}
+
 
 /***** common table settings ******/
 
@@ -1066,6 +1102,20 @@ div.searchbox > input
   width: 97%;
 }
 
+.formcontainer
+{
+  background-color: #f2f2f2;
+}
+
+.formcontent table {
+  width: 100%;
+}
+
+.formcontent input,
+.formcontent textarea {
+  width: 95%;
+}
+
 .listsearchbox
 {
   border-bottom: solid 1px #ddd;
@@ -1229,7 +1279,7 @@ font.bold
   font-weight: bold;
 }
 
-.formbuttons
+#login-form .formbuttons
 {
   text-align: center;
 }
@@ -1355,7 +1405,7 @@ ul.toolbarmenu li.separator_above
   padding: 0;
 }
 
-#folder-selector li a span
+#folder-selector li span
 {
   background: url(images/icons/folders.png?v=7c4f.5218) no-repeat 6px 0;
   display: block;
@@ -1377,23 +1427,23 @@ ul.toolbarmenu li.separator_above
   color: white;
 }
 
-#folder-selector li a.inbox span
+#folder-selector li.inbox span
 {
   background-position: 6px -18px;
 }
-#folder-selector li a.drafts span
+#folder-selector li.drafts span
 {
   background-position: 6px -37px;
 }
-#folder-selector li a.sent span
+#folder-selector li.sent span
 {
   background-position: 6px -54px;
 }
-#folder-selector li a.trash span
+#folder-selector li.trash span
 {
   background-position: 6px -91px;
 }
-#folder-selector li a.junk span
+#folder-selector li.junk span
 {
   background-position: 6px -73px;
 }
@@ -1528,42 +1578,33 @@ table.quota-info td.root {
 }
 
 /********** TinyMCE styles **********/
-.mce-btn-small button
-{
-  height: 22px;
+
+div.tox .tox-toolbar,
+div.tox .tox-toolbar__overflow,
+div.tox .tox-toolbar__primary {
+  background-color: #f0f0f0;
 }
 
-.mce-btn-small i
-{
-  line-height: 16px !important;
-  vertical-align: text-top !important;
+div.tox .tox-toolbar__primary {
+  border: 0;
 }
 
-.mce-combobox button
-{
-    padding: 6px 8px !important;
+div.tox div.tox-dialog-wrap__backdrop {
+  background: #aaa;
+  opacity: .3;
 }
 
-.mce-tinymce
-{
-  border-radius: 0 !important;
-{
-
-.mce-panel.mce-toolbar-grp
-{
-  border: 0 !important;
+div.tox div.tox-dialog {
+  box-shadow: 1px 1px 18px #666;
+  border-width: 0;
 }
 
-#image-selector-form.droptarget {
+#image-selector.droptarget {
   background: url(images/filedrop.png?v=080e.581) center bottom no-repeat;
 }
 
-#image-selector-form.droptarget.hover
-{
+#image-selector.droptarget.hover {
   background-color: #F0F0EE;
-  box-shadow: 0 0 5px 0 #999;
-  -moz-box-shadow: 0 0 5px 0 #999;
-  -o-box-shadow: 0 0 5px 0 #999;
 }
 
 /** PGP key import dialog **/
@@ -1609,13 +1650,13 @@ table.quota-info td.root {
   padding: 2px;
 }
 
-.pgpkeyimport div.key input.button.importkey {
+.pgpkeyimport div.key button.importkey {
   position: absolute;
   top: 0.8em;
   right: 0.8em;
   padding: 2px 6px;
 }
 
-.pgpkeyimport div.key input.button[disabled] {
+.pgpkeyimport div.key button[disabled] {
   display: none;
 }

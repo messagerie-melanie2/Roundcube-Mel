@@ -3,7 +3,7 @@
 /*
  +-----------------------------------------------------------------------+
  | Roundcube Webmail IMAP Client                                         |
- | Version 1.5.2                                                         |
+ | Version 1.5.3                                                         |
  |                                                                       |
  | Copyright (C) The Roundcube Dev Team                                  |
  |                                                                       |
@@ -13,7 +13,7 @@
  |                                                                       |
  | PURPOSE:                                                              |
  |   This is the public entry point for all HTTP requests to the         |
- |   Roundcue webmail application.                                       |
+ |   Roundcube webmail application.                                      |
  +-----------------------------------------------------------------------+
  | Author: Thomas Bruederli <roundcube@gmail.com>                        |
  | Author: Aleksander Machniak <alec@alec.pl>                            |

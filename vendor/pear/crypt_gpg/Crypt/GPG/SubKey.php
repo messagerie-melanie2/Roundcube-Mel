@@ -5,8 +5,6 @@
 /**
  * Contains a class representing GPG sub-keys and constants for GPG algorithms
  *
- * PHP version 5
- *
  * LICENSE:
  *
  * This library is free software; you can redistribute it and/or modify
@@ -32,8 +30,6 @@
  * @link      http://pear.php.net/package/Crypt_GPG
  */
 
-// {{{ class Crypt_GPG_SubKey
-
 /**
  * A class for GPG sub-key information
  *
@@ -52,8 +48,6 @@
  */
 class Crypt_GPG_SubKey
 {
-    // {{{ algorithm class constants
-
     /**
      * RSA encryption algorithm.
      */
@@ -75,9 +69,6 @@ class Crypt_GPG_SubKey
      */
     const ALGORITHM_ELGAMAL_ENC_SGN = 20;
 
-    // }}}
-    // {{{ usage class constants
-
     /**
      * Key can be used to encrypt
      */
@@ -97,9 +88,6 @@ class Crypt_GPG_SubKey
      * Key can be used for authentication
      */
     const USAGE_AUTHENTICATION = 8;
-
-    // }}}
-    // {{{ class properties
 
     /**
      * The id of this sub-key
@@ -136,19 +124,19 @@ class Crypt_GPG_SubKey
      *
      * This is a Unix timestamp.
      *
-     * @var integer
+     * @var DateTime
      */
-    private $_creationDate = 0;
+    private $_creationDate;
 
     /**
      * Date this sub-key expires
      *
      * This is a Unix timestamp. If this sub-key does not expire, this will be
-     * zero.
+     * null.
      *
-     * @var integer
+     * @var DateTime
      */
-    private $_expirationDate = 0;
+    private $_expirationDate;
 
     /**
      * Contains usage flags of this sub-key
@@ -170,9 +158,6 @@ class Crypt_GPG_SubKey
      * @var boolean
      */
     private $_isRevoked = false;
-
-    // }}}
-    // {{{ __construct()
 
     /**
      * Creates a new sub-key object
@@ -202,9 +187,10 @@ class Crypt_GPG_SubKey
      * - <kbd>boolean isRevoked</kbd>   - whether or not this sub-key is
      *                                    revoked.
      *
-     * @param Crypt_GPG_SubKey|string|array $key optional. Either an existing
-     *        sub-key object, which is copied; a sub-key string, which is
-     *        parsed; or an array of initial values.
+     * @param Crypt_GPG_SubKey|string|array|null $key Either an existing sub-key object,
+     *                                                which is copied; a sub-key string,
+     *                                                which is parsed; or an array
+     *                                                of initial values.
      */
     public function __construct($key = null)
     {
@@ -274,9 +260,6 @@ class Crypt_GPG_SubKey
         }
     }
 
-    // }}}
-    // {{{ getId()
-
     /**
      * Gets the id of this sub-key
      *
@@ -286,9 +269,6 @@ class Crypt_GPG_SubKey
     {
         return $this->_id;
     }
-
-    // }}}
-    // {{{ getAlgorithm()
 
     /**
      * Gets the algorithm used by this sub-key
@@ -303,39 +283,52 @@ class Crypt_GPG_SubKey
         return $this->_algorithm;
     }
 
-    // }}}
-    // {{{ getCreationDate()
-
     /**
      * Gets the creation date of this sub-key
      *
-     * This is a Unix timestamp.
+     * This is a Unix timestamp. Warning: On 32-bit systems it returns
+     * invalid value for dates after 2038-01-19. Use getCreationDateTime().
      *
      * @return integer the creation date of this sub-key.
      */
     public function getCreationDate()
     {
-        return $this->_creationDate;
+        return $this->_creationDate ? (int) $this->_creationDate->format('U') : 0;
     }
 
-    // }}}
-    // {{{ getExpirationDate()
+    /**
+     * Gets the creation date-time (UTC) of this sub-key
+     *
+     * @return DateTime|null The creation date of this sub-key.
+     */
+    public function getCreationDateTime()
+    {
+        return $this->_creationDate ? $this->_creationDate : null;
+    }
 
     /**
      * Gets the date this sub-key expires
      *
      * This is a Unix timestamp. If this sub-key does not expire, this will be
-     * zero.
+     * zero. Warning: On 32-bit systems it returns invalid value for dates
+     * after 2038-01-19. Use getExpirationDateTime().
      *
      * @return integer the date this sub-key expires.
      */
     public function getExpirationDate()
     {
-        return $this->_expirationDate;
+        return $this->_expirationDate ? (int) $this->_expirationDate->format('U') : 0;
     }
 
-    // }}}
-    // {{{ getFingerprint()
+    /**
+     * Gets the date-time (UTC) this sub-key expires
+     *
+     * @return integer the date this sub-key expires.
+     */
+    public function getExpirationDateTime()
+    {
+        return $this->_expirationDate ? $this->_expirationDate : null;
+    }
 
     /**
      * Gets the fingerprint of this sub-key
@@ -347,9 +340,6 @@ class Crypt_GPG_SubKey
         return $this->_fingerprint;
     }
 
-    // }}}
-    // {{{ getLength()
-
     /**
      * Gets the length of this sub-key in bits
      *
@@ -359,9 +349,6 @@ class Crypt_GPG_SubKey
     {
         return $this->_length;
     }
-
-    // }}}
-    // {{{ canSign()
 
     /**
      * Gets whether or not this sub-key can sign data
@@ -374,9 +361,6 @@ class Crypt_GPG_SubKey
         return ($this->_usage & self::USAGE_SIGN) != 0;
     }
 
-    // }}}
-    // {{{ canEncrypt()
-
     /**
      * Gets whether or not this sub-key can encrypt data
      *
@@ -388,9 +372,6 @@ class Crypt_GPG_SubKey
         return ($this->_usage & self::USAGE_ENCRYPT) != 0;
     }
 
-    // }}}
-    // {{{ usage()
-
     /**
      * Gets usage flags of this sub-key
      *
@@ -400,9 +381,6 @@ class Crypt_GPG_SubKey
     {
         return $this->_usage;
     }
-
-    // }}}
-    // {{{ hasPrivate()
 
     /**
      * Gets whether or not the private key for this sub-key exists in the
@@ -416,9 +394,6 @@ class Crypt_GPG_SubKey
         return $this->_hasPrivate;
     }
 
-    // }}}
-    // {{{ isRevoked()
-
     /**
      * Gets whether or not this sub-key is revoked
      *
@@ -429,26 +404,31 @@ class Crypt_GPG_SubKey
         return $this->_isRevoked;
     }
 
-    // }}}
-    // {{{ setCreationDate()
-
     /**
      * Sets the creation date of this sub-key
      *
-     * The creation date is a Unix timestamp.
+     * The creation date is a Unix timestamp or DateTime object.
      *
-     * @param integer $creationDate the creation date of this sub-key.
+     * @param integer|DateTime $creationDate the creation date of this sub-key.
      *
      * @return Crypt_GPG_SubKey the current object, for fluent interface.
      */
     public function setCreationDate($creationDate)
     {
-        $this->_creationDate = intval($creationDate);
+        if (empty($creationDate)) {
+            $this->_creationDate = null;
+            return $this;
+        }
+
+        if ($creationDate instanceof DateTime) {
+            $this->_creationDate = $creationDate;
+        } else {
+            $tz = new DateTimeZone('UTC');
+            $this->_creationDate = new DateTime("@$creationDate", $tz);
+        }
+
         return $this;
     }
-
-    // }}}
-    // {{{ setExpirationDate()
 
     /**
      * Sets the expiration date of this sub-key
@@ -456,18 +436,26 @@ class Crypt_GPG_SubKey
      * The expiration date is a Unix timestamp. Specify zero if this sub-key
      * does not expire.
      *
-     * @param integer $expirationDate the expiration date of this sub-key.
+     * @param integer|DateTime $expirationDate the expiration date of this sub-key.
      *
      * @return Crypt_GPG_SubKey the current object, for fluent interface.
      */
     public function setExpirationDate($expirationDate)
     {
-        $this->_expirationDate = intval($expirationDate);
+        if (empty($expirationDate)) {
+            $this->_expirationDate = null;
+            return $this;
+        }
+
+        if ($expirationDate instanceof DateTime) {
+            $this->_expirationDate = $expirationDate;
+        } else {
+            $tz = new DateTimeZone('UTC');
+            $this->_expirationDate = new DateTime("@$expirationDate", $tz);
+        }
+
         return $this;
     }
-
-    // }}}
-    // {{{ setId()
 
     /**
      * Sets the id of this sub-key
@@ -482,9 +470,6 @@ class Crypt_GPG_SubKey
         return $this;
     }
 
-    // }}}
-    // {{{ setAlgorithm()
-
     /**
      * Sets the algorithm used by this sub-key
      *
@@ -497,9 +482,6 @@ class Crypt_GPG_SubKey
         $this->_algorithm = intval($algorithm);
         return $this;
     }
-
-    // }}}
-    // {{{ setFingerprint()
 
     /**
      * Sets the fingerprint of this sub-key
@@ -514,9 +496,6 @@ class Crypt_GPG_SubKey
         return $this;
     }
 
-    // }}}
-    // {{{ setLength()
-
     /**
      * Sets the length of this sub-key in bits
      *
@@ -529,9 +508,6 @@ class Crypt_GPG_SubKey
         $this->_length = intval($length);
         return $this;
     }
-
-    // }}}
-    // {{{ setCanSign()
 
     /**
      * Sets whether or not this sub-key can sign data
@@ -552,9 +528,6 @@ class Crypt_GPG_SubKey
         return $this;
     }
 
-    // }}}
-    // {{{ setCanEncrypt()
-
     /**
      * Sets whether or not this sub-key can encrypt data
      *
@@ -574,9 +547,6 @@ class Crypt_GPG_SubKey
         return $this;
     }
 
-    // }}}
-    // {{{ setUsage()
-
     /**
      * Sets usage flags of the sub-key
      *
@@ -589,9 +559,6 @@ class Crypt_GPG_SubKey
         $this->_usage = (int) $usage;
         return $this;
     }
-
-    // }}}
-    // {{{ setHasPrivate()
 
     /**
      * Sets whether of not the private key for this sub-key exists in the
@@ -609,9 +576,6 @@ class Crypt_GPG_SubKey
         return $this;
     }
 
-    // }}}
-    // {{{ setRevoked()
-
     /**
      * Sets whether or not this sub-key is revoked
      *
@@ -624,9 +588,6 @@ class Crypt_GPG_SubKey
         $this->_isRevoked = ($isRevoked) ? true : false;
         return $this;
     }
-
-    // }}}
-    // {{{ parse()
 
     /**
      * Parses a sub-key object from a sub-key string
@@ -674,42 +635,27 @@ class Crypt_GPG_SubKey
         return $subKey;
     }
 
-    // }}}
-    // {{{ _parseDate()
-
     /**
      * Parses a date string as provided by GPG into a UNIX timestamp
      *
      * @param string $string the date string.
      *
-     * @return integer the UNIX timestamp corresponding to the provided date
-     *                 string.
+     * @return DateTime|null the date corresponding to the provided date string.
      */
     private static function _parseDate($string)
     {
-        if ($string == '') {
-            $timestamp = 0;
-        } else {
-            // all times are in UTC according to GPG documentation
-            $timeZone = new DateTimeZone('UTC');
-
-            if (strpos($string, 'T') === false) {
-                // interpret as UNIX timestamp
-                $string = '@' . $string;
-            }
-
-            $date = new DateTime($string, $timeZone);
-
-            // convert to UNIX timestamp
-            $timestamp = intval($date->format('U'));
+        if (empty($string)) {
+            return null;
         }
 
-        return $timestamp;
+        // all times are in UTC according to GPG documentation
+        $timeZone = new DateTimeZone('UTC');
+
+        if (strpos($string, 'T') === false) {
+            // interpret as UNIX timestamp
+            $string = '@' . $string;
+        }
+
+        return new DateTime($string, $timeZone);
     }
-
-    // }}}
 }
-
-// }}}
-
-?>

@@ -1,7 +1,7 @@
 /**
  * Roundcube webmail styles for the Email section
  *
- * Copyright (c) 2012-2017, The Roundcube Dev Team
+ * Copyright (c) The Roundcube Dev Team
  * Screendesign by FLINT / Büro für Gestaltung, bueroflint.com
  *
  * The contents are subject to the Creative Commons Attribution-ShareAlike
@@ -51,7 +51,6 @@ html.ie #mailview-top {
 	right: 0;
 	height: 0;
 	border-radius: 4px;
-	border-top: none;
 }
 
 #composeview-right #mailview-bottom {
@@ -134,10 +133,6 @@ a.iconbutton.threadmode.selected {
 
 #mailboxlist > li:first-child {
 	border-top: 0;
-}
-
-html.mozilla #mailboxlist > li:first-child {
-	border-radius: 4px 4px 0 0;
 }
 
 .folderlist li.mailbox.unread > a {
@@ -298,7 +293,7 @@ table.messagelist.fixedcopy {
 .messagelist thead tr th.sortedDESC a {
 	color: #004458;
 	text-decoration: underline;
-	background-image: url(images/listicons.png?v=c458.10409);
+	background-image: url(images/listicons.png?v=ce39.10766);
 	background-repeat: no-repeat;
 	background-position: right -912px;
 }
@@ -366,7 +361,7 @@ table.messagelist.fixedcopy {
 	height: 18px;
 	width: 20px;
 	padding: 0;
-	background: url(images/listicons.png?v=c458.10409) -100px 0 no-repeat;
+	background: url(images/listicons.png?v=ce39.10766) -100px 0 no-repeat;
 }
 
 .messagelist tbody tr .attachment span.attachment {
@@ -406,7 +401,7 @@ table.messagelist.fixedcopy {
 }
 
 /* thread parent message with flagged children */
-.messagelist tbody tr.flaggedroot .flag span {
+.messagelist tr.flaggedroot td.flag span.unflagged {
 	background-position: -23px -1076px;
 }
 
@@ -683,7 +678,7 @@ h3.subject {
 	left: 0;
 	width: 18px;
 	height: 16px;
-	background: url(images/buttons.png?v=d70c.9130) -27px -242px no-repeat;
+	background: url(images/buttons.png?v=2e08.13608) -27px -242px no-repeat;
 }
 
 .moreheaderstoggle.remove .iconlink {
@@ -703,7 +698,7 @@ div.more-headers {
 	width: 12px;
 	height: 10px;
 	cursor: pointer;
-	background: url(images/buttons.png?v=d70c.9130) center -1579px no-repeat;
+	background: url(images/buttons.png?v=2e08.13608) center -1579px no-repeat;
 }
 
 div.hide-headers {
@@ -848,7 +843,7 @@ div.hide-headers {
 	color: #960;
 	border: 1px solid #ffdf0e;
 	background-color: #fef893;
-	background-position: 5px -83px;
+	background-position: 5px -87px;
 	padding: 6px 12px 6px 30px;
 	white-space: normal;
 }
@@ -1015,6 +1010,18 @@ div.message-partheaders .headers-table td.header {
 	padding-right: 0;
 }
 
+.subject .flag-icon {
+	display: none;
+}
+
+body.status-flagged .flag-icon {
+	display: inline-block;
+	background: url(images/listicons.png?v=ce39.10766) 0 -1038px no-repeat;
+	width: 20px;
+	height: 16px;
+	vertical-align: text-top;
+}
+
 
 /*** message composition ***/
 
@@ -1075,7 +1082,7 @@ div.message-partheaders .headers-table td.header {
 
 #compose-contacts li a,
 #contacts-table td {
-	background-image: url(images/listicons.png?v=c458.10409);
+	background-image: url(images/listicons.png?v=ce39.10766);
 	background-position: -100px 0;
 	background-repeat: no-repeat;
 	overflow: hidden;
@@ -1165,9 +1172,16 @@ div.message-partheaders .headers-table td.header {
 }
 
 .compose-headers td.title {
-	width: 11%;
+	width: 10%;
 	white-space: nowrap;
 	padding-left: 6px;
+	min-width: 60px;
+	line-height: 16px;
+}
+
+.compose-headers td.top {
+	vertical-align: top;
+	padding-top: 5px;
 }
 
 .compose-headers td.title label {
@@ -1194,15 +1208,14 @@ div.message-partheaders .headers-table td.header {
 	padding: 0 4px;
 }
 
-.compose-headers td.top {
-	vertical-align: top;
-	padding-top: 10px;
-}
-
 .compose-headers td textarea,
 .compose-headers td input {
 	width: 100%;
 	resize: none;
+}
+
+.compose-headers td.bounceopts {
+	padding-top: 20px;
 }
 
 #compose-cc, #compose-bcc, #compose-replyto, #compose-followupto {
@@ -1211,9 +1224,8 @@ div.message-partheaders .headers-table td.header {
 
 #composeoptions {
 	display: none;
-	padding: 2px 0 0 8px;
+	padding: 0 0 0 8px;
 	white-space: normal;
-	border-top: 1px solid #dfdfdf;
 }
 
 .composeoption {
@@ -1229,10 +1241,6 @@ div.message-partheaders .headers-table td.header {
 
 #composeoptions .composeoption:last-child {
 	padding-right: 4px;
-}
-
-.mozilla .composeoption input {
-	vertical-align: -3px;
 }
 
 #composeview-bottom {
@@ -1261,7 +1269,6 @@ div.message-partheaders .headers-table td.header {
 
 #composebodycontainer.mailvelope > iframe[scrolling='no'] {
 	position: relative;
-	top: -12px;
 }
 
 #composebody {
@@ -1332,18 +1339,9 @@ div.message-partheaders .headers-table td.header {
 	padding-bottom: 8px;
 }
 
-#composebodycontainer .mce-tinymce {
+#composebodycontainer .tox-tinymce {
 	border: 0 !important;
 	margin-top: 1px;
-}
-
-#composebodycontainer .mce-panel {
-	border-color: #ccc !important;
-	background: #f0f0f0;
-}
-
-#composebody_toolbargroup {
-	border-bottom: 1px solid #ddd;
 }
 
 #uploadform a.iconlink {
@@ -1409,7 +1407,7 @@ div.message-partheaders .headers-table td.header {
 	text-indent: -5000px;
 	overflow: hidden;
 	display: inline-block;
-	background: url(images/listicons.png?v=c458.10409) 0 -2328px no-repeat;
+	background: url(images/listicons.png?v=ce39.10766) 0 -2328px no-repeat;
 }
 
 .widescreen #messagelistheader .listmenu:focus {
@@ -1494,6 +1492,10 @@ div.message-partheaders .headers-table td.header {
 	overflow: hidden;
 	text-overflow: ellipsis;
 	color: #666;
+}
+
+.widescreen .messagelist td.subject span.size {
+	display: none;
 }
 
 .widescreen .messagelist tr.flagged td.subject span.date,
