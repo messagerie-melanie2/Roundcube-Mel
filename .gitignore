@@ -29,3 +29,4 @@ plugins/electron
 plugins/libkolab
 skins/melanie2_larry
 plugins/rizomo
+plugins/roundcube_auth
