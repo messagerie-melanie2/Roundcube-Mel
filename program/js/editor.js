@@ -48,7 +48,7 @@ function rcube_text_editor(config, id)
       statusbar: false,
       // toolbar_sticky: true, // does not work in scrollable element: https://github.com/tinymce/tinymce/issues/5227
       toolbar_drawer: 'sliding',
-      toolbar: 'bold italic underline | alignleft aligncenter alignright alignjustify'
+      toolbar: 'bold italic underline strikethrough | alignleft aligncenter alignright alignjustify'
         + ' | fontselect fontsizeselect | forecolor backcolor',
       extended_valid_elements: 'font[face|size|color|style],span[id|class|align|style]',
       fontsize_formats: '8pt 9pt 10pt 11pt 12pt 14pt 18pt 24pt 36pt',
@@ -103,12 +103,12 @@ function rcube_text_editor(config, id)
     });
   }
   // full-featured editor
-  else {
-    conf.toolbar += ' | bullist numlist outdent indent ltr rtl blockquote'
+  else { //PAMELA toolbar
+    conf.toolbar += ' | bullist numlist outdent indent lineheightselect ltr rtl superscript subscript blockquote'
         + ' | link unlink table | $extra charmap image media | code searchreplace undo redo',
     $.extend(conf, {
       plugins: 'autolink charmap code directionality link lists image media nonbreaking'
-        + ' paste table tabfocus searchreplace spellchecker',
+        + ' paste table tabfocus searchreplace spellchecker lineheight',
       spellchecker_rpc_url: abs_url + '/?_task=utils&_action=spell_html&_remote=1',
       spellchecker_language: rcmail.env.spell_lang,
       min_height: 400,
