@@ -39,7 +39,8 @@ function rcube_text_editor(config, id)
     abs_url = location.href.replace(/[?#].*$/, '').replace(/\/$/, ''),
     conf = {
       selector: '#' + ($('#' + id).is('.mce_editor') ? id : 'fake-editor-id'),
-      cache_suffix: 's=5080200',
+      // PAMELA - Mise à jour du build pour les langues
+      cache_suffix: 's=5080203',
       theme: 'silver',
       language: config.lang,
       content_css: rcmail.assets_path(config.content_css),
@@ -48,8 +49,9 @@ function rcube_text_editor(config, id)
       statusbar: false,
       // toolbar_sticky: true, // does not work in scrollable element: https://github.com/tinymce/tinymce/issues/5227
       toolbar_drawer: 'sliding',
+      // PAMELA - toolbar
       toolbar: 'bold italic underline strikethrough | alignleft aligncenter alignright alignjustify'
-        + ' | fontselect fontsizeselect | forecolor backcolor',
+        + ' | styleselect fontselect fontsizeselect | forecolor backcolor',
       extended_valid_elements: 'font[face|size|color|style],span[id|class|align|style]',
       fontsize_formats: '8pt 9pt 10pt 11pt 12pt 14pt 18pt 24pt 36pt',
       // Allow style tag, have to be allowed inside body/div/blockquote (#7088)
