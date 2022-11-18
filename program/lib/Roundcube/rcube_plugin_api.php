@@ -458,7 +458,8 @@ class rcube_plugin_api
                     $args = $ret + $args;
                 }
 
-                if ($args['break']) {
+                // PAMELA - Fix DGGN
+                if (isset($args['break']) && $args['break']) {
                     break;
                 }
             }
