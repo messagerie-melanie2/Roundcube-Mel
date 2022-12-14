@@ -104,9 +104,10 @@ $labels['valueislessthan'] = 'valeur inférieure à';
 $labels['valueislessthanequal'] = 'valeur inférieure ou égale à';
 $labels['valueequals'] = 'valeur égale à';
 $labels['valuenotequals'] = 'la valeur n’est pas égale à';
-$labels['setflags'] = 'Définir les drapeaux pour le courriel';
-$labels['addflags'] = 'Ajouter les drapeaux au courriel';
-$labels['removeflags'] = 'Supprimer les drapeaux du courriel';
+// PAMELA
+$labels['setflags'] = 'Définir les drapeaux/étiquettes pour le courriel';
+$labels['addflags'] = 'Ajouter les drapeaux/étiquettes au courriel';
+$labels['removeflags'] = 'Supprimer les drapeaux/étiquettes du courriel';
 $labels['flagread'] = 'Lu';
 $labels['flagdeleted'] = 'Supprimé';
 $labels['flaganswered'] = 'Réponse envoyée';
