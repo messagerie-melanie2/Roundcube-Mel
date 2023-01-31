@@ -737,10 +737,11 @@ class html_table extends html
     protected $allowed = ['id','class','style','width','summary',
         'cellpadding','cellspacing','border'];
 
-    private $header   = null;
-    private $rows     = [];
-    private $rowindex = 0;
-    private $colindex = 0;
+    //PAMELA - Change to protected for html_table_bnum
+    protected $header   = null;
+    protected $rows     = [];
+    protected $rowindex = 0;
+    protected $colindex = 0;
 
     /**
      * Constructor
@@ -988,8 +989,9 @@ class html_table extends html
 
     /**
      * Getter for the corresponding tag name for table row elements
+     * PAMELA - Change to protected for html_table_bnum
      */
-    private function _row_tagname()
+    protected function _row_tagname()
     {
         static $row_tagnames = ['table' => 'tr', 'ul' => 'li', '*' => 'div'];
         return !empty($row_tagnames[$this->tagname]) ? $row_tagnames[$this->tagname] : $row_tagnames['*'];
@@ -997,8 +999,9 @@ class html_table extends html
 
     /**
      * Getter for the corresponding tag name for table row elements
+     * PAMELA - Change to protected for html_table_bnum
      */
-    private function _head_tagname()
+    protected function _head_tagname()
     {
         static $head_tagnames = ['table' => 'th', '*' => 'span'];
         return !empty($head_tagnames[$this->tagname]) ? $head_tagnames[$this->tagname] : $head_tagnames['*'];
@@ -1006,8 +1009,9 @@ class html_table extends html
 
     /**
      * Getter for the corresponding tag name for table cell elements
+     * PAMELA - Change to protected for html_table_bnum
      */
-    private function _col_tagname()
+    protected function _col_tagname()
     {
         static $col_tagnames = ['table' => 'td', '*' => 'span'];
         return !empty($col_tagnames[$this->tagname]) ? $col_tagnames[$this->tagname] : $col_tagnames['*'];
