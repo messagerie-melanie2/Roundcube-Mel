@@ -6155,7 +6155,7 @@ function rcube_webmail()
         type = typeof results[i] === 'object' ? results[i].type : '';
         id = i + this.env.contacts.length;
         if (this.env.contacts.length && this.env.autocomplete_clean_duplicates) {
-          if (this.env.contacts.find(contact => contact.name == text)) {
+          if (this.env.contacts.find(contact => contact.name == text || contact.display == text)) {
             continue;
           }
         }
