@@ -6137,7 +6137,8 @@ function rcube_webmail()
         input_width = $(input).outerWidth(),
         left = w - pos.left > 200 ? pos.left : w - 200,
         top = (pos.top + input.offsetHeight + 1),
-        width = Math.min(400, w - left);
+        //PAMELA - Changement de la taille de l'input pour les grands écrans
+        width = $(input).outerWidth() >= 400 ? $(input).outerWidth() : Math.min(400, w - left);
 
       this.ksearch_pane.css({
         left: (is_composite_input ? pos.left : left) + 'px',
