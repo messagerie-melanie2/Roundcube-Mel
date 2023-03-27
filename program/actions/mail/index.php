@@ -391,7 +391,8 @@ class rcmail_action_mail_index extends rcmail_action
         $rcmail->output->set_env('sort_order', $_SESSION['sort_order']);
         $rcmail->output->set_env('messages', []);
         $rcmail->output->set_env('listcols', $listcols);
-        $rcmail->output->set_env('listcols_widescreen', ['threads', 'subject', 'fromto', 'date', 'size', 'flag', 'attachment']);
+        // PAMELA - Ajout de la priorité dans l'affichage des mails 
+        $rcmail->output->set_env('listcols_widescreen', ['threads', 'subject', 'fromto', 'date', 'size', 'flag', 'attachment', 'priority']);
 
         $rcmail->output->include_script('list.js');
 

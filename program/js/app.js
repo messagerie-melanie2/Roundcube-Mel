@@ -257,7 +257,8 @@ function rcube_webmail()
 
           this.env.widescreen_list_template = [
             {className: 'threads', cells: ['threads']},
-            {className: 'subject', cells: ['fromto', 'date', 'size', 'status', 'subject']},
+            // PAMELA - Ajout de la priorité dans l'affichage des mails 
+            {className: 'subject', cells: ['fromto', 'date', 'size', 'status', 'subject', 'priority']},
             {className: 'flags', cells: ['flag', 'attachment']}
           ];
 
