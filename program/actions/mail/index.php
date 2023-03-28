@@ -474,7 +474,7 @@ class rcmail_action_mail_index extends rcmail_action
         $a_headers   = $plugin['messages'];
 
         // make sure minimum required columns are present (needed for widescreen layout)
-        $allcols = array_merge($a_show_cols, ['threads', 'subject', 'fromto', 'date', 'size', 'flag', 'attachment']);
+        $allcols = array_merge($a_show_cols, ['threads', 'subject', 'fromto', 'date', 'size', 'flag', 'attachment', 'priority']);
         $allcols = array_unique($allcols);
 
         $thead = !empty($head_replace) ? self::message_list_head($_SESSION['list_attrib'], $allcols) : null;
