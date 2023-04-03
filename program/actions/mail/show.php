@@ -555,7 +555,8 @@ class rcmail_action_mail_show extends rcmail_action_mail_index
         }
 
         $rcmail = rcmail::get_instance();
-        $header = self::$MESSAGE->context ? 'from' : self::message_list_smart_column_name();
+        //PAMELA - 0007110: Dans les éléments envoyés afficher en première ligne l'émetteur plutôt que le destinataire
+        $header = "from";
         $label  = 'shortheader' . $header;
         $date   = $rcmail->format_date(self::$MESSAGE->headers->date, $rcmail->config->get('date_long', 'x'));
         $user   = self::$MESSAGE->headers->$header;
