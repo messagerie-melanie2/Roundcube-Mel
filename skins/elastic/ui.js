@@ -1406,7 +1406,7 @@ function rcube_elastic_ui()
                     // Focusing the subject when scrolling back to the top fixes
                     // an annoying bouncing scrollbar bug (#8046)
                     if (floating) {
-                        $('#compose-subject').focus();
+                        // $('#compose-subject').focus();
                         floating = false;
                     }
                     toolbar.css({position: 'relative', top: 0, width: 'auto'})
