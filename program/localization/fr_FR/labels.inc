@@ -481,7 +481,7 @@ $labels['preferences'] = 'Préférences';
 $labels['userpreferences'] = 'Préférences utilisateur';
 $labels['editpreferences'] = 'Modifier les préférences utilisateur';
 // PAMELA - Identités -> Signatures
-$labels['identities'] = 'Signatures';
+$labels['identities'] = 'Identités et signatures';
 $labels['manageidentities'] = 'Gérer les signatures';
 $labels['newidentity'] = 'Créer une nouvelle signature';
 $labels['addidentity'] = 'Ajouter une signature';
