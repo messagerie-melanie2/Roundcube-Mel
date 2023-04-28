@@ -2426,7 +2426,7 @@ function rcube_webmail()
         html = cols[c];
 
       // PAMELA
-      col.innerHTML = rcmail.triggerEvent('rcmail.addrow.update_html', {html, uid, cols, flags, attop, c}) ?? html;;
+      col.innerHTML = rcmail.triggerEvent('rcmail.addrow.update_html', {html, uid, cols, flags, attop, c}) || html;;
       row.cols.push(col);
     }
 
@@ -4380,7 +4380,6 @@ function rcube_webmail()
                 }
               })
               .catch(function(err) {
-                debugger;
                 ref.display_message(err.message || 'errortitle', 'error');
                 btn.prop('disabled', false);
             });
