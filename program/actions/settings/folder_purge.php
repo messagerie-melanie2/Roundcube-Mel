@@ -36,14 +36,17 @@ class rcmail_action_settings_folder_purge extends rcmail_action
         $trash_mbox   = $rcmail->config->get('trash_mbox');
         $trash_regexp = '/^' . preg_quote($trash_mbox . $delimiter, '/') . '/';
 
+        // PAMELA - Corbeille name converter
+        $data = $rcmail->plugins->exec_hook('m2_set_folder_name', ['folder' => $mbox]);
+
         // we should only be purging trash (or their subfolders)
         if (!strlen($trash_mbox) || $mbox === $trash_mbox || preg_match($trash_regexp, $mbox)) {
-            $success = $storage->delete_message('*', $mbox);
+            $success = $storage->delete_message('*', $data['folder']);
             $delete  = true;
         }
         // move to Trash
         else {
-            $success = $storage->move_message('1:*', $trash_mbox, $mbox);
+            $success = $storage->move_message('1:*', $trash_mbox, $data['folder']);
             $delete  = false;
         }
 
