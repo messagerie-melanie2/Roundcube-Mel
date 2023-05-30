@@ -280,19 +280,31 @@ class rcube_user
     function list_emails($default = false)
     {
         if ($this->emails === null) {
-            $this->emails = [];
-
-            $sql_result = $this->db->query(
-                "SELECT `identity_id`, `name`, `email`"
-                ." FROM " . $this->db->table_name('identities', true)
-                ." WHERE `user_id` = ? AND `del` <> 1"
-                ." ORDER BY `standard` DESC, `name` ASC, `email` ASC, `identity_id` ASC",
-                $this->ID
-            );
-
-            while ($sql_arr = $this->db->fetch_assoc($sql_result)) {
-                $this->emails[] = $sql_arr;
+            // PAMELA - Mettre en cache les identités
+            if ($this->rc->config->get('user_list_emails_cache', false) && isset($_SESSION['user_list_emails'])) {
+                $this->emails = $_SESSION['user_list_emails'];
             }
+            else {
+                $this->emails = [];
+
+                $sql_result = $this->db->query(
+                    "SELECT `identity_id`, `name`, `email`"
+                    ." FROM " . $this->db->table_name('identities', true)
+                    ." WHERE `user_id` = ? AND `del` <> 1"
+                    ." ORDER BY `standard` DESC, `name` ASC, `email` ASC, `identity_id` ASC",
+                    $this->ID
+                );
+    
+                while ($sql_arr = $this->db->fetch_assoc($sql_result)) {
+                    $this->emails[] = $sql_arr;
+                }
+
+                // PAMELA - Mettre en cache les identités
+                if ($this->rc->config->get('user_list_emails_cache', false)) {
+                    $_SESSION['user_list_emails'] = $this->emails;
+                }
+            }
+            
         }
 
         return $default ? $this->emails[0] : $this->emails;
