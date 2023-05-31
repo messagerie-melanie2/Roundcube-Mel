@@ -69,12 +69,26 @@ class rcube_user
         $this->db = $this->rc->get_dbh();
 
         if ($id && !$sql_arr) {
-            $sql_result = $this->db->query(
-                "SELECT * FROM " . $this->db->table_name('users', true)
-                . " WHERE `user_id` = ?", $id
-            );
+            // PAMELA - Mise en cache des données
+            if ($_SESSION['user_id'] == $id 
+                    && $this->rc->config->get('rcube_user_cache', false)
+                    && isset($_SESSION['rcube_user'])) {
+                $sql_arr = $_SESSION['rcube_user'];
+            }
+            else {
+                $sql_result = $this->db->query(
+                    "SELECT * FROM " . $this->db->table_name('users', true)
+                    . " WHERE `user_id` = ?", $id
+                );
+    
+                $sql_arr = $this->db->fetch_assoc($sql_result);
 
-            $sql_arr = $this->db->fetch_assoc($sql_result);
+                // PAMELA - Mise en cache des données
+                if ($_SESSION['user_id'] == $id 
+                        && $this->rc->config->get('rcube_user_cache', false)) {
+                    $_SESSION['rcube_user'] = $sql_arr;
+                }
+            }
         }
 
         if (!empty($sql_arr)) {
@@ -227,6 +241,14 @@ class rcube_user
         // Update success
         if ($this->db->affected_rows() !== false) {
             $this->data['preferences'] = $save_prefs;
+
+            // PAMELA - Mise en cache des données
+            if ($_SESSION['user_id'] == $this->ID
+                    && $this->rc->config->get('rcube_user_cache', false)
+                    && isset($_SESSION['rcube_user'])) {
+                $_SESSION['rcube_user']['preferences'] = $save_prefs;
+                $_SESSION['rcube_user']['language'] = $this->language;
+            }
 
             if (!$no_session) {
                 $config->set_user_prefs($this->prefs);
