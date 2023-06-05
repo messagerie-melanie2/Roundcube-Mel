@@ -221,7 +221,7 @@ class filesystem_attachments extends rcube_plugin
         }
 
         $rcmail    = rcube::get_instance();
-        $temp_dir  = $rcmail->config->get('temp_dir');
+        $temp_dir  = $rcmail->config->get('temp_dir_shared', $rcmail->config->get('temp_dir'));
         $file_path = pathinfo($path, PATHINFO_DIRNAME);
 
         if ($temp_dir !== $file_path) {
