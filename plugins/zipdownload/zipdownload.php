@@ -245,7 +245,8 @@ class zipdownload extends rcube_plugin
         $limit     = $rcmail->config->get('zipdownload_selection', $this->default_limit);
         $limit     = $limit !== true ? parse_bytes($limit) : -1;
         $delimiter = $imap->get_hierarchy_delimiter();
-        $tmpfname  = rcube_utils::temp_filename('zipdownload');
+        // PAMELA - Shared temp dir
+        $tmpfname  = rcube_utils::temp_filename('zipdownload', true, true, true);
         $tempfiles = [$tmpfname];
         $folders   = count($messageset) > 1;
         $timezone  = new DateTimeZone('UTC');

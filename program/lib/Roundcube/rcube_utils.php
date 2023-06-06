@@ -1573,13 +1573,20 @@ class rcube_utils
      * @param string $file_name String identifier for the type of temp file
      * @param bool   $unique    Generate unique file names based on $file_name
      * @param bool   $create    Create the temp file or not
+     * @param bool   $shared    Use shared temp dir or not (PAMELA)
      *
      * @return string temporary file path
      */
-    public static function temp_filename($file_name, $unique = true, $create = true)
+    public static function temp_filename($file_name, $unique = true, $create = true, $shared = false)
     {
-        $temp_dir = rcube::get_instance()->config->get('temp_dir');
-
+        // PAMELA - Shared temp dir
+        if ($shared) {
+            $temp_dir = rcube::get_instance()->config->get('temp_dir_shared', rcube::get_instance()->config->get('temp_dir'));
+        }
+        else {
+            $temp_dir = rcube::get_instance()->config->get('temp_dir');
+        }
+        
         // Fall back to system temp dir if configured dir is not writable
         if (!is_writable($temp_dir)) {
             $temp_dir = sys_get_temp_dir();
