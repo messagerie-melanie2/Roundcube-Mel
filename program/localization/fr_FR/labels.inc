@@ -508,6 +508,7 @@ $labels['pagesize'] = 'Lignes par page';
 $labels['signature'] = 'Signature';
 $labels['dstactive'] = 'Heure avancée';
 $labels['showinextwin'] = 'Ouvrir le courriel dans une nouvelle fenêtre';
+$labels['showinextwin_short'] = 'Courriel dans une nouvelle fenêtre';
 $labels['composeextwin'] = 'Rédiger dans une nouvelle fenêtre';
 $labels['htmleditor'] = 'Rédiger des courriels HTML';
 $labels['htmlonreply'] = 'en réponse à un courriel en HTML';
