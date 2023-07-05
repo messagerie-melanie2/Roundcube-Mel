@@ -83,7 +83,12 @@ function rcube_webmail()
     cache: false,
     timeout: this.env.request_timeout * 1000,
     error: function(request, status, err){ ref.http_error(request, status, err); },
-    beforeSend: function(xmlhttp){ xmlhttp.setRequestHeader('X-Roundcube-Request', ref.env.request_token); }
+    beforeSend: function(xmlhttp){ 
+      //PAMELA
+      if (window.disable_x_roundcube === true) return;
+      else xmlhttp.setRequestHeader('X-Roundcube-Request', ref.env.request_token);
+     }
+
   });
 
   // unload fix
