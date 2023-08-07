@@ -24,12 +24,12 @@ $labels['oauthlogin'] = 'Connexion à $provider';
 $labels['menu'] = 'Menu';
 $labels['logout'] = 'Déconnexion';
 // Pamela - Maquette
-$labels['mail'] = 'Ma messagerie Mèl';
+$labels['mail'] = 'Messagerie Mèl';
 if (isset($_GET['_courrielleur'])) {
     $labels['settings'] = 'Configuration de votre compte';
 }
 else {
-    $labels['settings'] = 'Configuration du bureau numérique';
+    $labels['settings'] = 'Configuration';
 }
 $labels['addressbook'] = 'Carnet d’adresses';
 $labels['darkmode'] = 'Mode sombre';

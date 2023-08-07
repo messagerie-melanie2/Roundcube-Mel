@@ -1,8 +1,15 @@
 <div id="layout-sidebar" class="listbox<roundcube:exp expression="!request:_action ? ' selected' : ''"/>" role="navigation" aria-labelledby="aria-label-settingstabs">
 	<div class="header">
 		<a class="button icon task-menu-button" href="#menu"><span class="inner"><roundcube:label name="menu" /></span></a>
-		<span id="aria-label-settingstabs" class="header-title"><roundcube:label name="settings" /></span>
+		<!-- <span id="aria-label-settingstabs" class="header-title"><roundcube:label name="settings" /></span> -->
+    <span class="material-symbols-outlined colored-header-icon settings_app only-current no-hover only-background">
+      settings
+    </span>
+    <span class="colored-header-title" style="width: 150px;">
+      <roundcube:label name="settings" />
+    </span>
 	</div>
+  <separate></separate>
 	<div class="scroller">
 		<ul id="settings-menu" class="listing iconized settings-default-icon<roundcube:exp expression="!request:_action ? ' selection-large-only' : ''"/>">
 			<roundcube:object name="settingstabs" class="listitem" tagname="li" />
