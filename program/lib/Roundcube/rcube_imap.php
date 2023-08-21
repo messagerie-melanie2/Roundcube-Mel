@@ -2679,6 +2679,23 @@ class rcube_imap extends rcube_storage
             $folder = $this->folder;
         }
 
+        // PAMELA - Hook sur la sauvegarde d'un message
+        $plugin = $this->plugins->exec_hook('save_message', [
+            'folder'  => $folder,
+            'message' => $message,
+            'headers' => $headers,
+            'is_file' => $is_file,
+            'flags'   => $flags,
+            'date'    => $date,
+            'binary'  => $binary,
+            'abort'   => false,
+            'return'  => true,
+        ]);
+
+        if ($plugin['abort']) {
+            return $plugin['return'];
+        }
+
         if (!$this->check_connection()) {
             return false;
         }
