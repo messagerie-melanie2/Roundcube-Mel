@@ -407,7 +407,9 @@ $labels['uploadphoto'] = 'Charger une photo';
 $labels['newcontact']     = 'Créer un nouveau contact';
 $labels['deletecontact']  = 'Supprimer les contacts sélectionnés';
 $labels['composeto']      = 'Rédiger un courriel à';
-$labels['contactsfromto'] = 'Contacts de $from à $to sur $count';
+// PAMELA
+//$labels['contactsfromto'] = 'Contacts de $from à $to sur $count';
+$labels['contactsfromto'] = 'Contacts ($count)';
 $labels['print']          = 'Imprimer';
 $labels['export']         = 'Exporter';
 $labels['exportall']      = 'Tout exporter';
