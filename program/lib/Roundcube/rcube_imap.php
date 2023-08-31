@@ -2783,7 +2783,8 @@ class rcube_imap extends rcube_storage
         // when moving to Trash we make sure the folder exists
         // as it's uncommon scenario we do this when MOVE fails, not before
         if (!$moved && $to_trash && $this->get_response_code() == rcube_storage::TRYCREATE) {
-            if ($this->create_folder($to_mbox, true, 'trash')) {
+            // PAMELA - 0007866: Bloquer la création de la corbeille-individuelle
+            if (strpos($to_mbox, 'Corbeille-individuelle') === false && $this->create_folder($to_mbox, true, 'trash')) {
                 $moved = $this->conn->move($uids, $from_mbox, $to_mbox);
             }
         }
