@@ -62,11 +62,11 @@ function update_js_version($files, $regex_import, $version) {
             // Écrire le contenu modifié dans le fichier (remplace le contenu existant)
             if ($write) {
                 if (file_put_contents($value, $fileContent) === false) {
-                    echo "[build]Impossible d'écrire dans le fichier JavaScript $value\n";
+                    echo "###[build]Impossible d'écrire dans le fichier JavaScript $value\n";
                 }
             }
         } else {
-            echo "[build]Impossible de lire le fichier JavaScript.\n";
+            echo "###[build]Impossible de lire le fichier JavaScript.\n";
         }
     }
 }
