@@ -394,10 +394,8 @@ class rcube_message
                 $depth = count($level);
                 $last  = '';
 
-                // Check if the part belongs to higher-level's multipart part
+                // Check if the part does not belong to a message/rfc822 part
                 while (array_pop($level) !== null) {
-                    $parent_depth = count($level);
-
                     if (!count($level)) {
                         return true;
                     }
@@ -609,7 +607,6 @@ class rcube_message
             // parse headers from message/rfc822 part
             if (!isset($structure->headers['subject']) && !isset($structure->headers['from'])) {
                 $part_body = $this->get_part_body($structure->mime_id, false, 32768);
-
                 list($headers, ) = rcube_utils::explode("\r\n\r\n", $part_body, 2);
                 $structure->headers = rcube_mime::parse_headers($headers);
 
@@ -1129,7 +1126,7 @@ class rcube_message
             $tpart->ctype_secondary = trim(strtolower($winatt['subtype']));
             $tpart->mimetype        = $tpart->ctype_primary . '/' . $tpart->ctype_secondary;
             $tpart->mime_id         = 'winmail.' . $part->mime_id . '.' . $pid;
-            $tpart->size            = $winatt['size'];
+            $tpart->size            = !empty($winatt['size']) ? $winatt['size'] : 0;
             $tpart->body            = $winatt['stream'];
 
             if (!empty($winatt['content-id'])) {

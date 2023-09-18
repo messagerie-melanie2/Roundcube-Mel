@@ -288,9 +288,11 @@ class rcube_db
                 }
                 else if ($mode == 'r') {
                     // connected to db with the same or "higher" mode for this table
-                    $db_mode = $this->table_connections[$table];
-                    if ($db_mode == 'w' && empty($this->options['dsnw_noread'])) {
-                        $mode = $db_mode;
+                    if (isset($this->table_connections[$table])) {
+                        $db_mode = $this->table_connections[$table];
+                        if ($db_mode == 'w' && empty($this->options['dsnw_noread'])) {
+                            $mode = $db_mode;
+                        }
                     }
                 }
             }
@@ -329,6 +331,16 @@ class rcube_db
 
             rcube::write_log('sql', '[' . (++$this->db_index) . '] ' . $query . ';');
         }
+    }
+
+    /**
+     * Getter for an information about the last error.
+     *
+     * @return ?array [SQLSTATE error code, driver specific error code, driver specific error message]
+     */
+    public function error_info()
+    {
+        return $this->dbh ? $this->dbh->errorInfo() : null;
     }
 
     /**

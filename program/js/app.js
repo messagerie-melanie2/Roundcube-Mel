@@ -1377,11 +1377,8 @@ function rcube_webmail()
           this.list_mailbox(this.env.mailbox, 1);
         }
         else if (s && this.task == 'addressbook') {
-          if (this.env.source == '') {
-            for (n in this.env.address_sources) break;
-            this.env.source = n;
-            this.env.group = '';
-          }
+          this.env.source = this.env.last_source || '';
+          this.env.group = this.env.last_group || '';
           this.list_contacts(this.env.source, this.env.group, 1);
         }
         break;
@@ -4286,7 +4283,7 @@ function rcube_webmail()
     var container = $(this.gui_objects.editform).find('.identity-encryption').first();
     var identity_email = $(this.gui_objects.editform).find('.ff_email').val().trim();
 
-    if (!container.length || !identity_email || !this.mailvelope_keyring.createKeyGenContainer)
+    if (!container.length || !identity_email || !this.mailvelope_keyring.createKeyGenContainer)
       return;
 
     var key_fingerprint;
@@ -6387,8 +6384,8 @@ function rcube_webmail()
     else if (!this.env.search_request)
       folder = group ? 'G'+src+group : src;
 
-    this.env.source = src;
-    this.env.group = group;
+    this.env.source = this.env.last_source = src;
+    this.env.group = this.env.last_group = group;
 
     // truncate groups listing stack
     $.each(this.env.address_group_stack, function(i, v) {

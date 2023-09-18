@@ -850,11 +850,13 @@ class rcube_ldap extends rcube_addressbook
             foreach ($ldap_data as $entry) {
                 $rec = $this->_ldap2result($entry);
                 foreach ($fields as $f) {
-                    foreach ((array)$rec[$f] as $val) {
-                        if ($this->compare_search_value($f, $val, $search, $mode)) {
-                            $this->result->add($rec);
-                            $this->result->count++;
-                            break 2;
+                    if (!empty($rec[$f])) {
+                        foreach ((array)$rec[$f] as $val) {
+                            if ($this->compare_search_value($f, $val, $search, $mode)) {
+                                $this->result->add($rec);
+                                $this->result->count++;
+                                break 2;
+                            }
                         }
                     }
                 }
@@ -1788,6 +1790,10 @@ class rcube_ldap extends rcube_addressbook
      */
     private function is_group_entry($entry)
     {
+        if (empty($entry['objectclass'])) {
+            return false;
+        }
+
         $classes = array_map('strtolower', (array)$entry['objectclass']);
 
         return count(array_intersect(array_keys($this->group_types), $classes)) > 0;
@@ -1948,11 +1954,12 @@ class rcube_ldap extends rcube_addressbook
 
             $group_name = is_array($entry[$name_attr]) ? $entry[$name_attr][0] : $entry[$name_attr];
             $group_id   = self::dn_encode($entry['dn']);
+            $classes    = !empty($entry['objectclass']) ? $entry['objectclass'] : [];
 
             $groups[$group_id]['ID'] = $group_id;
             $groups[$group_id]['dn'] = $entry['dn'];
             $groups[$group_id]['name'] = $group_name;
-            $groups[$group_id]['member_attr'] = $this->get_group_member_attr($entry['objectclass']);
+            $groups[$group_id]['member_attr'] = $this->get_group_member_attr($classes);
 
             // list email attributes of a group
             for ($j=0; $entry[$email_attr] && $j < $entry[$email_attr]['count']; $j++) {
@@ -2008,11 +2015,12 @@ class rcube_ldap extends rcube_addressbook
             if ($list = $this->ldap->read_entries($dn, '(objectClass=*)', $attrs)) {
                 $entry      = $list[0];
                 $group_name = is_array($entry[$name_attr]) ? $entry[$name_attr][0] : $entry[$name_attr];
+                $classes    = !empty($entry['objectclass']) ? $entry['objectclass'] : [];
 
                 $group_cache[$group_id]['ID'] = $group_id;
                 $group_cache[$group_id]['dn'] = $dn;
                 $group_cache[$group_id]['name'] = $group_name;
-                $group_cache[$group_id]['member_attr'] = $this->get_group_member_attr($entry['objectclass']);
+                $group_cache[$group_id]['member_attr'] = $this->get_group_member_attr($classes);
             }
             else {
                 $group_cache[$group_id] = false;
