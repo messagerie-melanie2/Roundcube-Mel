@@ -333,6 +333,9 @@ class rcmail_action_mail_compose extends rcmail_action_mail_index
             {
                 unset(self::$COMPOSE['attachments']);
             }
+
+            $rcmail->output->set_env('compose-option', 'empty');
+            $rcmail->output->set_env('show_sig', true);
         }
 
         // register UI objects (Note: some objects are registered by rcmail_sendmail above)
