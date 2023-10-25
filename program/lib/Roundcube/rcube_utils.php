@@ -136,6 +136,78 @@ class rcube_utils
     }
 
     /**
+     * Explode css style. Property names will be lower-cased and trimmed.
+     * Values will be trimmed. Invalid entries will be skipped.
+     *
+     * @param string $style CSS style
+     *
+     * @return array List of CSS rule pairs, e.g. [['color', 'red'], ['top', '0']]
+     */
+    public static function parse_css_block($style)
+    {
+        $pos = 0;
+
+        // first remove comments
+        while (($pos = strpos($style, '/*', $pos)) !== false) {
+            $end = strpos($style, '*/', $pos+2);
+
+            if ($end === false) {
+                $style = substr($style, 0, $pos);
+            }
+            else {
+                $style = substr_replace($style, '', $pos, $end - $pos + 2);
+            }
+        }
+
+        // Replace new lines with spaces
+        $style = preg_replace('/[\r\n]+/', ' ', $style);
+
+        $style  = trim($style);
+        $length = strlen($style);
+        $result = [];
+        $pos    = 0;
+
+        while ($pos < $length && ($colon_pos = strpos($style, ':', $pos))) {
+            // Property name
+            $name = strtolower(trim(substr($style, $pos, $colon_pos - $pos)));
+
+            // get the property value
+            $q = $s = false;
+            for ($i = $colon_pos + 1; $i < $length; $i++) {
+                if (($style[$i] == "\"" || $style[$i] == "'") && ($i == 0 || $style[$i-1] != "\\")) {
+                    if ($q == $style[$i]) {
+                        $q = false;
+                    }
+                    else if ($q === false) {
+                        $q = $style[$i];
+                    }
+                }
+                else if ($style[$i] == "(" && !$q && ($i == 0 || $style[$i-1] != "\\")) {
+                    $q = "(";
+                }
+                else if ($style[$i] == ")" && $q == "(" && $style[$i-1] != "\\") {
+                    $q = false;
+                }
+
+                if ($q === false && (($s = $style[$i] == ';') || $i == $length - 1)) {
+                    break;
+                }
+            }
+
+            $value_length = $i - $colon_pos - ($s ? 1 : 0);
+            $value        = trim(substr($style, $colon_pos + 1, $value_length));
+
+            if (strlen($name) && !preg_match('/[^a-z-]/', $name) && strlen($value) && $value !== ';') {
+                $result[] = [$name, $value];
+            }
+
+            $pos = $i + 1;
+        }
+
+        return $result;
+    }
+
+    /**
      * Validates IPv4 or IPv6 address
      *
      * @param string $ip IP address in v4 or v6 format
