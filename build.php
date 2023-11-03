@@ -27,7 +27,7 @@ function update_js_version($files, $regex_import, $version) {
         if ($fileContent !== false) {
             $write = true;
             if (strpos($value, '/always_load/load_module.js') !== false) {
-                $fileContent = str_replace("const VERSION = 'X.X.X'", "const VERSION = '$version'", $fileContent);
+                $fileContent = str_replace("const VERSION = 'X.X.X", "const VERSION = '$version", $fileContent);
             }
             else {
                 $last_version = explode("\n", $fileContent)[0];
@@ -71,7 +71,7 @@ function update_js_version($files, $regex_import, $version) {
     }
 }
 
-echo "[build]Starting build\n";
+echo "[build]Démarrage de l'écriture des version....\n";
 
 // Spécifiez le répertoire racine de votre projet ici
 $projectDirectory = __DIR__.'/plugins';
@@ -81,6 +81,6 @@ $version = Version::VERSION.'.'.Version::BUILD;
 
 $files = listJavaScriptFiles($projectDirectory);
 update_js_version($files, $import_regex, $version);
-echo "[build]Build finished !\n";
+echo "[build]Fin de l'écriture !\n";
 ?>
 
