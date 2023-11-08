@@ -45,12 +45,20 @@ class rcmail_action_mail_viewsource extends rcmail_action
                 $headers = $rcmail->storage->get_message_headers($uid);
             }
 
-            $charset = $headers->charset ?: $rcmail->config->get('default_charset');
+            $charset  = $headers->charset ?: $rcmail->config->get('default_charset');
+            $filename = '';
+            $params   = [
+                'type'         => 'text/plain',
+                'type_charset' => $charset,
+            ];
 
             if (!empty($_GET['_save'])) {
                 $subject  = rcube_mime::decode_header($headers->subject, $headers->charset);
                 $filename = self::filename_from_subject(mb_substr($subject, 0, 128));
                 $filename = ($filename ?: $uid)  . '.eml';
+
+                $params['length'] = $headers->size;
+                $params['disposition'] = 'attachment';
 
                 $rcmail->output->download_headers($filename, [
                         'length'       => $headers->size,
@@ -59,8 +67,10 @@ class rcmail_action_mail_viewsource extends rcmail_action
                 ]);
             }
             else {
-                header("Content-Type: text/plain; charset={$charset}");
+                $params['disposition'] = 'inline';
             }
+
+            $rcmail->output->download_headers($filename, $params);
 
             if (isset($part_id) && isset($message)) {
                 $message->get_part_body($part_id, empty($_GET['_save']), 0, -1);
