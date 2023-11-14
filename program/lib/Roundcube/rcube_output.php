@@ -175,25 +175,117 @@ abstract class rcube_output
     }
 
     /**
-     * Send browser compatibility/security/etc. headers
+     * Send browser compatibility/security/privacy headers
+     *
+     * @param bool $privacy Enable privacy headers
      */
-    public function common_headers()
+    public function common_headers($privacy = true)
     {
         if (headers_sent()) {
             return;
         }
 
+        $headers = array();
+
         // Unlock IE compatibility mode
         if ($this->browser->ie) {
-            header('X-UA-Compatible: IE=edge');
+            $headers['X-UA-Compatible'] = 'IE=edge';
         }
 
-        // Request browser to disable DNS prefetching (CVE-2010-0464)
-        header("X-DNS-Prefetch-Control: off");
+        if ($privacy) {
+            // Request browser to disable DNS prefetching (CVE-2010-0464)
+            $headers['X-DNS-Prefetch-Control'] = 'off';
+
+            // Request browser disable Referer (sic) header
+            $headers['Referrer-Policy'] = 'same-origin';
+        }
 
         // send CSRF and clickjacking protection headers
         if ($xframe = $this->app->config->get('x_frame_options', 'sameorigin')) {
-            header('X-Frame-Options: ' . $xframe);
+            $headers['X-Frame-Options'] = $xframe;
+        }
+
+        $plugin = $this->app->plugins->exec_hook('common_headers', array('headers' => $headers, 'privacy' => $privacy));
+
+        foreach ($plugin['headers'] as $header => $value) {
+            header("$header: $value");
+        }
+    }
+
+    /**
+     * Send headers related to file downloads.
+     *
+     * @param string $filename File name
+     * @param array  $params   Optional parameters:
+     *                         type         - File content type (default: 'application/octet-stream')
+     *                         disposition  - Download type: 'inline' or 'attachment' (default)
+     *                         length       - Content length
+     *                         charset      - File name character set
+     *                         type_charset - Content character set
+     *                         time_limit   - Script execution limit (default: 3600)
+     */
+    public function download_headers($filename, $params = array())
+    {
+        // For security reasons we validate type, filename and charset params.
+        // Some HTTP servers might drop a header that is malformed or very long, this then
+        // can lead to web browsers unintentionally executing javascript code in the body.
+
+        if (empty($params['disposition'])) {
+            $params['disposition'] = 'attachment';
+        }
+
+        $ctype       = 'application/octet-stream';
+        $disposition = $params['disposition'];
+
+        if (!empty($params['type']) && is_string($params['type']) && strlen($params['type']) < 256
+            && preg_match('/^[a-z0-9!#$&.+^_-]+\/[a-z0-9!#$&.+^_-]+$/i', $params['type'])
+        ) {
+            $ctype = $params['type'];
+        }
+
+        if ($disposition == 'inline' && stripos($ctype, 'text') === 0) {
+            $charset = $this->charset;
+            if (!empty($params['type_charset']) && rcube_charset::is_valid($params['type_charset'])) {
+                $charset = $params['type_charset'];
+            }
+
+            $ctype .= "; charset={$charset}";
+        }
+
+        if (is_string($filename) && strlen($filename) > 0 && strlen($filename) <= 1024) {
+            // For non-ascii characters we'll use RFC2231 syntax
+            if (!preg_match('/[^a-zA-Z0-9_.:,?;@+ -]/', $filename)) {
+                $disposition .= "; filename=\"{$filename}\"";
+            }
+            else {
+                $filename = rawurlencode($filename);
+                $charset  = $this->charset;
+                if (!empty($params['charset']) && rcube_charset::is_valid($params['charset'])) {
+                    $charset = $params['charset'];
+                }
+
+                $disposition .= "; filename*={$charset}''{$filename}";
+            }
+        }
+
+        header("Content-Disposition: {$disposition}");
+        header("Content-Type: {$ctype}");
+
+        if ($params['disposition'] == 'attachment' && $this->browser->ie) {
+            header("Content-Type: application/force-download");
+        }
+
+        if (isset($params['length'])) {
+            header("Content-Length: " . $params['length']);
+        }
+
+        // don't kill the connection if download takes more than 30 sec.
+        if (!array_key_exists('time_limit', $params)) {
+            $params['time_limit'] = 3600;
+        }
+
+        if (is_numeric($params['time_limit'])) {
+            @set_time_limit($params['time_limit']);
         }
     }
 

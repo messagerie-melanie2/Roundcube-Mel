@@ -224,15 +224,17 @@ if (empty($_GET['_thumb']) && $attachment->is_valid()) {
     }
 
     $browser = $RCMAIL->output->browser;
-    list($ctype_primary, $ctype_secondary) = explode('/', $mimetype);
 
-    if (!empty($_GET['_download']) && $ctype_primary == 'text') {
-        header("Content-Type: text/$ctype_secondary; charset=" . $attachment->charset);
-    }
-    else {
-        header("Content-Type: $mimetype");
-        header("Content-Transfer-Encoding: binary");
-    }
+    // Fix cross-site scripting (XSS) vulnerability
+    // list($ctype_primary, $ctype_secondary) = explode('/', $mimetype);
+
+    // if (!empty($_GET['_download']) && $ctype_primary == 'text') {
+    //     header("Content-Type: text/$ctype_secondary; charset=" . $attachment->charset);
+    // }
+    // else {
+    //     header("Content-Type: $mimetype");
+    //     header("Content-Transfer-Encoding: binary");
+    // }
 
     // deliver part content
     if ($mimetype == 'text/html' && empty($_GET['_download'])) {
@@ -282,7 +284,13 @@ if (empty($_GET['_thumb']) && $attachment->is_valid()) {
         $filename .= '.' . $extensions[0];
     }
 
-    header("Content-Disposition: $disposition; filename=\"$filename\"");
+    // header("Content-Disposition: $disposition; filename=\"$filename\"");
+
+    $OUTPUT->download_headers($filename, [
+        'type'         => $mimetype,
+        'type_charset' => $attachment->charset,
+        'disposition'  => !empty($_GET['_download']) ? 'attachment' : 'inline',
+    ]);
 
     // handle tiff to jpeg conversion
     if (!empty($convert2jpeg)) {

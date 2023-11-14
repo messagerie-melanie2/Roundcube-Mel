@@ -37,8 +37,13 @@ if ($uid = rcube_utils::get_input_value('_uid', rcube_utils::INPUT_GET)) {
     }
 
     $charset = $headers->charset ?: $RCMAIL->config->get('default_charset');
+    $filename = '';
+    $params   = [
+        'type'         => 'text/plain',
+        'type_charset' => $charset,
+    ];
 
-    header("Content-Type: text/plain; charset={$charset}");
+    // header("Content-Type: text/plain; charset={$charset}");
 
     if (!empty($_GET['_save'])) {
         $browser  = $RCMAIL->output->browser;
@@ -47,9 +52,24 @@ if ($uid = rcube_utils::get_input_value('_uid', rcube_utils::INPUT_GET)) {
         $filename = ($filename ?: $uid)  . '.eml';
         $filename = $browser->ie ? rawurlencode($filename) : addcslashes($filename, '"');
 
-        header("Content-Length: {$headers->size}");
-        header("Content-Disposition: attachment; filename=\"$filename\"");
+        // Fix cross-site scripting (XSS) vulnerability
+        // header("Content-Length: {$headers->size}");
+        // header("Content-Disposition: attachment; filename=\"$filename\"");
+
+        $params['length'] = $headers->size;
+        $params['disposition'] = 'attachment';
+
+        $OUTPUT->download_headers($filename, [
+            'length'       => $headers->size,
+            'type'         => 'text/plain',
+            'type_charset' => $charset,
+        ]);
     }
+    else {
+        $params['disposition'] = 'inline';
+    }
+
+    $OUTPUT->download_headers($filename, $params);
 
     if (isset($message)) {
         $message->get_part_body($part_id, empty($_GET['_save']), 0, -1);
