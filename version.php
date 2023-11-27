@@ -14,7 +14,7 @@ class Version {
   /**
    * Build
    */
-  const BUILD = '20231123143645';
+  const BUILD = '20231127155300';
 }
 
 // Afficher le numéro de version si demandé
