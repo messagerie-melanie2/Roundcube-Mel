@@ -61,7 +61,9 @@
 <div id="message-menu" class="popupmenu">
 	<h3 id="aria-label-message-menu" class="voice"><roundcube:label name="arialabelmoremessageactions" /></h3>
 	<ul class="menu listing" role="menu" aria-labelledby="aria-label-message-menu">
+    <roundcube:if condition="template:name != 'message'" />
 		<roundcube:button type="link-menuitem" command="print" label="printmessage" class="print disabled" classAct="print active" data-hidden="small"/>
+    <roundcube:endif />
 		<roundcube:button type="link-menuitem" command="download" label="export" class="download disabled" classAct="download active" />
 		<roundcube:button type="link-menuitem" command="edit" prop="new" label="editasnew" class="edit asnew disabled" classAct="edit asnew active" />
 		<roundcube:button type="link-menuitem" command="viewsource" label="viewsource" class="source disabled" classAct="source active" />
