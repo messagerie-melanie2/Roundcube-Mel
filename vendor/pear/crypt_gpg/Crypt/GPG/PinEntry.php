@@ -5,8 +5,6 @@
 /**
  * Contains a class implementing automatic pinentry for gpg-agent
  *
- * PHP version 5
- *
  * LICENSE:
  *
  * This library is free software; you can redistribute it and/or modify
@@ -35,8 +33,6 @@
  * CLI user-interface and parser.
  */
 require_once 'Console/CommandLine.php';
-
-// {{{ class Crypt_GPG_PinEntry
 
 /**
  * A command-line dummy pinentry program for use with gpg-agent and Crypt_GPG
@@ -70,8 +66,6 @@ require_once 'Console/CommandLine.php';
  */
 class Crypt_GPG_PinEntry
 {
-    // {{{ class constants
-
     /**
      * Verbosity level for showing no output.
      */
@@ -99,9 +93,6 @@ class Crypt_GPG_PinEntry
      * @see http://bugs.php.net/bug.php?id=35224
      */
     const CHUNK_SIZE = 8192;
-
-    // }}}
-    // {{{ protected properties
 
     /**
      * File handle for the input stream
@@ -194,9 +185,6 @@ class Crypt_GPG_PinEntry
      */
     protected $currentPin = null;
 
-    // }}}
-    // {{{ __invoke()
-
     /**
      * Runs this pinentry
      *
@@ -234,9 +222,6 @@ class Crypt_GPG_PinEntry
         }
     }
 
-    // }}}
-    // {{{ setVerbosity()
-
     /**
      * Sets the verbosity of logging for this pinentry
      *
@@ -256,9 +241,6 @@ class Crypt_GPG_PinEntry
         $this->verbosity = (integer)$verbosity;
         return $this;
     }
-
-    // }}}
-    // {{{ setLogFilename()
 
     /**
      * Sets the log file location
@@ -292,9 +274,6 @@ class Crypt_GPG_PinEntry
         return $this;
     }
 
-    // }}}
-    // {{{ getUIXML()
-
     /**
      * Gets the CLI user-interface definition for this pinentry
      *
@@ -321,9 +300,6 @@ class Crypt_GPG_PinEntry
         }
     }
 
-    // }}}
-    // {{{ getCommandLineParser()
-
     /**
      * Gets the CLI parser for this pinentry
      *
@@ -333,9 +309,6 @@ class Crypt_GPG_PinEntry
     {
         return Console_CommandLine::fromXmlFile($this->getUIXML());
     }
-
-    // }}}
-    // {{{ log()
 
     /**
      * Logs a message at the specified verbosity level
@@ -363,9 +336,6 @@ class Crypt_GPG_PinEntry
         return $this;
     }
 
-    // }}}
-    // {{{ connect()
-
     /**
      * Connects this pinentry to the assuan server
      *
@@ -392,9 +362,6 @@ class Crypt_GPG_PinEntry
 
         return $this;
     }
-
-    // }}}
-    // {{{ parseCommand()
 
     /**
      * Parses an assuan command and performs the appropriate action
@@ -451,9 +418,6 @@ class Crypt_GPG_PinEntry
         }
     }
 
-    // }}}
-    // {{{ initPinsFromENV()
-
     /**
      * Initializes the PINs to be entered by this pinentry from the environment
      * variable PINENTRY_USER_DATA
@@ -483,9 +447,6 @@ class Crypt_GPG_PinEntry
         return $this;
     }
 
-    // }}}
-    // {{{ disconnect()
-
     /**
      * Disconnects this pinentry from the Assuan server
      *
@@ -513,9 +474,6 @@ class Crypt_GPG_PinEntry
         return $this;
     }
 
-    // }}}
-    // {{{ sendNotImplementedOK()
-
     /**
      * Sends an OK response for a not implemented feature
      *
@@ -525,9 +483,6 @@ class Crypt_GPG_PinEntry
     {
         return $this->send($this->getOK());
     }
-
-    // }}}
-    // {{{ sendSetDescription()
 
     /**
      * Parses the currently requested key identifier and user identifier from
@@ -562,9 +517,6 @@ class Crypt_GPG_PinEntry
         return $this->send($this->getOK());
     }
 
-    // }}}
-    // {{{ sendConfirm()
-
     /**
      * Tells the assuan server to confirm the operation
      *
@@ -574,9 +526,6 @@ class Crypt_GPG_PinEntry
     {
         return $this->send($this->getOK());
     }
-
-    // }}}
-    // {{{ sendMessage()
 
     /**
      * Tells the assuan server that any requested pop-up messages were confirmed
@@ -588,9 +537,6 @@ class Crypt_GPG_PinEntry
     {
         return $this->sendButtonInfo('close');
     }
-
-    // }}}
-    // {{{ sendButtonInfo()
 
     /**
      * Sends information about pressed buttons to the assuan server
@@ -605,9 +551,6 @@ class Crypt_GPG_PinEntry
     {
         return $this->send('BUTTON_INFO ' . $text . "\n");
     }
-
-    // }}}
-    // {{{ sendGetPin()
 
     /**
      * Sends the PIN value for the currently requested key
@@ -648,9 +591,6 @@ class Crypt_GPG_PinEntry
             ->send($this->getOK());
     }
 
-    // }}}
-    // {{{ sendGetInfo()
-
     /**
      * Sends information about this pinentry
      *
@@ -674,8 +614,6 @@ class Crypt_GPG_PinEntry
 
         return $this;
     }
-    // }}}
-    // {{{ sendGetInfoPID()
 
     /**
      * Sends the PID of this pinentry to the assuan server
@@ -689,9 +627,6 @@ class Crypt_GPG_PinEntry
             ->send($this->getOK());
     }
 
-    // }}}
-    // {{{ sendBye()
-
     /**
      * Flags this pinentry for disconnection and sends an OK response
      *
@@ -704,9 +639,6 @@ class Crypt_GPG_PinEntry
         return $return;
     }
 
-    // }}}
-    // {{{ sendReset()
-
     /**
      * Resets this pinentry and sends an OK response
      *
@@ -717,9 +649,6 @@ class Crypt_GPG_PinEntry
         $this->currentPin = null;
         return $this->send($this->getOK());
     }
-
-    // }}}
-    // {{{ getOK()
 
     /**
      * Gets an OK response to send to the assuan server
@@ -738,9 +667,6 @@ class Crypt_GPG_PinEntry
 
         return $return . "\n";
     }
-
-    // }}}
-    // {{{ getData()
 
     /**
      * Gets data ready to send to the assuan server
@@ -763,9 +689,6 @@ class Crypt_GPG_PinEntry
         return $data;
     }
 
-    // }}}
-    // {{{ getComment()
-
     /**
      * Gets a comment ready to send to the assuan server
      *
@@ -779,9 +702,6 @@ class Crypt_GPG_PinEntry
     {
         return $this->getWordWrappedData($data, '#');
     }
-
-    // }}}
-    // {{{ getWordWrappedData()
 
     /**
      * Wraps strings at 1,000 bytes without splitting UTF-8 multibyte
@@ -827,9 +747,6 @@ class Crypt_GPG_PinEntry
         return implode('', $lines);
     }
 
-    // }}}
-    // {{{ send()
-
     /**
      * Sends raw data to the assuan server
      *
@@ -844,10 +761,4 @@ class Crypt_GPG_PinEntry
         fflush($this->stdout);
         return $this;
     }
-
-    // }}}
 }
-
-// }}}
-
-?>

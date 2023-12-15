@@ -2,8 +2,6 @@
 /**
  * This file contains the Net_Sieve class.
  *
- * PHP version 5
- *
  * +-----------------------------------------------------------------------+
  * | All rights reserved.                                                  |
  * |                                                                       |
@@ -38,8 +36,8 @@
  * @author    Jan Schneider <jan@horde.org>
  * @copyright 2002-2003 Richard Heyes
  * @copyright 2006-2008 Anish Mistry
- * @license   http://www.opensource.org/licenses/bsd-license.php BSD
- * @link      http://pear.php.net/package/Net_Sieve
+ * @license   https://www.opensource.org/licenses/bsd-license.php BSD
+ * @link      https://pear.php.net/package/Net_Sieve
  */
 
 require_once 'PEAR.php';
@@ -102,7 +100,8 @@ class Net_Sieve
         'EXTERNAL',
         'PLAIN' ,
         'LOGIN',
-        'GSSAPI'
+        'GSSAPI',
+        'XOAUTH2'
     );
 
     /**
@@ -125,6 +124,13 @@ class Net_Sieve
      * @var array
      */
     var $_data;
+
+    /**
+     * Server capabilities.
+     *
+     * @var array
+     */
+    var $_capability = array();
 
     /**
      * Current state of the connection.
@@ -267,7 +273,7 @@ class Net_Sieve
             );
         }
 
-        if (strlen($user) && strlen($pass)) {
+        if (is_string($user) && strlen($user) && strlen($pass)) {
             $this->_error = $this->_handleConnectAndLogin();
         }
     }
@@ -333,12 +339,14 @@ class Net_Sieve
         if (is_a($res, 'PEAR_Error')) {
             return $res;
         }
+
         if ($this->_bypassAuth === false) {
             $res = $this->login($this->_data['user'], $this->_data['pass'], $this->_data['logintype'], $this->_data['euser'], $this->_bypassAuth);
             if (is_a($res, 'PEAR_Error')) {
                 return $res;
             }
         }
+
         return true;
     }
 
@@ -510,7 +518,7 @@ class Net_Sieve
      * @param string $scriptname The name of the script to be retrieved.
      *
      * @return string  The script on success, PEAR_Error on failure.
-    */
+     */
     function getScript($scriptname)
     {
         return $this->_cmdGetScript($scriptname);
@@ -692,6 +700,9 @@ class Net_Sieve
         case 'GSSAPI':
             $result = $this->_authGSSAPI($pwd);
             break;
+        case 'XOAUTH2':
+            $result = $this->_authXOAUTH2($uid, $pwd, $euser);
+            break;
         default :
             $result = $this->_pear->raiseError(
                 $method . ' is not a supported authentication method'
@@ -751,15 +762,15 @@ class Net_Sieve
             return $this->_pear->raiseError('No Kerberos service principal set', 2);
         }
 
-        if (!$this->_gssapiCN) {
-            return $this->_pear->raiseError('No Kerberos service CName set', 2);
+        if (!empty($this->_gssapiCN)) {
+            putenv('KRB5CCNAME=' . $this->_gssapiCN);
         }
-
-        putenv('KRB5CCNAME=' . $this->_gssapiCN);
 
         try {
             $ccache = new KRB5CCache();
-            $ccache->open($this->_gssapiCN);
+            if (!empty($this->_gssapiCN)) {
+                $ccache->open($this->_gssapiCN);
+            }
 
             $gssapicontext = new GSSAPIContext();
             $gssapicontext->acquireCredentials($ccache);
@@ -916,6 +927,26 @@ class Net_Sieve
     }
 
     /**
+     * Authenticates the user using the XOAUTH2 method.
+     *
+     * @param string $user  The userid to authenticate as.
+     * @param string $token The token to authenticate with.
+     * @param string $euser The effective uid to authenticate as.
+     *
+     * @return void
+     */
+    function _authXOAUTH2($user, $token, $euser)
+    {
+        // default to $user if $euser is not set
+        if (! $euser) {
+            $euser = $user;
+        }
+
+        $auth = base64_encode("user=$euser\001auth=$token\001\001");
+        return $this->_sendCmd("AUTHENTICATE \"XOAUTH2\" \"$auth\"");
+    }
+
+    /**
      * Removes a script from the server.
      *
      * @param string $scriptname Name of the script to delete.
@@ -964,7 +995,7 @@ class Net_Sieve
      * @param string $scriptname The name of the script to mark as active.
      *
      * @return boolean  True on success, PEAR_Error otherwise.
-    */
+     */
     function _cmdSetActive($scriptname)
     {
         if (NET_SIEVE_STATE_TRANSACTION != $this->_state) {
@@ -1099,8 +1130,7 @@ class Net_Sieve
     function _parseCapability($data)
     {
         // Clear the cached capabilities.
-        $this->_capability = array('sasl' => array(),
-                                   'extensions' => array());
+        $this->_capability = array('sasl' => array(), 'extensions' => array());
 
         $data = preg_split('/\r?\n/', $this->_toUpper($data), -1, PREG_SPLIT_NO_EMPTY);
 
@@ -1386,7 +1416,8 @@ class Net_Sieve
         // Unfortunately old Cyrus versions are broken and don't send a
         // CAPABILITY response, thus we would wait here forever. Parse the
         // Cyrus version and work around this broken behavior.
-        if (!preg_match('/^CYRUS TIMSIEVED V([0-9.]+)/', $this->_capability['implementation'], $matches)
+        if (empty($this->_capability['implementation'])
+            || !preg_match('/^CYRUS TIMSIEVED V([0-9.]+)/', $this->_capability['implementation'], $matches)
             || version_compare($matches[1], '2.3.10', '>=')
         ) {
             $res = $this->_doCmd();

@@ -7,8 +7,6 @@
  *
  * This file contains a data class representing a GPG signature.
  *
- * PHP version 5
- *
  * LICENSE:
  *
  * This library is free software; you can redistribute it and/or modify
@@ -39,8 +37,6 @@
  */
 require_once 'Crypt/GPG/UserId.php';
 
-// {{{ class Crypt_GPG_Signature
-
 /**
  * A class for GPG signature information
  *
@@ -57,8 +53,6 @@ require_once 'Crypt/GPG/UserId.php';
  */
 class Crypt_GPG_Signature
 {
-    // {{{ class properties
-
     /**
      * A base64-encoded string containing a unique id for this signature if
      * this signature has been verified as ok
@@ -117,9 +111,6 @@ class Crypt_GPG_Signature
      */
     private $_isValid = false;
 
-    // }}}
-    // {{{ __construct()
-
     /**
      * Creates a new signature
      *
@@ -143,8 +134,9 @@ class Crypt_GPG_Signature
      *                                    signature. This may also be a
      *                                    {@link Crypt_GPG_UserId} object.
      *
-     * @param Crypt_GPG_Signature|array $signature optional. Either an existing
-     *        signature object, which is copied; or an array of initial values.
+     * @param Crypt_GPG_Signature|array|null $signature Either an existing signature object,
+     *                                                  which is copied; or an array
+     *                                                  of initial values.
      */
     public function __construct($signature = null)
     {
@@ -195,9 +187,6 @@ class Crypt_GPG_Signature
         }
     }
 
-    // }}}
-    // {{{ getId()
-
     /**
      * Gets the id of this signature
      *
@@ -210,9 +199,6 @@ class Crypt_GPG_Signature
         return $this->_id;
     }
 
-    // }}}
-    // {{{ getKeyFingerprint()
-
     /**
      * Gets the fingerprint of the key used to create this signature
      *
@@ -222,9 +208,6 @@ class Crypt_GPG_Signature
     {
         return $this->_keyFingerprint;
     }
-
-    // }}}
-    // {{{ getKeyId()
 
     /**
      * Gets the id of the key used to create this signature
@@ -240,9 +223,6 @@ class Crypt_GPG_Signature
         return $this->_keyId;
     }
 
-    // }}}
-    // {{{ getCreationDate()
-
     /**
      * Gets the creation date of this signature
      *
@@ -253,9 +233,6 @@ class Crypt_GPG_Signature
     {
         return $this->_creationDate;
     }
-
-    // }}}
-    // {{{ getExpirationDate()
 
     /**
      * Gets the expiration date of the signature
@@ -269,9 +246,6 @@ class Crypt_GPG_Signature
         return $this->_expirationDate;
     }
 
-    // }}}
-    // {{{ getUserId()
-
     /**
      * Gets the user id associated with this signature
      *
@@ -282,9 +256,6 @@ class Crypt_GPG_Signature
         return $this->_userId;
     }
 
-    // }}}
-    // {{{ isValid()
-
     /**
      * Gets whether or no this signature is valid
      *
@@ -294,9 +265,6 @@ class Crypt_GPG_Signature
     {
         return $this->_isValid;
     }
-
-    // }}}
-    // {{{ setId()
 
     /**
      * Sets the id of this signature
@@ -314,9 +282,6 @@ class Crypt_GPG_Signature
         return $this;
     }
 
-    // }}}
-    // {{{ setKeyFingerprint()
-
     /**
      * Sets the key fingerprint of this signature
      *
@@ -332,9 +297,6 @@ class Crypt_GPG_Signature
         return $this;
     }
 
-    // }}}
-    // {{{ setKeyId()
-
     /**
      * Sets the key id of this signature
      *
@@ -349,9 +311,6 @@ class Crypt_GPG_Signature
         return $this;
     }
 
-    // }}}
-    // {{{ setCreationDate()
-
     /**
      * Sets the creation date of this signature
      *
@@ -365,9 +324,6 @@ class Crypt_GPG_Signature
         $this->_creationDate = intval($creationDate);
         return $this;
     }
-
-    // }}}
-    // {{{ setExpirationDate()
 
     /**
      * Sets the expiration date of this signature
@@ -384,9 +340,6 @@ class Crypt_GPG_Signature
         return $this;
     }
 
-    // }}}
-    // {{{ setUserId()
-
     /**
      * Sets the user id associated with this signature
      *
@@ -401,9 +354,6 @@ class Crypt_GPG_Signature
         return $this;
     }
 
-    // }}}
-    // {{{ setValid()
-
     /**
      * Sets whether or not this signature is valid
      *
@@ -417,10 +367,4 @@ class Crypt_GPG_Signature
         $this->_isValid = ($isValid) ? true : false;
         return $this;
     }
-
-    // }}}
 }
-
-// }}}
-
-?>

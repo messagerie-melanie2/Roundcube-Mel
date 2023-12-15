@@ -2,8 +2,6 @@
 /**
  * Part of Crypt_GPG
  *
- * PHP version 5
- *
  * @category  Encryption
  * @package   Crypt_GPG
  * @author    Christian Weiske <cweiske@php.net>
@@ -225,4 +223,3 @@ class Crypt_GPG_SignatureCreationInfo
         return $this->valid;
     }
 }
-?>

@@ -7,8 +7,6 @@
  *
  * This file contains an object that handles GnuPG key generation.
  *
- * PHP version 5
- *
  * LICENSE:
  *
  * This library is free software; you can redistribute it and/or modify
@@ -38,8 +36,6 @@
  * Base class for GPG methods
  */
 require_once 'Crypt/GPGAbstract.php';
-
-// {{{ class Crypt_GPG_KeyGenerator
 
 /**
  * GnuPG key generator
@@ -71,8 +67,6 @@ require_once 'Crypt/GPGAbstract.php';
  */
 class Crypt_GPG_KeyGenerator extends Crypt_GPGAbstract
 {
-    // {{{ protected properties
-
     /**
      * The expiration date of generated keys
      *
@@ -151,9 +145,6 @@ class Crypt_GPG_KeyGenerator extends Crypt_GPGAbstract
      */
     protected $subKeyUsage = Crypt_GPG_SubKey::USAGE_ENCRYPT;
 
-    // }}}
-    // {{{ __construct()
-
     /**
      * Creates a new GnuPG key generator
      *
@@ -184,9 +175,6 @@ class Crypt_GPG_KeyGenerator extends Crypt_GPGAbstract
     {
         parent::__construct($options);
     }
-
-    // }}}
-    // {{{ setExpirationDate()
 
     /**
      * Sets the expiration date of generated keys
@@ -243,9 +231,6 @@ class Crypt_GPG_KeyGenerator extends Crypt_GPGAbstract
         return $this;
     }
 
-    // }}}
-    // {{{ setPassphrase()
-
     /**
      * Sets the passphrase of generated keys
      *
@@ -259,9 +244,6 @@ class Crypt_GPG_KeyGenerator extends Crypt_GPGAbstract
         $this->passphrase = strval($passphrase);
         return $this;
     }
-
-    // }}}
-    // {{{ setKeyParams()
 
     /**
      * Sets the parameters for the primary key of generated key-pairs
@@ -336,9 +318,6 @@ class Crypt_GPG_KeyGenerator extends Crypt_GPGAbstract
 
         return $this;
     }
-
-    // }}}
-    // {{{ setSubKeyParams()
 
     /**
      * Sets the parameters for the sub-key of generated key-pairs
@@ -417,9 +396,6 @@ class Crypt_GPG_KeyGenerator extends Crypt_GPGAbstract
         return $this;
     }
 
-    // }}}
-    // {{{ generateKey()
-
     /**
      * Generates a new key-pair in the current keyring
      *
@@ -465,7 +441,6 @@ class Crypt_GPG_KeyGenerator extends Crypt_GPGAbstract
             'Subkey-Type'   => $this->subKeyAlgorithm,
             'Subkey-Length' => $this->subKeySize,
             'Subkey-Usage'  => $this->getUsage($this->subKeyUsage),
-            'Name-Real'     => $userId->getName(),
             'Handle'        => $handle,
         );
 
@@ -479,12 +454,20 @@ class Crypt_GPG_KeyGenerator extends Crypt_GPGAbstract
             $keyParams['Passphrase'] = $this->passphrase;
         }
 
-        if ($userId->getEmail() != '') {
-            $keyParams['Name-Email'] = $userId->getEmail();
+        $name    = $userId->getName();
+        $email   = $userId->getEmail();
+        $comment = $userId->getComment();
+
+        if (strlen($name) > 0) {
+            $keyParams['Name-Real'] = $name;
         }
 
-        if ($userId->getComment() != '') {
-            $keyParams['Name-Comment'] = $userId->getComment();
+        if (strlen($email) > 0) {
+            $keyParams['Name-Email'] = $email;
+        }
+
+        if (strlen($comment) > 0) {
+            $keyParams['Name-Comment'] = $comment;
         }
 
         $keyParamsFormatted = array();
@@ -545,9 +528,6 @@ class Crypt_GPG_KeyGenerator extends Crypt_GPGAbstract
         return $keys[0];
     }
 
-    // }}}
-    // {{{ getUsage()
-
     /**
      * Builds a GnuPG key usage string suitable for key generation
      *
@@ -585,9 +565,6 @@ class Crypt_GPG_KeyGenerator extends Crypt_GPGAbstract
         return implode(',', $usageArray);
     }
 
-    // }}}
-    // {{{ getUserId()
-
     /**
      * Gets a user id object from parameters
      *
@@ -614,10 +591,4 @@ class Crypt_GPG_KeyGenerator extends Crypt_GPGAbstract
 
         return $userId;
     }
-
-    // }}}
 }
-
-// }}}
-
-?>
