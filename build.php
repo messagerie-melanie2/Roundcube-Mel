@@ -75,7 +75,7 @@ echo "[build]Démarrage de l'écriture des version....\n";
 
 // Spécifiez le répertoire racine de votre projet ici
 $projectDirectory = __DIR__.'/plugins';
-$import_regex = '/import([ \n\t]*(?:[^ \n\t\{\}]+[ \n\t]*,?)?(?:[ \n\t]*\{(?:[ \n\t]*[^ \n\t"\'\{\}]+[ \n\t]*,?)+\})?[ \n\t]*)from[ \n\t]*([\'"])([^\'"\n]+)(?:[\'"])/';
+$import_regex = '/(import[ \n\t]*([\'"])([^\'"\n]+)(?:[\'"]))|(import([ \n\t]*(?:[^ \n\t\{\}]+[ \n\t]*,?)?(?:[ \n\t]*\{(?:[ \n\t]*[^ \n\t"\'\{\}]+[ \n\t]*,?)+\})?[ \n\t]*)from[ \n\t]*([\'"])([^\'"\n]+)(?:[\'"]))/';
 include_once 'version.php';
 $version = Version::VERSION.'.'.Version::BUILD;
 
