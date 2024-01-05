@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json.schemastore.org/web-manifest-combined.json",
+  "dir": "ltr",
+  "lang": "fr",
+  "orientation": "any",
+  "name": "Bureau Numérique",
+  "short_name": "BNum",
+  "start_url": ".",
+  "id": "/bureau/",
+  "display": "standalone",
+  "theme_color": "#1F2933",
+  "background_color": "#1F2933",
+  "description": "Le bureau numérique facilite votre mobilité en centralisant en un unique endroit votre messagerie, votre agenda, vos espaces de travail.",
+  "icons": [
+    {
+      "src": "skins/mel_elastic/images/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    }
+  ]
+}
