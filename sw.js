@@ -3,10 +3,11 @@
 
 // import {initializeApp} from "firebase/app";
 // import {getMessaging, getToken, onMessage} from "firebase/messaging";
-
 console.log("[Service Worker] sw.js")
+const version = 'X.X.X';
+console.info('[Service Worker] version', version);
 
-const cacheName = 'bnum-cache-pwa-v0.10';
+const cacheName = `bnum-cache-pwa-v.${version}`;
 
 self.addEventListener('install', e => {
     e.waitUntil(
@@ -47,6 +48,22 @@ self.addEventListener('push', function (event) {
         })
     );
 });
+
+self.addEventListener("activate", (e) => {
+    e.waitUntil(
+      caches.keys().then((keyList) => {
+        return Promise.all(
+          keyList.map((key) => {
+            // console.log('key', cacheName);
+            if (key === cacheName) {
+              return;
+            }
+            return caches.delete(key);
+          }),
+        );
+      }),
+      );
+  });
 
 // messaging.setBackgroundMessageHandler(function(payload) {
 //     console.log('[firebase-messaging-sw.js] Received background message ', payload);
