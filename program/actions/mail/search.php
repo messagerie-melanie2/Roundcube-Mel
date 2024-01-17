@@ -61,12 +61,20 @@ class rcmail_action_mail_search extends rcmail_action_mail_index
         }
 
         if (!empty($subject)) {
-            $search_str .= str_repeat(' OR', count($subject)-1);
-            foreach ($subject as $sub) {
-                $search_str .= ' ' . $sub . ' ' . rcube_imap_generic::escape($search);
+            // PAMELA - Recherche multicritères
+            $searches = explode(' AND ', $search);
+
+            foreach ($searches as $search) {
+                $searches = explode(' OR ', $search);
+                $search_str .= str_repeat(' OR', count($searches)-1);
+                foreach ($searches as $search) {
+                    $search_str .= str_repeat(' OR', count($subject)-1);
+                    foreach ($subject as $sub) {
+                        $search_str .= ' ' . $sub . ' ' . rcube_imap_generic::escape($search);
+                    }
+                }
             }
         }
-
         $search_str  = trim($search_str);
         $sort_column = self::sort_column();
         $sort_order  = self::sort_order();
