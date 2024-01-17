@@ -29,6 +29,9 @@ function update_js_version($files, $regex_import, $version) {
             if (strpos($value, '/always_load/load_module.js') !== false) {
                 $fileContent = str_replace("const VERSION = 'X.X.X", "const VERSION = '$version", $fileContent);
             }
+            elseif (strpos($value, 'sw.js') !== false) {
+                $fileContent = str_replace("const version = 'X.X.X", "const version = '$version", $fileContent);
+            }
             else {
                 $last_version = explode("\n", $fileContent)[0];
                 if (strpos($last_version, '//?v=') !== false) {
@@ -80,6 +83,7 @@ include_once 'version.php';
 $version = Version::VERSION.'.'.Version::BUILD;
 
 $files = listJavaScriptFiles($projectDirectory);
+$files[] = __DIR__.'/sw.js';
 update_js_version($files, $import_regex, $version);
 echo "[build]Fin de l'écriture !\n";
 ?>
