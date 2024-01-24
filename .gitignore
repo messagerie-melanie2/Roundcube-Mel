@@ -15,6 +15,7 @@
 /plugins/libkolab
 /plugins/mel
 /plugins/mel_*
+/plugins/mi_*
 /plugins/pdfviewer
 /plugins/removeattachments
 /plugins/right_panel
@@ -24,6 +25,7 @@
 /plugins/tasklist
 
 /skins/mel_*
+/skins/mi_*
 /skins/melanie2_*
 plugins/electron
 plugins/libkolab
