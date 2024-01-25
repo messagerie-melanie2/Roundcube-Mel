@@ -15,7 +15,8 @@ self.addEventListener('install', e => {
         caches.open(cacheName).then(cache => {
             // Ajoute toutes les URLs des éléments à mettre en cache
             return cache.addAll([
-                '/',
+                '/skins/mel_elastic/',
+                '/plugins/'
                 // '/css/',
                 // '/img/',
                 // '/js/',
