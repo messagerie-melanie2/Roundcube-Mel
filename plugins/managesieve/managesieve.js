@@ -362,9 +362,24 @@ rcube_webmail.prototype.managesieve_updatelist = function(action, o)
         if (o.all)
           $('tr', this.gui_objects.filtersetslist).addClass('disabled');
         row.removeClass('disabled');
+
+        if ($('#'+id+'_state').length) {
+          $('#'+id+'_state').text(' (Activé)')
+        }
+        else {
+          row.find('td').html(row.find('td').text() + `<span id="${id}_state"> (Activé)</span>`) 
+        }
       }
       else
         row.addClass('disabled');
+
+        if ($('#'+id+'_state').length) {
+          $('#'+id+'_state').text(' (Désactivé)')
+        }
+        else {
+          row.find('td').html(row.find('td').text() + `<span id="${id}_state"> (Désactivé)</span>`) 
+        }
+
 
       break;
 
