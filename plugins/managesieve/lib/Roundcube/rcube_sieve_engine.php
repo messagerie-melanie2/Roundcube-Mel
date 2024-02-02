@@ -1383,7 +1383,7 @@ class rcube_sieve_engine
                       $nameset = $this->rc->gettext('managesieve.ingo_filters');
                     }
                     $result[] = [
-                        'name'  => $nameset . !in_array($set, $this->active) ? ' (Désactivé)' : ' (Activé)',
+                        'name'  => !in_array($set, $this->active) ? $nameset . ' <span id="S2_state"> (Désactivé)</span>' :  $nameset . ' <span id="S2_state"> (Activé)</span>',
                         'id'    => 'S' . $idx,
                         'class' => !in_array($set, $this->active) ? 'disabled' : '',
                     ];
