@@ -360,7 +360,11 @@ rcube_webmail.prototype.managesieve_updatelist = function(action, o)
       var id = this.managesieve_setid(o.name), row = $('#rcmrow' + id);
       if (o.active) {
         if (o.all)
+        {
           $('tr', this.gui_objects.filtersetslist).addClass('disabled');
+          $(this.gui_objects.filtersetslist)[0].innerHTML = $(this.gui_objects.filtersetslist)[0].innerHTML.replaceAll('Activé', 'Désactivé')
+        }
+
         row.removeClass('disabled');
 
         //PAMELA - 0007854: Mettre un marqueur plus visible pour l'activation des filtres
@@ -370,8 +374,8 @@ rcube_webmail.prototype.managesieve_updatelist = function(action, o)
       {
         row.addClass('disabled');
 
-         //PAMELA - 0007854: Mettre un marqueur plus visible pour l'activation des filtres
-         row.find('td').text(row.find('td').text().replace(' (Activé)', ' (Désactivé)'))
+        //PAMELA - 0007854: Mettre un marqueur plus visible pour l'activation des filtres
+        row.find('td').text(row.find('td').text().replace(' (Activé)', ' (Désactivé)'))
       }
 
       break;
