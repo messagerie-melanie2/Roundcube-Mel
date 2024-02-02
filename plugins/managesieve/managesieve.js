@@ -364,24 +364,14 @@ rcube_webmail.prototype.managesieve_updatelist = function(action, o)
         row.removeClass('disabled');
 
         //PAMELA - 0007854: Mettre un marqueur plus visible pour l'activation des filtres
-        if ($('#'+id+'_state').length) {
-          $('#'+id+'_state').text(' (Activé)')
-        }
-        else {
-          row.find('td').html(row.find('td').text() + `<span id="${id}_state"> (Activé)</span>`) 
-        }
+        row.find('td').text(row.find('td').text().replace(' (Désactivé)', ' (Activé)'))
       }
       else
       {
         row.addClass('disabled');
 
          //PAMELA - 0007854: Mettre un marqueur plus visible pour l'activation des filtres
-        if ($('#'+id+'_state').length) {
-          $('#'+id+'_state').text(' (Désactivé)')
-        }
-        else {
-          row.find('td').html(row.find('td').text() + `<span id="${id}_state"> (Désactivé)</span>`) 
-        }
+         row.find('td').text(row.find('td').text().replace(' (Activé)', ' (Désactivé)'))
       }
 
       break;
