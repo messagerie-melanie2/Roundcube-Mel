@@ -17,6 +17,13 @@ The code designed to run on a webserver is mainly written in PHP and Javascript.
 It includes a custom framework with an IMAP library derived from [IlohaMail][iloha]
 and requires a set of external libraries (see composer.json and jsdeps.json files).
 
+BNUM
+----
+
+This Roundcube Webmail version is a fork of the official Roundcube version. This
+fork is used to fix some minors bugs and essentially to support multiple mailboxes
+in the mail task.
+
 
 INSTALLATION
 ------------
