@@ -1830,6 +1830,7 @@ function rcube_elastic_ui()
         }
 
         layout.content.removeClass('hidden');
+        if(rcmail.env.task === 'mail' && rcmail.env.action === 'compose') $('#toolbar-menu').removeClass('hidden');
 
         //PAMELLA
         if (touch === true)
@@ -2471,7 +2472,7 @@ function rcube_elastic_ui()
                         // the DOM (https://github.com/twbs/bootstrap/issues/20219)
                         // making our menus to not update buttons state.
                         // Work around this by attaching it back to the DOM tree.
-                        .appendTo(popup.data('popup-parent') || document.body);
+                        .prependTo(popup.data('popup-parent') || document.body);
                 }
 
                 // close orphaned popovers, for some reason there are sometimes such dummy elements left
