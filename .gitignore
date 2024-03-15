@@ -32,3 +32,4 @@ plugins/libkolab
 skins/melanie2_larry
 plugins/rizomo
 plugins/roundcube_auth
+plugins/tchap
