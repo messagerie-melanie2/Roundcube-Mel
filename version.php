@@ -14,7 +14,7 @@ class Version {
   /**
    * Build
    */
-  const BUILD = 'FINAL.PART.2';
+  const BUILD = 'FINAL.PART.4';
 }
 
 // Afficher le numéro de version si demandé
