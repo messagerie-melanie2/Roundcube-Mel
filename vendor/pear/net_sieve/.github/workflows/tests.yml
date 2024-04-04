@@ -1,0 +1,42 @@
+name: tests
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  linux_tests:
+    runs-on: ubuntu-20.04
+    if: "!contains(github.event.head_commit.message, '[skip ci]') && !contains(github.event.head_commit.message, '[ci skip]')"
+
+    strategy:
+      fail-fast: true
+      matrix:
+        php: ["5.3", "5.4", "5.5", "5.6", "7.0", "7.1", "7.2", "7.3", "7.4", "8.0", "8.1", "8.2"]
+
+    name: PHP ${{ matrix.php }}/Linux
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions:
+          tools: composer:v2
+          coverage: none
+
+      - name: Fix PHPUnit for PHP 8
+        run: composer config platform.php 7.4
+        if: matrix.php >= 8.0
+
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-interaction --no-progress
+
+      - name: Execute tests
+        run: vendor/bin/phpunit tests/*Test.php

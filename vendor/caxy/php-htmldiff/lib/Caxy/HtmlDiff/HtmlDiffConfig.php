@@ -8,12 +8,7 @@ namespace Caxy\HtmlDiff;
 class HtmlDiffConfig
 {
     /**
-     * @var array
-     */
-    protected $specialCaseTags = array('strong', 'b', 'i', 'big', 'small', 'u', 'sub', 'sup', 'strike', 's', 'p');
-
-    /**
-     * @var array
+     * @var string[]
      */
     protected $specialCaseChars = array('.', ',', '(', ')', '\'');
 
@@ -55,20 +50,13 @@ class HtmlDiffConfig
         'a' => '[[REPLACE_A]]',
         'img' => '[[REPLACE_IMG]]',
         'pre' => '[[REPLACE_PRE]]',
+        'picture' => '[[REPLACE_PICTURE]]',
     );
 
     /**
      * @var int
      */
     protected $matchThreshold = 80;
-    /**
-     * @var array
-     */
-    protected $specialCaseOpeningTags = array();
-    /**
-     * @var array
-     */
-    protected $specialCaseClosingTags = array();
 
     /**
      * @var bool
@@ -91,6 +79,11 @@ class HtmlDiffConfig
     protected $purifierCacheLocation = null;
 
     /**
+     * @var bool
+     */
+    protected $spaceMatching = false;
+
+    /**
      * @return HtmlDiffConfig
      */
     public static function create()
@@ -103,7 +96,6 @@ class HtmlDiffConfig
      */
     public function __construct()
     {
-        $this->setSpecialCaseTags($this->specialCaseTags);
     }
 
     /**
@@ -126,18 +118,12 @@ class HtmlDiffConfig
         return $this;
     }
 
-    /**
-     * @param array $chars
-     */
     public function setSpecialCaseChars(array $chars)
     {
         $this->specialCaseChars = $chars;
     }
 
-    /**
-     * @return array|null
-     */
-    public function getSpecialCaseChars()
+    public function getSpecialCaseChars() : array
     {
         return $this->specialCaseChars;
     }
@@ -172,77 +158,49 @@ class HtmlDiffConfig
     }
 
     /**
+     * @deprecated This feature never properly worked, and is removed in version 0.1.14
+     *
      * @param array $tags
      *
      * @return $this
      */
     public function setSpecialCaseTags(array $tags = array())
     {
-        $this->specialCaseTags = $tags;
-        $this->specialCaseOpeningTags = array();
-        $this->specialCaseClosingTags = array();
-
-        foreach ($this->specialCaseTags as $tag) {
-            $this->addSpecialCaseTag($tag);
-        }
-
         return $this;
     }
 
     /**
+     * @deprecated This feature never properly worked, and is removed in version 0.1.14
+     *
      * @param string $tag
      *
      * @return $this
      */
     public function addSpecialCaseTag($tag)
     {
-        if (!in_array($tag, $this->specialCaseTags)) {
-            $this->specialCaseTags[] = $tag;
-        }
-
-        $opening = $this->getOpeningTag($tag);
-        $closing = $this->getClosingTag($tag);
-
-        if (!in_array($opening, $this->specialCaseOpeningTags)) {
-            $this->specialCaseOpeningTags[] = $opening;
-        }
-        if (!in_array($closing, $this->specialCaseClosingTags)) {
-            $this->specialCaseClosingTags[] = $closing;
-        }
-
         return $this;
     }
 
     /**
+     * @deprecated This feature never properly worked, and is removed in version 0.1.14
+     *
      * @param string $tag
      *
      * @return $this
      */
     public function removeSpecialCaseTag($tag)
     {
-        if (($key = array_search($tag, $this->specialCaseTags)) !== false) {
-            unset($this->specialCaseTags[$key]);
-
-            $opening = $this->getOpeningTag($tag);
-            $closing = $this->getClosingTag($tag);
-
-            if (($key = array_search($opening, $this->specialCaseOpeningTags)) !== false) {
-                unset($this->specialCaseOpeningTags[$key]);
-            }
-            if (($key = array_search($closing, $this->specialCaseClosingTags)) !== false) {
-                unset($this->specialCaseClosingTags[$key]);
-            }
-        }
-
         return $this;
     }
 
     /**
-     * @return array|null
+     * @deprecated This feature never properly worked, and is removed in version 0.1.14
+     *
+     * @return null
      */
     public function getSpecialCaseTags()
     {
-        return $this->specialCaseTags;
+        return null;
     }
 
     /**
@@ -418,22 +376,6 @@ class HtmlDiffConfig
     }
 
     /**
-     * @return array
-     */
-    public function getSpecialCaseOpeningTags()
-    {
-        return $this->specialCaseOpeningTags;
-    }
-
-    /**
-     * @return array
-     */
-    public function getSpecialCaseClosingTags()
-    {
-        return $this->specialCaseClosingTags;
-    }
-
-    /**
      * @return bool
      */
     public function isUseTableDiffing()
@@ -503,6 +445,22 @@ class HtmlDiffConfig
     public function getPurifierCacheLocation()
     {
         return $this->purifierCacheLocation;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isSpaceMatching()
+    {
+        return $this->spaceMatching;
+    }
+
+    /**
+     * @param bool $keepNewLines
+     */
+    public function setSpaceMatching($spaceMatching)
+    {
+        $this->spaceMatching = $spaceMatching;
     }
 
     /**
