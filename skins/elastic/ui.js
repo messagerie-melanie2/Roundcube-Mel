@@ -2464,7 +2464,7 @@ function rcube_elastic_ui()
                 if (/-clone$/.test(popup.attr('id'))) {
                     popup.remove();
                 }
-                else {
+                else {                  
                     popup.attr('aria-hidden', true)
                         // Some menus aren't being hidden, force that
                         .addClass('hidden')
@@ -2473,6 +2473,9 @@ function rcube_elastic_ui()
                         // making our menus to not update buttons state.
                         // Work around this by attaching it back to the DOM tree.
                         .prependTo(popup.data('popup-parent') || document.body);
+
+                    if(rcmail.env.task === 'mail' && rcmail.env.action === 'compose') popup.removeClass('hidden');
+
                 }
 
                 // close orphaned popovers, for some reason there are sometimes such dummy elements left
