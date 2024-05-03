@@ -80,7 +80,7 @@ echo "[build]Démarrage de l'écriture des version....\n";
 $projectDirectory = __DIR__.'/plugins';
 $import_regex = '/(import[ \n\t]*([\'"])([^\'"\n]+)(?:[\'"]))|(import([ \n\t]*(?:[^ \n\t\{\}]+[ \n\t]*,?)?(?:[ \n\t]*\{(?:[ \n\t]*[^ \n\t"\'\{\}]+[ \n\t]*,?)+\})?[ \n\t]*)from[ \n\t]*([\'"])([^\'"\n]+)(?:[\'"]))/';
 include_once 'version.php';
-$version = Version::VERSION.'.'.Version::BUILD;
+$version = Version::VERSION.'.'.date('YmdHis');
 
 $files = listJavaScriptFiles($projectDirectory);
 $files[] = __DIR__.'/sw.js';
