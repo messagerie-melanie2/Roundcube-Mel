@@ -609,6 +609,11 @@ function rcmail_message_list_head($attrib, $a_show_cols)
     }
 
     foreach ($a_show_cols as $col) {
+        // sanity check
+        if (!preg_match('/^[a-zA-Z_-]+$/', $col)) {
+            continue;
+        }
+        
         $label    = '';
         $sortable = false;
         $rel_col  = $col == 'date' && $sort_col == 'arrival' ? 'arrival' : $col;
