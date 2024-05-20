@@ -29,6 +29,12 @@
         "sabre/vobject": "~3.5.3",
         "pear/http_request2": "~2.3.0",
         "caxy/php-htmldiff": "~0.1.7",
-		"messagerie-melanie2/orm-m2" : "~0.6.6.0"
+		"messagerie-melanie2/orm-m2" : "~0.6.7.0",
+		"phpmailer/phpmailer": "^6.9.1"
+	},
+	"config": {
+		"allow-plugins": {
+			"roundcube/plugin-installer": true
+		}
 	}
 }

@@ -701,21 +701,23 @@ class rcube_sieve_vacation extends rcube_sieve_engine
 
         if ($date_extension) {
             $date_value = [];
-            foreach ((array) $this->vacation['tests'] as $test) {
-                if ($test['test'] == 'currentdate') {
-                    $idx = $test['type'] == 'value-ge' ? 'start' : 'end';
+            if (!empty($this->vacation['tests'])) {
+                foreach ((array) $this->vacation['tests'] as $test) {
+                    if ($test['test'] == 'currentdate') {
+                        $idx = $test['type'] == 'value-ge' ? 'start' : 'end';
 
-                    if ($test['part'] == 'date') {
-                        $date_value[$idx]['date'] = $test['arg'];
-                    }
-                    else if ($test['part'] == 'iso8601') {
-                        $date_value[$idx]['datetime'] = $test['arg'];
+                        if ($test['part'] == 'date') {
+                            $date_value[$idx]['date'] = $test['arg'];
+                        }
+                        else if ($test['part'] == 'iso8601') {
+                            $date_value[$idx]['datetime'] = $test['arg'];
+                        }
                     }
                 }
             }
 
             foreach ($date_value as $idx => $value) {
-                $$idx = new DateTime($value['datetime'] ?: $value['date'], $timezone);
+                ${$idx} = new DateTime(!empty($value['datetime']) ? $value['datetime'] : $value['date'], $timezone);
             }
         }
         else if ($regex_extension) {

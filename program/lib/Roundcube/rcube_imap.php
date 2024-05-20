@@ -157,7 +157,7 @@ class rcube_imap extends rcube_storage
             $data = $this->plugins->exec_hook('storage_connect', array_merge($this->options, $data));
 
             if ($attempt > 1 && !$data['retry']) {
-                $break;
+                break;
             }
 
             if (!empty($data['pass'])) {
@@ -167,6 +167,11 @@ class rcube_imap extends rcube_storage
             // Handle per-host socket options
             if (isset($data['socket_options'])) {
                 rcube_utils::parse_socket_options($data['socket_options'], $data['host']);
+            }
+
+            // PAMELA - Pouvoir shunter la connexion imap via un plugin
+            if (isset($data['return'])) {
+                return $data['return'];
             }
 
             $this->conn->connect($data['host'], $data['user'], $pass, $data);

@@ -167,7 +167,9 @@ class OutputRules implements RulesInterface
 
         $this->outputMode = static::IM_IN_HTML;
         $this->out = $output;
-        $this->hasHTML5 = defined('ENT_HTML5');
+
+        // If HHVM, see https://github.com/facebook/hhvm/issues/2727
+        $this->hasHTML5 = defined('ENT_HTML5') && !defined('HHVM_VERSION');
     }
 
     public function addRule(array $rule)
@@ -178,13 +180,6 @@ class OutputRules implements RulesInterface
     public function setTraverser(Traverser $traverser)
     {
         $this->traverser = $traverser;
-
-        return $this;
-    }
-
-    public function unsetTraverser()
-    {
-        $this->traverser = null;
 
         return $this;
     }

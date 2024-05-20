@@ -35,8 +35,7 @@ Cette version fonctionne exclusivement dans un environnement Mél ou MCE
 
 VERSION
 -------
-La version actuelle du webmail Mél est la 1.4.8  
-Cette version est basée sur [Roundcube][roundcube] vers 1.3.16
+Cette version est basée sur [Roundcube][roundcube] version 1.5.7
 
 
 INSTALLATION
