@@ -8,9 +8,6 @@
 		}, {
 			"type" : "vcs",
 			"url" : "https://git.kolab.org/diffusion/PNL/php-net_ldap.git"
-		}, {
-			"type" : "vcs",
-			"url" : "https://github.com/messagerie-melanie2/ORM-M2.git"
 		}
 	],
 	"require" : {
