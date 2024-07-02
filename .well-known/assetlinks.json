@@ -1,0 +1,13 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "fr.gouv.developpementdurable.dnum.detn.webconf",
+      "sha256_cert_fingerprints": [
+        "56:EC:55:A8:40:AB:96:A9:9A:E6:07:6A:35:27:5F:54:65:36:D0:47:B7:E1:DE:F7:5C:8D:25:D1:54:82:90:B7",
+        "34:A1:9A:30:E8:4F:7C:61:78:FD:51:E1:11:A5:31:25:86:09:78:13:E7:38:B8:1F:3F:4A:F8:FB:A0:89:AA:F0"
+      ]
+    }
+  }
+]
