@@ -27,7 +27,23 @@ function update_js_version($files, $regex_import, $version) {
         if ($fileContent !== false) {
             $write = true;
             if (strpos($value, '/always_load/load_module.js') !== false) {
-                $fileContent = str_replace("const VERSION = 'X.X.X", "const VERSION = '$version", $fileContent);
+                $last_version = explode("\n", $fileContent)[0];
+                if (strpos($last_version, '//?v=') !== false) {
+                    $last_version = str_replace('//?v=', '', $last_version);
+                }
+                else $last_version = null;
+                
+                if ($last_version)
+                {
+                    $fileContent = str_replace("const VERSION = '$last_version", "const VERSION = '$version", $fileContent);
+                    $fileContent = str_replace("const VERSION = \"$last_version", "const VERSION = \"$version", $fileContent);
+                    $fileContent = str_replace("//?v=$last_version", "//?v=$version", $fileContent);
+                }
+                else {
+                    $fileContent = "//?v=$version\n$fileContent";
+                    $fileContent = str_replace("const VERSION = 'X.X.X", "const VERSION = '$version", $fileContent);
+                    $fileContent = str_replace("const VERSION = \"X.X.X", "const VERSION = \"$version", $fileContent);
+                }
             }
             elseif (strpos($value, 'sw.js') !== false) {
                 $fileContent = str_replace("const version = 'X.X.X", "const version = '$version", $fileContent);
