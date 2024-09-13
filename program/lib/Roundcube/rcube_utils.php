@@ -440,27 +440,49 @@ class rcube_utils
      * Replace all css definitions with #container [def]
      * and remove css-inlined scripting, make position style safe
      *
-     * @param string CSS source code
-     * @param string Container ID to use as prefix
-     * @param bool   Allow remote content
+     * @param string $source       CSS source code
+     * @param string $container_id Container ID to use as prefix
+     * @param bool   $allow_remote Allow remote content
+     * @param string $prefix       Prefix to be added to id/class identifier
      *
      * @return string Modified CSS source
      */
-    public static function mod_css_styles($source, $container_id, $allow_remote = false)
+    public static function mod_css_styles($source, $container_id, $allow_remote = false, $prefix = '')
     {
-        $last_pos     = 0;
-        $replacements = new rcube_string_replacer;
-
-        // ignore the whole block if evil styles are detected
         $source   = self::xss_entity_decode($source);
-        $stripped = preg_replace('/[^a-z\(:;]/i', '', $source);
-        $evilexpr = 'expression|behavior|javascript:|import[^a]' . (!$allow_remote ? '|url\((?!data:image)' : '');
 
-        if (preg_match("/$evilexpr/i", $stripped)) {
+        // No @import allowed
+        // TODO: We should just remove it, not invalidate the whole content
+        if (stripos($source, '@import') !== false) {
             return '/* evil! */';
         }
 
-        $strict_url_regexp = '!url\s*\(\s*["\']?(https?:)//[a-z0-9/._+-]+["\']?\s*\)!Uims';
+        // Incomplete style expression
+        if (strpos($source, '{') === false) {
+            return '/* invalid! */';
+        }
+
+        // To prevent from a double-escaping tricks we consider a script with
+        // any escape sequences (after de-escaping them above) an evil script.
+        // This probably catches many valid scripts, but we\'re on the safe side.
+        if (preg_match('/\\\[0-9a-fA-F]{2}/', $source)) {
+            return '/* evil! */';
+        }
+
+        // remove html comments
+        $source = preg_replace('/(^\s*<\!--)|(-->\s*$)/m', '', $source);
+
+        $url_callback = static function ($url) use ($allow_remote) {
+            if (strpos($url, 'data:image') === 0) {
+                return $url;
+            }
+            if ($allow_remote && preg_match('|^https?://[a-z0-9/._+-]+$|i', $url)) {
+                return $url;
+            }
+        };
+
+        $last_pos = 0;
+        $replacements = new rcube_string_replacer();
 
         // cut out all contents between { and }
         while (($pos = strpos($source, '{', $last_pos)) && ($pos2 = strpos($source, '}', $pos))) {
@@ -469,59 +491,15 @@ class rcube_utils
                 $pos = $nested;
             $length = $pos2 - $pos - 1;
             $styles = substr($source, $pos+1, $length);
+            $styles = self::sanitize_css_block($styles, $url_callback);
+            
 
-            // Convert position:fixed to position:absolute (#5264)
-            $styles = preg_replace('/position[^a-z]*:[\s\r\n]*fixed/i', 'position: absolute', $styles);
-
-            // check every line of a style block...
-            if ($allow_remote) {
-                $a_styles = preg_split('/;[\r\n]*/', $styles, -1, PREG_SPLIT_NO_EMPTY);
-
-                for ($i=0, $len=count($a_styles); $i < $len; $i++) {
-                    $line     = $a_styles[$i];
-                    $stripped = preg_replace('/[^a-z\(:;]/i', '', $line);
-
-                    // allow data:image uri, join with continuation
-                    if (stripos($stripped, 'url(data:image')) {
-                        $a_styles[$i] .= ';' . $a_styles[$i+1];
-                        unset($a_styles[$i+1]);
-                    }
-                    // allow strict url() values only
-                    else if (stripos($stripped, 'url(') && !preg_match($strict_url_regexp, $line)) {
-                        $a_styles = array('/* evil! */');
-                        break;
-                    }
-                }
-
-                $styles = join(";\n", $a_styles);
-            }
-
-            $key      = $replacements->add($styles);
+            $key = $replacements->add(strlen($styles) ? " {$styles} " : '');
             $repl     = $replacements->get_replacement($key);
             $source   = substr_replace($source, $repl, $pos+1, $length);
             $last_pos = $pos2 - ($length - strlen($repl));
         }
-/*
-        // remove html comments and add #container to each tag selector.
-        // also replace body definition because we also stripped off the <body> tag
-        $source = preg_replace(
-            array(
-                '/(^\s*<\!--)|(-->\s*$)/m',
-                // (?!##str) below is to not match with ##str_replacement_0##
-                // from rcube_string_replacer used above, this is needed for
-                // cases like @media { body { position: fixed; } } (#5811)
-                '/(^\s*|,\s*|\}\s*|\{\s*)((?!##str)[a-z0-9\._#\*][a-z0-9\.\-_]*)/im',
-                '/'.preg_quote($container_id, '/').'\s+body/i',
-            ),
-            array(
-                '',
-                "\\1#$container_id \\2",
-                $container_id,
-            ),
-            $source);
-*/
-        // remove html comments
-        $source = preg_replace('/(^\s*<\!--)|(-->\s*$)/m', '', $source);
+
 
         // add #container to each tag selector and prefix to id/class identifiers
         if ($container_id) {
@@ -536,7 +514,13 @@ class rcube_utils
                     $replace = substr($replace, 5);
                 }
 
-                $replace = "#$container_id " . $replace;
+                if ($prefix) {
+                    $replace = str_replace(['.', '#'], [".$prefix", "#$prefix"], $replace);
+                }
+
+                if ($container_id) {
+                    $replace = "#$container_id " . $replace;
+                }
 
                 // Remove redundant spaces (for simpler testing)
                 $replace = preg_replace('/\s+/', ' ', $replace);
@@ -557,6 +541,98 @@ class rcube_utils
         $source = $replacements->resolve($source);
 
         return $source;
+    }
+
+        /**
+     * Parse and sanitize single CSS block
+     *
+     * @param string    $styles       CSS styles block
+     * @param ?callable $url_callback URL validator callback
+     *
+     * @return string
+     */
+    public static function sanitize_css_block($styles, $url_callback = null)
+    {
+        $output = [];
+
+        // check every css rule in the style block...
+        foreach (self::parse_css_block($styles) as $rule) {
+            $property = $rule[0];
+            $value = $rule[1];
+
+            if ($property == 'page') {
+                // Remove 'page' attributes (#7604)
+                continue;
+            } elseif ($property == 'position' && strcasecmp($value, 'fixed') === 0) {
+                // Convert position:fixed to position:absolute (#5264)
+                $value = 'absolute';
+            } elseif (preg_match('/expression|image-set/i', $value)) {
+                continue;
+            } else {
+                $value = '';
+                foreach (self::explode_css_property_block($rule[1]) as $val) {
+                    if ($url_callback && preg_match('/^url\s*\(/i', $val)) {
+                        if (preg_match('/^url\s*\(\s*[\'"]?([^\'"\)]*)[\'"]?\s*\)/iu', $val, $match)) {
+                            if ($url = $url_callback($match[1])) {
+                                $value .= ' url(' . $url . ')';
+                            }
+                        }
+                    } else {
+                        // whitelist ?
+                        $value .= ' ' . $val;
+
+                        // #1488535: Fix size units, so width:800 would be changed to width:800px
+                        if ($val
+                            && preg_match('/^(left|right|top|bottom|width|height)/i', $property)
+                            && preg_match('/^[0-9]+$/', $val)
+                        ) {
+                            $value .= 'px';
+                        }
+                    }
+                }
+            }
+
+            if (strlen($value)) {
+                $output[] = $property . ': ' . trim($value);
+            }
+        }
+
+        return count($output) > 0 ? implode('; ', $output) . ';' : '';
+    }
+
+      /**
+     * Explode css style value
+     *
+     * @param string $style CSS style
+     *
+     * @return array List of CSS values
+     */
+    public static function explode_css_property_block($style)
+    {
+        $style = preg_replace('/\s+/', ' ', $style);
+        $result = [];
+        $strlen = strlen($style);
+        $q = false;
+
+        // explode value
+        for ($p = $i = 0; $i < $strlen; $i++) {
+            if (($style[$i] == '"' || $style[$i] == "'") && ($i == 0 || $style[$i - 1] != '\\')) {
+                if ($q == $style[$i]) {
+                    $q = false;
+                } elseif (!$q) {
+                    $q = $style[$i];
+                }
+            }
+
+            if (!$q && $style[$i] == ' ' && ($i == 0 || !preg_match('/[,\(]/', $style[$i - 1]))) {
+                $result[] = substr($style, $p, $i - $p);
+                $p = $i + 1;
+            }
+        }
+
+        $result[] = (string) substr($style, $p);
+
+        return $result;
     }
 
     /**

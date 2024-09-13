@@ -364,7 +364,7 @@ function rcmail_process_compose_params(&$COMPOSE)
     // clean HTML message body which can be submitted by URL
     if (!empty($COMPOSE['param']['body'])) {
         if ($COMPOSE['param']['html'] = strpos($COMPOSE['param']['body'], '<') !== false) {
-            $wash_params = array('safe' => false, 'inline_html' => true);
+            $wash_params = array('safe' => false);
             $COMPOSE['param']['body'] = rcmail_wash_html($COMPOSE['param']['body'], $wash_params, array());
             $COMPOSE['param']['body'] = preg_replace('/<!--[^>\n]+>/', '', $COMPOSE['param']['body']);
             $COMPOSE['param']['body'] = preg_replace('/<\/?body>/', '', $COMPOSE['param']['body']);

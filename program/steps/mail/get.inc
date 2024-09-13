@@ -266,6 +266,12 @@ if (empty($_GET['_thumb']) && $attachment->is_valid()) {
                     )
                     . substr($out, $body_start);
             }
+            else {
+              // Use strict security policy to make sure no javascript is executed
+              // TODO: Make the above "blocked resources button" working with strict policy
+              // TODO: Move this to rcmail_html_page::write()?
+              header("Content-Security-Policy: script-src 'none'");
+            }
         }
 
         $OUTPUT = new rcmail_html_page();
