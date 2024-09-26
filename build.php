@@ -96,11 +96,31 @@ echo "[build]Démarrage de l'écriture des version....\n";
 $projectDirectory = __DIR__.'/plugins';
 $import_regex = '/(import[ \n\t]*([\'"])([^\'"\n]+)(?:[\'"]))|(import([ \n\t]*(?:[^ \n\t\{\}]+[ \n\t]*,?)?(?:[ \n\t]*\{(?:[ \n\t]*[^ \n\t"\'\{\}]+[ \n\t]*,?)+\})?[ \n\t]*)from[ \n\t]*([\'"])([^\'"\n]+)(?:[\'"]))/';
 include_once 'version.php';
-$version = Version::VERSION.'.'.date('YmdHis');
+$base_version = Version::VERSION;
+$build_version = date('YmdHis');
+$version = "$base_version.$build_version";
 
 $files = listJavaScriptFiles($projectDirectory);
 $files[] = __DIR__.'/sw.js';
 update_js_version($files, $import_regex, $version);
+echo "Update version script...";
+
+file_put_contents(__DIR__.'/version.php', "
+<?php
+class Version {
+  /**
+   * Version number
+   */
+  const VERSION = '$base_version';
+  
+  /**
+   * Build
+   */
+  const BUILD = '$build_version';
+}
+");
+
 echo "[build]Fin de l'écriture !\n";
+
 ?>
 
