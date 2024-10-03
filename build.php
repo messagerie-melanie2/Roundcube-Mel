@@ -27,7 +27,23 @@ function update_js_version($files, $regex_import, $version) {
         if ($fileContent !== false) {
             $write = true;
             if (strpos($value, '/always_load/load_module.js') !== false) {
-                $fileContent = str_replace("const VERSION = 'X.X.X", "const VERSION = '$version", $fileContent);
+                $last_version = explode("\n", $fileContent)[0];
+                if (strpos($last_version, '//?v=') !== false) {
+                    $last_version = str_replace('//?v=', '', $last_version);
+                }
+                else $last_version = null;
+                
+                if ($last_version)
+                {
+                    $fileContent = str_replace("const VERSION = '$last_version", "const VERSION = '$version", $fileContent);
+                    $fileContent = str_replace("const VERSION = \"$last_version", "const VERSION = \"$version", $fileContent);
+                    $fileContent = str_replace("//?v=$last_version", "//?v=$version", $fileContent);
+                }
+                else {
+                    $fileContent = "//?v=$version\n$fileContent";
+                    $fileContent = str_replace("const VERSION = 'X.X.X", "const VERSION = '$version", $fileContent);
+                    $fileContent = str_replace("const VERSION = \"X.X.X", "const VERSION = \"$version", $fileContent);
+                }
             }
             elseif (strpos($value, 'sw.js') !== false) {
                 $fileContent = str_replace("const version = 'X.X.X", "const version = '$version", $fileContent);
@@ -80,11 +96,31 @@ echo "[build]Démarrage de l'écriture des version....\n";
 $projectDirectory = __DIR__.'/plugins';
 $import_regex = '/(import[ \n\t]*([\'"])([^\'"\n]+)(?:[\'"]))|(import([ \n\t]*(?:[^ \n\t\{\}]+[ \n\t]*,?)?(?:[ \n\t]*\{(?:[ \n\t]*[^ \n\t"\'\{\}]+[ \n\t]*,?)+\})?[ \n\t]*)from[ \n\t]*([\'"])([^\'"\n]+)(?:[\'"]))/';
 include_once 'version.php';
-$version = Version::VERSION.'.'.date('YmdHis');
+$base_version = Version::VERSION;
+$build_version = date('YmdHis');
+$version = "$base_version.$build_version";
 
 $files = listJavaScriptFiles($projectDirectory);
 $files[] = __DIR__.'/sw.js';
 update_js_version($files, $import_regex, $version);
+echo "Update version script...";
+
+file_put_contents(__DIR__.'/version.php', "
+<?php
+class Version {
+  /**
+   * Version number
+   */
+  const VERSION = '$base_version';
+  
+  /**
+   * Build
+   */
+  const BUILD = '$build_version';
+}
+");
+
 echo "[build]Fin de l'écriture !\n";
+
 ?>
 
