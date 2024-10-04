@@ -105,8 +105,7 @@ $files[] = __DIR__.'/sw.js';
 update_js_version($files, $import_regex, $version);
 echo "Update version script...";
 
-file_put_contents(__DIR__.'/version.php', "
-<?php
+file_put_contents(__DIR__.'/version.php', "<?php
 class Version {
   /**
    * Version number
@@ -117,8 +116,7 @@ class Version {
    * Build
    */
   const BUILD = '$build_version';
-}
-");
+}");
 
 echo "[build]Fin de l'écriture !\n";
 
