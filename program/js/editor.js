@@ -104,6 +104,17 @@ function rcube_text_editor(config, id)
       file_picker_types: 'image'
     });
   }
+  //PAMELA
+  if (config.mode == 'forum') {
+    conf.toolbar += ' | bullist numlist | charmap hr link unlink image code $extra';
+    $.extend(conf, {
+      plugins: 'autolink charmap code hr image link lists paste tabfocus autoresize',
+      file_picker_types: 'image',
+      min_height: 400,
+      resize : 'vertical',
+    });
+    
+  }
   // full-featured editor
   else { //PAMELA toolbar
     conf.toolbar += ' | bullist numlist outdent indent lineheightselect ltr rtl superscript subscript blockquote'
@@ -702,7 +713,7 @@ function rcube_text_editor(config, id)
     rcmail.env.file_picker_type = type;
 
     dialog = $('#image-selector');
-
+    
     if (!form.length)
       form = this.file_upload_form(rcmail.gui_objects.uploadform);
     else
