@@ -182,6 +182,7 @@ $labels['selection'] = 'Sélection';
 $labels['all'] = 'Tous';
 $labels['none'] = 'Aucun';
 $labels['currpage'] = 'Page courante';
+$labels['displayed-mails'] = 'Mails affichés';
 $labels['isread'] = 'Lu';
 $labels['unread'] = 'Non lu';
 /* PAMELA MANTIS 3518: Mail : Aligner certains aspects visuels sur le Courrielleur */
