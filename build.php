@@ -105,18 +105,24 @@ $files[] = __DIR__.'/sw.js';
 update_js_version($files, $import_regex, $version);
 echo "Update version script...";
 
-file_put_contents(__DIR__.'/version.php', "<?php
+file_put_contents(__DIR__.'/version.php', '<?php
 class Version {
   /**
    * Version number
    */
-  const VERSION = '$base_version';
+  const VERSION = '.$base_version.';
   
   /**
    * Build
    */
-  const BUILD = '$build_version';
-}");
+  const BUILD = '.$build_version.';
+}
+
+if (isset($_GET["version"])) {
+    echo "Version : " . Version::VERSION . " | Build : " . Version::BUILD;
+  }
+');
+
 
 echo "[build]Fin de l'écriture !\n";
 
