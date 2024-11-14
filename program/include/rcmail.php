@@ -1476,6 +1476,16 @@ class rcmail extends rcube
             $this->build_folder_tree($a_mailboxes, $folder, $delimiter);
         }
 
+        // allow plugins to alter the folder tree or to localize folder names
+        $hook = $this->plugins->exec_hook('render_folder_selector', [
+            'list'      => $a_mailboxes,
+            'delimiter' => $delimiter,
+            'attribs'   => $p,
+        ]);
+
+        $a_mailboxes = $hook['list'];
+        $p           = $hook['attribs'];
+
         $select = new html_select($p);
 
         if ($p['noselection']) {
