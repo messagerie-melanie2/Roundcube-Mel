@@ -526,7 +526,8 @@ class rcmail_action_mail_index extends rcmail_action
                 $col_name = $col == 'fromto' ? $smart_col : $col;
 
                 if (in_array($col_name, ['from', 'to', 'cc', 'replyto'])) {
-                    $cont = self::address_string($header->$col_name, 3, false, null, $header->charset);
+                    // PAMELA - Ajout du title
+                    $cont = self::address_string($header->$col_name, 3, false, null, $header->charset, $header->title);
                     if (empty($cont)) {
                         $cont = '&nbsp;'; // for widescreen mode
                     }
@@ -1410,7 +1411,8 @@ class rcmail_action_mail_index extends rcmail_action
                     $address = html::a($attrs, $content);
                 }
                 else {
-                    $address = html::span(['title' => $mailto, 'class' => "rcmContactAddress"],
+                    // PAMELA - Title string à la place de mailto
+                    $address = html::span(['title' => $title ?? $mailto, 'class' => "rcmContactAddress"],
                         rcube::SQ($name ?: $mailto));
                 }
 
