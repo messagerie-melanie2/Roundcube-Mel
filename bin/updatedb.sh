@@ -35,8 +35,5 @@ if (empty($opts['dir'])) {
 if (empty($opts['package'])) {
     rcube::raise_error("Database schema package name not specified (--package).", false, true);
 }
-if (empty($opts['version'])) {
-    $opts['version'] = null;
-}
 
-rcmail_utils::db_update($opts['dir'], $opts['package'], $opts['version'], ['errors' => true]);
+rcmail_utils::db_update($opts['dir'], $opts['package'], $opts['version'] ?? null, ['errors' => true]);

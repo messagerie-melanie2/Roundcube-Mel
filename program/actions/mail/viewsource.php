@@ -35,7 +35,7 @@ class rcmail_action_mail_viewsource extends rcmail_action
         ob_end_clean();
 
         // similar code as in program/steps/mail/get.inc
-        if ($uid = rcube_utils::get_input_value('_uid', rcube_utils::INPUT_GET)) {
+        if ($uid = rcube_utils::get_input_string('_uid', rcube_utils::INPUT_GET)) {
             if ($pos = strpos($uid, '.')) {
                 $message = new rcube_message($uid);
                 $headers = $message->headers;
@@ -45,7 +45,7 @@ class rcmail_action_mail_viewsource extends rcmail_action
                 $headers = $rcmail->storage->get_message_headers($uid);
             }
 
-            $charset  = $headers->charset ?: $rcmail->config->get('default_charset');
+            $charset  = $headers->charset ?: $rcmail->config->get('default_charset', RCUBE_CHARSET);
             $filename = '';
             $params   = [
                 'type'         => 'text/plain',
@@ -61,6 +61,9 @@ class rcmail_action_mail_viewsource extends rcmail_action
                 $params['disposition'] = 'attachment';
             }
             else {
+                // Make sure it works in an iframe (#9084)
+                $rcmail->output->page_headers();
+
                 $params['disposition'] = 'inline';
             }
 

@@ -6,7 +6,6 @@ $vendorDir = dirname(dirname(__FILE__));
 $baseDir = dirname($vendorDir);
 
 return array(
-    'Roundcube\\Composer' => array($vendorDir . '/roundcube/plugin-installer/src'),
     'Net' => array($vendorDir . '/pear/net_socket', $vendorDir . '/pear/net_smtp'),
     'Mail' => array($vendorDir . '/pear/mail_mime'),
     'Console' => array($vendorDir . '/pear/console_getopt', $vendorDir . '/pear/console_commandline'),

@@ -69,6 +69,13 @@ class rcube_message_header
     public $cc;
 
     /**
+     * Message hidden recipients (Bcc)
+     *
+     * @var string
+     */
+    public $bcc;
+
+    /**
      * Message Reply-To header
      *
      * @var string
@@ -139,6 +146,20 @@ class rcube_message_header
     public $bodystructure;
 
     /**
+     * IMAP body (RFC822.TEXT)
+     *
+     * @var string
+     */
+    public $body;
+
+    /**
+     * IMAP part bodies
+     *
+     * @var array
+     */
+    public $bodypart = [];
+
+    /**
      * IMAP internal date
      *
      * @var string
@@ -188,6 +209,77 @@ class rcube_message_header
     public $flags = [];
 
     /**
+     * Extra flags (for the messages list)
+     *
+     * @var array
+     * @deprecated Use $flags
+     */
+    public $list_flags = [];
+
+    /**
+     * Extra columns content (for the messages list)
+     *
+     * @var array
+     */
+    public $list_cols = [];
+
+    /**
+     * Message structure
+     *
+     * @var rcube_message_part
+     */
+    public $structure;
+
+    /**
+     * Message thread depth
+     *
+     * @var int
+     */
+    public $depth;
+
+    /**
+     * Whether the message has references in the thread
+     *
+     * @var bool
+     */
+    public $has_children;
+
+    /**
+     * Number of flagged children (in a thread)
+     *
+     * @var int
+     */
+    public $flagged_children;
+
+    /**
+     * Number of unread children (in a thread)
+     *
+     * @var int
+     */
+    public $unread_children;
+
+    /**
+     * UID of the message parent (in a thread)
+     *
+     * @var int
+     */
+    public $parent_uid;
+
+    /**
+     * IMAP MODSEQ value
+     *
+     * @var int
+     */
+    public $modseq;
+
+    /**
+     * IMAP ENVELOPE
+     *
+     * @var string
+     */
+    public $envelope;
+
+    /**
      * Header name to rcube_message_header object property map
      *
      * @var array
@@ -219,7 +311,7 @@ class rcube_message_header
      * @param string $name   Header name
      * @param bool   $decode Decode the header content
      *
-     * @param string|null Header content
+     * @return string|null Header content
      */
     public function get($name, $decode = true)
     {

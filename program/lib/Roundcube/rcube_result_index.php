@@ -296,7 +296,7 @@ class rcube_result_index
         $end   = implode('|', ['$', preg_quote(self::SEPARATOR_ELEMENT, '/')]);
 
         if (preg_match("/($begin)$msgid($end)/", $this->raw_data, $m,
-            $get_index ? PREG_OFFSET_CAPTURE : null)
+            $get_index ? PREG_OFFSET_CAPTURE : 0)
         ) {
             if ($get_index) {
                 $idx = 0;
@@ -398,7 +398,7 @@ class rcube_result_index
                     $this->meta['pos'][$index+1] - $this->length() - 1);
             }
 
-            if (isset($pos) && preg_match('/([0-9]+)/', $this->raw_data, $m, null, $pos)) {
+            if (isset($pos) && preg_match('/([0-9]+)/', $this->raw_data, $m, 0, $pos)) {
                 return (int) $m[1];
             }
         }
@@ -413,18 +413,18 @@ class rcube_result_index
      * Returns response parameters, e.g. ESEARCH's MIN/MAX/COUNT/ALL/MODSEQ
      * or internal data e.g. MAILBOX, ORDER
      *
-     * @param string $param Parameter name
+     * @param ?string $param Parameter name
      *
      * @return array|string Response parameters or parameter value
      */
-    public function get_parameters($param=null)
+    public function get_parameters($param = null)
     {
-        $params = $this->params;
+        $params            = $this->params;
         $params['MAILBOX'] = $this->mailbox;
         $params['ORDER']   = $this->order;
 
         if ($param !== null) {
-            return $params[$param];
+            return $params[$param] ?? null;
         }
 
         return $params;

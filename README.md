@@ -4,6 +4,7 @@ Roundcube Webmail
 
 [![Tests Status](https://github.com/roundcube/roundcubemail/actions/workflows/tests.yml/badge.svg?branch=master)](https://github.com/roundcube/roundcubemail/actions/workflows/tests.yml)
 
+
 INTRODUCTION
 ------------
 Roundcube Webmail is a browser-based multilingual IMAP client with an

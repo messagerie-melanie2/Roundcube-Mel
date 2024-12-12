@@ -6,8 +6,6 @@ $vendorDir = dirname(dirname(__FILE__));
 $baseDir = dirname($vendorDir);
 
 return array(
-    'ArithmeticError' => $vendorDir . '/symfony/polyfill-php70/Resources/stubs/ArithmeticError.php',
-    'AssertionError' => $vendorDir . '/symfony/polyfill-php70/Resources/stubs/AssertionError.php',
     'Composer\\InstalledVersions' => $vendorDir . '/composer/InstalledVersions.php',
     'Crypt_GPG' => $vendorDir . '/pear/crypt_gpg/Crypt/GPG.php',
     'Crypt_GPGAbstract' => $vendorDir . '/pear/crypt_gpg/Crypt/GPGAbstract.php',
@@ -31,8 +29,6 @@ return array(
     'Crypt_GPG_SignatureCreationInfo' => $vendorDir . '/pear/crypt_gpg/Crypt/GPG/SignatureCreationInfo.php',
     'Crypt_GPG_SubKey' => $vendorDir . '/pear/crypt_gpg/Crypt/GPG/SubKey.php',
     'Crypt_GPG_UserId' => $vendorDir . '/pear/crypt_gpg/Crypt/GPG/UserId.php',
-    'DivisionByZeroError' => $vendorDir . '/symfony/polyfill-php70/Resources/stubs/DivisionByZeroError.php',
-    'Error' => $vendorDir . '/symfony/polyfill-php70/Resources/stubs/Error.php',
     'Net_LDAP2' => $vendorDir . '/pear/net_ldap2/Net/LDAP2.php',
     'Net_LDAP2_Entry' => $vendorDir . '/pear/net_ldap2/Net/LDAP2/Entry.php',
     'Net_LDAP2_Error' => $vendorDir . '/pear/net_ldap2/Net/LDAP2.php',
@@ -47,14 +43,10 @@ return array(
     'Net_LDAP3' => $vendorDir . '/kolab/net_ldap3/lib/Net/LDAP3.php',
     'Net_LDAP3_Result' => $vendorDir . '/kolab/net_ldap3/lib/Net/LDAP3/Result.php',
     'Net_Sieve' => $vendorDir . '/pear/net_sieve/Sieve.php',
-    'Normalizer' => $vendorDir . '/symfony/polyfill-intl-normalizer/Resources/stubs/Normalizer.php',
     'OS_Guess' => $vendorDir . '/pear/pear-core-minimal/src/OS/Guess.php',
     'PEAR' => $vendorDir . '/pear/pear-core-minimal/src/PEAR.php',
     'PEAR_Error' => $vendorDir . '/pear/pear-core-minimal/src/PEAR.php',
     'PEAR_ErrorStack' => $vendorDir . '/pear/pear-core-minimal/src/PEAR/ErrorStack.php',
     'PEAR_Exception' => $vendorDir . '/pear/pear_exception/PEAR/Exception.php',
-    'ParseError' => $vendorDir . '/symfony/polyfill-php70/Resources/stubs/ParseError.php',
-    'SessionUpdateTimestampHandlerInterface' => $vendorDir . '/symfony/polyfill-php70/Resources/stubs/SessionUpdateTimestampHandlerInterface.php',
     'System' => $vendorDir . '/pear/pear-core-minimal/src/System.php',
-    'TypeError' => $vendorDir . '/symfony/polyfill-php70/Resources/stubs/TypeError.php',
 );

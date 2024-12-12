@@ -58,7 +58,7 @@ class rcube_smtp
         $this->error = $this->response = null;
 
         if (!$host) {
-            $host = $rcube->config->get('smtp_server');
+            $host = $rcube->config->get('smtp_host', 'localhost:587');
             if (is_array($host)) {
                 if (array_key_exists($_SESSION['storage_host'], $host)) {
                     $host = $host[$_SESSION['storage_host']];
@@ -70,11 +70,15 @@ class rcube_smtp
                 }
             }
         }
+        else if (!empty($port) && !empty($host) && !preg_match('/:\d+$/', $host)) {
+            $host = "{$host}:{$port}";
+        }
+
+        $host = rcube_utils::parse_host($host);
 
         // let plugins alter smtp connection config
         $CONFIG = $rcube->plugins->exec_hook('smtp_connect', [
-            'smtp_server'    => $host,
-            'smtp_port'      => $port ?: $rcube->config->get('smtp_port', 587),
+            'smtp_host'      => $host,
             'smtp_user'      => $user !== null ? $user : $rcube->config->get('smtp_user', '%u'),
             'smtp_pass'      => $pass !== null ? $pass : $rcube->config->get('smtp_pass', '%p'),
             'smtp_auth_cid'  => $rcube->config->get('smtp_auth_cid'),
@@ -88,28 +92,15 @@ class rcube_smtp
             'gssapi_cn'           => null,
         ]);
 
-        $smtp_host = rcube_utils::parse_host($CONFIG['smtp_server']);
-        // when called from Installer it's possible to have empty $smtp_host here
-        if (!$smtp_host) $smtp_host = 'localhost';
-        $smtp_port     = is_numeric($CONFIG['smtp_port']) ? $CONFIG['smtp_port'] : 25;
-        $smtp_host_url = parse_url($smtp_host);
+        $smtp_host = $CONFIG['smtp_host'] ?: 'localhost';
 
-        // overwrite port
-        if (isset($smtp_host_url['host']) && isset($smtp_host_url['port'])) {
-            $smtp_host = $smtp_host_url['host'];
-            $smtp_port = $smtp_host_url['port'];
-        }
+        list($smtp_host, $scheme, $smtp_port) = rcube_utils::parse_host_uri($smtp_host, 587, 465);
 
-        // re-write smtp host
-        if (isset($smtp_host_url['host']) && isset($smtp_host_url['scheme'])) {
-            $smtp_host = sprintf('%s://%s', $smtp_host_url['scheme'], $smtp_host_url['host']);
-        }
+        $use_tls = $scheme === 'tls';
 
-        // remove TLS prefix and set flag for use in Net_SMTP::auth()
-        $use_tls = false;
-        if (preg_match('#^tls://#i', $smtp_host)) {
-            $smtp_host = preg_replace('#^tls://#i', '', $smtp_host);
-            $use_tls   = true;
+        // re-add the ssl:// prefix
+        if ($scheme === 'ssl') {
+            $smtp_host = "ssl://{$smtp_host}";
         }
 
         // Handle per-host socket options
@@ -140,7 +131,7 @@ class rcube_smtp
         if (!empty($CONFIG['smtp_auth_callbacks']) && method_exists($this->conn, 'setAuthMethod')) {
             foreach ($CONFIG['smtp_auth_callbacks'] as $callback) {
                 $this->conn->setAuthMethod($callback['name'], $callback['function'],
-                    isset($callback['prepend']) ? $callback['prepend'] : true);
+                    $callback['prepend'] ?? true);
             }
         }
 
@@ -148,12 +139,8 @@ class rcube_smtp
         $result = $this->conn->connect($CONFIG['smtp_timeout']);
 
         if (is_a($result, 'PEAR_Error')) {
-            $this->response[] = "Connection failed: " . $result->getMessage();
-
-            list($code,) = $this->conn->getResponse();
-            $this->error = ['label' => 'smtpconnerror', 'vars' => ['code' => $code]];
-            $this->conn  = null;
-
+            $this->_conn_error('smtpconnerror', "Connection failed", [], $result);
+            $this->conn = null;
             return false;
         }
 
@@ -164,16 +151,32 @@ class rcube_smtp
             $this->conn->setTimeout($timeout);
         }
 
-        if (!$this->_process_xclient()) {
-            list($code,) = $this->conn->getResponse();
-            $this->error = ['label' => 'smtpconnerror', 'vars' => ['code' => $code]];
-            $this->conn  = null;
+        // XCLIENT extension
+        $result = $this->_process_xclient($use_tls, $helo_host);
 
+        if (is_a($result, 'PEAR_Error')) {
+            $this->_conn_error('smtpconnerror', "XCLIENT failed", [], $result);
+            $this->disconnect();
             return false;
         }
 
-        $smtp_user = str_replace('%u', $rcube->get_user_name(), $CONFIG['smtp_user']);
-        $smtp_pass = str_replace('%p', $rcube->get_user_password(), $CONFIG['smtp_pass']);
+        if ($use_tls) {
+            $result = $this->conn->starttls();
+
+            if (is_a($result, 'PEAR_Error')) {
+                $this->_conn_error('smtpconnerror', "STARTTLS failed", [], $result);
+                $this->disconnect();
+                return false;
+            }
+        }
+
+        if ($CONFIG['smtp_pass'] == '%p') {
+            $smtp_pass = (string) $rcube->get_user_password();
+        } else {
+            $smtp_pass = $CONFIG['smtp_pass'];
+        }
+
+        $smtp_user      = str_replace('%u', (string) $rcube->get_user_name(), $CONFIG['smtp_user']);
         $smtp_auth_type = $CONFIG['smtp_auth_type'] ?: null;
         $smtp_authz     = null;
 
@@ -190,16 +193,11 @@ class rcube_smtp
                 $smtp_user = rcube_utils::idn_to_ascii($smtp_user);
             }
 
-            $result = $this->conn->auth($smtp_user, $smtp_pass, $smtp_auth_type, $use_tls, $smtp_authz);
+            $result = $this->conn->auth($smtp_user, $smtp_pass, $smtp_auth_type, false, $smtp_authz);
 
             if (is_a($result, 'PEAR_Error')) {
-                list($code,) = $this->conn->getResponse();
-                $this->error = ['label' => 'smtpautherror', 'vars' => ['code' => $code]];
-                $this->response[] = 'Authentication failure: ' . $result->getMessage()
-                    . ' (Code: ' . $result->getCode() . ')';
-
+                $this->_conn_error('smtpautherror', "Authentication failure", [], $result);
                 $this->disconnect();
-
                 return false;
             }
         }
@@ -210,19 +208,19 @@ class rcube_smtp
     /**
      * Function for sending mail
      *
-     * @param string Sender e-Mail address
+     * @param string $from       Sender e-Mail address
      *
-     * @param mixed  Either a comma-separated list of recipients
-     *               (RFC822 compliant), or an array of recipients,
-     *               each RFC822 valid. This may contain recipients not
-     *               specified in the headers, for Bcc:, resending
-     *               messages, etc.
-     * @param mixed  The message headers to send with the mail
-     *               Either as an associative array or a finally
-     *               formatted string
-     * @param mixed  The full text of the message body, including any Mime parts
-     *               or file handle
-     * @param array  Delivery options (e.g. DSN request)
+     * @param mixed  $recipients Either a comma-separated list of recipients
+     *                           (RFC822 compliant), or an array of recipients,
+     *                           each RFC822 valid. This may contain recipients not
+     *                           specified in the headers, for Bcc:, resending
+     *                           messages, etc.
+     * @param mixed  $headers    The message headers to send with the mail
+     *                           Either as an associative array or a finally
+     *                           formatted string
+     * @param mixed  $body       The full text of the message body, including any Mime parts
+     *                           or file handle
+     * @param array  $opts       Delivery options (e.g. DSN request)
      *
      * @return bool True on success, or False on error
      */
@@ -279,8 +277,7 @@ class rcube_smtp
                 $from_params = ltrim($from_params . ' SMTPUTF8');
             }
             else {
-                $this->error = ['label' => 'smtputf8error'];
-                $this->response[] = "SMTP server does not support unicode in email addresses";
+                $this->_conn_error('smtputf8error', "SMTP server does not support unicode in email addresses");
                 $this->reset();
                 return false;
             }
@@ -297,10 +294,7 @@ class rcube_smtp
         // set From: address
         $result = $this->conn->mailFrom($from, $from_params);
         if (is_a($result, 'PEAR_Error')) {
-            $err  = $this->conn->getResponse();
-            $vars = ['from' => $from, 'code' => $err[0], 'msg' => $err[1]];
-            $this->error = ['label' => 'smtpfromerror', 'vars' => $vars];
-            $this->response[] = "Failed to set sender '$from'. " . $err[1] . ' (Code: ' . $err[0] . ')';
+            $this->_conn_error('smtpfromerror', "Failed to set sender '$from'", ['from' => $from]);
             $this->reset();
             return false;
         }
@@ -309,10 +303,7 @@ class rcube_smtp
         foreach ($recipients as $recipient) {
             $result = $this->conn->rcptTo($recipient, $recipient_params);
             if (is_a($result, 'PEAR_Error')) {
-                $err  = $this->conn->getResponse();
-                $vars = ['to' => $recipient, 'code' => $err[0], 'msg' => $err[1]];
-                $this->error = ['label' => 'smtptoerror', 'vars' => $vars];
-                $this->response[] = "Failed to add recipient '$recipient'. " . $err[1] . ' (Code: ' . $err[0] . ')';
+                $this->_conn_error('smtptoerror', "Failed to add recipient '$recipient'", ['to' => $recipient]);
                 $this->reset();
                 return false;
             }
@@ -503,9 +494,9 @@ class rcube_smtp
      * bare addresses (forward paths) that can be passed to sendmail
      * or an smtp server with the rcpt to: command.
      *
-     * @param mixed Either a comma-separated list of recipients
-     *              (RFC822 compliant), or an array of recipients,
-     *              each RFC822 valid.
+     * @param mixed $recipients Either a comma-separated list of recipients
+     *                          (RFC822 compliant), or an array of recipients,
+     *                          each RFC822 valid.
      *
      * @return array An array of forward paths (bare addresses).
      */
@@ -542,7 +533,7 @@ class rcube_smtp
     /**
      * Send XCLIENT command if configured and supported
      */
-    private function _process_xclient()
+    private function _process_xclient($use_tls, $helo_host)
     {
         $rcube = rcube::get_instance();
 
@@ -580,9 +571,31 @@ class rcube_smtp
         }
 
         if ($cmd) {
-            $this->conn->command("XCLIENT" . $cmd, [220]);
+            $result = $this->conn->command("XCLIENT" . $cmd, [220]);
+
+            if ($result !== true) {
+                return $result;
+            }
+
+            if (!$use_tls) {
+                return $this->conn->helo($helo_host);
+            }
         }
 
         return true;
+    }
+
+    /**
+     * Handle connection error
+     */
+    private function _conn_error($label, $message, $vars = [], $result = null)
+    {
+        $err = $this->conn->getResponse();
+
+        $vars['code'] = $result ? $result->getCode() : $err[0];
+        $vars['msg']  = $result ? $result->getMessage() : $err[1];
+
+        $this->error = ['label' => $label, 'vars' => $vars];
+        $this->response[] = "{$message}: {$err[1]} (Code: {$err[0]})";
     }
 }

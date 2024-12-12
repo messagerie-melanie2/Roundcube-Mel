@@ -36,9 +36,9 @@ class rcmail_install
     public $configured        = false;
     public $legacy_config     = false;
     public $email_pattern     = '([a-z0-9][a-z0-9\-\.\+\_]*@[a-z0-9]([a-z0-9\-][.]?)*[a-z0-9])';
-    public $bool_config_props = [];
 
-    public $local_config    = ['db_dsnw', 'default_host', 'support_url', 'des_key', 'plugins'];
+    public $bool_config_props = ['ip_check', 'enable_spellcheck', 'auto_create_user', 'smtp_log', 'prefer_html'];
+    public $local_config    = ['db_dsnw', 'imap_host', 'support_url', 'des_key', 'plugins'];
     public $obsolete_config = ['db_backend', 'db_max_length', 'double_auth', 'preview_pane', 'debug_level', 'referer_check'];
     public $replaced_config = [
         'skin_path'            => 'skin',
@@ -50,6 +50,19 @@ class rcmail_install
         'top_posting'          => 'reply_mode',
         'keep_alive'           => 'refresh_interval',
         'min_keep_alive'       => 'min_refresh_interval',
+        'default_host'         => 'imap_host',
+        'smtp_server'          => 'smtp_host',
+    ];
+
+    // List of configuration options supported by the Installer
+    public $supported_config = [
+        'product_name', 'support_url', 'temp_dir', 'des_key', 'ip_check', 'enable_spellcheck',
+        'spellcheck_engine', 'identities_level', 'log_driver', 'log_dir', 'syslog_id',
+        'syslog_facility', 'db_dsnw', 'db_prefix', 'imap_host', 'username_domain',
+        'auto_create_user', 'sent_mbox', 'trash_mbox', 'drafts_mbox', 'junk_mbox',
+        'smtp_host', 'smtp_user', 'smtp_pass', 'smtp_log', 'language', 'skin', 'mail_pagesize',
+        'addressbook_pagesize', 'prefer_html', 'htmleditor', 'draft_autosave', 'mdn_requests',
+        'mime_param_folding', 'plugins',
     ];
 
     // list of supported database drivers
@@ -97,6 +110,10 @@ class rcmail_install
      */
     public function load_config()
     {
+        if ($this->configured) {
+            return;
+        }
+
         // defaults
         if ($config = $this->load_config_file(RCUBE_CONFIG_DIR . 'defaults.inc.php')) {
             $this->config   = (array) $config;
@@ -152,7 +169,7 @@ class rcmail_install
                     $in_config = true;
                     if ($buffer && $tokens[$i+1] == '[' && $tokens[$i+2][0] == T_CONSTANT_ENCAPSED_STRING) {
                         $propname = trim($tokens[$i+2][1], "'\"");
-                        $this->comments[$propname] = $buffer;
+                        $this->comments[$propname] = preg_replace('/\n\n/', "\n", $buffer);
                         $buffer = '';
                         $i += 3;
                     }
@@ -176,7 +193,7 @@ class rcmail_install
      */
     public function getprop($name, $default = '')
     {
-        $value = isset($this->config[$name]) ? $this->config[$name] : null;
+        $value = $this->config[$name] ?? null;
 
         if ($name == 'des_key' && !$this->configured && !isset($_REQUEST["_$name"])) {
             $value = rcube_utils::random_bytes(24);
@@ -189,15 +206,23 @@ class rcmail_install
      * Create configuration file that contains parameters
      * that differ from default values.
      *
+     * @param bool $use_post Use POSTed configuration values (of supported options)
+     *
      * @return string The complete config file content
      */
-    public function create_config()
+    public function create_config($use_post = true)
     {
         $config = [];
 
         foreach ($this->config as $prop => $default) {
-            $is_default = !isset($_POST["_$prop"]);
-            $value      = !$is_default || $this->bool_config_props[$prop] ? $_POST["_$prop"] : $default;
+            $post_value = $_POST["_$prop"] ?? null;
+            $value      = $default;
+
+            if ($use_post && in_array($prop, $this->supported_config)
+                && ($post_value !== null || in_array($prop, $this->bool_config_props))
+            ) {
+                $value = $post_value;
+            }
 
             // always disable installer
             if ($prop == 'enable_installer') {
@@ -220,10 +245,7 @@ class rcmail_install
                         rawurlencode($_POST['_dbuser']), rawurlencode($_POST['_dbpass']), $_POST['_dbhost'], $_POST['_dbname']);
                 }
             }
-            else if ($prop == 'smtp_auth_type' && $value == '0') {
-                $value = '';
-            }
-            else if ($prop == 'default_host' && is_array($value)) {
+            else if ($prop == 'imap_host' && is_array($value)) {
                 $value = self::_clean_array($value);
                 if (count($value) <= 1) {
                     $value = $value[0];
@@ -254,7 +276,7 @@ class rcmail_install
             }
 
             // skip this property
-            if ($value == $this->defaults[$prop]
+            if ($value == ($this->defaults[$prop] ?? null)
                 && (!in_array($prop, $this->local_config)
                     || in_array($prop, array_merge($this->obsolete_config, array_keys($this->replaced_config)))
                     || preg_match('/^db_(table|sequence)_/', $prop)
@@ -273,7 +295,7 @@ class rcmail_install
 
         foreach ($config as $prop => $value) {
             // copy option descriptions from existing config or defaults.inc.php
-            $out .= $this->comments[$prop];
+            $out .= $this->comments[$prop] ?? '';
             $out .= "\$config['$prop'] = " . self::_dump_var($value, $prop) . ";\n\n";
         }
 
@@ -283,7 +305,7 @@ class rcmail_install
     /**
      * save generated config file in RCUBE_CONFIG_DIR
      *
-     * @return boolean True if the file was saved successfully, false if not
+     * @return bool True if the file was saved successfully, false if not
      */
     public function save_configfile($config)
     {
@@ -310,7 +332,8 @@ class rcmail_install
             return;
         }
 
-        $out = $seen = [];
+        $seen = [];
+        $out = ['defaults' => [], 'obsolete' => [], 'replaced' => [], 'dependencies' => [], 'missing' => []];
 
         // iterate over the current configuration
         foreach (array_keys($this->config) as $prop) {
@@ -326,7 +349,7 @@ class rcmail_install
         }
 
         // the old default mime_magic reference is obsolete
-        if ($this->config['mime_magic'] == '/usr/share/misc/magic') {
+        if (isset($this->config['mime_magic']) && $this->config['mime_magic'] == '/usr/share/misc/magic') {
             $out['obsolete'][] = [
                 'prop'    => 'mime_magic',
                 'explain' => "Set value to null in order to use system default"
@@ -353,7 +376,7 @@ class rcmail_install
             }
         }
 
-        if ($this->config['log_driver'] == 'syslog') {
+        if (isset($this->config['log_driver']) && $this->config['log_driver'] == 'syslog') {
             if (!function_exists('openlog')) {
                 $out['dependencies'][] = [
                     'prop'    => 'log_driver',
@@ -370,7 +393,10 @@ class rcmail_install
         }
 
         // check ldap_public sources having global_search enabled
-        if (is_array($this->config['ldap_public']) && !is_array($this->config['autocomplete_addressbooks'])) {
+        if (!empty($this->config['ldap_public'])
+            && is_array($this->config['ldap_public'])
+            && !is_array($this->config['autocomplete_addressbooks'])
+        ) {
             foreach ($this->config['ldap_public'] as $ldap_public) {
                 if ($ldap_public['global_search']) {
                     $out['replaced'][] = [
@@ -383,8 +409,6 @@ class rcmail_install
         }
 
         if ($version) {
-            $out['defaults'] = [];
-
             foreach ($this->defaults_changes as $v => $opts) {
                 if (version_compare($v, $version, '>')) {
                     $out['defaults'] = array_merge($out['defaults'], $opts);
@@ -417,9 +441,24 @@ class rcmail_install
                 else {
                     $this->config[$replacement] = $current[$prop];
                 }
+
+                unset($current[$prop]);
+                unset($current[$replacement]);
+            }
+        }
+
+        // Merge old *_port options into the new *_host options, where possible
+        foreach (['default' => 'imap', 'smtp' => 'smtp'] as $prop => $type) {
+            $old_prop = "{$prop}_port";
+            $new_prop = "{$type}_host";
+            if (!empty($current[$old_prop]) && !empty($this->config[$new_prop])
+                && is_string($this->config[$new_prop])
+                && !preg_match('/:[0-9]+$/', $this->config[$new_prop])
+            ) {
+                $this->config[$new_prop] .= ':' . $current[$old_prop];
             }
 
-            unset($current[$prop]);
+            unset($current[$old_prop]);
         }
 
         foreach ($this->obsolete_config as $prop) {
@@ -427,9 +466,9 @@ class rcmail_install
         }
 
         // add all ldap_public sources having global_search enabled to autocomplete_addressbooks
-        if (is_array($current['ldap_public'])) {
+        if (!empty($current['ldap_public']) && is_array($current['ldap_public'])) {
             foreach ($current['ldap_public'] as $key => $ldap_public) {
-                if ($ldap_public['global_search']) {
+                if (!empty($ldap_public['global_search'])) {
                     $this->config['autocomplete_addressbooks'][] = $key;
                     unset($current['ldap_public'][$key]['global_search']);
                 }
@@ -437,10 +476,6 @@ class rcmail_install
         }
 
         $this->config = array_merge($this->config, $current);
-
-        foreach (array_keys((array) $current['ldap_public']) as $key) {
-            $this->config['ldap_public'][$key] = $current['ldap_public'][$key];
-        }
     }
 
     /**
@@ -592,7 +627,7 @@ class rcmail_install
      */
     public function get_error()
     {
-        return $this->last_error['message'];
+        return $this->last_error['message'] ?? null;
     }
 
     /**
@@ -600,13 +635,13 @@ class rcmail_install
      *
      * @return array Clean list with imap/smtp hosts
      */
-    public function get_hostlist($prop = 'default_host')
+    public function get_hostlist($prop = 'imap_host')
     {
         $hosts     = (array) $this->getprop($prop);
         $out       = [];
         $imap_host = '';
 
-        if ($prop == 'smtp_server') {
+        if ($prop == 'smtp_host') {
             // Set the imap host name for the %h macro
             $default_hosts = $this->get_hostlist();
             $imap_host = !empty($default_hosts) ? $default_hosts[0] : '';
@@ -614,7 +649,7 @@ class rcmail_install
 
         foreach ($hosts as $key => $name) {
             if (!empty($name)) {
-                if ($prop == 'smtp_server') {
+                if ($prop == 'smtp_host') {
                     // SMTP host array uses `IMAP host => SMTP host` format
                     $host = $name;
                 }
@@ -883,5 +918,17 @@ class rcmail_install
     public function raise_error($p)
     {
         $this->last_error = $p;
+    }
+
+    /**
+     * Check if vendor/autoload.php was created by Roundcube and left untouched
+     *
+     * @param string $target_dir The target installation dir
+     * @return string
+     */
+    public static function vendor_dir_untouched($target_dir)
+    {
+        system('grep -q "generated by Roundcube" ' . escapeshellarg($target_dir . '/vendor/autoload.php') . ' 2>/dev/null', $exit_code);
+        return $exit_code === 0;
     }
 }

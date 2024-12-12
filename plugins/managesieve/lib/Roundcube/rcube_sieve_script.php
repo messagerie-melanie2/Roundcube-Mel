@@ -249,13 +249,13 @@ class rcube_sieve_script
                     $tests[$i] = '';
                     switch ($test['test']) {
                     case 'size':
-                        $tests[$i] .= ($test['not'] ? 'not ' : '');
+                        $tests[$i] .= (!empty($test['not']) ? 'not ' : '');
                         $tests[$i] .= 'size :' . ($test['type'] == 'under' ? 'under ' : 'over ') . $test['arg'];
                         break;
 
                     case 'spamtest':
                         array_push($exts, 'spamtest');
-                        $tests[$i] .= ($test['not'] ? 'not ' : '');
+                        $tests[$i] .= (!empty($test['not']) ? 'not ' : '');
                         $tests[$i] .= $test['test'];
 
                         $this->add_operator($test, $tests[$i], $exts);
@@ -281,7 +281,7 @@ class rcube_sieve_script
                             array_push($exts, 'variables');
                         }
 
-                        $tests[$i] .= ($test['not'] ? 'not ' : '');
+                        $tests[$i] .= (!empty($test['not']) ? 'not ' : '');
                         $tests[$i] .= $test['test'];
 
                         if ($test['test'] == 'header') {
@@ -301,7 +301,7 @@ class rcube_sieve_script
                             array_push($exts, 'envelope');
                         }
 
-                        $tests[$i] .= ($test['not'] ? 'not ' : '');
+                        $tests[$i] .= (!empty($test['not']) ? 'not ' : '');
                         $tests[$i] .= $test['test'];
 
                         if ($test['test'] == 'address') {
@@ -326,7 +326,7 @@ class rcube_sieve_script
                     case 'body':
                         array_push($exts, 'body');
 
-                        $tests[$i] .= ($test['not'] ? 'not ' : '') . 'body';
+                        $tests[$i] .= (!empty($test['not']) ? 'not ' : '') . 'body';
 
                         if (!empty($test['part'])) {
                             $tests[$i] .= ' :' . $test['part'];
@@ -345,7 +345,7 @@ class rcube_sieve_script
                     case 'currentdate':
                         array_push($exts, 'date');
 
-                        $tests[$i] .= ($test['not'] ? 'not ' : '') . $test['test'];
+                        $tests[$i] .= (!empty($test['not']) ? 'not ' : '') . $test['test'];
 
                         $this->add_index($test, $tests[$i], $exts);
 
@@ -463,7 +463,7 @@ class rcube_sieve_script
                             $action_script .= " :last";
                         }
                         if ($action['type'] == 'deleteheader') {
-                            $action['type'] = isset($action['match-type']) ? $action['match-type'] : null;
+                            $action['type'] = $action['match-type'] ?? null;
                             $this->add_operator($action, $action_script, $exts);
                         }
                         $action_script .= " " . self::escape_string($action['name']);
@@ -636,7 +636,7 @@ class rcube_sieve_script
     /**
      * Converts text script to rules array
      *
-     * @param string Text script
+     * @param string $script Text script
      */
     private function _parse_text($script)
     {
@@ -652,7 +652,12 @@ class rcube_sieve_script
 
             // Comments
             while (isset($script[$position]) && $script[$position] === '#') {
-                $endl = strpos($script, "\n", $position) ?: $length;
+                $endl = strpos($script, "\n", $position);
+                if ($endl === false) {
+                    $endl = $length;
+                } elseif ($script[$endl - 1] === "\r") {
+                    --$endl;
+                }
                 $line = substr($script, $position, $endl - $position);
 
                 // Roundcube format
@@ -1249,14 +1254,15 @@ class rcube_sieve_script
             $str = array_pop($str);
         }
 
+        $str = (string) $str;
+
         // multi-line string
         if (preg_match('/[\r\n\0]/', $str)) {
             return sprintf("text:\r\n%s\r\n.\r\n", self::escape_multiline_string($str));
         }
+
         // quoted-string
-        else {
-            return '"' . addcslashes($str, '\\"') . '"';
-        }
+        return '"' . addcslashes($str, '\\"') . '"';
     }
 
     /**
@@ -1268,7 +1274,7 @@ class rcube_sieve_script
      */
     static function escape_multiline_string($str)
     {
-        $str = preg_split('/(\r?\n)/', $str, -1, PREG_SPLIT_DELIM_CAPTURE);
+        $str = preg_split('/\r?\n/', $str);
 
         foreach ($str as $idx => $line) {
             // dot-stuffing
@@ -1277,7 +1283,7 @@ class rcube_sieve_script
             }
         }
 
-        return implode($str);
+        return implode("\r\n", $str);
     }
 
     /**
@@ -1353,9 +1359,10 @@ class rcube_sieve_script
 
             // bracket-comment
             case '/':
-                if ($str[$position + 1] == '*') {
-                    if ($end_pos = strpos($str, '*/', $position + 2)) {
-                        $position = $end_pos + 2;
+                $position++;
+                if ($str[$position] == '*') {
+                    if ($end_pos = strpos($str, '*/', $position + 1)) {
+                        $position = $end_pos + 1;
                     }
                     else {
                         // error
@@ -1455,7 +1462,7 @@ class rcube_sieve_script
             }
         }
 
-        return $num === 1 ? (isset($result[0]) ? $result[0] : null) : $result;
+        return $num === 1 ? ($result[0] ?? null) : $result;
     }
 
     /**

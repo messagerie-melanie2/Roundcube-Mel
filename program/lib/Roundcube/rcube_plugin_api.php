@@ -334,23 +334,27 @@ class rcube_plugin_api
         }
 
         // fall back to composer.json file
-        if (!$info) {
+        if (empty($info)) {
+            $info = [];
             $composer = INSTALL_PATH . "/plugins/$plugin_name/composer.json";
-            if (is_readable($composer) && ($json = @json_decode(file_get_contents($composer), true))) {
+
+            if (is_readable($composer) && ($json = json_decode(file_get_contents($composer), true))) {
                 // Build list of plugins required
                 $require = [];
-                foreach (array_keys((array) $json['require']) as $dname) {
-                    if (!preg_match('|^([^/]+)/([a-zA-Z0-9_-]+)$|', $dname, $m)) {
-                        continue;
-                    }
+                if (!empty($json['require'])) {
+                    foreach (array_keys((array) $json['require']) as $dname) {
+                        if (!preg_match('|^([^/]+)/([a-zA-Z0-9_-]+)$|', $dname, $m)) {
+                            continue;
+                        }
 
-                    $vendor = $m[1];
-                    $name   = $m[2];
+                        $vendor = $m[1];
+                        $name   = $m[2];
 
-                    if ($name != 'plugin-installer' && $vendor != 'pear' && $vendor != 'pear-pear') {
-                        $dpath = unslashify($dir->path) . "/$name/$name.php";
-                        if (is_readable($dpath)) {
-                            $require[] = $name;
+                        if ($name != 'plugin-installer' && $vendor != 'pear' && $vendor != 'pear-pear') {
+                            $dpath = unslashify($dir->path) . "/$name/$name.php";
+                            if (is_readable($dpath)) {
+                                $require[] = $name;
+                            }
                         }
                     }
                 }
@@ -390,7 +394,7 @@ class rcube_plugin_api
         }
 
         // fall back to package.xml file
-        if (!$info) {
+        if (empty($info)) {
             $package = INSTALL_PATH . "/plugins/$plugin_name/package.xml";
             if (is_readable($package) && ($file = file_get_contents($package))) {
                 $doc = new DOMDocument();
@@ -444,7 +448,7 @@ class rcube_plugin_api
      * Allows a plugin object to register a callback for a certain hook
      *
      * @param string   $hook     Hook name
-     * @param callback $callback A callback function
+     * @param callable $callback A callback function
      */
     public function register_hook($hook, $callback)
     {
@@ -474,7 +478,7 @@ class rcube_plugin_api
      * Allow a plugin object to unregister a callback.
      *
      * @param string   $hook     Hook name
-     * @param callback $callback A callback function
+     * @param callable $callback A callback function
      */
     public function unregister_hook($hook, $callback)
     {
@@ -533,7 +537,7 @@ class rcube_plugin_api
      *
      * @param string   $action   Action name (_task=mail&_action=plugin.foo)
      * @param string   $owner    Plugin name that registers this action
-     * @param callback $callback A callback function
+     * @param callable $callback A callback function
      * @param string   $task     Task name registered by this plugin
      */
     public function register_action($action, $owner, $callback, $task = null)
@@ -587,7 +591,7 @@ class rcube_plugin_api
      *
      * @param string   $name     Object name
      * @param string   $owner    Plugin name that registers this action
-     * @param callback $callback A callback function
+     * @param callable $callback A callback function
      */
     public function register_handler($name, $owner, $callback)
     {
@@ -776,7 +780,7 @@ class rcube_plugin_api
     protected function template_container_hook($attrib)
     {
         $container     = $attrib['name'];
-        $content       = isset($attrib['content']) ? $attrib['content'] : '';
+        $content       = $attrib['content'] ?? '';
 
         if (isset($this->template_contents[$container])) {
             $content .= $this->template_contents[$container];

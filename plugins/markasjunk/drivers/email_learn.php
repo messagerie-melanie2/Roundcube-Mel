@@ -43,22 +43,21 @@ class markasjunk_email_learn
         $this->rcube  = rcube::get_instance();
         $identity     = $this->rcube->user->get_identity();
         $from         = $identity['email'];
-        $from_string  = format_email_recipient($$from, $identity['name']);
+        $from_string  = format_email_recipient($from, $identity['name']);
         $attach       = $this->rcube->config->get('markasjunk_email_attach', false);
         $debug        = $this->rcube->config->get('markasjunk_debug');
         $product      = $this->rcube->config->get('product_name');
         $temp_dir     = unslashify($this->rcube->config->get('temp_dir'));
 
-        $mailto = $this->rcube->config->get($spam ? 'markasjunk_email_spam' : 'markasjunk_email_ham');
-        $mailto = $this->_parse_vars($mailto, $spam, $from);
+        $subject = (string) $this->rcube->config->get('markasjunk_email_subject');
+        $mailto  = (string) $this->rcube->config->get($spam ? 'markasjunk_email_spam' : 'markasjunk_email_ham');
+        $subject = $this->_parse_vars($subject, $spam, $from);
+        $mailto  = $this->_parse_vars($mailto, $spam, $from);
 
         // no address to send to, exit
         if (!$mailto) {
             return;
         }
-
-        $subject = $this->rcube->config->get('markasjunk_email_subject');
-        $subject = $this->_parse_vars($subject, $spam, $from);
 
         foreach ($uids as $i => $uid) {
             $MESSAGE = new rcube_message($uid);
@@ -76,8 +75,8 @@ class markasjunk_email_learn
                     'mailto'        => $mailto,
                     'dsn_enabled'   => false,
                     'charset'       => 'UTF-8',
-                    'error_handler' => function() use ($OUTPUT) {
-                        call_user_func_array([$OUTPUT, 'show_message'], func_get_args());
+                    'error_handler' => function(...$args) use ($OUTPUT) {
+                        call_user_func_array([$OUTPUT, 'show_message'], $args);
                         $OUTPUT->send();
                     }
             ]);
@@ -145,7 +144,6 @@ class markasjunk_email_learn
             }
 
             $SENDMAIL->deliver_message($MAIL_MIME, $i == count($uids) - 1);
-            $message_file = $message_file ?: $MAIL_MIME->mailbody_file;
 
             // clean up
             if ($message_file) {

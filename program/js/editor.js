@@ -36,9 +36,11 @@
 function rcube_text_editor(config, id)
 {
   var ref = this,
+    editorElement = $('#' + id),
     abs_url = location.href.replace(/[?#].*$/, '').replace(/\/$/, ''),
     conf = {
-      selector: '#' + ($('#' + id).is('.mce_editor') ? id : 'fake-editor-id'),
+      selector: '#' + (editorElement.is('.mce_editor') ? id : 'fake-editor-id'),
+      readonly: editorElement.is('[readonly],[disabled]'),
       cache_suffix: 's=5080200',
       theme: 'silver',
       language: config.lang,
@@ -58,7 +60,7 @@ function rcube_text_editor(config, id)
       remove_script_host: false,
       convert_urls: false, // #1486944
       image_description: false,
-      paste_webkit_style: "color font-size font-family",
+      paste_webkit_styles: "color font-size font-family font-weight background-color",
       automatic_uploads: false, // allows to paste images
       paste_data_images: true,
       // Note: We disable contextmenu options specifically for browser_spellcheck:true.
@@ -70,7 +72,9 @@ function rcube_text_editor(config, id)
       anchor_bottom: false,
       anchor_top: false,
       file_picker_types: 'image media',
-      file_picker_callback: function(callback, value, meta) { ref.file_picker_callback(callback, value, meta); }
+      file_picker_callback: function(callback, value, meta) { ref.file_picker_callback(callback, value, meta); },
+      min_height: config.mode == 'identity' ? 100 : 400,
+      deprecation_warnings: false
     };
 
   // register spellchecker for plain text editor
@@ -95,7 +99,7 @@ function rcube_text_editor(config, id)
   }
 
   // minimal editor
-  if (config.mode == 'identity') {
+  if (config.mode == 'identity' || config.mode == 'response') {
     conf.toolbar += ' | charmap hr link unlink image code $extra';
     $.extend(conf, {
       plugins: 'autolink charmap code hr image link paste tabfocus',
@@ -110,8 +114,7 @@ function rcube_text_editor(config, id)
       plugins: 'autolink charmap code directionality link lists image media nonbreaking'
         + ' paste table tabfocus searchreplace spellchecker',
       spellchecker_rpc_url: abs_url + '/?_task=utils&_action=spell_html&_remote=1',
-      spellchecker_language: rcmail.env.spell_lang,
-      min_height: 400,
+      spellchecker_language: rcmail.env.spell_lang
     });
   }
 
@@ -179,6 +182,15 @@ function rcube_text_editor(config, id)
   {
     this.editor = editor;
 
+    // Browsers have performance problems with rendering a lot of content in a textarea.
+    // To workaround that we create a separate hidden textarea for the content and copy it
+    // to the editor after the page is already loaded (#8108)
+    var content, editorContentElement = editorElement.data('html-editor-content-element');
+    if (editorContentElement && (content = $('#' + editorContentElement).val())) {
+      editor.setContent(content);
+      $('#' + editorContentElement).remove();
+    }
+
     if (rcmail.env.action == 'compose') {
       var area = $('#' + this.id),
         height = $('div.tox-toolbar__group', area.parent()).first().height();
@@ -206,10 +218,10 @@ function rcube_text_editor(config, id)
       }
     }
 
-    rcmail.triggerEvent('editor-load', {config: conf, ref: ref});
+    rcmail.triggerEvent('editor-load', {config: conf, ref: this});
 
     // set tabIndex and set focus to element that was focused before
-    ref.tabindex(ref.force_focus || (fe && fe.id == ref.id));
+    this.tabindex(this.force_focus || (fe && fe.id == this.id));
 
     // Trigger resize (needed for proper editor resizing in some browsers)
     $(window).resize();
@@ -257,6 +269,12 @@ function rcube_text_editor(config, id)
   {
     $(this.editor || ('#' + this.id)).focus();
     this.force_focus = false;
+  };
+
+  // Returns current editor mode
+  this.is_html = function()
+  {
+    return !!this.editor;
   };
 
   // switch html/plain mode

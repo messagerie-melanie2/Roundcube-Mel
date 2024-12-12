@@ -41,9 +41,6 @@ class rcube_db_pgsql extends rcube_db
         'service'
     ];
 
-    /**
-     * {@inheritdoc}
-     */
     public function __construct($db_dsnw, $db_dsnr = '', $pconn = false)
     {
         parent::__construct($db_dsnw, $db_dsnr, $pconn);
@@ -184,7 +181,7 @@ class rcube_db_pgsql extends rcube_db
             }
         }
 
-        return isset($this->variables[$varname]) ? $this->variables[$varname] : $default;
+        return $this->variables[$varname] ?? $default;
     }
 
     /**

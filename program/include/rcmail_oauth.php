@@ -38,7 +38,7 @@ class rcmail_oauth
     /** @var string */
     protected $last_error = null;
 
-    /** @var boolean */
+    /** @var bool */
     protected $no_redirect = false;
 
     /** @var rcmail_oauth */
@@ -104,7 +104,7 @@ class rcmail_oauth
     /**
      * Check if OAuth is generally enabled in config
      *
-     * @return boolean
+     * @return bool
      */
     public function is_enabled()
     {
@@ -120,8 +120,12 @@ class rcmail_oauth
      */
     public function get_redirect_uri()
     {
+        $url = $this->rcmail->url([], true, true);
+
         // rewrite redirect URL to not contain query parameters because some providers do not support this
-        return preg_replace('/\/?\?_task=[a-z]+/', '/index.php/login/oauth', $this->rcmail->url([], true, true));
+        $url = preg_replace('/\?.*/', '', $url);
+
+        return slashify($url) . 'index.php/login/oauth';
     }
 
     /**
@@ -142,7 +146,7 @@ class rcmail_oauth
      */
     public function jwt_decode($jwt)
     {
-        list($headb64, $bodyb64, $cryptob64) = explode('.', $jwt);
+        list($headb64, $bodyb64, $cryptob64) = explode('.', strtr($jwt, '-_', '+/'));
 
         $header = json_decode(base64_decode($headb64), true);
         $body   = json_decode(base64_decode($bodyb64), true);
@@ -354,7 +358,6 @@ class rcmail_oauth
      * If successful, this will update the `oauth_token` entry in
      * session data.
      *
-     * @param array $token
      *
      * @return array Updated authorization data
      */
@@ -409,6 +412,11 @@ class rcmail_oauth
                 ], true, false
             );
 
+            // refrehsing token failed, mark session as expired
+            if ($e->getCode() >= 400 && $e->getCode() < 500) {
+                $this->rcmail->kill_session();
+            }
+
             return false;
         }
         catch (Exception $e) {
@@ -427,7 +435,7 @@ class rcmail_oauth
     /**
      * Modify some properties of the received auth response
      *
-     * @param array $token
+     * @param array $data
      * @return void
      */
     protected function mask_auth_data(&$data)
@@ -447,13 +455,14 @@ class rcmail_oauth
      * ... and attempt to refresh if possible.
      *
      * @param array $token
-     * @return void
+     * @return bool
      */
     protected function check_token_validity($token)
     {
         if ($token['expires'] < time() && isset($token['refresh_token']) && empty($this->last_error)) {
-            $this->refresh_access_token($token);
+            return $this->refresh_access_token($token) !== false;
         }
+        return false;
     }
 
     /**
@@ -466,7 +475,9 @@ class rcmail_oauth
     {
         if (isset($_SESSION['oauth_token']) && $options['driver'] === 'imap') {
             // check token validity
-            $this->check_token_validity($_SESSION['oauth_token']);
+            if ($this->check_token_validity($_SESSION['oauth_token'])) {
+                $options['password'] = $this->rcmail->decrypt($_SESSION['password']);
+            }
 
             // enforce XOAUTH2 authorization type
             $options['auth_type'] = 'XOAUTH2';

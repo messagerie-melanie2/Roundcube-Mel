@@ -98,7 +98,7 @@ class rcube_mime
             $input = implode(', ', $input);
         }
 
-        $a   = self::parse_address_list($input, $decode, $fallback);
+        $a   = self::parse_address_list((string) $input, $decode, $fallback);
         $out = [];
         $j   = 0;
 
@@ -809,7 +809,7 @@ class rcube_mime
     /**
      * Get mimetype => file extension mapping
      *
-     * @param string Mime-Type to get extensions for
+     * @param string $mimetype Mime-Type to get extensions for
      *
      * @return array List of extensions matching the given mimetype or a hash array
      *               with ext -> mimetype mappings if $mimetype is not given
@@ -832,7 +832,7 @@ class rcube_mime
 
         // try common locations
         if (strtoupper(substr(PHP_OS, 0, 3)) == 'WIN') {
-            $file_paths[] = 'C:/xampp/apache/conf/mime.types.';
+            $file_paths[] = 'C:/xampp/apache/conf/mime.types';
         }
         else {
             $file_paths[] = '/etc/mime.types';
@@ -949,7 +949,7 @@ class rcube_mime
 
         foreach ($parts as $idx => $part) {
             // remove redundant quoting (#1490040)
-            if ($part[0] == '"' && preg_match('/^"([a-zA-Z0-9._+=-]+)"$/', $part, $m)) {
+            if (isset($part[0]) && $part[0] == '"' && preg_match('/^"([a-zA-Z0-9._+=-]+)"$/', $part, $m)) {
                 $parts[$idx] = $m[1];
             }
         }

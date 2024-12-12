@@ -224,7 +224,7 @@ class rcube
             $this->caches[$name] = rcube_cache::factory($type, $userid, $name, $ttl, $packed, $indexed);
         }
 
-        return $this->caches[$name];
+        return $this->caches[$name] ?? null;
     }
 
     /**
@@ -274,7 +274,7 @@ class rcube
     /**
      * Create SMTP object and connect to server
      *
-     * @param boolean $connect True if connection should be established
+     * @param bool $connect True if connection should be established
      */
     public function smtp_init($connect = false)
     {
@@ -324,9 +324,6 @@ class rcube
 
         // Initialize storage object
         $this->storage = new $driver_class;
-
-        // for backward compat. (deprecated, will be removed)
-        $this->imap = $this->storage;
 
         // set class options
         $options = [
@@ -470,8 +467,7 @@ class rcube
             ini_set('session.cookie_path', $sess_path);
         }
         // set session samesite attribute
-        // requires PHP >= 7.3.0, see https://wiki.php.net/rfc/same-site-cookie for more info
-        if (version_compare(PHP_VERSION, '7.3.0', '>=') && $sess_samesite) {
+        if ($sess_samesite) {
             ini_set('session.cookie_samesite', $sess_samesite);
         }
         // set session garbage collecting time according to session_lifetime
@@ -606,7 +602,11 @@ class rcube
         // replace vars in text
         if (!empty($attrib['vars']) && is_array($attrib['vars'])) {
             foreach ($attrib['vars'] as $var_key => $var_value) {
-                $text = str_replace($var_key[0] != '$' ? '$'.$var_key : $var_key, $var_value, $text);
+                if ($var_key[0] != '$') {
+                    $var_key = '$' . $var_key;
+                }
+
+                $text = str_replace($var_key, $var_value ?? '', $text);
             }
         }
 
@@ -846,7 +846,7 @@ class rcube
             }
         }
 
-        if (!$lang || !isset($rcube_languages[$lang]) || !is_dir(RCUBE_LOCALIZATION_DIR . $lang)) {
+        if (!isset($rcube_languages[$lang]) || !is_dir(RCUBE_LOCALIZATION_DIR . $lang)) {
             $lang = 'en_US';
         }
 
@@ -900,9 +900,17 @@ class rcube
 
         $ckey   = $this->config->get_crypto_key($key);
         $method = $this->config->get_crypto_method();
-        $opts   = defined('OPENSSL_RAW_DATA') ? OPENSSL_RAW_DATA : true;
         $iv     = rcube_utils::random_bytes(openssl_cipher_iv_length($method), true);
-        $cipher = openssl_encrypt($clear, $method, $ckey, $opts, $iv);
+        $tag    = null;
+
+        // This distinction is for PHP 7.3 which throws a warning when
+        // we use $tag argument with non-AEAD cipher method here
+        if (!preg_match('/-(gcm|ccm|poly1305)$/i', $method)) {
+            $cipher = openssl_encrypt($clear, $method, $ckey, OPENSSL_RAW_DATA, $iv);
+        }
+        else {
+            $cipher = openssl_encrypt($clear, $method, $ckey, OPENSSL_RAW_DATA, $iv, $tag);
+        }
 
         if ($cipher === false) {
             self::raise_error([
@@ -915,6 +923,10 @@ class rcube
         }
 
         $cipher = $iv . $cipher;
+
+        if ($tag !== null) {
+            $cipher = "##{$tag}##{$cipher}";
+        }
 
         return $base64 ? base64_encode($cipher) : $cipher;
     }
@@ -943,9 +955,15 @@ class rcube
 
         $ckey    = $this->config->get_crypto_key($key);
         $method  = $this->config->get_crypto_method();
-        $opts    = defined('OPENSSL_RAW_DATA') ? OPENSSL_RAW_DATA : true;
         $iv_size = openssl_cipher_iv_length($method);
-        $iv      = substr($cipher, 0, $iv_size);
+        $tag     = null;
+
+        if (preg_match('/^##(.{16})##/s', $cipher, $matches)) {
+            $tag    = $matches[1];
+            $cipher = substr($cipher, strlen($matches[0]));
+        }
+
+        $iv = substr($cipher, 0, $iv_size);
 
         // session corruption? (#1485970)
         if (strlen($iv) < $iv_size) {
@@ -953,7 +971,7 @@ class rcube
         }
 
         $cipher = substr($cipher, $iv_size);
-        $clear  = openssl_decrypt($cipher, $method, $ckey, $opts, $iv);
+        $clear  = openssl_decrypt($cipher, $method, $ckey, OPENSSL_RAW_DATA, $iv, $tag);
 
         return $clear;
     }
@@ -978,7 +996,9 @@ class rcube
                 $_SESSION['secure_token'] = $plugin['value'];
             }
 
-            return $_SESSION['secure_token'];
+            if (!empty($_SESSION['secure_token'])) {
+                return $_SESSION['secure_token'];
+            }
         }
 
         return false;
@@ -1103,7 +1123,7 @@ class rcube
      * The functions will be executed before destroying any
      * objects like smtp, imap, session, etc.
      *
-     * @param callback $function Function callback
+     * @param callable $function Function callback
      */
     public function add_shutdown_function($function)
     {
@@ -1195,15 +1215,13 @@ class rcube
      * Construct shell command, execute it and return output as string.
      * Keywords {keyword} are replaced with arguments
      *
-     * @param string $cmd        Format string with {keywords} to be replaced
-     * @param mixed  $values,... (zero, one or more arrays can be passed)
+     * @param string $cmd     Format string with {keywords} to be replaced
+     * @param mixed  ...$args (zero, one or more arrays can be passed)
      *
      * @return string Output of command. Shell errors not detectable
      */
-    public static function exec(/* $cmd, $values1 = [], ... */)
+    public static function exec($cmd, ...$args)
     {
-        $args   = func_get_args();
-        $cmd    = array_shift($args);
         $values = $replacements = [];
 
         // merge values into one array
@@ -1246,12 +1264,10 @@ class rcube
     /**
      * Print or write debug messages
      *
-     * @param mixed Debug message or data
+     * @param mixed ...$args Debug message or data
      */
-    public static function console()
+    public static function console(...$args)
     {
-        $args = func_get_args();
-
         if (class_exists('rcube', false)) {
             $rcube  = self::get_instance();
             $plugin = $rcube->plugins->exec_hook('console', ['args' => $args]);
@@ -1365,21 +1381,21 @@ class rcube
     }
 
     /**
-     * Throw system error (and show error page).
+     * Throw system error, with optional logging and script termination.
      *
-     * @param array $arg Named parameters
-     *      - code:    Error code (required)
-     *      - type:    Error type [php|db|imap|javascript]
-     *      - message: Error message
-     *      - file:    File where error occurred
-     *      - line:    Line where error occurred
+     * @param array|Throwable|string|PEAR_Error $arg Error object, string or named parameters array:
+     *                                               - code:    Error code (required)
+     *                                               - type:    Error type: php, db, imap, etc.
+     *                                               - message: Error message
+     *                                               - file:    File where error occurred
+     *                                               - line:    Line where error occurred
      * @param bool $log       True to log the error
      * @param bool $terminate Terminate script execution
      */
-    public static function raise_error($arg = [], $log = false, $terminate = false)
+    public static function raise_error($arg, $log = false, $terminate = false)
     {
-        // handle PHP exceptions
-        if ($arg instanceof Exception) {
+        // handle PHP exceptions and errors
+        if ($arg instanceof Throwable) {
             $arg = [
                 'code' => $arg->getCode(),
                 'line' => $arg->getLine(),
@@ -1457,7 +1473,7 @@ class rcube
     public static function log_bug($arg_arr)
     {
         $program = !empty($arg_arr['type']) ? strtoupper($arg_arr['type']) : 'PHP';
-        $uri     = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '';
+        $uri     = $_SERVER['REQUEST_URI'] ?? '';
 
         // write error to local log file
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
@@ -1479,7 +1495,7 @@ class rcube
             $arg_arr['message'],
             !empty($arg_arr['file']) ? sprintf(' in %s on line %d', $arg_arr['file'], $arg_arr['line']) : '',
             $_SERVER['REQUEST_METHOD'],
-            $uri
+            strip_tags($uri)
         );
 
         if (!self::write_log('errors', $log_entry)) {
@@ -1550,7 +1566,7 @@ class rcube
     /**
      * Setter for system user object
      *
-     * @param rcube_user Current user instance
+     * @param rcube_user $user Current user instance
      */
     public function set_user($user)
     {
@@ -1719,7 +1735,7 @@ class rcube
                 $body_file = $plugin['body_file'];
             }
 
-            return isset($plugin['result']) ? $plugin['result'] : false;
+            return $plugin['result'] ?? false;
         }
 
         $from    = $plugin['from'];
@@ -1841,6 +1857,10 @@ class rcube_dummy_plugin_api
      */
     public function exec_hook($hook, $args = [])
     {
-        return $args;
+        if (!is_array($args)) {
+            $args = ['arg' => $args];
+        }
+
+        return $args += ['abort' => false];
     }
 }

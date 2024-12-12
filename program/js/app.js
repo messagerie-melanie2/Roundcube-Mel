@@ -217,7 +217,7 @@ function rcube_webmail()
     this.task = this.env.task;
 
     if (!this.env.blankpage)
-      this.env.blankpage = 'about:blank';
+      this.env.blankpage = 'javascript:false;';
 
     // find all registered gui containers
     for (n in this.gui_containers)
@@ -354,7 +354,7 @@ function rcube_webmail()
           this.env.address_group_stack = [];
           this.env.compose_commands = ['send-attachment', 'remove-attachment', 'send', 'cancel',
             'toggle-editor', 'list-addresses', 'pushgroup', 'search', 'reset-search', 'extwin',
-            'insert-response', 'save-response', 'menu-open', 'menu-close', 'load-attachment',
+            'insert-response', 'menu-open', 'menu-close', 'load-attachment',
             'download-attachment', 'open-attachment', 'rename-attachment'];
 
           if (this.env.drafts_mailbox)
@@ -374,26 +374,7 @@ function rcube_webmail()
           }
 
           // initialize HTML editor
-          this.editor_init(this.env.editor_config, this.env.composebody);
-
-          // init canned response functions
-          if (this.gui_objects.responseslist) {
-            $('a.insertresponse', this.gui_objects.responseslist)
-              .attr('unselectable', 'on')
-              .mousedown(function(e) { return rcube_event.cancel(e); })
-              .on('mouseup keypress', function(e) {
-                if (e.type == 'mouseup' || rcube_event.get_keycode(e) == 13) {
-                  ref.command('insert-response', $(this).attr('rel'));
-                  $(document.body).trigger('mouseup');  // hides the menu
-                  return rcube_event.cancel(e);
-                }
-              });
-
-            // avoid textarea loosing focus when hitting the save-response button/link
-            $.each(this.buttons['save-response'] || [], function (i, v) {
-              $('#' + v.id).mousedown(function(e){ return rcube_event.cancel(e); })
-            });
-          }
+          this.editor_init(null, this.env.composebody);
 
           // init message compose form
           this.init_messageform();
@@ -556,11 +537,8 @@ function rcube_webmail()
           this.enable_command('add', this.env.identities_level < 2);
         }
         else if (this.env.action == 'edit-identity' || this.env.action == 'add-identity') {
-          this.enable_command('save', 'edit', 'toggle-editor', true);
+          this.enable_command('save', 'edit', true);
           this.enable_command('delete', this.env.identities_level < 2);
-
-          // initialize HTML editor
-          this.editor_init(this.env.editor_config, 'rcmfd_signature');
 
           if (this.env.action == 'edit-identity') {
             this.check_mailvelope(this.env.action);
@@ -1118,7 +1096,7 @@ function rcube_webmail()
         if (command != 'download-attachment' && mimetype && this.env.mimetypes && $.inArray(mimetype, this.env.mimetypes) >= 0) {
           // Note: We disable _framed for proper X-Frame-Options:deny support (#6688)
           if (this.open_window(this.url('get', $.extend({_frame: 1, _framed: 0}, params))))
-            break;
+            return true;
         }
 
         params._download = 1;
@@ -1128,7 +1106,7 @@ function rcube_webmail()
         this.goto_url('get', params, false, true);
         this.compose_skip_unsavedcheck = 0;
 
-        break;
+        return true;
 
       case 'select-all':
         this.select_all_mode = props ? false : true;
@@ -1449,7 +1427,7 @@ function rcube_webmail()
           };
 
         this.import_state = null;
-        this.import_dialog = this.simple_dialog(dialog, this.gettext('importcontacts'), import_func, {
+        this.import_dialog = this.simple_dialog(dialog, 'importcontacts', import_func, {
           close: close_func,
           button: 'import',
           width: 500,
@@ -1785,19 +1763,18 @@ function rcube_webmail()
       clearTimeout(this.folder_collapsed_timer);
 
     var prefname = this.env.task == 'addressbook' ? 'collapsed_abooks' : 'collapsed_folders',
-      old = this.env[prefname];
+      old = this.env[prefname],
+      entry = '&' + urlencode(node.id) + '&';
+
+    this.env[prefname] = old.replace(entry, '');
 
     if (node.collapsed) {
-      this.env[prefname] = this.env[prefname] + '&'+urlencode(node.id)+'&';
+      this.env[prefname] = this.env[prefname] + entry;
 
       // select the folder if one of its children is currently selected
       // don't select if it's virtual (#1488346)
       if (!node.virtual && this.env.mailbox && this.env.mailbox.startsWith(node.id + this.env.delimiter))
         this.command('list', node.id);
-    }
-    else {
-      var reg = new RegExp('&'+urlencode(node.id)+'&');
-      this.env[prefname] = this.env[prefname].replace(reg, '');
     }
 
     if (!this.drag_active) {
@@ -2341,7 +2318,7 @@ function rcube_webmail()
         query = { _mbox: flags.mbox };
       query[uid_param] = uid;
       cols.subject = '<a href="' + this.url(action, query) + '" onclick="return rcube_event.keyboard_only(event)"' +
-        ' onmouseover="rcube_webmail.long_subject_title(this,'+(message.depth+1)+')" tabindex="-1"><span>'+cols.subject+'</span></a>';
+        ' onmouseover="rcube_webmail.long_subject_title(this)" tabindex="-1"><span>'+cols.subject+'</span></a>';
     }
 
     // add each submitted col
@@ -2667,11 +2644,13 @@ function rcube_webmail()
     if (!rc.env.frame_lock)
       rc.env.frame_lock = rc.set_busy(true, 'loading');
 
-    if (target.frameElement)
-      $(target.frameElement).on('load.lock', function(e) {
-        rc.unlock_frame();
-        $(this).off('load.lock');
-      });
+    try {
+      if (target.frameElement)
+        $(target.frameElement).on('load.lock', function(e) {
+          rc.unlock_frame();
+          $(this).off('load.lock');
+        });
+    } catch(e) { /* Ignore permission denied error */ };
   };
 
   this.unlock_frame = function()
@@ -3459,9 +3438,9 @@ function rcube_webmail()
       list = this.message_list;
 
     if (uid)
-      a_uids[0] = uid;
+      a_uids.push(uid);
     else if (this.env.uid)
-      a_uids[0] = this.env.uid;
+      a_uids.push(this.env.uid);
     else if (list)
       a_uids = list.get_selection();
 
@@ -3476,8 +3455,8 @@ function rcube_webmail()
             || (flag == 'delete' && !list.rows[id].deleted)
             || (flag == 'undelete' && list.rows[id].deleted)
             || (flag == 'flagged' && !list.rows[id].flagged)
-            || (flag == 'unflagged' && list.rows[id].flagged))
-        {
+            || (flag == 'unflagged' && list.rows[id].flagged)
+        ) {
           r_uids.push(id);
         }
       }
@@ -3699,7 +3678,6 @@ function rcube_webmail()
 
         // display page selector
         ref.show_menu('pagejump-selector', true, e);
-        $(this).keydown();
       })
       // keyboard navigation
       .on('keydown keyup click', function(e) {
@@ -3903,7 +3881,7 @@ function rcube_webmail()
       $("[name='_pgpmime']").remove();
 
       // re-enable commands that operate on the compose body
-      ref.enable_command('toggle-editor', 'insert-response', 'save-response', true);
+      ref.enable_command('toggle-editor', 'insert-response', true);
       ref.enable_command('spellcheck', !!window.googie);
       ref.enable_command('insert-sig', !!(ref.env.signatures && ref.env.identity && ref.env.signatures[ref.env.identity]));
 
@@ -3938,7 +3916,7 @@ function rcube_webmail()
         $('#' + ref.env.composebody).hide();
 
         // disable commands that operate on the compose body
-        ref.enable_command('spellcheck', 'insert-sig', 'toggle-editor', 'insert-response', 'save-response', false);
+        ref.enable_command('spellcheck', 'insert-sig', 'toggle-editor', 'insert-response', false);
         ref.triggerEvent('compose-encrypted', { active:true });
 
         if (!$.isEmptyObject(ref.env.attachments)) {
@@ -4213,7 +4191,7 @@ function rcube_webmail()
       $('<div>')
         .append($('<p>').html(ref.get_label('encryptpubkeysfound')))
         .append(ul),
-      ref.get_label('importpubkeys'),
+      'importpubkeys',
       null,
       {cancel_label: 'close', cancel_button: 'close'}
     );
@@ -4497,7 +4475,7 @@ function rcube_webmail()
         content = $('<ul class="proplist">').append(nodes);
         $('input:not([disabled])', content).first().attr('checked', true);
 
-        this.simple_dialog(content, this.get_label('markallread'),
+        this.simple_dialog(content, 'markallread',
           function() {
             ref.mark_all_read(folder, $('input:checked', content).val());
             return true;
@@ -4586,7 +4564,7 @@ function rcube_webmail()
 
     this.hide_menu('forwardmenu', event);
 
-    dialog = this.simple_dialog(dialog, this.gettext('bouncemsg'), submit_func, {
+    dialog = this.simple_dialog(dialog, 'bouncemsg', submit_func, {
       button: 'bounce',
       width: 400,
       height: 300
@@ -5071,97 +5049,18 @@ function rcube_webmail()
   };
 
   // Inserts a predefined response to the compose editor
-  this.insert_response = function(key)
+  this.insert_response = function(response)
   {
-    this.editor.replace(this.env.textresponses[key]);
-    this.display_message('responseinserted', 'confirmation');
-  };
+    if (typeof response == 'object') {
+      var replace = {};
+      replace[response.is_html ? 'html' : 'text'] = response.data;
 
-  /**
-   * Open the dialog to save a new canned response
-   */
-  this.save_response = function()
-  {
-    // show dialog to enter a name and to modify the text to be saved
-    var buttons = {}, text = this.editor.get_content({selection: true, format: 'text', nosig: true}),
-      html = '<form class="propform">' +
-      '<div class="prop block"><label for="ffresponsename">' + this.get_label('responsename') + '</label>' +
-      '<input type="text" name="name" id="ffresponsename" size="40" /></div>' +
-      '<div class="prop block"><label for="ffresponsetext">' + this.get_label('responsetext') + '</label>' +
-      '<textarea name="text" id="ffresponsetext" cols="40" rows="8"></textarea></div>' +
-      '</form>';
-
-    buttons[this.get_label('save')] = function(e) {
-      var name = $('#ffresponsename').val(),
-        text = $('#ffresponsetext').val();
-
-      if (!text) {
-        $('#ffresponsetext').select();
-        return false;
-      }
-      if (!name)
-        name = text.replace(/[\r\n]+/g, ' ').substring(0,40);
-
-      var lock = ref.display_message('savingresponse', 'loading');
-      ref.http_post('settings/responses', { _insert:1, _name:name, _text:text }, lock);
-      $(this).dialog('close');
-    };
-
-    buttons[this.get_label('cancel')] = function() {
-      $(this).dialog('close');
-    };
-
-    this.show_popup_dialog(html, this.get_label('newresponse'), buttons, {button_classes: ['mainaction save', 'cancel']});
-
-    $('#ffresponsetext').val(text);
-    $('#ffresponsename').select();
-  };
-
-  this.add_response_item = function(response)
-  {
-    var key = response.key;
-    this.env.textresponses[key] = response;
-
-    // append to responses list
-    if (this.gui_objects.responseslist) {
-      var li = $('<li>').appendTo(this.gui_objects.responseslist);
-      $('<a>').addClass('insertresponse active')
-        .attr({href: '#', rel: key, tabindex: '0'})
-        .html(this.quote_html(response.name))
-        .appendTo(li)
-        .mousedown(function(e) {
-          return rcube_event.cancel(e);
-        })
-        .on('mouseup keypress', function(e) {
-          if (e.type == 'mouseup' || rcube_event.get_keycode(e) == 13) {
-            ref.command('insert-response', $(this).attr('rel'));
-            $(document.body).trigger('mouseup');  // hides the menu
-            return rcube_event.cancel(e);
-          }
-        });
-
-      // remove the placeholder item if its there
-      $(this.gui_objects.responseslist).find('li > a.insertresponse.placeholder').parent().remove();
+      this.editor.replace(replace);
+      this.display_message('responseinserted', 'confirmation');
     }
-  };
-
-  this.edit_responses = function()
-  {
-    // TODO: implement inline editing of responses
-  };
-
-  this.delete_response = function(key)
-  {
-    if (!key && this.responses_list) {
-      var selection = this.responses_list.get_selection();
-      key = selection[0];
-    }
-
-    // submit delete request
-    if (key) {
-      this.confirm_dialog(this.get_label('deleteresponseconfirm'), 'delete', function() {
-          ref.http_post('settings/delete-response', { _key: key }, false);
-        });
+    else {
+      var lock = this.display_message('', 'loading');
+      this.http_get('settings/response-get', {_id: response, _is_html: this.editor.is_html() ? 1 : 0}, lock);
     }
   };
 
@@ -5217,7 +5116,7 @@ function rcube_webmail()
   this.get_save_target = function(unlock)
   {
     // Removing the frame on load/error to workaround issues with window history
-    this.dummy_iframe('savetarget', 'about:blank')
+    this.dummy_iframe('savetarget', 'javascript:false;')
       .on('load error', function() {
         // catch invalid/error response from server and unlock the UI (#7494, #7488, #7522)
         if (unlock && $(this).contents().find('meta[name="generator"][content="Roundcube"]').length == 0) {
@@ -7198,7 +7097,7 @@ function rcube_webmail()
         }
       };
 
-    this.simple_dialog(dialog, this.gettext('advsearch'), search_func, {
+    this.simple_dialog(dialog, 'advsearch', search_func, {
       button: 'search',
       width: 600,
       height: 500
@@ -7296,13 +7195,16 @@ function rcube_webmail()
   // display a dialog with QR code image
   this.qrcode = function()
   {
-    var title = this.get_label('qrcode'),
-      options = {button: false, cancel_button: 'close', width: 300, height: 300},
-      img = new Image(300, 300);
+    var img = new Image(300, 300);
 
     img.src = this.url('addressbook/qrcode', {_source: this.env.source, _cid: this.get_single_cid()});
 
-    return this.simple_dialog(img, title, null, options);
+    return this.simple_dialog(img, 'qrcode', null, {
+        button: false,
+        cancel_button: 'close',
+        width: 300,
+        height: 300
+    });
   };
 
 
@@ -7341,7 +7243,7 @@ function rcube_webmail()
         if (!id)
           this.responses_list.clear_selection();
 
-        this.location_href({_action: action, _key: id, _framed: 1}, win, true);
+        this.location_href({_action: action, _id: id, _framed: 1}, win, true);
       }
     }
   };
@@ -7374,68 +7276,73 @@ function rcube_webmail()
 
   this.delete_identity = function(id)
   {
-    // exit if no identity is specified or if selection is empty
-    var selection = this.identity_list.get_selection();
-    if (!(selection.length || this.env.iid))
-      return;
+    if (!id && this.identity_list)
+      id = this.identity_list.get_single_selection();
 
-    if (!id)
-      id = this.env.iid ? this.env.iid : selection[0];
-
-    // submit request with appended token
     if (id) {
       this.confirm_dialog(this.get_label('deleteidentityconfirm'), 'delete', function() {
-          ref.http_post('settings/delete-identity', { _iid: id }, true);
-        });
+          ref.http_post('settings/delete-identity', {_iid: id}, true);
+      });
     }
   };
 
+  this.delete_response = function(id)
+  {
+    if (!id && this.responses_list) {
+      id = this.responses_list.get_single_selection();
+    }
+
+    if (id) {
+      this.confirm_dialog(this.get_label('deleteresponseconfirm'), 'delete', function() {
+          ref.http_post('settings/delete-response', {_id: id}, true);
+      });
+    }
+  };
+
+  // Update indetities list (add or update a record)
   this.update_identity_row = function(id, name, add)
   {
     var list = this.identity_list,
       rid = this.html_identifier(id);
 
     if (add) {
-      list.insert_row({ id:'rcmrow'+rid, cols:[ { className:'mail', innerHTML:name } ] });
+      list.insert_row({id: 'rcmrow' + rid, cols: [{className: 'mail', innerHTML: name}]});
       list.select(rid);
     }
     else {
-      list.update_row(rid, [ name ]);
+      list.update_row(rid, [name]);
     }
   };
 
-  this.update_response_row = function(response, oldkey)
+  // Update responses list (add or update a record)
+  this.update_response_row = function(id, name, add)
   {
     var list = this.responses_list;
 
-    if (list && oldkey) {
-      list.update_row(oldkey, [ response.name ], response.key, true);
+    if (add) {
+      list.insert_row({id: 'rcmrow' + id, cols: [{className: 'name', innerHTML: name}]});
+      list.select(id);
     }
-    else if (list) {
-      list.insert_row({ id:'rcmrow'+response.key, cols:[ { className:'name', innerHTML:response.name } ] });
-      list.select(response.key);
+    else {
+      list.update_row(id, [name]);
     }
   };
 
-  this.remove_response = function(key)
+  // Remove response record from the responses list
+  this.remove_response = function(id)
   {
-    var frame;
-
-    if (this.env.textresponses) {
-      delete this.env.textresponses[key];
-    }
-
     if (this.responses_list) {
-      this.responses_list.remove_row(key);
+      this.responses_list.remove_row(id);
       this.show_contentframe(false);
     }
 
     this.enable_command('delete', false);
   };
 
+  // Remove identity record from the identities list
   this.remove_identity = function(id)
   {
-    var frame, list = this.identity_list,
+    var list = this.identity_list,
       rid = this.html_identifier(id);
 
     if (list && id) {
@@ -8316,6 +8223,9 @@ function rcube_webmail()
 
     popup.dialog(options);
 
+    // Remember the jQuery instance (window), useful when closing the dialog
+    popup[0].jqref = $;
+
     if (options.width)
       popup.width(options.width);
     if (options.height)
@@ -8368,7 +8278,12 @@ function rcube_webmail()
       cancel_label = options.cancel_button || 'cancel',
       cancel_class = options.cancel_class || cancel_label.replace(/^[^\.]+\./i, ''),
       close_func = function(e, ui, dialog) {
-        (ref.is_framed() ? parent.$ : $)(dialog || this).dialog('close');
+        if (!dialog)
+          dialog = this;
+
+        // The dialog might got open in the current window, but also any of its parents (#8627)
+        // We have to use the jQuery object that did invoke the dialog, set in show_popup_dialog()
+        dialog.jqref(dialog).dialog('close');
         if (options.cancel_func) options.cancel_func(e, ref);
       },
       buttons = [{
@@ -8986,7 +8901,7 @@ function rcube_webmail()
   // initialize HTML editor
   this.editor_init = function(config, id)
   {
-    this.editor = new rcube_text_editor(config, id);
+    this.editor = new rcube_text_editor(config || this.env.editor_config, id);
   };
 
 
@@ -10100,29 +10015,17 @@ function rcube_webmail()
 
   this.pdf_support_check = function()
   {
+    if ('pdfViewerEnabled' in navigator)
+      return navigator.pdfViewerEnabled ? 1 : 0;
+
     var i, plugin = navigator.mimeTypes ? navigator.mimeTypes["application/pdf"] : {},
-      plugins = navigator.plugins,
-      len = plugins.length,
       regex = /Adobe Reader|PDF|Acrobat/i;
 
     if (plugin && plugin.enabledPlugin)
         return 1;
 
-    if ('ActiveXObject' in window) {
-      try {
-        if (plugin = new ActiveXObject("AcroPDF.PDF"))
-          return 1;
-      }
-      catch (e) {}
-      try {
-        if (plugin = new ActiveXObject("PDF.PdfCtrl"))
-          return 1;
-      }
-      catch (e) {}
-    }
-
-    for (i=0; i<len; i++) {
-      plugin = plugins[i];
+    for (i in navigator.plugins) {
+      plugin = navigator.plugins[i];
       if (typeof plugin === 'string') {
         if (regex.test(plugin))
           return 1;
@@ -10261,13 +10164,20 @@ function rcube_webmail()
 
 
 // some static methods
-rcube_webmail.long_subject_title = function(elem, indent, text_elem)
-{
-  if (!elem.title) {
-    var $elem = $(text_elem || elem);
-    if ($elem.width() + (indent || 0) * 15 > $elem.parent().width())
-      elem.title = rcube_webmail.subject_text($elem[0]);
-  }
+rcube_webmail.long_subject_title = function (elem, indent, text_elem) {
+    if (!elem.title) {
+        var siblings_width = 0, $elem = $(text_elem || elem);
+
+        $elem.siblings().each(function () {
+            // Note: width() returns 0 for elements with icons in :before (Elastic)
+            siblings_width += $(this).width() + (parseFloat(window.getComputedStyle(this, ':before').width) || 0);
+        });
+
+        // Note: 3px to be on the safe side, but also specifically for Elastic
+        if ($elem.width() + siblings_width + (indent || 0) * 15 >= $elem.parent().width() - 3) {
+            elem.title = rcube_webmail.subject_text($elem[0]);
+        }
+    }
 };
 
 rcube_webmail.long_subject_title_ex = function(elem)

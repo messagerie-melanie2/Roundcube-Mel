@@ -66,8 +66,8 @@ class rcmail_action_mail_get extends rcmail_action_mail_index
                     'messagepartcontrols' => [$this, 'message_part_controls'],
             ]);
 
-            $part_id = rcube_utils::get_input_value('_part', rcube_utils::INPUT_GET);
-            $uid     = rcube_utils::get_input_value('_uid', rcube_utils::INPUT_GET);
+            $part_id = rcube_utils::get_input_string('_part', rcube_utils::INPUT_GET);
+            $uid     = rcube_utils::get_input_string('_uid', rcube_utils::INPUT_GET);
 
             // message/rfc822 preview (Note: handle also multipart/ parts, they can
             // come from Enigma, which replaces message/rfc822 with real mimetype)
@@ -95,7 +95,7 @@ class rcmail_action_mail_get extends rcmail_action_mail_index
             $cache_file     = rcube_utils::temp_filename($thumb_name, false, false);
 
             // render thumbnail image if not done yet
-            if (!is_file($cache_file) && $attachment->body_to_file($orig_name = $cache_file . '.tmp')) {
+            if (!is_file($cache_file) && $attachment->body_to_file($orig_name = rcube_utils::temp_filename('attmnt'))) {
                 $image = new rcube_image($orig_name);
 
                 if ($imgtype = $image->resize($thumbnail_size, $cache_file, true)) {

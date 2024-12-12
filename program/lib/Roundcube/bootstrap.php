@@ -58,7 +58,7 @@ foreach ($config as $optname => $optval) {
 }
 
 // framework constants
-define('RCUBE_VERSION', '1.5.9');
+define('RCUBE_VERSION', '1.6.9');
 define('RCUBE_CHARSET', 'UTF-8');
 define('RCUBE_TEMP_FILE_PREFIX', 'RCMTEMP');
 
@@ -108,7 +108,7 @@ if (class_exists('PEAR')) {
  * Similar function as in_array() but case-insensitive with multibyte support.
  *
  * @param string $needle   Needle value
- * @param array  $heystack Array to search in
+ * @param array  $haystack Array to search in
  *
  * @return bool True if found, False if not
  */
@@ -395,7 +395,7 @@ function format_email($email)
  *
  * @param string $version Version number string
  *
- * @param return Version number string
+ * @return string Version number string
  */
 function version_parse($version)
 {

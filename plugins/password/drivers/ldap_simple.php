@@ -43,7 +43,7 @@ class rcube_ldap_simple_password
         $smbpwattr    = $rcmail->config->get('password_ldap_samba_pwattr');
         $smblchattr   = $rcmail->config->get('password_ldap_samba_lchattr');
         $samba        = $rcmail->config->get('password_ldap_samba');
-        $pass_mode    = $rcmail->config->get('password_ldap_encodage', 'crypt');
+        $pass_mode    = $rcmail->config->get('password_ldap_encodage', 'md5-crypt');
         $crypted_pass = password::hash_password($passwd, $pass_mode);
 
         // Support password_ldap_samba option for backward compat.
@@ -119,11 +119,12 @@ class rcube_ldap_simple_password
         $this->debug = $rcmail->config->get('ldap_debug');
         $ldap_host   = $rcmail->config->get('password_ldap_host', 'localhost');
         $ldap_port   = $rcmail->config->get('password_ldap_port', '389');
+        $ldap_uri    = $this->_host2uri($ldap_host, $ldap_port);
 
-        $this->_debug("C: Connect to $ldap_host:$ldap_port");
+        $this->_debug("C: Connect [{$ldap_uri}]");
 
         // Connect
-        if (!$ds = ldap_connect($ldap_host, $ldap_port)) {
+        if (!($ds = ldap_connect($ldap_uri))) {
             $this->_debug("S: NOT OK");
 
             rcube::raise_error([
@@ -289,5 +290,25 @@ class rcube_ldap_simple_password
         if ($this->debug) {
             rcube::write_log('ldap', $str);
         }
+    }
+
+    /**
+     * Convert LDAP host/port into URI
+     */
+    private static function _host2uri($host, $port = null)
+    {
+        if (stripos($host, 'ldapi://') === 0) {
+            return $host;
+        }
+
+        if (strpos($host, '://') === false) {
+            $host = ($port == 636 ? 'ldaps' : 'ldap') . '://' . $host;
+        }
+
+        if ($port && !preg_match('/:[0-9]+$/', $host)) {
+            $host .= ':' . $port;
+        }
+
+        return $host;
     }
 }

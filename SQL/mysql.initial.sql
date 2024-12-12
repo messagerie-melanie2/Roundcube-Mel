@@ -22,9 +22,9 @@ CREATE TABLE `users` (
  `username` varchar(128) BINARY NOT NULL,
  `mail_host` varchar(128) NOT NULL,
  `created` datetime NOT NULL DEFAULT '1000-01-01 00:00:00',
- `last_login` datetime DEFAULT NULL,
- `failed_login` datetime DEFAULT NULL,
- `failed_login_counter` int(10) UNSIGNED DEFAULT NULL,
+ `last_login` datetime,
+ `failed_login` datetime,
+ `failed_login_counter` int(10) UNSIGNED,
  `language` varchar(16),
  `preferences` longtext,
  PRIMARY KEY(`user_id`),
@@ -37,7 +37,7 @@ CREATE TABLE `users` (
 CREATE TABLE `cache` (
  `user_id` int(10) UNSIGNED NOT NULL,
  `cache_key` varchar(128) BINARY NOT NULL,
- `expires` datetime DEFAULT NULL,
+ `expires` datetime,
  `data` longtext NOT NULL,
  PRIMARY KEY (`user_id`, `cache_key`),
  CONSTRAINT `user_id_fk_cache` FOREIGN KEY (`user_id`)
@@ -50,7 +50,7 @@ CREATE TABLE `cache` (
 
 CREATE TABLE `cache_shared` (
  `cache_key` varchar(255) BINARY NOT NULL,
- `expires` datetime DEFAULT NULL,
+ `expires` datetime,
  `data` longtext NOT NULL,
  PRIMARY KEY (`cache_key`),
  INDEX `expires_index` (`expires`)
@@ -62,7 +62,7 @@ CREATE TABLE `cache_shared` (
 CREATE TABLE `cache_index` (
  `user_id` int(10) UNSIGNED NOT NULL,
  `mailbox` varchar(255) BINARY NOT NULL,
- `expires` datetime DEFAULT NULL,
+ `expires` datetime,
  `valid` tinyint(1) NOT NULL DEFAULT '0',
  `data` longtext NOT NULL,
  CONSTRAINT `user_id_fk_cache_index` FOREIGN KEY (`user_id`)
@@ -77,7 +77,7 @@ CREATE TABLE `cache_index` (
 CREATE TABLE `cache_thread` (
  `user_id` int(10) UNSIGNED NOT NULL,
  `mailbox` varchar(255) BINARY NOT NULL,
- `expires` datetime DEFAULT NULL,
+ `expires` datetime,
  `data` longtext NOT NULL,
  CONSTRAINT `user_id_fk_cache_thread` FOREIGN KEY (`user_id`)
    REFERENCES `users`(`user_id`) ON DELETE CASCADE ON UPDATE CASCADE,
@@ -92,7 +92,7 @@ CREATE TABLE `cache_messages` (
  `user_id` int(10) UNSIGNED NOT NULL,
  `mailbox` varchar(255) BINARY NOT NULL,
  `uid` int(11) UNSIGNED NOT NULL DEFAULT '0',
- `expires` datetime DEFAULT NULL,
+ `expires` datetime,
  `data` longtext NOT NULL,
  `flags` int(11) NOT NULL DEFAULT '0',
  CONSTRAINT `user_id_fk_cache_messages` FOREIGN KEY (`user_id`)
@@ -128,8 +128,8 @@ CREATE TABLE `contacts` (
  `email` text NOT NULL,
  `firstname` varchar(128) NOT NULL DEFAULT '',
  `surname` varchar(128) NOT NULL DEFAULT '',
- `vcard` longtext NULL,
- `words` text NULL,
+ `vcard` longtext,
+ `words` text,
  `user_id` int(10) UNSIGNED NOT NULL,
  PRIMARY KEY(`contact_id`),
  CONSTRAINT `user_id_fk_contacts` FOREIGN KEY (`user_id`)
@@ -191,11 +191,28 @@ CREATE TABLE `identities` (
 ) ROW_FORMAT=DYNAMIC ENGINE=INNODB CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 
+-- Table structure for table `responses`
+
+CREATE TABLE `responses` (
+ `response_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+ `user_id` int(10) UNSIGNED NOT NULL,
+ `name` varchar(255) NOT NULL,
+ `data` longtext NOT NULL,
+ `is_html` tinyint(1) NOT NULL DEFAULT '0',
+ `changed` datetime NOT NULL DEFAULT '1000-01-01 00:00:00',
+ `del` tinyint(1) NOT NULL DEFAULT '0',
+ PRIMARY KEY (`response_id`),
+ CONSTRAINT `user_id_fk_responses` FOREIGN KEY (`user_id`)
+   REFERENCES `users` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+ INDEX `user_responses_index` (`user_id`, `del`)
+) ROW_FORMAT=DYNAMIC ENGINE=INNODB CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+
 -- Table structure for table `dictionary`
 
 CREATE TABLE `dictionary` (
   `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY, -- redundant, for compat. with Galera Cluster
-  `user_id` int(10) UNSIGNED DEFAULT NULL, -- NULL here is for "shared dictionaries"
+  `user_id` int(10) UNSIGNED, -- NULL here is for "shared dictionaries"
   `language` varchar(16) NOT NULL,
   `data` longtext NOT NULL,
   CONSTRAINT `user_id_fk_dictionary` FOREIGN KEY (`user_id`)
@@ -243,4 +260,4 @@ CREATE TABLE `system` (
 
 SET FOREIGN_KEY_CHECKS=1;
 
-INSERT INTO `system` (`name`, `value`) VALUES ('roundcube-version', '2020122900');
+INSERT INTO `system` (`name`, `value`) VALUES ('roundcube-version', '2022081200');

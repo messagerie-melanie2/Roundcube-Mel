@@ -77,6 +77,7 @@ class rcube_db
      */
     public static function factory($db_dsnw, $db_dsnr = '', $pconn = false)
     {
+        $db_dsnw    = (string) $db_dsnw;
         $driver     = strtolower(substr($db_dsnw, 0, strpos($db_dsnw, ':')));
         $driver_map = [
             'sqlite2' => 'sqlite',
@@ -87,7 +88,7 @@ class rcube_db
             'oci8'    => 'oracle',
         ];
 
-        $driver = isset($driver_map[$driver]) ? $driver_map[$driver] : $driver;
+        $driver = $driver_map[$driver] ?? $driver;
         $class  = "rcube_db_$driver";
 
         if (!$driver || !class_exists($class)) {
@@ -175,13 +176,19 @@ class rcube_db
 
             $this->conn_prepare($dsn);
 
-            $username = isset($dsn['username']) ? $dsn['username'] : null;
-            $password = isset($dsn['password']) ? $dsn['password'] : null;
+            $username = $dsn['username'] ?? null;
+            $password = $dsn['password'] ?? null;
 
             $this->dbh = new PDO($dsn_string, $username, $password, $dsn_options);
 
             // don't throw exceptions or warnings
             $this->dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_SILENT);
+
+            // Return numbers as strings consistently for all supported PHP versions
+            // Since PHP 8.1 native data types are used by default
+            if (defined('PDO::ATTR_STRINGIFY_FETCHES')) {
+                $this->dbh->setAttribute(PDO::ATTR_STRINGIFY_FETCHES, 1);
+            }
 
             $this->conn_configure($dsn, $this->dbh);
         }
@@ -396,16 +403,13 @@ class rcube_db
     /**
      * Execute a SQL query
      *
-     * @param string SQL query to execute
-     * @param mixed  Values to be inserted in query
+     * @param string $query     SQL query to execute
+     * @param mixed  ...$params Query parameter values
      *
      * @return PDOStatement|false  Query handle or False on error
      */
-    public function query()
+    public function query($query, ...$params)
     {
-        $params = func_get_args();
-        $query  = array_shift($params);
-
         // Support one argument of type array, instead of n arguments
         if (count($params) == 1 && is_array($params[0])) {
             $params = $params[0];
@@ -417,34 +421,29 @@ class rcube_db
     /**
      * Execute a SQL query with limits
      *
-     * @param string SQL query to execute
-     * @param int    Offset for LIMIT statement
-     * @param int    Number of rows for LIMIT statement
-     * @param mixed  Values to be inserted in query
+     * @param string $query     SQL query to execute
+     * @param int    $offset    Offset for LIMIT statement
+     * @param int    $limit     Number of rows for LIMIT statement
+     * @param mixed  ...$params Query parameter values
      *
      * @return PDOStatement|false Query handle or False on error
      */
-    public function limitquery()
+    public function limitquery($query, $offset, $limit, ...$params)
     {
-        $params  = func_get_args();
-        $query   = array_shift($params);
-        $offset  = array_shift($params);
-        $numrows = array_shift($params);
-
-        return $this->_query($query, $offset, $numrows, $params);
+        return $this->_query($query, $offset, $limit, $params);
     }
 
     /**
      * Execute a SQL query with limits
      *
-     * @param string $query   SQL query to execute
-     * @param int    $offset  Offset for LIMIT statement
-     * @param int    $numrows Number of rows for LIMIT statement
-     * @param array  $params  Values to be inserted in query
+     * @param string $query  SQL query to execute
+     * @param int    $offset Offset for LIMIT statement
+     * @param int    $limit  Number of rows for LIMIT statement
+     * @param array  $params Values to be inserted in query
      *
      * @return PDOStatement|false Query handle or False on error
      */
-    protected function _query($query, $offset, $numrows, $params)
+    protected function _query($query, $offset, $limit, $params)
     {
         $query = ltrim($query);
 
@@ -455,8 +454,8 @@ class rcube_db
             return $this->last_result = false;
         }
 
-        if ($numrows || $offset) {
-            $query = $this->set_limit($query, $numrows, $offset);
+        if ($limit || $offset) {
+            $query = $this->set_limit($query, $limit, $offset);
         }
 
         // replace self::DEFAULT_QUOTE with driver-specific quoting
@@ -918,7 +917,7 @@ class rcube_db
                 'integer' => PDO::PARAM_INT,
             ];
 
-            $type = isset($map[$type]) ? $map[$type] : PDO::PARAM_STR;
+            $type = $map[$type] ?? PDO::PARAM_STR;
 
             return strtr($this->dbh->quote($input, $type),
                 // escape ? and `
@@ -1085,18 +1084,17 @@ class rcube_db
      */
     public function ilike($column, $value)
     {
-        return $this->quote_identifier($column).' LIKE '.$this->quote($value);
+        return $this->quote_identifier($column) . ' LIKE ' . $this->quote($value);
     }
 
     /**
      * Abstract SQL statement for value concatenation
      *
-     * @return string SQL statement to be used in query
+     * @return string ...$args Values to concatenate
      */
-    public function concat(/* col1, col2, ... */)
+    public function concat(...$args)
     {
-        $args = func_get_args();
-        if (!empty($args) && is_array($args[0])) {
+        if (count($args) == 1 && is_array($args[0])) {
             $args = $args[0];
         }
 
@@ -1227,7 +1225,7 @@ class rcube_db
     /**
      * MDB2 DSN string parser
      *
-     * @param string $sequence Sequence name
+     * @param string $dsn DSN string
      *
      * @return array DSN parameters
      */
@@ -1428,7 +1426,7 @@ class rcube_db
      *
      * @param string $sql SQL queries to execute
      *
-     * @return boolean True on success, False on error
+     * @return bool True on success, False on error
      */
     public function exec_script($sql)
     {

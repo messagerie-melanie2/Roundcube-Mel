@@ -30,8 +30,8 @@ class enigma_mime_message extends Mail_mime
     /**
      * Object constructor
      *
-     * @param Mail_mime Original message
-     * @param int       Output message type
+     * @param Mail_mime $message Original message
+     * @param int       $type    Output message type
      */
     function __construct($message, $type)
     {
@@ -73,7 +73,7 @@ class enigma_mime_message extends Mail_mime
 
         if (isset($headers['From'])) {
             $from    = rcube_mime::decode_address_list($headers['From'], 1, false, null, true);
-            $from    = isset($from[1]) ? $from[1] : null;
+            $from    = $from[1] ?? null;
 
             return $from;
         }
@@ -90,11 +90,11 @@ class enigma_mime_message extends Mail_mime
     {
         // get sender address
         $headers = $this->message->headers();
-        $to      = rcube_mime::decode_address_list($headers['To'], null, false, null, true);
-        $cc      = rcube_mime::decode_address_list($headers['Cc'], null, false, null, true);
-        $bcc     = rcube_mime::decode_address_list($headers['Bcc'], null, false, null, true);
+        $to      = rcube_mime::decode_address_list($headers['To'] ?? '', null, false, null, true);
+        $cc      = rcube_mime::decode_address_list($headers['Cc'] ?? '', null, false, null, true);
+        $bcc     = rcube_mime::decode_address_list($headers['Bcc'] ?? '', null, false, null, true);
 
-        $recipients = array_unique(array_merge($to, $cc, $bcc));
+        $recipients = array_unique(array_filter(array_merge($to, $cc, $bcc)));
         $recipients = array_diff($recipients, ['undisclosed-recipients:']);
 
         return array_values($recipients);
@@ -123,8 +123,8 @@ class enigma_mime_message extends Mail_mime
     /**
      * Register signature attachment
      *
-     * @param string Signature body
-     * @param string Hash algorithm name
+     * @param string $body      Signature body
+     * @param string $algorithm Hash algorithm name
      */
     public function addPGPSignature($body, $algorithm = null)
     {
@@ -139,7 +139,7 @@ class enigma_mime_message extends Mail_mime
     /**
      * Register encrypted body
      *
-     * @param string Encrypted body
+     * @param string $body Encrypted body
      */
     public function setPGPEncryptedBody($body)
     {
