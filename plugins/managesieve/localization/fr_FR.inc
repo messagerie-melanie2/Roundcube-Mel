@@ -104,10 +104,9 @@ $labels['valueislessthan'] = 'valeur inférieure à';
 $labels['valueislessthanequal'] = 'valeur inférieure ou égale à';
 $labels['valueequals'] = 'valeur égale à';
 $labels['valuenotequals'] = 'la valeur n’est pas égale à';
-// PAMELA
-$labels['setflags'] = 'Définir les drapeaux/étiquettes pour le courriel';
-$labels['addflags'] = 'Ajouter les drapeaux/étiquettes au courriel';
-$labels['removeflags'] = 'Supprimer les drapeaux/étiquettes du courriel';
+$labels['setflags'] = 'Définir les drapeaux pour le courriel';
+$labels['addflags'] = 'Ajouter les drapeaux au courriel';
+$labels['removeflags'] = 'Supprimer les drapeaux du courriel';
 $labels['flagread'] = 'Lu';
 $labels['flagdeleted'] = 'Supprimé';
 $labels['flaganswered'] = 'Réponse envoyée';
@@ -284,9 +283,3 @@ $messages['duplicate.conflict.err'] = 'L’en-tête et l’identifiant unique ne
 $messages['disabledaction'] = 'L’action n’est pas permise.';
 $messages['lastindexempty'] = 'L’index est requis en comptant de la fin';
 $messages['noflagset'] = 'Au moins un drapeau doit être sélectionné.';
-$messages['disabled'] = 'Désactivé';
-$messages['enabled'] = 'Activé';
-
-// PAMELA - Renommer les filtres
-$messages['ingo_filters'] = 'Mes anciens filtres';
-$messages['managesieve_filters'] = 'Mes filtres';

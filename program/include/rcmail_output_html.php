@@ -2253,13 +2253,7 @@ EOF;
         }
 
         unset($attrib['task'], $attrib['request']);
-        // PAMELA - Always keep the account value in url for shared mailboxes
-        if (isset($_GET['_account'])) {
-            $attrib['action'] = './?_account='.mel::get_account();
-        }
-        else {
-            $attrib['action'] = './';
-        }
+        $attrib['action'] = './';
 
         return $this->form_tag($attrib, $hidden->show() . $content);
     }

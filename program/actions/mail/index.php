@@ -292,12 +292,8 @@ class rcmail_action_mail_index extends rcmail_action
             $mbox = $rcmail->storage->get_folder();
         }
 
-        // PAMELA - Gérer les INBOX des BALP en plus
-        $data = $rcmail->plugins->exec_hook('mel_is_inbox',
-            ['mbox' => $mbox, 'isInbox' => strtoupper($mbox) == 'INBOX', 'smart' => true]);
-
         if ((strpos($mbox.$delim, $sent_mbox.$delim) === 0 || strpos($mbox.$delim, $drafts_mbox.$delim) === 0)
-            && !$data['isInbox']
+            && strtoupper($mbox) != 'INBOX'
         ) {
             return 'to';
         }
@@ -392,8 +388,7 @@ class rcmail_action_mail_index extends rcmail_action
         $rcmail->output->set_env('sort_order', $_SESSION['sort_order']);
         $rcmail->output->set_env('messages', []);
         $rcmail->output->set_env('listcols', $listcols);
-        // PAMELA - Ajout de la priorité dans l'affichage des mails 
-        $rcmail->output->set_env('listcols_widescreen', ['threads', 'subject', 'fromto', 'date', 'size', 'flag', 'attachment', 'priority']);
+        $rcmail->output->set_env('listcols_widescreen', ['threads', 'subject', 'fromto', 'date', 'size', 'flag', 'attachment']);
 
         $rcmail->output->include_script('list.js');
 
@@ -475,7 +470,7 @@ class rcmail_action_mail_index extends rcmail_action
         $a_headers   = $plugin['messages'];
 
         // make sure minimum required columns are present (needed for widescreen layout)
-        $allcols = array_merge($a_show_cols, ['threads', 'subject', 'fromto', 'date', 'size', 'flag', 'attachment', 'priority']);
+        $allcols = array_merge($a_show_cols, ['threads', 'subject', 'fromto', 'date', 'size', 'flag', 'attachment']);
         $allcols = array_unique($allcols);
 
         $thead = !empty($head_replace) ? self::message_list_head($_SESSION['list_attrib'], $allcols) : null;
@@ -526,8 +521,7 @@ class rcmail_action_mail_index extends rcmail_action
                 $col_name = $col == 'fromto' ? $smart_col : $col;
 
                 if (in_array($col_name, ['from', 'to', 'cc', 'replyto'])) {
-                    // PAMELA - Ajout du title
-                    $cont = self::address_string($header->$col_name, 3, false, null, $header->charset, $header->title);
+                    $cont = self::address_string($header->$col_name, 3, false, null, $header->charset);
                     if (empty($cont)) {
                         $cont = '&nbsp;'; // for widescreen mode
                     }
@@ -658,7 +652,8 @@ class rcmail_action_mail_index extends rcmail_action
             if (!preg_match('/^[a-zA-Z_-]+$/', $col)) {
                 continue;
             }
-            $label    = '';
+
+            $label = '';
             $sortable = false;
             $rel_col  = $col == 'date' && $sort_col == 'arrival' ? 'arrival' : $col;
 
@@ -823,24 +818,16 @@ class rcmail_action_mail_index extends rcmail_action
     public static function send_unread_count($mbox_name, $force = false, $count = null, $mark = '')
     {
         $rcmail     = rcmail::get_instance();
-
-        // PAMELA - Gestion du cache pour les Corbeilles
-        $cache = $rcmail->plugins->exec_hook('mel_folder_cache', ['folder' => $mbox_name]);
-
-        $old_unseen = self::get_unseen_count($cache['folder']);
+        $old_unseen = self::get_unseen_count($mbox_name);
         $unseen     = $count;
 
         if ($unseen === null) {
             $unseen = $rcmail->storage->count($mbox_name, 'UNSEEN', $force);
         }
 
-        // PAMELA - Change the IMAP folder name with a plugin (change INBOX for shared mailboxes)
-        $data = $rcmail->plugins->exec_hook('mel_is_inbox',
-            ['mbox' => $mbox_name, 'isInbox' => $mbox_name == 'INBOX']);
-
-        if ($unseen !== $old_unseen || $data['isInbox']) {
-            $rcmail->output->command('set_unread_count', $cache['folder'], $unseen,
-                $data['isInbox'], $unseen && $mark ? $mark : '');
+        if ($unseen !== $old_unseen || ($mbox_name == 'INBOX')) {
+            $rcmail->output->command('set_unread_count', $mbox_name, $unseen,
+                ($mbox_name == 'INBOX'), $unseen && $mark ? $mark : '');
         }
 
         self::set_unseen_count($mbox_name, $unseen);
@@ -1150,7 +1137,7 @@ class rcmail_action_mail_index extends rcmail_action
                 }
             }
 
-                        if (strlen($out)) {
+            if (strlen($out)) {
                 $css_prefix = $washtml->get_config('css_prefix');
                 $is_safe = $washtml->get_config('allow_remote');
                 $body_class = $washtml->get_config('body_class') ?: '';
@@ -1411,8 +1398,7 @@ class rcmail_action_mail_index extends rcmail_action
                     $address = html::a($attrs, $content);
                 }
                 else {
-                    // PAMELA - Title string à la place de mailto
-                    $address = html::span(['title' => $title ?? $mailto, 'class' => "rcmContactAddress"],
+                    $address = html::span(['title' => $mailto, 'class' => "rcmContactAddress"],
                         rcube::SQ($name ?: $mailto));
                 }
 

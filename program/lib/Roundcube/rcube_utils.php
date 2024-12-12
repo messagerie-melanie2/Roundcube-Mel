@@ -147,7 +147,9 @@ class rcube_utils
 
             // last domain part (allow extended TLD)
             $last_part = array_pop($domain_array);
-            if (/** PAMELA - MANTIS 3439: Les adresses mail en .i2 ne sont pas acceptées **/ $last_part != 'i2' && strpos($last_part, 'xn--') !== 0 && preg_match('/[^a-zA-Z]/', $last_part)) {
+            if (strpos($last_part, 'xn--') !== 0
+                && (preg_match('/[^a-zA-Z0-9]/', $last_part) || preg_match('/^[0-9]+$/', $last_part))
+            ) {
                 return false;
             }
 
@@ -407,7 +409,6 @@ class rcube_utils
         return asciiwords($str, true, '_');
     }
 
-    
     /**
      * Replace all css definitions with #container [def]
      * and remove css-inlined scripting, make position style safe
@@ -571,7 +572,6 @@ class rcube_utils
         return count($output) > 0 ? implode('; ', $output) . ';' : '';
     }
 
-
     /**
      * Explode css style. Property names will be lower-cased and trimmed.
      * Values will be trimmed. Invalid entries will be skipped.
@@ -644,7 +644,7 @@ class rcube_utils
         return $result;
     }
 
-  /**
+    /**
      * Explode css style value
      *
      * @param string $style CSS style
@@ -1663,20 +1663,13 @@ class rcube_utils
      * @param string $file_name String identifier for the type of temp file
      * @param bool   $unique    Generate unique file names based on $file_name
      * @param bool   $create    Create the temp file or not
-     * @param bool   $shared    Use shared temp dir or not (PAMELA)
      *
      * @return string temporary file path
      */
-    public static function temp_filename($file_name, $unique = true, $create = true, $shared = false)
+    public static function temp_filename($file_name, $unique = true, $create = true)
     {
-        // PAMELA - Shared temp dir
-        if ($shared) {
-            $temp_dir = rcube::get_instance()->config->get('temp_dir_shared', rcube::get_instance()->config->get('temp_dir'));
-        }
-        else {
-            $temp_dir = rcube::get_instance()->config->get('temp_dir');
-        }
-        
+        $temp_dir = rcube::get_instance()->config->get('temp_dir');
+
         // Fall back to system temp dir if configured dir is not writable
         if (!is_writable($temp_dir)) {
             $temp_dir = sys_get_temp_dir();

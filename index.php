@@ -2,7 +2,7 @@
 /**
  +-------------------------------------------------------------------------+
  | Roundcube Webmail IMAP Client                                           |
- | Version 1.5.8                                                           |
+ | Version 1.5.9                                                           |
  |                                                                         |
  | Copyright (C) The Roundcube Dev Team                                    |
  |                                                                         |
@@ -35,10 +35,6 @@
  | Author: Aleksander Machniak <alec@alec.pl>                              |
  +-------------------------------------------------------------------------+
 */
-// PAMELA - Application name configuration for ORM Mél
-if (! defined('CONFIGURATION_APP_LIBM2')) {
-    define('CONFIGURATION_APP_LIBM2', 'roundcube');
-}
 
 // include environment
 require_once 'program/include/iniset.php';

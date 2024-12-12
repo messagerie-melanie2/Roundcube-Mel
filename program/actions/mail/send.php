@@ -52,9 +52,6 @@ class rcmail_action_mail_send extends rcmail_action
 
         $saveonly  = !empty($_GET['_saveonly']);
         $savedraft = !empty($_POST['_draft']) && !$saveonly;
-        //PAMELA
-        $savemodel = !empty($_POST['_model']) && !$saveonly;
-
         $SENDMAIL  = new rcmail_sendmail($COMPOSE, [
                 'sendmail'      => true,
                 'saveonly'      => $saveonly,
@@ -247,13 +244,6 @@ class rcmail_action_mail_send extends rcmail_action
             $sent = $SENDMAIL->deliver_message($MAIL_MIME);
         }
 
-        //PAMELA
-        if ($savemodel)
-        {
-            unset($SENDMAIL->options['savedraft']);
-            $SENDMAIL->options['savemodel'] = true;
-        }
-
         // Save the message in Drafts/Sent
         $saved = $SENDMAIL->save_message($MAIL_MIME);
 
@@ -269,7 +259,7 @@ class rcmail_action_mail_send extends rcmail_action
         $store_folder = $SENDMAIL->options['store_folder'];
 
         // delete previous saved draft
-        $drafts_mbox =  $savemodel ? $rcmail->config->get('models_mbox') : $rcmail->config->get('drafts_mbox');
+        $drafts_mbox = $rcmail->config->get('drafts_mbox');
         $old_id      = rcube_utils::get_input_value('_draft_saveid', rcube_utils::INPUT_POST);
 
         if ($old_id && (!empty($sent) || $saved)) {

@@ -69,26 +69,12 @@ class rcube_user
         $this->db = $this->rc->get_dbh();
 
         if ($id && !$sql_arr) {
-            // PAMELA - Mise en cache des données
-            if ($_SESSION['user_id'] == $id 
-                    && $this->rc->config->get('rcube_user_cache', false)
-                    && isset($_SESSION['rcube_user'])) {
-                $sql_arr = $_SESSION['rcube_user'];
-            }
-            else {
-                $sql_result = $this->db->query(
-                    "SELECT * FROM " . $this->db->table_name('users', true)
-                    . " WHERE `user_id` = ?", $id
-                );
-    
-                $sql_arr = $this->db->fetch_assoc($sql_result);
+            $sql_result = $this->db->query(
+                "SELECT * FROM " . $this->db->table_name('users', true)
+                . " WHERE `user_id` = ?", $id
+            );
 
-                // PAMELA - Mise en cache des données
-                if ($_SESSION['user_id'] == $id 
-                        && $this->rc->config->get('rcube_user_cache', false)) {
-                    $_SESSION['rcube_user'] = $sql_arr;
-                }
-            }
+            $sql_arr = $this->db->fetch_assoc($sql_result);
         }
 
         if (!empty($sql_arr)) {
@@ -221,18 +207,7 @@ class rcube_user
         foreach ($a_user_prefs as $key => $value) {
             if ($value === null || (!isset($old_prefs[$key]) && isset($defaults[$key]) && $value === $defaults[$key])) {
                 unset($save_prefs[$key]);
-                // PAMELA - Optimisation du save_prefs
-                unset($a_user_prefs[$key]);
             }
-            // PAMELA - Optimisation du save_prefs
-            if ($value === $old_prefs[$key]) {
-                unset($a_user_prefs[$key]);
-            }
-        }
-
-        // PAMELA - Optimisation du save_prefs
-        if (empty($a_user_prefs)) {
-            return true;
         }
 
         $save_prefs = serialize($save_prefs);
@@ -252,14 +227,6 @@ class rcube_user
         // Update success
         if ($this->db->affected_rows() !== false) {
             $this->data['preferences'] = $save_prefs;
-
-            // PAMELA - Mise en cache des données
-            if ($_SESSION['user_id'] == $this->ID
-                    && $this->rc->config->get('rcube_user_cache', false)
-                    && isset($_SESSION['rcube_user'])) {
-                $_SESSION['rcube_user']['preferences'] = $save_prefs;
-                $_SESSION['rcube_user']['language'] = $this->language;
-            }
 
             if (!$no_session) {
                 $config->set_user_prefs($this->prefs);
@@ -313,31 +280,19 @@ class rcube_user
     function list_emails($default = false)
     {
         if ($this->emails === null) {
-            // PAMELA - Mettre en cache les identités
-            if ($this->rc->config->get('user_list_emails_cache', false) && isset($_SESSION['user_list_emails'])) {
-                $this->emails = $_SESSION['user_list_emails'];
-            }
-            else {
-                $this->emails = [];
+            $this->emails = [];
 
-                $sql_result = $this->db->query(
-                    "SELECT `identity_id`, `name`, `email`"
-                    ." FROM " . $this->db->table_name('identities', true)
-                    ." WHERE `user_id` = ? AND `del` <> 1"
-                    ." ORDER BY `standard` DESC, `name` ASC, `email` ASC, `identity_id` ASC",
-                    $this->ID
-                );
-    
-                while ($sql_arr = $this->db->fetch_assoc($sql_result)) {
-                    $this->emails[] = $sql_arr;
-                }
+            $sql_result = $this->db->query(
+                "SELECT `identity_id`, `name`, `email`"
+                ." FROM " . $this->db->table_name('identities', true)
+                ." WHERE `user_id` = ? AND `del` <> 1"
+                ." ORDER BY `standard` DESC, `name` ASC, `email` ASC, `identity_id` ASC",
+                $this->ID
+            );
 
-                // PAMELA - Mettre en cache les identités
-                if ($this->rc->config->get('user_list_emails_cache', false)) {
-                    $_SESSION['user_list_emails'] = $this->emails;
-                }
+            while ($sql_arr = $this->db->fetch_assoc($sql_result)) {
+                $this->emails[] = $sql_arr;
             }
-            
         }
 
         return $default ? $this->emails[0] : $this->emails;

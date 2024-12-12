@@ -103,8 +103,7 @@ class rcmail_action_contacts_photo extends rcmail_action_contacts_index
 
         // cache for one day if requested by email
         if (!$cid && !empty($email)) {
-            // PAMELA - 0007748: Mettre en cache les photos de contacts
-            $rcmail->output->future_expire_header(86400*30);
+            $rcmail->output->future_expire_header(86400);
         }
 
         if ($data) {

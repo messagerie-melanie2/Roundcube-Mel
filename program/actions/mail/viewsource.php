@@ -59,12 +59,6 @@ class rcmail_action_mail_viewsource extends rcmail_action
 
                 $params['length'] = $headers->size;
                 $params['disposition'] = 'attachment';
-
-                $rcmail->output->download_headers($filename, [
-                        'length'       => $headers->size,
-                        'type'         => 'text/plain',
-                        'type_charset' => $charset,
-                ]);
             }
             else {
                 $params['disposition'] = 'inline';

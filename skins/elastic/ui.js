@@ -600,12 +600,6 @@ function rcube_elastic_ui()
                 // Also disable double-click to prevent from opening items
                 // in a new page, and prevent from zoom issues (#7732)
                 rcmail[list].dblclick_time = 0;
-
-                //PAMELA - Corrige si la page est en mode frame
-                setTimeout(() => {
-                    if (!$("html").hasClass("touch"))
-                        rcmail[list].dblclick_time = 500;
-                }, 500);
             }
         });
 
@@ -801,14 +795,6 @@ function rcube_elastic_ui()
 
                 screen_logo(mode);
                 $('iframe').each(switch_iframe_color_mode);
-            },
-            //PAMELA
-            switch_theme = function ()
-            {
-                color_mode = color_mode === 'dark' ? 'light' : 'dark';
-                switch_color_mode();
-                rcmail.set_cookie('colorMode', color_mode, false);
-                rcmail.triggerEvent("switched_color_theme", color_mode);
             };
 
         if (rcmail.env.dark_mode_support === false) {
@@ -821,12 +807,9 @@ function rcube_elastic_ui()
 
         // Add onclick action to the menu button
         $('#taskmenu a.theme').on('click', function() {
-            switch_theme()
-        });
-
-        //PAMELA
-        rcmail.addEventListener("switch_color_theme", () => {
-            switch_theme();
+            color_mode = $(this).is('.dark') ? 'dark' : 'light';
+            switch_color_mode();
+            rcmail.set_cookie('colorMode', color_mode, false);
         });
 
         // Note: this does not work in IE and Safari
@@ -1406,8 +1389,7 @@ function rcube_elastic_ui()
                     // Focusing the subject when scrolling back to the top fixes
                     // an annoying bouncing scrollbar bug (#8046)
                     if (floating) {
-                        $('#compose-subject').focus()
-                                             .blur(); //Fix no-wanted focus PAMELA
+                        $('#compose-subject').focus();
                         floating = false;
                     }
                     toolbar.css({position: 'relative', top: 0, width: 'auto'})
@@ -1808,12 +1790,7 @@ function rcube_elastic_ui()
     function screen_resize_small()
     {
         screen_resize_small_all();
-
-        //PAMELLA
-        if (touch === true)
-            app_menu(false);
-        else
-            app_menu(true);
+        app_menu(true);
     };
 
     function screen_resize_normal()
@@ -1830,14 +1807,7 @@ function rcube_elastic_ui()
         }
 
         layout.content.removeClass('hidden');
-        if(rcmail.env.task === 'mail' && rcmail.env.action === 'compose') $('#toolbar-menu').removeClass('hidden');
-
-        //PAMELLA
-        if (touch === true)
-            app_menu(false);
-        else
-            app_menu(true);
-
+        app_menu(true);
         screen_resize_small_none();
 
         if (layout.list.length) {
@@ -1972,18 +1942,17 @@ function rcube_elastic_ui()
     function app_menu(show)
     {
         if (show) {
-            if (mode == 'phone' /* PAMELLA ==> */|| touch === true) {
+            if (mode == 'phone') {
                 $('<div id="menu-overlay" class="popover-overlay">')
                     .on('click', function() { app_menu(false); })
                     .appendTo('body');
 
                 if (!env.menu_initialized) {
                     env.menu_initialized = true;
-                    $('a', layout.menu).on('click', function(e) { if (mode == 'phone' /* PAMELLA ==> */ || $("html").hasClass("touch")) app_menu(); });
+                    $('a', layout.menu).on('click', function(e) { if (mode == 'phone') app_menu(); });
                 }
 
-                if (mode == "phone") //PAMELLA
-                    layout.menu.addClass('popover');
+                layout.menu.addClass('popover');
             }
 
             layout.menu.removeClass('hidden');
@@ -2472,7 +2441,7 @@ function rcube_elastic_ui()
                         // the DOM (https://github.com/twbs/bootstrap/issues/20219)
                         // making our menus to not update buttons state.
                         // Work around this by attaching it back to the DOM tree.
-                        .prependTo(popup.data('popup-parent') || document.body);
+                        .appendTo(popup.data('popup-parent') || document.body);
                 }
 
                 // close orphaned popovers, for some reason there are sometimes such dummy elements left
@@ -2621,10 +2590,7 @@ function rcube_elastic_ui()
             // we have to wait until the previous menu hides before we can open it again
             fn = function() {
                 if (menus[p.name] && menus[p.name].transitioning) {
-                    //PAMELLA - Eviter les popups qui ne s'affichent pas
-                    if (fn.number === undefined) fn.number = 0;
-                    if (fn.number++ < 5)
-                        return setTimeout(fn, 50);
+                    return setTimeout(fn, 50);
                 }
 
                 if (!$(target).data('popup')) {

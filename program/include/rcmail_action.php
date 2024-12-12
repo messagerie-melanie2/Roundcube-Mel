@@ -716,7 +716,6 @@ abstract class rcmail_action
 
         $rcmail->output->set_env('autocomplete_max', (int) $rcmail->config->get('autocomplete_max', 15));
         $rcmail->output->set_env('autocomplete_min_length', $rcmail->config->get('autocomplete_min_length'));
-        $rcmail->output->set_env('autocomplete_clean_duplicates', (bool) $rcmail->config->get('autocomplete_clean_duplicates', false));
         $rcmail->output->add_label('autocompletechars', 'autocompletemore');
     }
 
@@ -734,14 +733,10 @@ abstract class rcmail_action
             'Arial'         => 'Arial,Helvetica,sans-serif',
             'Arial Black'   => '"Arial Black","Avant Garde",sans-serif',
             'Book Antiqua'  => '"Book Antiqua",Palatino,serif',
-            // PAMELA - 0006054: Divergence entre liste des polices disponibles
-            'Comic Sans MS' => '"Comic Sans MS",sans-serif',
             'Courier New'   => '"Courier New",Courier,monospace',
             'Georgia'       => 'Georgia,Palatino,serif',
             'Helvetica'     => 'Helvetica,Arial,sans-serif',
             'Impact'        => 'Impact,Chicago,sans-serif',
-            // PAMELA - 0006054: Divergence entre liste des polices disponibles
-            'Symbol'        => 'symbol',
             'Tahoma'        => 'Tahoma,Arial,Helvetica,sans-serif',
             'Terminal'      => 'Terminal,Monaco,monospace',
             'Times New Roman' => '"Times New Roman",Times,serif',
@@ -1373,21 +1368,11 @@ abstract class rcmail_action
 
         if ($classes === null) {
             $rcmail  = rcmail::get_instance();
-
-            // PAMELA - Gérer les INBOX des BALP en plus
-            $data = $rcmail->plugins->exec_hook('mel_is_inbox',
-                array('mbox' => $folder_id, 'isInbox' => $folder_id == 'INBOX'));
-
-            if ($data['isInbox']) {
-                return 'inbox';
-            }
-
             $storage = $rcmail->get_storage();
             $classes = ['INBOX' => 'inbox'];
 
             // for these mailboxes we have css classes
-                    // PAMELA - Modèles
-            foreach (['sent', 'drafts', 'models', 'trash', 'junk'] as $type) {
+            foreach (['sent', 'drafts', 'trash', 'junk'] as $type) {
                 if (($mbox = $rcmail->config->get($type . '_mbox')) && !isset($classes[$mbox])) {
                     $classes[$mbox] = $type;
                 }

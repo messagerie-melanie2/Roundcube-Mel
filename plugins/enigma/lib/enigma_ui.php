@@ -163,11 +163,12 @@ class enigma_ui
             if ($key && $key->is_private()) {
                 if ($key->name && strpos($username, $keyid) !== false) {
                     $data[$keyid] = $key->name;
-        }
+                }
 
                 break;
             }
         }
+
         $data  = [
             'keyid' => $keyid,
             'user'  => $data[$keyid]

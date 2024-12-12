@@ -494,6 +494,7 @@ class rcube_image
         if (empty($cmd)) {
             return false;
         }
+
         $cmd = trim($cmd);
 
         if (preg_match('/^(convert|identify)(\.exe)?$/i', $cmd)) {

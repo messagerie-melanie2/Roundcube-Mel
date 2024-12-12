@@ -506,8 +506,7 @@ class rcube
     {
         rcube_cache::gc();
         $this->get_storage()->cache_gc();
-        // PAMELA - Ne plus fait le gc_temp et laisse le cron gérer
-        // $this->gc_temp();
+        $this->gc_temp();
     }
 
     /**

@@ -83,12 +83,7 @@ function rcube_webmail()
     cache: false,
     timeout: this.env.request_timeout * 1000,
     error: function(request, status, err){ ref.http_error(request, status, err); },
-    beforeSend: function(xmlhttp){ 
-      //PAMELA
-      if (window.disable_x_roundcube === true) return;
-      else xmlhttp.setRequestHeader('X-Roundcube-Request', ref.env.request_token);
-     }
-
+    beforeSend: function(xmlhttp){ xmlhttp.setRequestHeader('X-Roundcube-Request', ref.env.request_token); }
   });
 
   // unload fix
@@ -262,8 +257,7 @@ function rcube_webmail()
 
           this.env.widescreen_list_template = [
             {className: 'threads', cells: ['threads']},
-            // PAMELA - Ajout de la priorité dans l'affichage des mails 
-            {className: 'subject', cells: ['fromto', 'date', 'size', 'status', 'subject', 'priority']},
+            {className: 'subject', cells: ['fromto', 'date', 'size', 'status', 'subject']},
             {className: 'flags', cells: ['flag', 'attachment']}
           ];
 
@@ -282,14 +276,6 @@ function rcube_webmail()
             .addEventListener('expandcollapse', function(o) { ref.msglist_expand(o); })
             .addEventListener('column_replace', function(o) { ref.msglist_set_coltypes(o); })
             .init();
-
-          //Pamela - Rendre le drag'n'drop possible pour les messages dans une frame.
-          if (parent !== window)
-          {
-            setTimeout(() => {
-              this.message_list.draggable = true;
-            }, 111);
-          }
 
           // TODO: this should go into the list-widget code
           $(this.message_list.thead).on('click', 'a.sortcol', function(e){
@@ -440,13 +426,11 @@ function rcube_webmail()
               var contents = $(this).contents();
 
               // do not apply styles to an error page (with no image)
-              if (contents.find('img').length)
-                contents.find('head').append(
-                  '<style type="text/css">'
-                  + 'img { max-width:100%; max-height:100%; } ' // scale
-                  + 'body { display:flex; align-items:center; justify-content:center; height:100%; margin:0; }' // align
-                  + '</style>'
-                );
+              if (contents.find('img').length) {
+                contents.find('img').css({ maxWidth: '100%', maxHeight: '100%' });
+                contents.find('body').css({ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', margin: 0 });
+                contents.find('html').css({ height: '100%' });
+              }
             });
         }
         // show printing dialog unless decryption must be done first
@@ -2406,12 +2390,8 @@ function rcube_webmail()
       }
       else if (c == 'threads')
         html = expando;
-      else if (c == "fromto")//PAMELA
-      {
-        html = tree + cols[c];
-      }
       else if (c == 'subject') {
-        html = cols[c];
+        html = tree + cols[c];
       }
       else if (c == 'priority') {
         if (flags.prio > 0 && flags.prio < 6) {
@@ -2427,8 +2407,7 @@ function rcube_webmail()
       else
         html = cols[c];
 
-      // PAMELA
-      col.innerHTML = rcmail.triggerEvent('rcmail.addrow.update_html', {html, uid, cols, flags, attop, c}) || html;;
+      col.innerHTML = html;
       row.cols.push(col);
     }
 
@@ -4382,6 +4361,7 @@ function rcube_webmail()
                 }
               })
               .catch(function(err) {
+                debugger;
                 ref.display_message(err.message || 'errortitle', 'error');
                 btn.prop('disabled', false);
             });
@@ -5771,10 +5751,6 @@ function rcube_webmail()
 
     if (mbox)
       this.env.search_mods[mbox] = mods;
-
-    // MANTIS 0005913: Problème pour une recherche dans tous les dossiers
-    if (mbox != '*')
-      this.env.search_mods['*'] = mods;
   };
 
   this.is_multifolder_listing = function()
@@ -5835,9 +5811,7 @@ function rcube_webmail()
   this.apply_image_style = function()
   {
     var style = [],
-      head = $(this.gui_objects.messagepartframe).contents().find('head');
-
-    $('#image-style', head).remove();
+      img = $(this.gui_objects.messagepartframe).contents().find('img');
 
     $.each({scale: '', rotate: 'deg'}, function(i, v) {
       var val = ref.image_style[i];
@@ -5845,8 +5819,7 @@ function rcube_webmail()
         style.push(i + '(' + val + v + ')');
     });
 
-    if (style)
-      head.append($('<style id="image-style">').text('img { transform: ' + style.join(' ') + '}'));
+    img.css('transform', style.join(' '));
   };
 
   // Update import dialog state
@@ -6138,8 +6111,7 @@ function rcube_webmail()
         input_width = $(input).outerWidth(),
         left = w - pos.left > 200 ? pos.left : w - 200,
         top = (pos.top + input.offsetHeight + 1),
-        //PAMELA - Changement de la taille de l'input pour les grands écrans
-        width = $(input).outerWidth() >= 400 ? $(input).outerWidth() : Math.min(400, w - left);
+        width = Math.min(400, w - left);
 
       this.ksearch_pane.css({
         left: (is_composite_input ? pos.left : left) + 'px',
@@ -6157,11 +6129,6 @@ function rcube_webmail()
         text = typeof results[i] === 'object' ? (results[i].display || results[i].name) : results[i];
         type = typeof results[i] === 'object' ? results[i].type : '';
         id = i + this.env.contacts.length;
-        if (this.env.contacts.length && this.env.autocomplete_clean_duplicates) {
-          if (this.env.contacts.find(contact => contact.name == text || contact.display == text)) {
-            continue;
-          }
-        }
         $('<li>').attr({id: 'rcmkSearchItem' + id, role: 'option'})
           .html('<i class="icon"></i>' + this.quote_html(text.replace(new RegExp('('+RegExp.escape(value)+')', 'ig'), '##$1%%')).replace(/##([^%]+)%%/g, '<b>$1</b>'))
           .addClass(type || '')
@@ -7274,7 +7241,7 @@ function rcube_webmail()
       function() {
         var name;
         if (name = input.val()) {
-          ref.http_post('search-create', {_search: ref.env.search_request, /* PAMELA - Search contacts by source */_source: rcmail.env.source, _name: name},
+          ref.http_post('search-create', {_search: ref.env.search_request, _name: name},
             ref.set_busy(true, 'loading'));
           return true;
         }
@@ -9396,8 +9363,7 @@ function rcube_webmail()
           this.enable_command('export', 'select-all', 'select-none', (list && list.rowcount > 0));
 
           if (response.action == 'list' || response.action == 'search') {
-            // PAMELA - Search contacts by source
-            this.enable_command('search-create', response.action == 'search');
+            this.enable_command('search-create', this.env.source == '');
             this.enable_command('search-delete', this.env.search_id);
             this.update_group_commands();
 

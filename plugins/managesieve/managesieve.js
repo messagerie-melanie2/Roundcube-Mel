@@ -85,13 +85,7 @@ if (window.rcmail) {
         rcmail.filtersets_list.init().focus();
 
         if (set != null) {
-          // PAMELA - Change the default filterset name
-          if (rcmail.env.filterset_specials && rcmail.env.filterset_specials[set]) {
-            $('#filterset-name').text(rcmail.env.filterset_specials[set]);
-          }
-          else {
-            $('#filterset-name').text(set);
-          }
+          $('#filterset-name').text(set);
           set = rcmail.managesieve_setid(set);
           rcmail.filtersets_list.select(set);
         }
@@ -175,13 +169,7 @@ rcube_webmail.prototype.managesieve_setselect = function(list)
   var id = list.get_single_selection();
   if (id != null) {
     this.managesieve_list(this.env.filtersets[id]);
-    // PAMELA - Change the default filterset name
-    if (this.env.filterset_specials && this.env.filterset_specials[this.env.filtersets[id]]) {
-      $('#filterset-name').text(this.env.filterset_specials[this.env.filtersets[id]]);
-    }
-    else {
-      $('#filterset-name').text(this.env.filtersets[id]);
-    }
+    $('#filterset-name').text(this.env.filtersets[id]);
   }
 };
 
@@ -338,9 +326,7 @@ rcube_webmail.prototype.managesieve_updatelist = function(action, o)
         tr = document.createElement('TR');
         td = document.createElement('TD');
 
-        $(td).text(el.name + (el.disabled ? 
-          ` (${this.get_label('managesieve.disabled')})` :
-          ` (${this.get_label('managesieve.enabled')})`));
+        $(td).text(el.name);
         td.className = 'name';
         tr.id = 'rcmrow' + el.id;
         if (el['class'])
@@ -362,26 +348,11 @@ rcube_webmail.prototype.managesieve_updatelist = function(action, o)
       var id = this.managesieve_setid(o.name), row = $('#rcmrow' + id);
       if (o.active) {
         if (o.all)
-        {
           $('tr', this.gui_objects.filtersetslist).addClass('disabled');
-
-          $('tr', this.gui_objects.filtersetslist).each(function(index, element) {
-            $(element).find('td').text($(element).find('td').text().replace('Activé', 'Désactivé'))
-          })
-        }
-
         row.removeClass('disabled');
-
-        //PAMELA - 0007854: Mettre un marqueur plus visible pour l'activation des filtres
-        row.find('td').text(row.find('td').text().replace('Désactivé', 'Activé'))
       }
       else
-      {
         row.addClass('disabled');
-
-        //PAMELA - 0007854: Mettre un marqueur plus visible pour l'activation des filtres
-        row.find('td').text(row.find('td').text().replace('Activé', 'Désactivé'))
-      }
 
       break;
 
@@ -936,11 +907,6 @@ function smart_field_row(value, idx, field)
       $('input', span).val('').focus();
   });
 
-    // PAMELA - add element event
-    $('span[class="add"]', elem).click(function() {
-      $(this.parentNode).parent().append(smart_field_row("", $(this.parentNode).find('input').attr('name').replace('[]', ''), null, $(this.parentNode).find('input').attr('size')));
-    });
-
   return elem;
 }
 
@@ -1203,9 +1169,6 @@ rcube_webmail.prototype.managesieve_create = function(force)
     var url = rcmail.get_task_url('mail');
     url = rcmail.add_url(url, '_action', 'plugin.managesieve');
     url = rcmail.add_url(url, '_framed', 1);
-
-    // PAMELA - Add mbox for sieve connect
-    url = rcmail.add_url(url, '_mbox', rcmail.env.mailbox);
 
     hdrs.map(function() {
       var val = rcmail.env.sieve_headers[this.value];

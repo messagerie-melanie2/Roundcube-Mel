@@ -58,7 +58,7 @@ foreach ($config as $optname => $optval) {
 }
 
 // framework constants
-define('RCUBE_VERSION', '1.5.7');
+define('RCUBE_VERSION', '1.5.9');
 define('RCUBE_CHARSET', 'UTF-8');
 define('RCUBE_TEMP_FILE_PREFIX', 'RCMTEMP');
 
@@ -103,7 +103,6 @@ spl_autoload_register('rcube_autoload');
 if (class_exists('PEAR')) {
     PEAR::setErrorHandling(PEAR_ERROR_CALLBACK, function($err) { rcube::raise_error($err, true); });
 }
-
 
 /**
  * Similar function as in_array() but case-insensitive with multibyte support.

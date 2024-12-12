@@ -61,20 +61,12 @@ class rcmail_action_mail_search extends rcmail_action_mail_index
         }
 
         if (!empty($subject)) {
-            // PAMELA - Recherche multicritères
-            $searches = explode(' AND ', $search);
-
-            foreach ($searches as $search) {
-                $searches = explode(' OR ', $search);
-                $search_str .= str_repeat(' OR', count($searches)-1);
-                foreach ($searches as $search) {
-                    $search_str .= str_repeat(' OR', count($subject)-1);
-                    foreach ($subject as $sub) {
-                        $search_str .= ' ' . $sub . ' ' . rcube_imap_generic::escape($search);
-                    }
-                }
+            $search_str .= str_repeat(' OR', count($subject)-1);
+            foreach ($subject as $sub) {
+                $search_str .= ' ' . $sub . ' ' . rcube_imap_generic::escape($search);
             }
         }
+
         $search_str  = trim($search_str);
         $sort_column = self::sort_column();
         $sort_order  = self::sort_order();
@@ -177,8 +169,6 @@ class rcmail_action_mail_search extends rcmail_action_mail_index
         $rcmail->output->set_env('messagecount', $count);
         $rcmail->output->set_env('pagecount', ceil($count / $rcmail->storage->get_pagesize()));
         $rcmail->output->set_env('exists', $mbox === null ? 0 : $rcmail->storage->count($mbox, 'EXISTS'));
-        // PAMELA
-        $rcmail->output->set_env('current_search_scope', $scope);
         $rcmail->output->command('set_rowcount', self::get_messagecount_text($count, 1), $mbox);
 
         self::list_pagetitle();

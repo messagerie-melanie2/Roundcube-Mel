@@ -92,8 +92,6 @@ class rcmail_action_mail_compose extends rcmail_action_mail_index
                     '_action' => 'compose',
                     '_id'     => self::$COMPOSE['id'],
                     '_search' => !empty($_REQUEST['_search']) ? $_REQUEST['_search'] : null,
-                    //PAMELA - 	0006360: ajouter "nouveau message aux mêmes destinataires"
-                    '_option' => rcube_utils::get_input_value('_option', rcube_utils::INPUT_GET)
             ]);
         }
 
@@ -322,21 +320,6 @@ class rcmail_action_mail_compose extends rcmail_action_mail_index
 
         // process self::$MESSAGE body/attachments, set self::$MESSAGE_BODY/$HTML_MODE vars and some session data
         self::$MESSAGE_BODY = self::prepare_message_body();
-
-        //PAMELA - 	0006360: ajouter "nouveau message aux mêmes destinataires"
-        if (self::$COMPOSE['param']['option'] === "empty" )
-        {
-            self::$MESSAGE_BODY = '';
-            self::$MESSAGE->headers->subject = '';
-
-            if (self::$COMPOSE['attachments'] !== null)
-            {
-                unset(self::$COMPOSE['attachments']);
-            }
-
-            $rcmail->output->set_env('compose-option', 'empty');
-            $rcmail->output->set_env('show_sig', true);
-        }
 
         // register UI objects (Note: some objects are registered by rcmail_sendmail above)
         $rcmail->output->add_handlers([
@@ -1010,7 +993,7 @@ class rcmail_action_mail_compose extends rcmail_action_mail_index
         // Make the HTML content safe and clean
         return self::wash_html($body, $wash_params, self::$CID_MAP);
     }
-    
+
     // Removes signature from the message body
     public static function remove_signature($body)
     {

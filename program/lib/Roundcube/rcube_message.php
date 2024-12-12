@@ -101,11 +101,6 @@ class rcube_message
         $this->storage = $this->app->get_storage();
         $this->folder  = strlen($folder) ? $folder : $this->storage->get_folder();
 
-        // PAMELA - Gestion du cache pour les Corbeilles
-        $data = $this->app->plugins->exec_hook('mel_folder_cache',
-            array('folder' => $this->folder));
-        $this->folder = $data['folder'];
-
         // Set current folder
         $this->storage->set_folder($this->folder);
         $this->storage->set_options(['all_headers' => true]);
@@ -288,13 +283,6 @@ class rcube_message
 
                 return $body !== false;
             }
-
-            // PAMELA
-            // allow plugins to modify body after formating
-            $plugin = $this->app->plugins->exec_hook('message_part_body_after',
-                ['object' => $this, 'part' => $part, 'body' => $body]);
-
-            if (isset($plugin['body']) && $body !== $plugin['body']) $body = $plugin['body'];
 
             return $body;
         }

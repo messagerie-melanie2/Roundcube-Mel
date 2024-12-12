@@ -39,8 +39,7 @@ function rcube_text_editor(config, id)
     abs_url = location.href.replace(/[?#].*$/, '').replace(/\/$/, ''),
     conf = {
       selector: '#' + ($('#' + id).is('.mce_editor') ? id : 'fake-editor-id'),
-      // PAMELA - Mise à jour du build pour les langues
-      cache_suffix: 's=5080203',
+      cache_suffix: 's=5080200',
       theme: 'silver',
       language: config.lang,
       content_css: rcmail.assets_path(config.content_css),
@@ -49,9 +48,8 @@ function rcube_text_editor(config, id)
       statusbar: false,
       // toolbar_sticky: true, // does not work in scrollable element: https://github.com/tinymce/tinymce/issues/5227
       toolbar_drawer: 'sliding',
-      // PAMELA - toolbar
-      toolbar: 'bold italic underline strikethrough | alignleft aligncenter alignright alignjustify'
-        + ' | styleselect fontselect fontsizeselect | forecolor backcolor',
+      toolbar: 'bold italic underline | alignleft aligncenter alignright alignjustify'
+        + ' | fontselect fontsizeselect | forecolor backcolor',
       extended_valid_elements: 'font[face|size|color|style],span[id|class|align|style]',
       fontsize_formats: '8pt 9pt 10pt 11pt 12pt 14pt 18pt 24pt 36pt',
       // Allow style tag, have to be allowed inside body/div/blockquote (#7088)
@@ -104,24 +102,13 @@ function rcube_text_editor(config, id)
       file_picker_types: 'image'
     });
   }
-  //PAMELA
-  if (config.mode == 'forum') {
-    conf.toolbar += ' | bullist numlist | charmap hr link unlink image code $extra';
-    $.extend(conf, {
-      plugins: 'autolink charmap code hr image link lists paste tabfocus autoresize',
-      file_picker_types: 'image',
-      min_height: 400,
-      resize : 'vertical',
-    });
-    
-  }
   // full-featured editor
-  else { //PAMELA toolbar
-    conf.toolbar += ' | bullist numlist outdent indent lineheightselect ltr rtl superscript subscript blockquote'
+  else {
+    conf.toolbar += ' | bullist numlist outdent indent ltr rtl blockquote'
         + ' | link unlink table | $extra charmap image media | code searchreplace undo redo',
     $.extend(conf, {
       plugins: 'autolink charmap code directionality link lists image media nonbreaking'
-        + ' paste table tabfocus searchreplace spellchecker lineheight',
+        + ' paste table tabfocus searchreplace spellchecker',
       spellchecker_rpc_url: abs_url + '/?_task=utils&_action=spell_html&_remote=1',
       spellchecker_language: rcmail.env.spell_lang,
       min_height: 400,
@@ -184,10 +171,7 @@ function rcube_text_editor(config, id)
   this.id = id;
   // reference to active editor (if in HTML mode)
   this.editor = null;
-  //PAMELA - Garder la conf en mémoire
-  this._conf = conf;
-  this._initial_conf = {...conf};
-  
+
   tinymce.init(conf);
 
   // react to real individual tinyMCE editor init
@@ -230,31 +214,6 @@ function rcube_text_editor(config, id)
     // Trigger resize (needed for proper editor resizing in some browsers)
     $(window).resize();
   };
-
-  //PAMELA - MAJ de l'éditeur
-  this.update = function(editedConf)
-  {
-    this.editor.remove();
-    this._conf = editedConf;
-    tinymce.init(this._conf);
-
-    return this;
-  }
-
-  //PAMELA - MAJ de l'éditeur
-  this.update_to_dark = function()
-  {
-    let conf = this._conf;
-    conf.content_css = "dark";
-    
-    return this.update(conf);
-  }
-
-  //PAMELA - Restart l'éditeur
-  this.restart = function()
-  {
-    return this.update({...this._initial_conf});
-  }
 
   // set tabIndex on tinymce editor
   this.tabindex = function(focus)
@@ -713,7 +672,7 @@ function rcube_text_editor(config, id)
     rcmail.env.file_picker_type = type;
 
     dialog = $('#image-selector');
-    
+
     if (!form.length)
       form = this.file_upload_form(rcmail.gui_objects.uploadform);
     else

@@ -457,10 +457,7 @@ class rcmail_action_mail_show extends rcmail_action_mail_index
                 }
             }
             else if ($hkey == 'replyto') {
-                // PAMELA - Pas de replyto si mail = from 
-                // 0008631: Ne pas afficher Répondre à si le mail est égal au from
-                if (explode(' <', $headers['replyto'], 2)[1] != explode(' <', $headers['from'], 2)[1]) {
-                // if ($headers['replyto'] != $headers['from']) {
+                if ($headers['replyto'] != $headers['from']) {
                     $header_value = self::address_string($value, $attr_max, true, $attr_addicon, $charset, $header_title);
                     $ishtml = true;
                 }
@@ -558,8 +555,7 @@ class rcmail_action_mail_show extends rcmail_action_mail_index
         }
 
         $rcmail = rcmail::get_instance();
-        //PAMELA - 0007110: Dans les éléments envoyés afficher en première ligne l'émetteur plutôt que le destinataire
-        $header = "from";
+        $header = self::$MESSAGE->context ? 'from' : self::message_list_smart_column_name();
         $label  = 'shortheader' . $header;
         $date   = $rcmail->format_date(self::$MESSAGE->headers->date, $rcmail->config->get('date_long', 'x'));
         $user   = self::$MESSAGE->headers->$header;

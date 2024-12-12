@@ -931,8 +931,7 @@ class rcube_imap_generic
             return false;
         }
 
-        // PAMELA - Support du mdp 0 pour la dgfip
-        if (empty($password) && $password !== '0' && empty($options['gssapi_cn'])) {
+        if (empty($password) && empty($options['gssapi_cn'])) {
             $this->setError(self::ERROR_NO, "Empty password");
             return false;
         }
