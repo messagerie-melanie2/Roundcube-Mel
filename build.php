@@ -72,7 +72,7 @@ function update_js_version($files, $regex_import, $version) {
                             }
                         }
 
-                        //$fileContent = minify_js($fileContent);
+                        $fileContent = minify_js($fileContent);
         
                         $fileContent = "//?v=$version\n$fileContent";
                     }
@@ -96,9 +96,9 @@ function minify_js($text) {
     $regex = '/(\/\/.*?$|\/\*[\s\S]*?\*\/)/m';
 
     $text = preg_replace($regex, '', $text);
-    $text = preg_replace('/\r|\n/', '', $text);
-    $text = preg_replace('/\s+/', ' ', $text);
-    $text = preg_replace('/([^\s;{}])(\s*[\r\n]+\s*)([^\s;{}])/', '$1;$3', $text);
+    // $text = preg_replace('/\r|\n/', '', $text);
+    // $text = preg_replace('/\s+/', ' ', $text);
+    // $text = preg_replace('/([^\s;{}])(\s*[\r\n]+\s*)([^\s;{}])/', '$1;$3', $text);
 
     return $text;
 }
