@@ -95,9 +95,9 @@ function update_js_version($files, $regex_import, $version) {
 function minify_js($text) {
     $regex = '/(\/\/.*?$|\/\*[\s\S]*?\*\/)/m';
 
-    $text = preg_replace($regex, '', $text);
-    // $text = preg_replace('/\r|\n/', '', $text);
-    // $text = preg_replace('/\s+/', ' ', $text);
+    $text = preg_replace($regex, '', $text); //Supprime les commentaires
+    // $text = preg_replace('/\r|\n/', '', $text); //Supprime les retours à la ligne
+    // $text = preg_replace('/\s+/', ' ', $text); //Supprime les espaces multiples
     // $text = preg_replace('/([^\s;{}])(\s*[\r\n]+\s*)([^\s;{}])/', '$1;$3', $text);
 
     return $text;
