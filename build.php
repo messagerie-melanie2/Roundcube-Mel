@@ -72,7 +72,7 @@ function update_js_version($files, $regex_import, $version) {
                             }
                         }
 
-                        $fileContent = minify_js($fileContent);
+                        //$fileContent = minify_js($fileContent);
         
                         $fileContent = "//?v=$version\n$fileContent";
                     }
