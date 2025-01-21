@@ -1,37 +1,39 @@
 {
-	"name" : "roundcube/roundcubemail",
-	"description" : "The Roundcube Webmail suite",
-	"license" : "GPL-3.0+",
-	"repositories" : [{
-			"type" : "composer",
-			"url" : "https://plugins.roundcube.net/"
-		}, {
-			"type" : "vcs",
-			"url" : "https://git.kolab.org/diffusion/PNL/php-net_ldap.git"
-		}
-	],
-	"require" : {
-		"php": ">=5.4.0 <8",
-        "pear/pear-core-minimal": "~1.10.1",
-        "pear/auth_sasl": "~1.1.0",
-        "pear/net_idna2": "~0.2.0",
-        "pear/mail_mime": "~1.10.0",
-        "pear/net_smtp": "~1.8.1",
-        "pear/crypt_gpg": "~1.6.3",
-        "pear/net_sieve": "~1.4.3",
-        "roundcube/plugin-installer": "~0.2.0",
-        "masterminds/html5": "~2.5.0",
-        "endroid/qr-code": "~1.6.5",
-        "kolab/net_ldap3": "~1.1.1",
-        "sabre/vobject": "~3.5.3",
-        "pear/http_request2": "~2.3.0",
-        "caxy/php-htmldiff": "~0.1.7",
-		"messagerie-melanie2/orm-m2" : "~0.6.11",
-		"phpmailer/phpmailer": "^6.9.1"
-	},
-	"config": {
-		"allow-plugins": {
-			"roundcube/plugin-installer": true
-		}
-	}
+  "name": "roundcube/roundcubemail",
+  "description": "The Roundcube Webmail suite",
+  "license": "GPL-3.0+",
+  "repositories": [
+    {
+      "type": "composer",
+      "url": "https://plugins.roundcube.net/"
+    },
+    {
+      "type": "vcs",
+      "url": "https://gitlab.com/roundcube/net_ldap3"
+    }
+  ],
+  "require": {
+    "php": ">=5.4.0 <8",
+    "pear/pear-core-minimal": "~1.10.1",
+    "pear/auth_sasl": "~1.1.0",
+    "pear/net_idna2": "~0.2.0",
+    "pear/mail_mime": "~1.10.0",
+    "pear/net_smtp": "~1.8.1",
+    "pear/crypt_gpg": "~1.6.3",
+    "pear/net_sieve": "~1.4.3",
+    "roundcube/plugin-installer": "~0.2.0",
+    "masterminds/html5": "~2.5.0",
+    "endroid/qr-code": "~1.6.5",
+    "kolab/net_ldap3": "~1.1.1",
+    "sabre/vobject": "~3.5.3",
+    "pear/http_request2": "~2.3.0",
+    "caxy/php-htmldiff": "~0.1.7",
+    "messagerie-melanie2/orm-m2": "~0.6.11",
+    "phpmailer/phpmailer": "^6.9.1"
+  },
+  "config": {
+    "allow-plugins": {
+      "roundcube/plugin-installer": true
+    }
+  }
 }
