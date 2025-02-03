@@ -4,7 +4,7 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInit956c9192409dd97571afce2d7e96faab
+class ComposerStaticInitddfdce936a477e088c0bc4736cfa1363
 {
     public static $files = array (
         '2cffec82183ee1cea088009cef9a6fc3' => __DIR__ . '/..' . '/ezyang/htmlpurifier/library/HTMLPurifier.composer.php',
@@ -22,6 +22,10 @@ class ComposerStaticInit956c9192409dd97571afce2d7e96faab
         'M' => 
         array (
             'Masterminds\\' => 12,
+        ),
+        'L' => 
+        array (
+            'League\\HTMLToMarkdown\\' => 22,
         ),
         'E' => 
         array (
@@ -42,6 +46,10 @@ class ComposerStaticInit956c9192409dd97571afce2d7e96faab
         array (
             0 => __DIR__ . '/..' . '/masterminds/html5/src',
         ),
+        'League\\HTMLToMarkdown\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/league/html-to-markdown/src',
+        ),
         'Endroid\\QrCode\\' => 
         array (
             0 => __DIR__ . '/..' . '/endroid/qr-code/src',
@@ -60,9 +68,9 @@ class ComposerStaticInit956c9192409dd97571afce2d7e96faab
         array (
             'Net' => 
             array (
-                0 => __DIR__ . '/..' . '/pear/net_socket',
-                1 => __DIR__ . '/..' . '/pear/net_idna2',
-                2 => __DIR__ . '/..' . '/pear/net_smtp',
+                0 => __DIR__ . '/..' . '/pear/net_idna2',
+                1 => __DIR__ . '/..' . '/pear/net_smtp',
+                2 => __DIR__ . '/..' . '/pear/net_socket',
             ),
         ),
         'M' => 
@@ -87,8 +95,8 @@ class ComposerStaticInit956c9192409dd97571afce2d7e96faab
         array (
             'Console' => 
             array (
-                0 => __DIR__ . '/..' . '/pear/console_getopt',
-                1 => __DIR__ . '/..' . '/pear/console_commandline',
+                0 => __DIR__ . '/..' . '/pear/console_commandline',
+                1 => __DIR__ . '/..' . '/pear/console_getopt',
             ),
             'Caxy\\HtmlDiff' => 
             array (
@@ -136,7 +144,6 @@ class ComposerStaticInit956c9192409dd97571afce2d7e96faab
         'Caxy\\HtmlDiff\\Table\\TablePosition' => __DIR__ . '/..' . '/caxy/php-htmldiff/lib/Caxy/HtmlDiff/Table/TablePosition.php',
         'Caxy\\HtmlDiff\\Table\\TableRow' => __DIR__ . '/..' . '/caxy/php-htmldiff/lib/Caxy/HtmlDiff/Table/TableRow.php',
         'Caxy\\HtmlDiff\\Util\\MbStringUtil' => __DIR__ . '/..' . '/caxy/php-htmldiff/lib/Caxy/HtmlDiff/Util/MbStringUtil.php',
-        'Composer\\InstalledVersions' => __DIR__ . '/..' . '/composer/InstalledVersions.php',
         'Console_CommandLine' => __DIR__ . '/..' . '/pear/console_commandline/Console/CommandLine.php',
         'Console_CommandLine_Action' => __DIR__ . '/..' . '/pear/console_commandline/Console/CommandLine/Action.php',
         'Console_CommandLine_Action_Callback' => __DIR__ . '/..' . '/pear/console_commandline/Console/CommandLine/Action/Callback.php',
@@ -217,6 +224,7 @@ class ComposerStaticInit956c9192409dd97571afce2d7e96faab
         'HTMLPurifier_AttrDef_CSS_Multiple' => __DIR__ . '/..' . '/ezyang/htmlpurifier/library/HTMLPurifier/AttrDef/CSS/Multiple.php',
         'HTMLPurifier_AttrDef_CSS_Number' => __DIR__ . '/..' . '/ezyang/htmlpurifier/library/HTMLPurifier/AttrDef/CSS/Number.php',
         'HTMLPurifier_AttrDef_CSS_Percentage' => __DIR__ . '/..' . '/ezyang/htmlpurifier/library/HTMLPurifier/AttrDef/CSS/Percentage.php',
+        'HTMLPurifier_AttrDef_CSS_Ratio' => __DIR__ . '/..' . '/ezyang/htmlpurifier/library/HTMLPurifier/AttrDef/CSS/Ratio.php',
         'HTMLPurifier_AttrDef_CSS_TextDecoration' => __DIR__ . '/..' . '/ezyang/htmlpurifier/library/HTMLPurifier/AttrDef/CSS/TextDecoration.php',
         'HTMLPurifier_AttrDef_CSS_URI' => __DIR__ . '/..' . '/ezyang/htmlpurifier/library/HTMLPurifier/AttrDef/CSS/URI.php',
         'HTMLPurifier_AttrDef_Clone' => __DIR__ . '/..' . '/ezyang/htmlpurifier/library/HTMLPurifier/AttrDef/Clone.php',
@@ -359,8 +367,6 @@ class ComposerStaticInit956c9192409dd97571afce2d7e96faab
         'HTMLPurifier_Injector_RemoveEmpty' => __DIR__ . '/..' . '/ezyang/htmlpurifier/library/HTMLPurifier/Injector/RemoveEmpty.php',
         'HTMLPurifier_Injector_RemoveSpansWithoutAttributes' => __DIR__ . '/..' . '/ezyang/htmlpurifier/library/HTMLPurifier/Injector/RemoveSpansWithoutAttributes.php',
         'HTMLPurifier_Injector_SafeObject' => __DIR__ . '/..' . '/ezyang/htmlpurifier/library/HTMLPurifier/Injector/SafeObject.php',
-        'HTMLPurifier_Language' => __DIR__ . '/..' . '/ezyang/htmlpurifier/library/HTMLPurifier/Language.php',
-        'HTMLPurifier_LanguageFactory' => __DIR__ . '/..' . '/ezyang/htmlpurifier/library/HTMLPurifier/LanguageFactory.php',
         'HTMLPurifier_Length' => __DIR__ . '/..' . '/ezyang/htmlpurifier/library/HTMLPurifier/Length.php',
         'HTMLPurifier_Lexer' => __DIR__ . '/..' . '/ezyang/htmlpurifier/library/HTMLPurifier/Lexer.php',
         'HTMLPurifier_Lexer_DOMLex' => __DIR__ . '/..' . '/ezyang/htmlpurifier/library/HTMLPurifier/Lexer/DOMLex.php',
@@ -374,6 +380,9 @@ class ComposerStaticInit956c9192409dd97571afce2d7e96faab
         'HTMLPurifier_Printer' => __DIR__ . '/..' . '/ezyang/htmlpurifier/library/HTMLPurifier/Printer.php',
         'HTMLPurifier_Printer_CSSDefinition' => __DIR__ . '/..' . '/ezyang/htmlpurifier/library/HTMLPurifier/Printer/CSSDefinition.php',
         'HTMLPurifier_Printer_ConfigForm' => __DIR__ . '/..' . '/ezyang/htmlpurifier/library/HTMLPurifier/Printer/ConfigForm.php',
+        'HTMLPurifier_Printer_ConfigForm_NullDecorator' => __DIR__ . '/..' . '/ezyang/htmlpurifier/library/HTMLPurifier/Printer/ConfigForm.php',
+        'HTMLPurifier_Printer_ConfigForm_bool' => __DIR__ . '/..' . '/ezyang/htmlpurifier/library/HTMLPurifier/Printer/ConfigForm.php',
+        'HTMLPurifier_Printer_ConfigForm_default' => __DIR__ . '/..' . '/ezyang/htmlpurifier/library/HTMLPurifier/Printer/ConfigForm.php',
         'HTMLPurifier_Printer_HTMLDefinition' => __DIR__ . '/..' . '/ezyang/htmlpurifier/library/HTMLPurifier/Printer/HTMLDefinition.php',
         'HTMLPurifier_PropertyList' => __DIR__ . '/..' . '/ezyang/htmlpurifier/library/HTMLPurifier/PropertyList.php',
         'HTMLPurifier_PropertyListIterator' => __DIR__ . '/..' . '/ezyang/htmlpurifier/library/HTMLPurifier/PropertyListIterator.php',
@@ -427,18 +436,64 @@ class ComposerStaticInit956c9192409dd97571afce2d7e96faab
         'HTMLPurifier_VarParser_Native' => __DIR__ . '/..' . '/ezyang/htmlpurifier/library/HTMLPurifier/VarParser/Native.php',
         'HTMLPurifier_Zipper' => __DIR__ . '/..' . '/ezyang/htmlpurifier/library/HTMLPurifier/Zipper.php',
         'HTTP_Request2' => __DIR__ . '/..' . '/pear/http_request2/HTTP/Request2.php',
+        'HTTP_Request2Test' => __DIR__ . '/..' . '/pear/http_request2/tests/Request2Test.php',
         'HTTP_Request2_Adapter' => __DIR__ . '/..' . '/pear/http_request2/HTTP/Request2/Adapter.php',
+        'HTTP_Request2_Adapter_CommonNetworkTest' => __DIR__ . '/..' . '/pear/http_request2/tests/Request2/Adapter/CommonNetworkTest.php',
         'HTTP_Request2_Adapter_Curl' => __DIR__ . '/..' . '/pear/http_request2/HTTP/Request2/Adapter/Curl.php',
+        'HTTP_Request2_Adapter_CurlTest' => __DIR__ . '/..' . '/pear/http_request2/tests/Request2/Adapter/CurlTest.php',
         'HTTP_Request2_Adapter_Mock' => __DIR__ . '/..' . '/pear/http_request2/HTTP/Request2/Adapter/Mock.php',
+        'HTTP_Request2_Adapter_MockTest' => __DIR__ . '/..' . '/pear/http_request2/tests/Request2/Adapter/MockTest.php',
+        'HTTP_Request2_Adapter_Skip_CurlTest' => __DIR__ . '/..' . '/pear/http_request2/tests/Request2/Adapter/SkippedTests.php',
+        'HTTP_Request2_Adapter_Skip_SocketProxyTest' => __DIR__ . '/..' . '/pear/http_request2/tests/Request2/Adapter/SkippedTests.php',
+        'HTTP_Request2_Adapter_Skip_SocketTest' => __DIR__ . '/..' . '/pear/http_request2/tests/Request2/Adapter/SkippedTests.php',
         'HTTP_Request2_Adapter_Socket' => __DIR__ . '/..' . '/pear/http_request2/HTTP/Request2/Adapter/Socket.php',
+        'HTTP_Request2_Adapter_SocketProxyTest' => __DIR__ . '/..' . '/pear/http_request2/tests/Request2/Adapter/SocketProxyTest.php',
+        'HTTP_Request2_Adapter_SocketTest' => __DIR__ . '/..' . '/pear/http_request2/tests/Request2/Adapter/SocketTest.php',
+        'HTTP_Request2_AllTests' => __DIR__ . '/..' . '/pear/http_request2/tests/AllTests.php',
+        'HTTP_Request2_ConnectionException' => __DIR__ . '/..' . '/pear/http_request2/HTTP/Request2/Exception.php',
         'HTTP_Request2_CookieJar' => __DIR__ . '/..' . '/pear/http_request2/HTTP/Request2/CookieJar.php',
+        'HTTP_Request2_CookieJarTest' => __DIR__ . '/..' . '/pear/http_request2/tests/Request2/CookieJarTest.php',
         'HTTP_Request2_Exception' => __DIR__ . '/..' . '/pear/http_request2/HTTP/Request2/Exception.php',
+        'HTTP_Request2_LogicException' => __DIR__ . '/..' . '/pear/http_request2/HTTP/Request2/Exception.php',
+        'HTTP_Request2_MessageException' => __DIR__ . '/..' . '/pear/http_request2/HTTP/Request2/Exception.php',
+        'HTTP_Request2_MockObserver' => __DIR__ . '/..' . '/pear/http_request2/tests/ObserverTest.php',
         'HTTP_Request2_MultipartBody' => __DIR__ . '/..' . '/pear/http_request2/HTTP/Request2/MultipartBody.php',
+        'HTTP_Request2_MultipartBodyTest' => __DIR__ . '/..' . '/pear/http_request2/tests/Request2/MultipartBodyTest.php',
+        'HTTP_Request2_NotImplementedException' => __DIR__ . '/..' . '/pear/http_request2/HTTP/Request2/Exception.php',
+        'HTTP_Request2_ObserverTest' => __DIR__ . '/..' . '/pear/http_request2/tests/ObserverTest.php',
         'HTTP_Request2_Observer_Log' => __DIR__ . '/..' . '/pear/http_request2/HTTP/Request2/Observer/Log.php',
         'HTTP_Request2_Observer_UncompressingDownload' => __DIR__ . '/..' . '/pear/http_request2/HTTP/Request2/Observer/UncompressingDownload.php',
         'HTTP_Request2_Response' => __DIR__ . '/..' . '/pear/http_request2/HTTP/Request2/Response.php',
+        'HTTP_Request2_ResponseTest' => __DIR__ . '/..' . '/pear/http_request2/tests/Request2/ResponseTest.php',
         'HTTP_Request2_SOCKS5' => __DIR__ . '/..' . '/pear/http_request2/HTTP/Request2/SOCKS5.php',
         'HTTP_Request2_SocketWrapper' => __DIR__ . '/..' . '/pear/http_request2/HTTP/Request2/SocketWrapper.php',
+        'League\\HTMLToMarkdown\\Coerce' => __DIR__ . '/..' . '/league/html-to-markdown/src/Coerce.php',
+        'League\\HTMLToMarkdown\\Configuration' => __DIR__ . '/..' . '/league/html-to-markdown/src/Configuration.php',
+        'League\\HTMLToMarkdown\\ConfigurationAwareInterface' => __DIR__ . '/..' . '/league/html-to-markdown/src/ConfigurationAwareInterface.php',
+        'League\\HTMLToMarkdown\\Converter\\BlockquoteConverter' => __DIR__ . '/..' . '/league/html-to-markdown/src/Converter/BlockquoteConverter.php',
+        'League\\HTMLToMarkdown\\Converter\\CodeConverter' => __DIR__ . '/..' . '/league/html-to-markdown/src/Converter/CodeConverter.php',
+        'League\\HTMLToMarkdown\\Converter\\CommentConverter' => __DIR__ . '/..' . '/league/html-to-markdown/src/Converter/CommentConverter.php',
+        'League\\HTMLToMarkdown\\Converter\\ConverterInterface' => __DIR__ . '/..' . '/league/html-to-markdown/src/Converter/ConverterInterface.php',
+        'League\\HTMLToMarkdown\\Converter\\DefaultConverter' => __DIR__ . '/..' . '/league/html-to-markdown/src/Converter/DefaultConverter.php',
+        'League\\HTMLToMarkdown\\Converter\\DivConverter' => __DIR__ . '/..' . '/league/html-to-markdown/src/Converter/DivConverter.php',
+        'League\\HTMLToMarkdown\\Converter\\EmphasisConverter' => __DIR__ . '/..' . '/league/html-to-markdown/src/Converter/EmphasisConverter.php',
+        'League\\HTMLToMarkdown\\Converter\\HardBreakConverter' => __DIR__ . '/..' . '/league/html-to-markdown/src/Converter/HardBreakConverter.php',
+        'League\\HTMLToMarkdown\\Converter\\HeaderConverter' => __DIR__ . '/..' . '/league/html-to-markdown/src/Converter/HeaderConverter.php',
+        'League\\HTMLToMarkdown\\Converter\\HorizontalRuleConverter' => __DIR__ . '/..' . '/league/html-to-markdown/src/Converter/HorizontalRuleConverter.php',
+        'League\\HTMLToMarkdown\\Converter\\ImageConverter' => __DIR__ . '/..' . '/league/html-to-markdown/src/Converter/ImageConverter.php',
+        'League\\HTMLToMarkdown\\Converter\\LinkConverter' => __DIR__ . '/..' . '/league/html-to-markdown/src/Converter/LinkConverter.php',
+        'League\\HTMLToMarkdown\\Converter\\ListBlockConverter' => __DIR__ . '/..' . '/league/html-to-markdown/src/Converter/ListBlockConverter.php',
+        'League\\HTMLToMarkdown\\Converter\\ListItemConverter' => __DIR__ . '/..' . '/league/html-to-markdown/src/Converter/ListItemConverter.php',
+        'League\\HTMLToMarkdown\\Converter\\ParagraphConverter' => __DIR__ . '/..' . '/league/html-to-markdown/src/Converter/ParagraphConverter.php',
+        'League\\HTMLToMarkdown\\Converter\\PreformattedConverter' => __DIR__ . '/..' . '/league/html-to-markdown/src/Converter/PreformattedConverter.php',
+        'League\\HTMLToMarkdown\\Converter\\TableConverter' => __DIR__ . '/..' . '/league/html-to-markdown/src/Converter/TableConverter.php',
+        'League\\HTMLToMarkdown\\Converter\\TextConverter' => __DIR__ . '/..' . '/league/html-to-markdown/src/Converter/TextConverter.php',
+        'League\\HTMLToMarkdown\\Element' => __DIR__ . '/..' . '/league/html-to-markdown/src/Element.php',
+        'League\\HTMLToMarkdown\\ElementInterface' => __DIR__ . '/..' . '/league/html-to-markdown/src/ElementInterface.php',
+        'League\\HTMLToMarkdown\\Environment' => __DIR__ . '/..' . '/league/html-to-markdown/src/Environment.php',
+        'League\\HTMLToMarkdown\\HtmlConverter' => __DIR__ . '/..' . '/league/html-to-markdown/src/HtmlConverter.php',
+        'League\\HTMLToMarkdown\\HtmlConverterInterface' => __DIR__ . '/..' . '/league/html-to-markdown/src/HtmlConverterInterface.php',
+        'League\\HTMLToMarkdown\\PreConverterInterface' => __DIR__ . '/..' . '/league/html-to-markdown/src/PreConverterInterface.php',
         'Mail_mime' => __DIR__ . '/..' . '/pear/mail_mime/Mail/mime.php',
         'Mail_mimePart' => __DIR__ . '/..' . '/pear/mail_mime/Mail/mimePart.php',
         'Masterminds\\HTML5' => __DIR__ . '/..' . '/masterminds/html5/src/HTML5.php',
@@ -462,6 +517,7 @@ class ComposerStaticInit956c9192409dd97571afce2d7e96faab
         'Masterminds\\HTML5\\Serializer\\RulesInterface' => __DIR__ . '/..' . '/masterminds/html5/src/HTML5/Serializer/RulesInterface.php',
         'Masterminds\\HTML5\\Serializer\\Traverser' => __DIR__ . '/..' . '/masterminds/html5/src/HTML5/Serializer/Traverser.php',
         'Net_IDNA2' => __DIR__ . '/..' . '/pear/net_idna2/Net/IDNA2.php',
+        'Net_IDNA2Test' => __DIR__ . '/..' . '/pear/net_idna2/tests/Net_IDNA2Test.php',
         'Net_IDNA2_Exception' => __DIR__ . '/..' . '/pear/net_idna2/Net/IDNA2/Exception.php',
         'Net_IDNA2_Exception_Nameprep' => __DIR__ . '/..' . '/pear/net_idna2/Net/IDNA2/Exception/Nameprep.php',
         'Net_LDAP2' => __DIR__ . '/..' . '/pear/net_ldap2/Net/LDAP2.php',
@@ -563,10 +619,10 @@ class ComposerStaticInit956c9192409dd97571afce2d7e96faab
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixLengthsPsr4 = ComposerStaticInit956c9192409dd97571afce2d7e96faab::$prefixLengthsPsr4;
-            $loader->prefixDirsPsr4 = ComposerStaticInit956c9192409dd97571afce2d7e96faab::$prefixDirsPsr4;
-            $loader->prefixesPsr0 = ComposerStaticInit956c9192409dd97571afce2d7e96faab::$prefixesPsr0;
-            $loader->classMap = ComposerStaticInit956c9192409dd97571afce2d7e96faab::$classMap;
+            $loader->prefixLengthsPsr4 = ComposerStaticInitddfdce936a477e088c0bc4736cfa1363::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInitddfdce936a477e088c0bc4736cfa1363::$prefixDirsPsr4;
+            $loader->prefixesPsr0 = ComposerStaticInitddfdce936a477e088c0bc4736cfa1363::$prefixesPsr0;
+            $loader->classMap = ComposerStaticInitddfdce936a477e088c0bc4736cfa1363::$classMap;
 
         }, null, ClassLoader::class);
     }
