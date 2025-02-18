@@ -366,10 +366,11 @@ function rcube_webmail()
         }
         else if (this.env.action == 'compose') {
           this.env.address_group_stack = [];
+          //PAMELA - Ajout de unexist pour ticket 0008458
           this.env.compose_commands = ['send-attachment', 'remove-attachment', 'send', 'cancel',
             'toggle-editor', 'list-addresses', 'pushgroup', 'search', 'reset-search', 'extwin',
             'insert-response', 'save-response', 'menu-open', 'menu-close', 'load-attachment',
-            'download-attachment', 'open-attachment', 'rename-attachment'];
+            'download-attachment', 'open-attachment', 'rename-attachment', 'unexist'];
 
           if (this.env.drafts_mailbox)
             this.env.compose_commands.push('savedraft')
@@ -8024,7 +8025,6 @@ function rcube_webmail()
       else if (button[state] !== undefined) {
         obj.className = button[state];
       }
-
       // disable/enable input buttons
       if (button.type == 'input' || button.type == 'button') {
         obj.disabled = state == 'pas';
