@@ -71,6 +71,8 @@ function update_js_version($files, $regex_import, $version) {
                                 $fileContent = str_replace($old, $matches[$i], $fileContent);
                             }
                         }
+
+                        //$fileContent = minify_js($fileContent);
         
                         $fileContent = "//?v=$version\n$fileContent";
                     }
@@ -90,6 +92,17 @@ function update_js_version($files, $regex_import, $version) {
     }
 }
 
+function minify_js($text) {
+    $regex = '/(\/\/.*?$|\/\*[\s\S]*?\*\/)/m';
+
+    $text = preg_replace($regex, '', $text); //Supprime les commentaires
+    // $text = preg_replace('/\r|\n/', '', $text); //Supprime les retours à la ligne
+    // $text = preg_replace('/\s+/', ' ', $text); //Supprime les espaces multiples
+    // $text = preg_replace('/([^\s;{}])(\s*[\r\n]+\s*)([^\s;{}])/', '$1;$3', $text);
+
+    return $text;
+}
+
 echo "[build]Démarrage de l'écriture des version....\n";
 
 // Spécifiez le répertoire racine de votre projet ici
@@ -105,20 +118,24 @@ $files[] = __DIR__.'/sw.js';
 update_js_version($files, $import_regex, $version);
 echo "Update version script...";
 
-file_put_contents(__DIR__.'/version.php', "
-<?php
+file_put_contents(__DIR__.'/version.php', '<?php
 class Version {
   /**
    * Version number
    */
-  const VERSION = '$base_version';
+  const VERSION = '.$base_version.';
   
   /**
    * Build
    */
-  const BUILD = '$build_version';
+  const BUILD = '.$build_version.';
 }
-");
+
+if (isset($_GET["version"])) {
+    echo "Version : " . Version::VERSION . " | Build : " . Version::BUILD;
+  }
+');
+
 
 echo "[build]Fin de l'écriture !\n";
 

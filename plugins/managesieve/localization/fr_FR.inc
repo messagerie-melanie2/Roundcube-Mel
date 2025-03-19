@@ -284,6 +284,8 @@ $messages['duplicate.conflict.err'] = 'L’en-tête et l’identifiant unique ne
 $messages['disabledaction'] = 'L’action n’est pas permise.';
 $messages['lastindexempty'] = 'L’index est requis en comptant de la fin';
 $messages['noflagset'] = 'Au moins un drapeau doit être sélectionné.';
+$messages['disabled'] = 'Désactivé';
+$messages['enabled'] = 'Activé';
 
 // PAMELA - Renommer les filtres
 $messages['ingo_filters'] = 'Mes anciens filtres';

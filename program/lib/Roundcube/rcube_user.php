@@ -221,7 +221,18 @@ class rcube_user
         foreach ($a_user_prefs as $key => $value) {
             if ($value === null || (!isset($old_prefs[$key]) && isset($defaults[$key]) && $value === $defaults[$key])) {
                 unset($save_prefs[$key]);
+                // PAMELA - Optimisation du save_prefs
+                unset($a_user_prefs[$key]);
             }
+            // PAMELA - Optimisation du save_prefs
+            if ($value === $old_prefs[$key]) {
+                unset($a_user_prefs[$key]);
+            }
+        }
+
+        // PAMELA - Optimisation du save_prefs
+        if (empty($a_user_prefs)) {
+            return true;
         }
 
         $save_prefs = serialize($save_prefs);

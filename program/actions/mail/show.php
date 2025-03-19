@@ -457,7 +457,10 @@ class rcmail_action_mail_show extends rcmail_action_mail_index
                 }
             }
             else if ($hkey == 'replyto') {
-                if ($headers['replyto'] != $headers['from']) {
+                // PAMELA - Pas de replyto si mail = from 
+                // 0008631: Ne pas afficher Répondre à si le mail est égal au from
+                if (explode(' <', $headers['replyto'], 2)[1] != explode(' <', $headers['from'], 2)[1]) {
+                // if ($headers['replyto'] != $headers['from']) {
                     $header_value = self::address_string($value, $attr_max, true, $attr_addicon, $charset, $header_title);
                     $ishtml = true;
                 }

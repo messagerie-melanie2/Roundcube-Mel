@@ -609,7 +609,8 @@ class rcube_plugin_api
                     'message' => "Cannot register template handler $name;"
                         ." already taken by another plugin or no output object available"
                 ],
-                true, false
+                // PAMELA - trop de logs ?
+                false, false
             );
         }
     }

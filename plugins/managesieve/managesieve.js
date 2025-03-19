@@ -338,7 +338,9 @@ rcube_webmail.prototype.managesieve_updatelist = function(action, o)
         tr = document.createElement('TR');
         td = document.createElement('TD');
 
-        $(td).text(el.name);
+        $(td).text(el.name + (el.disabled ? 
+          ` (${this.get_label('managesieve.disabled')})` :
+          ` (${this.get_label('managesieve.enabled')})`));
         td.className = 'name';
         tr.id = 'rcmrow' + el.id;
         if (el['class'])
