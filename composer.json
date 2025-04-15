@@ -9,7 +9,7 @@
     },
     {
       "type": "vcs",
-      "url": "https://git.kolab.org/diffusion/PNL/php-net_ldap.git"
+      "url": "https://gitlab.com/roundcube/net_ldap3.git"
     }
   ],
   "require": {
