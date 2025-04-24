@@ -5,12 +5,13 @@
  *
  * @author PNE Messagerie/Apitech
  */
-class Version {
+class Version
+{
   /**
    * Version number
    */
   const VERSION = '25.4.dev';
-  
+
   /**
    * Build
    */
