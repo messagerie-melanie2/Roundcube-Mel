@@ -190,7 +190,7 @@ class managesieve extends rcube_plugin
             'managesieve.nodata', 
             'managesieve.nextstep', 
             'save',             
-            /* PAMELA PAMELA - MANTIS 3334: Gestion des adresses mail multiple pour les identités */,
+            /* PAMELA PAMELA - MANTIS 3334: Gestion des adresses mail multiple pour les identités */
             'managesieve.Subject',
             'managesieve.From',
             'managesieve.To'
