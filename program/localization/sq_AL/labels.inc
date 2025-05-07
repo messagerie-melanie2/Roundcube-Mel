@@ -15,7 +15,7 @@
 */
 
 
-$labels['welcome'] = 'Mirë se erdhët te $product';
+$labels['welcome'] = 'Mirë se vini në $product';
 $labels['username'] = 'Emër përdoruesi';
 $labels['password'] = 'Fjalëkalimi';
 $labels['server'] = 'Shërbyes';
@@ -40,8 +40,6 @@ $labels['sender'] = 'Dërguesi';
 $labels['to'] = 'Për';
 $labels['cc'] = 'Cc';
 $labels['bcc'] = 'Bcc';
-$labels['replyto'] = 'Përgjigjuni-Te';
-$labels['followupto'] = 'Ndiqeni-Te';
 $labels['date'] = 'Datë';
 $labels['size'] = 'Madhësi';
 $labels['priority'] = 'Përparësi';
@@ -267,7 +265,7 @@ $labels['addheader'] = 'Shtoni marrës (krye)';
 $labels['insert'] = 'Fut';
 $labels['insertcontact'] = 'Futni kontakt(e)';
 $labels['recipient'] = 'Marrës';
-$labels['recipientedit'] = 'Përpunim i marrësit';
+$labels['recipientedit'] = 'Përpunim marrësi';
 $labels['editidents'] = 'Përpunoni identitete';
 $labels['spellcheck'] = 'Drejtshkrim';
 $labels['checkspelling'] = 'Kontrolloji drejtshkrimin';
@@ -661,7 +659,7 @@ $labels['arialabeltasknav'] = 'Akte aplikacioni';
 $labels['arialabeltoolbar'] = 'Panel aplikacioni';
 $labels['arialabellistnav'] = 'Lëvizje në listë';
 $labels['arialabelactivetask'] = 'Akte aktive';
-$labels['arialabelmessagessearchfilter'] = 'Filtër kërkimesh email';
+$labels['arialabelmessagessearchfilter'] = 'Filtër mënyre paraqitjeje email-esh';
 $labels['arialabelmailsearchform'] = 'Formular kërkimi mesazhi email';
 $labels['arialabelcontactsearchform'] = 'Formular kërkimi kontaktesh';
 $labels['arialabelmailquicksearchbox'] = 'Fushë kërkimi email-i';

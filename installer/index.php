@@ -3,7 +3,7 @@
 /**
  +-------------------------------------------------------------------------+
  | Roundcube Webmail setup tool                                            |
- | Version 1.5.7                                                           |
+ | Version 1.6.10                                                         |
  |                                                                         |
  | Copyright (C) The Roundcube Dev Team                                    |
  |                                                                         |
@@ -29,7 +29,7 @@
  | GNU General Public License for more details.                            |
  |                                                                         |
  | You should have received a copy of the GNU General Public License       |
- | along with this program.  If not, see http://www.gnu.org/licenses/.     |
+ | along with this program.  If not, see https://www.gnu.org/licenses/.    |
  |                                                                         |
  +-------------------------------------------------------------------------+
  | Author: Thomas Bruederli <roundcube@gmail.com>                          |
@@ -71,8 +71,8 @@ if (isset($_GET['_getconfig'])) {
 
 if (
     $RCI->configured
-    && ($RCI->getprop('enable_installer') || $_SESSION['allowinstaller']) &&
-    !empty($_GET['_mergeconfig'])
+    && !empty($_GET['_mergeconfig'])
+    && ($RCI->getprop('enable_installer') || !empty($_SESSION['allowinstaller']))
 ) {
     $filename = 'config.inc.php';
 
@@ -105,7 +105,7 @@ if ($RCI->configured && empty($_REQUEST['_step'])) {
 
 <div id="banner">
   <div class="banner-bg"></div>
-  <div class="banner-logo"><a href="http://roundcube.net"><img src="images/roundcube_logo.png" width="210" height="55" border="0" alt="Roundcube - open source webmail software" /></a></div>
+  <div class="banner-logo"><a href="https://roundcube.net"><img src="images/roundcube_logo.png" width="210" height="55" border="0" alt="Roundcube - open source webmail software" /></a></div>
 </div>
 
 <div id="topnav">

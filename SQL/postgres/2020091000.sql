@@ -1,3 +1,4 @@
+
 CREATE SEQUENCE collected_addresses_seq
     START WITH 1
     INCREMENT BY 1
@@ -16,5 +17,3 @@ CREATE TABLE collected_addresses (
 );
 
 CREATE UNIQUE INDEX collected_addresses_user_id_idx ON collected_addresses (user_id, "type", email);
-
-UPDATE system SET value = '2020091000' WHERE name = 'roundcube-version';

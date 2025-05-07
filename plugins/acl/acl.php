@@ -18,7 +18,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program. If not, see http://www.gnu.org/licenses/.
+ * along with this program. If not, see https://www.gnu.org/licenses/.
  */
 
 class acl extends rcube_plugin
@@ -51,7 +51,7 @@ class acl extends rcube_plugin
      */
     function acl_actions()
     {
-        $action = trim(rcube_utils::get_input_value('_act', rcube_utils::INPUT_GPC));
+        $action = trim(rcube_utils::get_input_string('_act', rcube_utils::INPUT_GPC));
 
         // Connect to IMAP
         $this->rc->storage_init();
@@ -81,8 +81,8 @@ class acl extends rcube_plugin
     {
         $this->load_config();
 
-        $search = rcube_utils::get_input_value('_search', rcube_utils::INPUT_GPC, true);
-        $reqid  = rcube_utils::get_input_value('_reqid', rcube_utils::INPUT_GPC);
+        $search = rcube_utils::get_input_string('_search', rcube_utils::INPUT_GPC, true);
+        $reqid  = rcube_utils::get_input_string('_reqid', rcube_utils::INPUT_GPC);
         $users  = [];
         $keys   = [];
 
@@ -149,8 +149,8 @@ class acl extends rcube_plugin
      */
     function folder_form($args)
     {
-        $mbox_imap = isset($args['options']['name']) ? $args['options']['name'] : '';
-        $myrights  = isset($args['options']['rights']) ? $args['options']['rights'] : null;
+        $mbox_imap = $args['options']['name'] ?? '';
+        $myrights  = $args['options']['rights'] ?? '';
 
         // Edited folder name (empty in create-folder mode)
         if (!strlen($mbox_imap)) {
@@ -207,7 +207,6 @@ class acl extends rcube_plugin
 
         $this->rc->output->set_env('autocomplete_max', (int) $this->rc->config->get('autocomplete_max', 15));
         $this->rc->output->set_env('autocomplete_min_length', $this->rc->config->get('autocomplete_min_length'));
-        $this->rc->output->set_env('autocomplete_clean_duplicates', (bool) $this->rc->config->get('autocomplete_clean_duplicates', false));
         $this->rc->output->add_label('autocompletechars', 'autocompletemore');
 
         $args['form']['sharing'] = [
@@ -486,10 +485,10 @@ class acl extends rcube_plugin
      */
     private function action_save()
     {
-        $mbox  = trim(rcube_utils::get_input_value('_mbox', rcube_utils::INPUT_POST, true)); // UTF7-IMAP
-        $user  = trim(rcube_utils::get_input_value('_user', rcube_utils::INPUT_POST));
-        $acl   = trim(rcube_utils::get_input_value('_acl', rcube_utils::INPUT_POST));
-        $oldid = trim(rcube_utils::get_input_value('_old', rcube_utils::INPUT_POST));
+        $mbox  = trim(rcube_utils::get_input_string('_mbox', rcube_utils::INPUT_POST, true)); // UTF7-IMAP
+        $user  = trim(rcube_utils::get_input_string('_user', rcube_utils::INPUT_POST));
+        $acl   = trim(rcube_utils::get_input_string('_acl', rcube_utils::INPUT_POST));
+        $oldid = trim(rcube_utils::get_input_string('_old', rcube_utils::INPUT_POST));
 
         $acl    = array_intersect(str_split($acl), $this->rights_supported());
         $users  = $oldid ? [$user] : explode(',', $user);
@@ -557,8 +556,8 @@ class acl extends rcube_plugin
      */
     private function action_delete()
     {
-        $mbox = trim(rcube_utils::get_input_value('_mbox', rcube_utils::INPUT_POST, true)); //UTF7-IMAP
-        $user = trim(rcube_utils::get_input_value('_user', rcube_utils::INPUT_POST));
+        $mbox = trim(rcube_utils::get_input_string('_mbox', rcube_utils::INPUT_POST, true)); //UTF7-IMAP
+        $user = trim(rcube_utils::get_input_string('_user', rcube_utils::INPUT_POST));
 
         $user = explode(',', $user);
 
@@ -589,8 +588,8 @@ class acl extends rcube_plugin
             return;
         }
 
-        $this->mbox = trim(rcube_utils::get_input_value('_mbox', rcube_utils::INPUT_GPC, true)); // UTF7-IMAP
-        $advanced   = trim(rcube_utils::get_input_value('_mode', rcube_utils::INPUT_GPC));
+        $this->mbox = trim(rcube_utils::get_input_string('_mbox', rcube_utils::INPUT_GPC, true)); // UTF7-IMAP
+        $advanced   = trim(rcube_utils::get_input_string('_mode', rcube_utils::INPUT_GPC));
         $advanced   = $advanced == 'advanced';
 
         // Save state in user preferences
@@ -642,7 +641,7 @@ class acl extends rcube_plugin
      * @param array $acl1 ACL rights array (or string)
      * @param array $acl2 ACL rights array (or string)
      *
-     * @param int Comparison result, 2 - full match, 1 - partial match, 0 - no match
+     * @return int Comparison result, 2 - full match, 1 - partial match, 0 - no match
      */
     function acl_compare($acl1, $acl2)
     {

@@ -50,14 +50,14 @@ abstract class rcube_plugin
     /**
      * Disables plugin in AJAX requests
      *
-     * @var boolean
+     * @var bool
      */
     public $noajax = false;
 
     /**
      * Disables plugin in framed mode
      *
-     * @var boolean
+     * @var bool
      */
     public $noframe = false;
 
@@ -108,7 +108,7 @@ abstract class rcube_plugin
      *      name: The plugin name
      *    vendor: Name of the plugin developer
      *   version: Plugin version name
-     *   license: License name (short form according to http://spdx.org/licenses/)
+     *   license: License name (short form according to https://spdx.org/licenses/)
      *       uri: The URL to the plugin homepage or source repository
      *   src_uri: Direct download URL to the source code of this plugin
      *   require: List of plugins required for this one (as array of plugin names)
@@ -121,7 +121,7 @@ abstract class rcube_plugin
     /**
      * Attempt to load the given plugin which is required for the current plugin
      *
-     * @param string Plugin name
+     * @param string $plugin_name Plugin name
      *
      * @return bool True on success, false on failure
      */
@@ -133,7 +133,7 @@ abstract class rcube_plugin
     /**
      * Attempt to load the given plugin which is optional for the current plugin
      *
-     * @param string Plugin name
+     * @param string $plugin_name Plugin name
      *
      * @return bool True on success, false on failure
      */
@@ -241,12 +241,11 @@ abstract class rcube_plugin
     /**
      * Wrapper for add_label() adding the plugin ID as domain
      */
-    public function add_label()
+    public function add_label(...$args)
     {
         $rcube = rcube::get_instance();
 
         if (method_exists($rcube->output, 'add_label')) {
-            $args = func_get_args();
             if (count($args) == 1 && is_array($args[0])) {
                 $args = $args[0];
             }

@@ -36,7 +36,7 @@ class rcmail_action_mail_copy extends rcmail_action_mail_index
             $rcmail->output->show_message('internalerror', 'error');
         }
 
-        $target  = rcube_utils::get_input_value('_target_mbox', rcube_utils::INPUT_POST, true);
+        $target  = rcube_utils::get_input_string('_target_mbox', rcube_utils::INPUT_POST, true);
 
         // PAMELA - Gérer la corbeille individuelle
         $data = $rcmail->plugins->exec_hook('mel_copy_message',

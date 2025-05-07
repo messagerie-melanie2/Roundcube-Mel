@@ -542,8 +542,8 @@ class html_checkbox extends html_inputfield
             $this->attrib = array_merge($this->attrib, $attrib);
         }
 
-        // set value attribute
-        $this->attrib['checked'] = isset($this->attrib['value']) && ((string)$value == (string)$this->attrib['value']);
+        // set 'checked' attribute
+        $this->attrib['checked'] = (string) $value === (string) ($this->attrib['value'] ?? '');
 
         return parent::show();
     }
@@ -678,7 +678,7 @@ class html_select extends html
             foreach ($names as $i => $text) {
                 $this->options[] = [
                     'text'  => $text,
-                    'value' => isset($values[$i]) ? $values[$i] : $i
+                    'value' => $values[$i] ?? $i
                 ] + $attrib;
             }
         }

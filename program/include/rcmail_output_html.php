@@ -87,7 +87,7 @@ class rcmail_output_html extends rcmail_output
 
         // Version number e.g. 1.4.2 will be 10402
         $version = explode('.', preg_replace('/[^0-9.].*/', '', RCMAIL_VERSION));
-        $this->set_env('rcversion', $version[0] * 10000 + $version[1] * 100 + (isset($version[2]) ? $version[2] : 0));
+        $this->set_env('rcversion', $version[0] * 10000 + $version[1] * 100 + ($version[2] ?? 0));
 
         // add cookie info
         $this->set_env('cookie_domain', ini_get('session.cookie_domain'));
@@ -182,7 +182,7 @@ EOF;
      * Parse and set assets path
      *
      * @param string $path   Assets path URL (relative or absolute)
-     * @param string $fs_dif Assets path in filesystem
+     * @param string $fs_dir Assets path in filesystem
      */
     public function set_assets_path($path, $fs_dir = null)
     {
@@ -317,7 +317,7 @@ EOF;
     public function check_skin($skin)
     {
         // Sanity check to prevent from path traversal vulnerability (#1490620)
-        if (strpos($skin, '/') !== false || strpos($skin, "\\") !== false) {
+        if (!is_string($skin) || strpos($skin, '/') !== false || strpos($skin, "\\") !== false) {
             rcube::raise_error([
                     'file'    => __FILE__,
                     'line'    => __LINE__,
@@ -491,28 +491,28 @@ EOF;
     /**
      * Call a client method
      *
-     * @param string Method to call
-     * @param ... Additional arguments
+     * @param string $cmd    Method to call
+     * @param mixed ...$args Method arguments
      */
-    public function command()
+    public function command($cmd, ...$args)
     {
-        $cmd = func_get_args();
-
-        if (strpos($cmd[0], 'plugin.') !== false) {
-            $this->js_commands[] = ['triggerEvent', $cmd[0], $cmd[1]];
+        if (strpos($cmd, 'plugin.') !== false) {
+            $this->js_commands[] = ['triggerEvent', $cmd, $args[0]];
         }
         else {
-            $this->js_commands[] = $cmd;
+            array_unshift($args, $cmd);
+
+            $this->js_commands[] = $args;
         }
     }
 
     /**
      * Add a localized label to the client environment
+     *
+     * @param mixed ...$args Labels (an array of strings, or many string arguments)
      */
-    public function add_label()
+    public function add_label(...$args)
     {
-        $args = func_get_args();
-
         if (count($args) == 1 && is_array($args[0])) {
             $args = $args[0];
         }
@@ -560,7 +560,7 @@ EOF;
     public function reset($all = false)
     {
         $framed = $this->framed;
-        $task   = isset($this->env['task']) ? $this->env['task'] : '';
+        $task   = $this->env['task'] ?? '';
         $env    = $all ? null : array_intersect_key($this->env, ['extwin' => 1, 'framed' => 1]);
 
         // keep jQuery-UI files
@@ -732,7 +732,7 @@ EOF;
      * @param bool   $exit  Exit script
      * @param bool   $write Don't write to stdout, return parsed content instead
      *
-     * @link http://php.net/manual/en/function.exit.php
+     * @see https://php.net/manual/en/function.exit.php
      */
     function parse($name = 'main', $exit = true, $write = true)
     {
@@ -1250,12 +1250,12 @@ EOF;
                 '/template:name/i',
             ],
             [
-                "(isset(\$_SESSION['\\1']) ? \$_SESSION['\\1'] : null)",
+                "(\$_SESSION['\\1'] ?? null)",
                 "\$this->app->config->get('\\1',rcube_utils::get_boolean('\\3'))",
-                "(isset(\$this->env['\\1']) ? \$this->env['\\1'] : null)",
+                "(\$this->env['\\1'] ?? null)",
                 "rcube_utils::get_input_value('\\1', rcube_utils::INPUT_GPC)",
-                "(isset(\$_COOKIE['\\1']) ? \$_COOKIE['\\1'] : null)",
-                "(isset(\$this->browser->{'\\1'}) ? \$this->browser->{'\\1'} : null)",
+                "(\$_COOKIE['\\1'] ?? null)",
+                "(\$this->browser->{'\\1'} ?? null)",
                 "'{$this->template_name}'",
             ],
             $expression
@@ -1280,7 +1280,7 @@ EOF;
 
         switch ($type) {
             case 'env':
-                $value = isset($this->env[$name]) ? $this->env[$name] : null;
+                $value = $this->env[$name] ?? null;
                 break;
             case 'config':
                 $value = $this->config->get($name);
@@ -1292,13 +1292,13 @@ EOF;
                 $value = rcube_utils::get_input_value($name, rcube_utils::INPUT_GPC);
                 break;
             case 'session':
-                $value = isset($_SESSION[$name]) ? $_SESSION[$name] : '';
+                $value = $_SESSION[$name] ?? '';
                 break;
             case 'cookie':
                 $value = htmlspecialchars($_COOKIE[$name], ENT_COMPAT | ENT_HTML401, RCUBE_CHARSET);
                 break;
             case 'browser':
-                $value = isset($this->browser->{$name}) ? $this->browser->{$name} : '';
+                $value = $this->browser->{$name} ?? '';
                 break;
         }
 
@@ -1501,6 +1501,11 @@ EOF;
                         $attrib['src'] = $template_logo;
                     }
 
+                    if (($link = $this->get_template_logo('link')) !== null) {
+                        $attrib['onclick'] = "location.href='$link';";
+                        $attrib['style'] = 'cursor:pointer;';
+                    }
+
                     $additional_logos = [];
                     $logo_types       = (array) $this->config->get('additional_logo_types');
 
@@ -1528,11 +1533,11 @@ EOF;
                 else if ($object == 'version') {
                     $ver = (string) RCMAIL_VERSION;
                     if (is_file(RCUBE_INSTALL_PATH . '.svn/entries')) {
-                        if (preg_match('/Revision:\s(\d+)/', @shell_exec('svn info'), $regs))
+                        if (preg_match('/Revision:\s(\d+)/', (string) @shell_exec('svn info'), $regs))
                           $ver .= ' [SVN r'.$regs[1].']';
                     }
                     else if (is_file(RCUBE_INSTALL_PATH . '.git/index')) {
-                        if (preg_match('/Date:\s+([^\n]+)/', @shell_exec('git log -1'), $regs)) {
+                        if (preg_match('/Date:\s+([^\n]+)/', (string) @shell_exec('git log -1'), $regs)) {
                             if ($date = date('Ymd.Hi', strtotime($regs[1]))) {
                                 $ver .= ' [GIT '.$date.']';
                             }
@@ -1576,10 +1581,10 @@ EOF;
                     foreach ($this->$source as $name => $vars) {
                         // $vars can be in many forms:
                         // - string
-                        // - array('key' => 'val')
-                        // - array(string, string)
-                        // - array(array(), string)
-                        // - array(array('key' => 'val'), array('key' => 'val'))
+                        // - ['key' => 'val']
+                        // - [string, string]
+                        // - [[], string]
+                        // - [['key' => 'val'], ['key' => 'val']]
                         // normalise this for processing by checking for string array keys
                         $vars = is_array($vars) ? (count(array_filter(array_keys($vars), 'is_string')) > 0 ? [$vars] : $vars) : [$vars];
 
@@ -1607,7 +1612,7 @@ EOF;
                 }
 
                 // exec plugin hooks for this template object
-                $hook = $this->app->plugins->exec_hook("template_object_$object", $attrib + ['content' => $content]);
+                $hook = $this->app->plugins->exec_hook("template_object_$object", $attrib + ['content' => (string) $content]);
 
                 if (strlen($hook['content']) && !empty($external)) {
                     $object_id                 = uniqid('TEMPLOBJECT:', true);
@@ -1694,7 +1699,7 @@ EOF;
     {
         // insert objects' contents
         foreach ($this->objects as $key => $val) {
-            $output = str_replace($key, $val, $output, $count);
+            $output = str_replace($key, (string) $val, $output, $count);
             if ($count) {
                 $this->objects[$key] = null;
             }
@@ -1878,7 +1883,7 @@ EOF;
             $link_attrib = ['href', 'onclick', 'onmouseover', 'onmouseout', 'onmousedown', 'onmouseup', 'target'];
         }
         else if ($attrib['type'] == 'link') {
-            $btn_content = isset($attrib['content']) ? $attrib['content'] : (!empty($attrib['label']) ? $attrib['label'] : $attrib['command']);
+            $btn_content = $attrib['content'] ?? (!empty($attrib['label']) ? $attrib['label'] : $attrib['command']);
             $link_attrib = array_merge(html::$common_attrib, ['href', 'onclick', 'tabindex', 'target', 'rel']);
             if (!empty($attrib['innerclass'])) {
                 $btn_content = html::span($attrib['innerclass'], $btn_content);
@@ -1904,7 +1909,7 @@ EOF;
                 $attrib['disabled'] = 'disabled';
             }
 
-            $content = isset($attrib['content']) ? $attrib['content'] : $attrib['label'];
+            $content = $attrib['content'] ?? $attrib['label'];
             $out = html::tag('button', $attrib, $content, ['type', 'value', 'onclick', 'id', 'class', 'style', 'tabindex', 'disabled']);
         }
 
@@ -2061,8 +2066,8 @@ EOF;
             $page_header .= array_reduce((array) $this->script_files['head'], $merge_script_files);
         }
 
-        $head  = isset($this->scripts['head_top']) ? $this->scripts['head_top'] : '';
-        $head .= isset($this->scripts['head']) ? $this->scripts['head'] : '';
+        $head  = $this->scripts['head_top'] ?? '';
+        $head .= $this->scripts['head'] ?? '';
 
         $page_header .= array_reduce((array) $head, $merge_scripts);
         $page_header .= $this->header . "\n";
@@ -2177,7 +2182,7 @@ EOF;
         }
 
         $attrib['name'] = $attrib['id'];
-        $attrib['src']  = !empty($attrib['src']) ? $this->abs_url($attrib['src'], true) : 'about:blank';
+        $attrib['src']  = !empty($attrib['src']) ? $this->abs_url($attrib['src'], true) : 'javascript:false;';
 
         // register as 'contentframe' object
         if ($is_contentframe || !empty($attrib['contentframe'])) {
@@ -2308,13 +2313,13 @@ EOF;
      */
     protected function login_form($attrib)
     {
-        $default_host     = $this->config->get('default_host');
+        $default_host     = $this->config->get('imap_host');
         $autocomplete     = (int) $this->config->get('login_autocomplete');
         $username_filter  = $this->config->get('login_username_filter');
         $_SESSION['temp'] = true;
 
         // save original url
-        $url = rcube_utils::get_input_value('_url', rcube_utils::INPUT_POST);
+        $url = rcube_utils::get_input_string('_url', rcube_utils::INPUT_POST);
         if (
             empty($url)
             && !empty($_SERVER['QUERY_STRING'])
@@ -2346,7 +2351,26 @@ EOF;
         $input_pass   = new html_passwordfield(['name' => '_pass', 'id' => 'rcmloginpwd', 'required' => 'required']
             + $attrib + $pass_attrib);
         $input_host   = null;
-        $hide_host    = false;
+
+        $form_content = [
+            'hidden' => [
+                'task'   => $input_task->show(),
+                'action' => $input_action->show(),
+                'tzone'  => $input_tzone->show(),
+                'url'    => $input_url->show(),
+            ],
+            'inputs' => [
+                'user' => [
+                    'title'   => html::label('rcmloginuser', html::quote($this->app->gettext('username'))),
+                    'content' => $input_user->show(rcube_utils::get_input_string('_user', rcube_utils::INPUT_GPC))
+                ],
+                'password' => [
+                    'title'   => html::label('rcmloginpwd', html::quote($this->app->gettext('password'))),
+                    'content' => $input_pass->show()
+                ],
+            ],
+            'buttons' => []
+        ];
 
         if (is_array($default_host) && count($default_host) > 1) {
             $input_host = new html_select(['name' => '_host', 'id' => 'rcmloginhost', 'class' => 'custom-select']);
@@ -2362,56 +2386,79 @@ EOF;
             }
         }
         else if (is_array($default_host) && ($host = key($default_host)) !== null) {
-            $hide_host = true;
-            $input_host = new html_hiddenfield([
-                'name' => '_host', 'id' => 'rcmloginhost', 'value' => is_numeric($host) ? $default_host[$host] : $host] + $attrib);
+            $val = is_numeric($host) ? $default_host[$host] : $host;
+            $input_host = new html_hiddenfield(['name' => '_host', 'id' => 'rcmloginhost', 'value' => $val] + $attrib);
+
+            $form_content['hidden']['host'] = $input_host->show();
+            $input_host = null;
         }
         else if (empty($default_host)) {
             $input_host = new html_inputfield(['name' => '_host', 'id' => 'rcmloginhost', 'class' => 'form-control']
                 + $attrib + $host_attrib);
         }
 
-        $this->add_gui_object('loginform', $form_name);
-
-        // create HTML table with two cols
-        $table = new html_table(['cols' => 2]);
-
-        $table->add('title', html::label('rcmloginuser', html::quote($this->app->gettext('username'))));
-        $table->add('input', $input_user->show(rcube_utils::get_input_value('_user', rcube_utils::INPUT_GPC)));
-
-        $table->add('title', html::label('rcmloginpwd', html::quote($this->app->gettext('password'))));
-        $table->add('input', $input_pass->show());
-
         // add host selection row
-        if (is_object($input_host) && !$hide_host) {
-            $table->add('title', html::label('rcmloginhost', html::quote($this->app->gettext('server'))));
-            $table->add('input', $input_host->show(rcube_utils::get_input_value('_host', rcube_utils::INPUT_GPC)));
-        }
-
-        $out  = $input_task->show();
-        $out .= $input_action->show();
-        $out .= $input_tzone->show();
-        $out .= $input_url->show();
-        $out .= $table->show();
-
-        if ($hide_host) {
-            $out .= $input_host->show();
+        if (is_object($input_host)) {
+            $form_content['inputs']['host'] = [
+                'title'   => html::label('rcmloginhost', html::quote($this->app->gettext('server'))),
+                'content' => $input_host->show(rcube_utils::get_input_string('_host', rcube_utils::INPUT_GPC))
+            ];
         }
 
         if (rcube_utils::get_boolean($attrib['submit'])) {
             $button_attr = ['type' => 'submit', 'id' => 'rcmloginsubmit', 'class' => 'button mainaction submit'];
-            $out .= html::p('formbuttons', html::tag('button', $button_attr, $this->app->gettext('login')));
+            $button      = html::tag('button', $button_attr, $this->app->gettext('login'));
+
+            $form_content['buttons']['submit'] = ['outterclass' => 'formbuttons', 'content' => $button];
         }
 
         // add oauth login button
         if ($this->config->get('oauth_auth_uri') && $this->config->get('oauth_provider')) {
             // hide login form fields when `oauth_login_redirect` is configured
             if ($this->config->get('oauth_login_redirect')) {
-                $out = '';
+                $form_content['hidden']  = [];
+                $form_content['inputs']  = [];
+                $form_content['buttons'] = [];
             }
 
-            $link_attr = ['href' => $this->app->url(['action' => 'oauth']), 'id' => 'rcmloginoauth', 'class' => 'button oauth ' . $this->config->get('oauth_provider')];
-            $out .= html::p('oauthlogin', html::a($link_attr, $this->app->gettext(['name' => 'oauthlogin', 'vars' => ['provider' => $this->config->get('oauth_provider_name', 'OAuth')]])));
+            $link_attr = [
+                'href'  => $this->app->url(['action' => 'oauth']),
+                'id'    => 'rcmloginoauth',
+                'class' => 'button oauth ' . $this->config->get('oauth_provider')
+            ];
+
+            $provider = $this->config->get('oauth_provider_name', 'OAuth');
+            $button   = html::a($link_attr, $this->app->gettext(['name' => 'oauthlogin', 'vars' => ['provider' => $provider]]));
+
+            $form_content['buttons']['oauthlogin'] = ['outterclass' => 'oauthlogin', 'content' => $button];
+        }
+
+        $data = $this->app->plugins->exec_hook('loginform_content', $form_content);
+
+        $this->add_gui_object('loginform', $form_name);
+
+        // output login form contents
+        $out = implode('', $data['hidden']);
+
+        if (count($data['inputs']) > 0) {
+            // create HTML table with two cols
+            $table = new html_table(['cols' => 2]);
+
+            foreach ($data['inputs'] as $input) {
+                if (isset($input['title'])) {
+                    $table->add('title', $input['title']);
+                    $table->add('input', $input['content']);
+                }
+                else {
+                    $table->add(['colspan' => 2, 'class' => 'input'], $input['content']);
+                }
+            }
+
+            $out .= $table->show();
+        }
+
+        foreach ($data['buttons'] as $button) {
+            $out .= html::p($button['outterclass'], $button['content']);
         }
 
         // surround html output with a form tag
@@ -2438,7 +2485,7 @@ EOF;
         $images = array_map([$this, 'abs_url'], $images);
         $images = array_map([$this, 'asset_url'], $images);
 
-        if (empty($images) || $_REQUEST['_task'] == 'logout') {
+        if (empty($images) || (isset($_REQUEST['_task']) && $_REQUEST['_task'] == 'logout')) {
             return;
         }
 
@@ -2563,7 +2610,7 @@ EOF;
     /**
      * Builder for GUI object 'message'
      *
-     * @param array Named tag parameters
+     * @param array $attrib Named tag parameters
      * @return string HTML code for the gui object
      */
     protected function message_container($attrib)
@@ -2631,7 +2678,7 @@ EOF;
             'KOI8-R'       => 'KOI8-R ('.$this->app->gettext('cyrillic').')',
         ];
 
-        if ($post = rcube_utils::get_input_value('_charset', rcube_utils::INPUT_POST)) {
+        if ($post = rcube_utils::get_input_string('_charset', rcube_utils::INPUT_POST)) {
             $set = $post;
         }
         else if (!empty($attrib['selected'])) {
@@ -2731,7 +2778,7 @@ EOF;
                     }
                 }
             }
-            else {
+            else if ($type != 'link') {
                 $template_logo = $logo;
             }
         }

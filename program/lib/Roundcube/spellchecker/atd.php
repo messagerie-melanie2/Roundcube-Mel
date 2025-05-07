@@ -18,8 +18,8 @@
 */
 
 /**
- * Spellchecking backend implementation to work with an After the Deadline service
- * See http://www.afterthedeadline.com/ for more information
+ * Spellchecking backend implementation to work with an After the Deadline service.
+ * See https://www.afterthedeadline.com/ for more information.
  *
  * @package    Framework
  * @subpackage Utils

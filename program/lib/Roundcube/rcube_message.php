@@ -79,8 +79,6 @@ class rcube_message
      * @param string $uid     The message UID.
      * @param string $folder  Folder name
      * @param bool   $is_safe Security flag
-     *
-     * @see self::$app, self::$storage, self::$opt, self::$parts
      */
     function __construct($uid, $folder = null, $is_safe = false)
     {
@@ -99,8 +97,8 @@ class rcube_message
         $this->context = $context;
         $this->app     = rcube::get_instance();
         $this->storage = $this->app->get_storage();
-        $this->folder  = strlen($folder) ? $folder : $this->storage->get_folder();
-
+        $this->folder  = is_string($folder) && strlen($folder) ? $folder : $this->storage->get_folder();
+        
         // PAMELA - Gestion du cache pour les Corbeilles
         $data = $this->app->plugins->exec_hook('mel_folder_cache',
             array('folder' => $this->folder));
@@ -946,6 +944,16 @@ class rcube_message
                         $mail_part->content_location .= $mail_part->headers['content-location'];
                     }
 
+                    // application/smil message's are known to use inline images that aren't really inline (#8870)
+                    // TODO: This code probably does not belong here. I.e. we should not default to
+                    // disposition=inline in rcube_imap::structure_part().
+                    if ($primary_type === 'image'
+                        && !empty($structure->ctype_parameters['type'])
+                        && $structure->ctype_parameters['type'] === 'application/smil'
+                    ) {
+                        $mail_part->disposition = 'attachment';
+                    }
+
                     // part belongs to a related message and is linked
                     // Note: mixed is not supposed to contain inline images, but we've found such examples (#5905)
                     if (
@@ -1126,7 +1134,7 @@ class rcube_message
             $tpart->ctype_secondary = trim(strtolower($winatt['subtype']));
             $tpart->mimetype        = $tpart->ctype_primary . '/' . $tpart->ctype_secondary;
             $tpart->mime_id         = 'winmail.' . $part->mime_id . '.' . $pid;
-            $tpart->size            = !empty($winatt['size']) ? $winatt['size'] : 0;
+            $tpart->size            = $winatt['size'] ?? 0;
             $tpart->body            = $winatt['stream'];
 
             if (!empty($winatt['content-id'])) {
@@ -1238,21 +1246,9 @@ class rcube_message
             $charsets[] = $this->headers->charset;
         }
 
-        if (empty($charsets)) {
-            $rcube      = rcube::get_instance();
-            $charsets[] = rcube_charset::detect($name, $rcube->config->get('default_charset', RCUBE_CHARSET));
-        }
-
-        foreach (array_unique($charsets) as $charset) {
-            $_name = rcube_charset::convert($name, $charset);
-
-            if ($_name == rcube_charset::clean($_name)) {
-                if (!$part->charset) {
-                    $part->charset = $charset;
-                }
-
-                return $_name;
-            }
+        if ($charset = rcube_charset::check($name, $charsets)) {
+            $name = rcube_charset::convert($name, $charset);
+            $part->charset = $charset;
         }
 
         return $name;

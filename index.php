@@ -2,7 +2,7 @@
 /**
  +-------------------------------------------------------------------------+
  | Roundcube Webmail IMAP Client                                           |
- | Version 1.5.8                                                           |
+ | Version 1.6.10                                                           |
  |                                                                         |
  | Copyright (C) The Roundcube Dev Team                                    |
  |                                                                         |
@@ -28,7 +28,7 @@
  | GNU General Public License for more details.                            |
  |                                                                         |
  | You should have received a copy of the GNU General Public License       |
- | along with this program.  If not, see http://www.gnu.org/licenses/.     |
+ | along with this program.  If not, see https://www.gnu.org/licenses/.    |
  |                                                                         |
  +-------------------------------------------------------------------------+
  | Author: Thomas Bruederli <roundcube@gmail.com>                          |
@@ -53,14 +53,9 @@ $RCMAIL->output->common_headers(!empty($_SESSION['user_id']));
 // turn on output buffering
 ob_start();
 
-// check if config files had errors
-if ($err_str = $RCMAIL->config->get_error()) {
-    rcmail::raise_error(['code' => 601, 'message' => $err_str], false, true);
-}
-
-// check DB connections and exit on failure
-if ($err_str = $RCMAIL->db->is_error()) {
-    rcmail::raise_error(['code' => 603, 'type' => 'db', 'message' => $err_str], false, true);
+// check the initial error state
+if ($RCMAIL->config->get_error() || $RCMAIL->db->is_error()) {
+    rcmail_fatal_error();
 }
 
 // error steps

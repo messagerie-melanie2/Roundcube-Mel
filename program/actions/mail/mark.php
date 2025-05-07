@@ -30,9 +30,9 @@ class rcmail_action_mail_mark extends rcmail_action_mail_index
     {
         $rcmail  = rcmail::get_instance();
         $_uids   = rcube_utils::get_input_value('_uid', rcube_utils::INPUT_POST);
-        $flag    = rcube_utils::get_input_value('_flag', rcube_utils::INPUT_POST);
-        $folders = rcube_utils::get_input_value('_folders', rcube_utils::INPUT_POST);
-        $mbox    = rcube_utils::get_input_value('_mbox', rcube_utils::INPUT_POST);
+        $flag    = rcube_utils::get_input_string('_flag', rcube_utils::INPUT_POST);
+        $folders = rcube_utils::get_input_string('_folders', rcube_utils::INPUT_POST);
+        $mbox    = rcube_utils::get_input_string('_mbox', rcube_utils::INPUT_POST);
 
         if (empty($_uids) || empty($flag)) {
             $rcmail->output->show_message('internalerror', 'error');
@@ -43,34 +43,17 @@ class rcmail_action_mail_mark extends rcmail_action_mail_index
         $threading    = (bool) $rcmail->storage->get_threading();
         $skip_deleted = (bool) $rcmail->config->get('skip_deleted');
         $read_deleted = (bool) $rcmail->config->get('read_when_deleted');
+        $flag         = self::imap_flag($flag);
+        $old_count    = 0;
+        $from         = $_POST['_from'] ?? null;
 
-        $flags_map  = [
-            'undelete'  => 'UNDELETED',
-            'delete'    => 'DELETED',
-            'read'      => 'SEEN',
-            'unread'    => 'UNSEEN',
-            'flagged'   => 'FLAGGED',
-            'unflagged' => 'UNFLAGGED',
-        ];
-
-        $flag      = self::imap_flag($flag);
-        $old_count = 0;
-        $post_from = isset($_POST['_from']) ? $_POST['_from'] : null;
-
-        if ($flag == 'DELETED' && $skip_deleted && $post_from != 'show') {
+        if ($flag == 'DELETED' && $skip_deleted && $from != 'show') {
             // count messages before changing anything
             $old_count = $rcmail->storage->count(null, $threading ? 'THREADS' : 'ALL');
-            $old_pages = ceil($old_count / $rcmail->storage->get_pagesize());
         }
 
         if ($folders == 'all') {
             $mboxes = $rcmail->storage->list_folders_subscribed('', '*', 'mail');
-            // MANTIS 0006140: Clic droit > Passer tous les dossiers en lus sur une BALP marque aussi l'INBOX de la BALI
-            $sent_mbox = $rcmail->config->get('sent_mbox');
-            // Si le dossier envoyé est un dossier de boite partagée, on supprime l'INBOX
-            if (strpos($sent_mbox, driver_mel::gi()->getBalpLabel()) === 0 && ($key = array_search('INBOX', $mboxes)) !== false) {
-                unset($mboxes[$key]);
-            }
             $input  = array_combine($mboxes, array_fill(0, count($mboxes), '*'));
         }
         else if ($folders == 'sub') {
@@ -97,7 +80,7 @@ class rcmail_action_mail_mark extends rcmail_action_mail_index
 
         if (!$marked) {
             // send error message
-            if ($post_from != 'show') {
+            if ($from != 'show') {
                 $rcmail->output->command('list_mailbox');
             }
 
@@ -128,7 +111,7 @@ class rcmail_action_mail_mark extends rcmail_action_mail_index
             $rcmail->output->set_env('last_flag', $flag);
         }
         else if ($flag == 'DELETED' && $skip_deleted) {
-            if ($post_from == 'show') {
+            if ($from == 'show') {
                 if ($next = rcube_utils::get_input_value('_next_uid', rcube_utils::INPUT_GPC)) {
                     $rcmail->output->command('show_message', $next);
                 }
@@ -190,9 +173,16 @@ class rcmail_action_mail_mark extends rcmail_action_mail_index
         $rcmail->output->send();
     }
 
+    /**
+     * Map Roundcube UI's flag label into IMAP flag
+     *
+     * @param string $flag Flag label
+     *
+     * @return string Uppercase IMAP flag
+     */
     public static function imap_flag($flag)
     {
-        $flags_map  = [
+        $flags_map = [
             'undelete'  => 'UNDELETED',
             'delete'    => 'DELETED',
             'read'      => 'SEEN',

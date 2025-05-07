@@ -158,10 +158,10 @@ class rcube_imap_cache
      * Return (sorted) messages index (UIDs).
      * If index doesn't exist or is invalid, will be updated.
      *
-     * @param string  $mailbox     Folder name
-     * @param string  $sort_field  Sorting column
-     * @param string  $sort_order  Sorting order (ASC|DESC)
-     * @param bool    $exiting     Skip index initialization if it doesn't exist in DB
+     * @param string $mailbox    Folder name
+     * @param string $sort_field Sorting column
+     * @param string $sort_order Sorting order (ASC|DESC)
+     * @param bool   $existing   Skip index initialization if it doesn't exist in DB
      *
      * @return array Messages index
      */
@@ -210,13 +210,14 @@ class rcube_imap_cache
         // Entry exists, check cache status
         if (!empty($index)) {
             $exists = true;
-            $modseq = isset($index['modseq']) ? $index['modseq'] : null;
+            $modseq = $index['modseq'] ?? null;
+            $isf    = $index['sort_field'] ?? '';
 
             if ($sort_field == 'ANY') {
-                $sort_field = $index['sort_field'];
+                $sort_field = $isf;
             }
 
-            if ($sort_field != $index['sort_field']) {
+            if ($sort_field != $isf) {
                 $is_valid = false;
             }
             else {
@@ -394,11 +395,11 @@ class rcube_imap_cache
     /**
      * Returns message data.
      *
-     * @param string $mailbox  Folder name
-     * @param int    $uid      Message UID
-     * @param bool   $update   If message doesn't exists in cache it will be fetched
-     *                         from IMAP server
-     * @param bool   $no_cache Enables internal cache usage
+     * @param string $mailbox Folder name
+     * @param int    $uid     Message UID
+     * @param bool   $update  If message doesn't exists in cache it will be fetched
+     *                        from IMAP server
+     * @param bool   $cache   Enables internal cache usage
      *
      * @return rcube_message_header Message data
      */
@@ -789,7 +790,7 @@ class rcube_imap_cache
             (int) $this->skip_deleted,
             (int) $mbox_data['UIDVALIDITY'],
             (int) $mbox_data['UIDNEXT'],
-            $modseq ?: (isset($mbox_data['HIGHESTMODSEQ']) ? $mbox_data['HIGHESTMODSEQ'] : ''),
+            $modseq ?: ($mbox_data['HIGHESTMODSEQ'] ?? ''),
         ];
 
         $data    = implode('@', $data);
@@ -855,7 +856,7 @@ class rcube_imap_cache
         // and many rcube_imap changes to connect when needed
 
         // Check UIDVALIDITY
-        if ($index['validity'] != $mbox_data['UIDVALIDITY']) {
+        if (empty($index['validity']) || $index['validity'] != $mbox_data['UIDVALIDITY']) {
             $this->clear($mailbox);
             $exists = false;
             return false;
@@ -1188,7 +1189,7 @@ class rcube_imap_cache
     /**
      * Prepares message object to be stored in database.
      *
-     * @param rcube_message_header|rcube_message_part
+     * @param rcube_message_header|rcube_message_part $msg
      */
     private function message_object_prepare(&$msg, &$size = 0)
     {
@@ -1233,7 +1234,7 @@ class rcube_imap_cache
             $mbox_data = $this->imap->folder_data($mailbox);
         }
 
-        if ($mbox_data['EXISTS']) {
+        if (!empty($mbox_data['EXISTS'])) {
             // fetch sorted sequence numbers
             $index = $this->imap->index_direct($mailbox, $sort_field, $sort_order);
         }
@@ -1253,7 +1254,7 @@ class rcube_imap_cache
             $mbox_data = $this->imap->folder_data($mailbox);
         }
 
-        if ($mbox_data['EXISTS']) {
+        if (!empty($mbox_data['EXISTS'])) {
             // get all threads (default sort order)
             return $this->imap->threads_direct($mailbox);
         }

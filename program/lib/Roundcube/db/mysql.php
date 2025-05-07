@@ -30,9 +30,6 @@ class rcube_db_mysql extends rcube_db
 {
     public $db_provider = 'mysql';
 
-    /**
-     * {@inheritdoc}
-     */
     public function __construct($db_dsnw, $db_dsnr = '', $pconn = false)
     {
         parent::__construct($db_dsnw, $db_dsnr, $pconn);
@@ -45,13 +42,11 @@ class rcube_db_mysql extends rcube_db
     /**
      * Abstract SQL statement for value concatenation
      *
-     * @return string SQL statement to be used in query
+     * @return string ...$args Values to concatenate
      */
-    public function concat(/* col1, col2, ... */)
+    public function concat(...$args)
     {
-        $args = func_get_args();
-
-        if (!empty($args) && is_array($args[0])) {
+        if (count($args) == 1 && is_array($args[0])) {
             $args = $args[0];
         }
 
@@ -135,6 +130,9 @@ class rcube_db_mysql extends rcube_db
 
         // Enable AUTOCOMMIT mode (#1488902)
         $result[PDO::ATTR_AUTOCOMMIT] = true;
+
+        // Disable emulating of prepared statements
+        $result[PDO::ATTR_EMULATE_PREPARES] = false;
 
         return $result;
     }

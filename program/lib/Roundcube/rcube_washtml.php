@@ -239,7 +239,7 @@ class rcube_washtml
      * Register a callback function for a certain tag
      *
      * @param string   $tag      HTML tag name
-     * @param callback $callback Callback function
+     * @param callable $callback Callback function
      */
     public function add_callback($tag, $callback)
     {
@@ -333,7 +333,9 @@ class rcube_washtml
                         $out = $value;
                     }
                 }
-                else if ($this->_css_prefix !== null && in_array($key, ['id', 'class', 'for'])) {
+                else if ($this->_css_prefix !== null
+                    && (in_array($key, ['id', 'class', 'for']) || ($key == 'name' && $node->nodeName == 'a'))
+                ) {
                     $out = preg_replace('/(\S+)/', $this->_css_prefix . '\1', $value);
                 }
                 else if ($key) {
@@ -341,7 +343,8 @@ class rcube_washtml
                 }
 
                 if ($out !== null && $out !== '') {
-                    $result .= ' ' . $attr->nodeName . '="' . htmlspecialchars($out, ENT_QUOTES | ENT_SUBSTITUTE, $this->config['charset']) . '"';
+                    $v = htmlspecialchars($out, ENT_QUOTES | ENT_SUBSTITUTE, $this->config['charset']);
+                    $result .= " {$attr->nodeName}=\"{$v}\"";
                 }
                 else if ($value) {
                     $washed[] = htmlspecialchars($attr->nodeName, ENT_QUOTES, $this->config['charset']);
@@ -674,13 +677,11 @@ class rcube_washtml
         $method       = $this->is_xml ? 'loadXML' : 'loadHTML';
 
         // DOMDocument does not support HTML5, try Masterminds parser if available
-        if (!$this->is_xml && class_exists('Masterminds\HTML5')
-            // HTML5 parser is slow with content that contains a lot of tags
-            // disable it for such cases (https://github.com/Masterminds/html5-php/issues/181)
-            && substr_count($html, '<') < 10000
-        ) {
+        if (!$this->is_xml && class_exists('Masterminds\HTML5')) {
             try {
-                $html5 = new Masterminds\HTML5();
+                // disabled_html_ns=true is a workaround for the performance issue
+                // https://github.com/Masterminds/html5-php/issues/181
+                $html5 = new Masterminds\HTML5(['disable_html_ns' => true]);
                 $node  = $html5->loadHTML($this->fix_html5($html));
             }
             catch (Exception $e) {
@@ -708,7 +709,13 @@ class rcube_washtml
      */
     public function get_config($prop)
     {
-        return isset($this->config[$prop]) ? $this->config[$prop] : null;
+        $config_props = ['html_elements', 'html_attribs', 'ignore_elements', 'void_elements', 'css_prefix'];
+
+        if (in_array($prop, $config_props)) {
+            return $this->{"_{$prop}"};
+        }
+
+        return $this->config[$prop] ?? null;
     }
 
     /**
@@ -727,7 +734,7 @@ class rcube_washtml
             // space(s) between <NOBR>
             '/(<\/nobr>)(\s+)(<nobr>)/i',
             // PHP bug #32547 workaround: remove title tag
-            '/<title[^>]*>.*<\/title>/i',
+            '/<title[^>]*>.*<\/title>/iU',
             // remove <!doctype> before BOM (#1490291)
             '/<\!doctype[^>]+>[^<]*/im',
             // byte-order mark (only outlook?)

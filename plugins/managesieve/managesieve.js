@@ -91,7 +91,7 @@ if (window.rcmail) {
           }
           else {
             $('#filterset-name').text(set);
-          }
+          }          
           set = rcmail.managesieve_setid(set);
           rcmail.filtersets_list.select(set);
         }
@@ -338,9 +338,7 @@ rcube_webmail.prototype.managesieve_updatelist = function(action, o)
         tr = document.createElement('TR');
         td = document.createElement('TD');
 
-        $(td).text(el.name + (el.disabled ? 
-          ` (${this.get_label('managesieve.disabled')})` :
-          ` (${this.get_label('managesieve.enabled')})`));
+        $(td).text(el.name);
         td.className = 'name';
         tr.id = 'rcmrow' + el.id;
         if (el['class'])
@@ -676,13 +674,15 @@ function rule_header_select(id)
   if (h == 'size') {
     if (msg) set.push(msg);
     $.each(set, function() { if (this != window) this.style.display = 'none'; });
-    spamtest.style.display = 'none';
+    if (spamtest)
+      spamtest.style.display = 'none';
     size.style.display = '';
   }
   else if (h == 'spamtest') {
     if (msg) set.push(msg);
     $.each(set, function() { if (this != window) this.style.display = 'none'; });
-    spamtest.style.display = '';
+    if (spamtest)
+      spamtest.style.display = '';
     size.style.display = 'none';
   }
   else if (h == 'message' && msg) {
@@ -694,11 +694,12 @@ function rule_header_select(id)
     header.style.display = h != '...' ? 'none' : '';
     custstr.style.display = h != 'string' ? 'none' : '';
     size.style.display = 'none';
-    spamtest.style.display = 'none';
     op.style.display = '';
     comp.style.display = '';
     mod.style.display = is_header ? '' : 'none';
     trans.style.display = h == 'body' ? '' : 'none';
+    if (spamtest)
+      spamtest.style.display = 'none';
     if (mime)
       mime.style.display =  is_header ? '' : 'none';
     if (mime_part)
@@ -719,7 +720,8 @@ function rule_header_select(id)
   rule_op_select(op, id, h);
   rule_mod_select(id, h, !is_header);
   rule_mime_select(id);
-  rule_spamtest_select(id);
+  if (spamtest)
+    rule_spamtest_select(id);
 
   obj.style.width = h == '...' ? '40px' : '';
 };
@@ -1203,7 +1205,7 @@ rcube_webmail.prototype.managesieve_create = function(force)
     var url = rcmail.get_task_url('mail');
     url = rcmail.add_url(url, '_action', 'plugin.managesieve');
     url = rcmail.add_url(url, '_framed', 1);
-
+    
     // PAMELA - Add mbox for sieve connect
     url = rcmail.add_url(url, '_mbox', rcmail.env.mailbox);
 

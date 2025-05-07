@@ -25,7 +25,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program. If not, see http://www.gnu.org/licenses/.
+ * along with this program. If not, see https://www.gnu.org/licenses/.
  */
 
 class managesieve extends rcube_plugin
@@ -62,15 +62,15 @@ class managesieve extends rcube_plugin
         if ($this->rc->task == 'settings') {
             $this->add_hook('settings_actions', [$this, 'settings_actions']);
             $this->init_ui();
-        } else if ($this->rc->task == 'mail') {
+        }
+        else if ($this->rc->task == 'mail') {
             // register message hook
             if ($this->rc->action == 'show') {
                 $this->add_hook('message_headers_output', [$this, 'mail_headers']);
             }
 
             // inject Create Filter popup stuff
-            if (
-                empty($this->rc->action) || $this->rc->action == 'show'
+            if (empty($this->rc->action) || $this->rc->action == 'show'
                 || strpos($this->rc->action, 'plugin.managesieve') === 0
             ) {
                 $this->mail_task_handler();
@@ -100,7 +100,8 @@ class managesieve extends rcube_plugin
         $skin_path = $this->local_skin_path();
         if ($sieve_action || ($this->rc->task == 'settings' && empty($_REQUEST['_framed']))) {
             $this->include_stylesheet("$skin_path/managesieve.css");
-        } else if ($this->rc->task == 'mail') {
+        }
+        else if ($this->rc->task == 'mail') {
             $this->include_stylesheet("$skin_path/managesieve_mail.css");
         }
 
@@ -172,25 +173,23 @@ class managesieve extends rcube_plugin
         $this->init_ui();
 
         // add 'Create filter' item to message menu
-        $this->add_button(
-            [
+        $this->add_button([
                 'command'  => 'managesieve-create',
                 'label'    => 'managesieve.filtercreate',
                 'type'     => 'link-menuitem',
                 'classact' => 'icon filterlink active',
                 'class'    => 'icon filterlink disabled',
                 'innerclass' => 'icon filterlink',
-            ],
-            'messagemenu'
+            ], 'messagemenu'
         );
 
         // register some labels/messages
         $this->rc->output->add_label(
-            'managesieve.newfilter',
+            'managesieve.newfilter', 
             'managesieve.usedata',
-            'managesieve.nodata',
-            'managesieve.nextstep',
-            'save'
+            'managesieve.nodata', 
+            'managesieve.nextstep', 
+            'save',             
             /* PAMELA PAMELA - MANTIS 3334: Gestion des adresses mail multiple pour les identités */,
             'managesieve.Subject',
             'managesieve.From',
@@ -216,7 +215,8 @@ class managesieve extends rcube_plugin
 
         if ($this->rc->action == 'preview') {
             $this->rc->output->command('parent.set_env', ['sieve_headers' => $headers]);
-        } else {
+        }
+        else {
             $this->rc->output->set_env('sieve_headers', $headers);
         }
 
@@ -282,7 +282,7 @@ class managesieve extends rcube_plugin
         }
 
         // load localization
-        $this->add_texts('localization/', ['filters', 'managefilters']);
+        $this->add_texts('localization/', ['filters','managefilters']);
 
         $engine->saveraw();
     }

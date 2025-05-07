@@ -48,10 +48,10 @@ class rcmail_attachment_handler
     {
         ob_end_clean();
 
-        $part_id    = rcube_utils::get_input_value('_part', rcube_utils::INPUT_GET);
-        $file_id    = rcube_utils::get_input_value('_file', rcube_utils::INPUT_GET);
-        $compose_id = rcube_utils::get_input_value('_id', rcube_utils::INPUT_GET);
-        $uid        = rcube_utils::get_input_value('_uid', rcube_utils::INPUT_GET);
+        $part_id    = rcube_utils::get_input_string('_part', rcube_utils::INPUT_GET);
+        $file_id    = rcube_utils::get_input_string('_file', rcube_utils::INPUT_GET);
+        $compose_id = rcube_utils::get_input_string('_id', rcube_utils::INPUT_GET);
+        $uid        = rcube_utils::get_input_string('_uid', rcube_utils::INPUT_GET);
         $rcube      = rcube::get_instance();
 
         $this->download = !empty($_GET['_download']);
@@ -60,8 +60,9 @@ class rcmail_attachment_handler
         if (!empty($uid)) {
             $rcube->config->set('prefer_html', true);
             $this->message = new rcube_message($uid, null, !empty($_GET['_safe']));
+            $this->part = $this->message->mime_parts[$part_id] ?? null;
 
-            if ($this->part = $this->message->mime_parts[$part_id]) {
+            if ($this->part) {
                 $this->filename = rcmail_action_mail_index::attachment_name($this->part);
                 $this->mimetype = $this->part->mimetype;
                 $this->size     = $this->part->size;
@@ -94,10 +95,9 @@ class rcmail_attachment_handler
         }
         else if ($file_id && $compose_id) {
             $file_id = preg_replace('/^rcmfile/', '', $file_id);
+            $compose = $_SESSION['compose_data_' . $compose_id] ?? null;
 
-            if (($compose = $_SESSION['compose_data_' . $compose_id])
-                && ($this->upload = $compose['attachments'][$file_id])
-            ) {
+            if ($compose && ($this->upload = $compose['attachments'][$file_id])) {
                 $this->filename = $this->upload['name'];
                 $this->mimetype = $this->upload['mimetype'];
                 $this->size     = $this->upload['size'];
@@ -229,11 +229,8 @@ class rcmail_attachment_handler
                 }
             }
             else {
-                $data = null;
-                if (!empty($attachment['data'])) {
-                    $data = $attachment['data'];
-                }
-                else if (!empty($attachment['path'])) {
+                $data = $attachment['data'] ?? '';
+                if (!$data && $attachment['path']) {
                     $data = file_get_contents($attachment['path']);
                 }
 
@@ -246,7 +243,7 @@ class rcmail_attachment_handler
             }
         }
 
-        return isset($result) ? $result : null;
+        return $result ?? null;
     }
 
     /**
