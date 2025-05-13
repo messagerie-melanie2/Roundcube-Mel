@@ -31,7 +31,7 @@ class rcmail_action_settings_folder_purge extends rcmail_action
     {
         $rcmail       = rcmail::get_instance();
         $storage      = $rcmail->get_storage();
-        $mbox         = rcube_utils::get_input_value('_mbox', rcube_utils::INPUT_POST, true);
+        $mbox         = rcube_utils::get_input_string('_mbox', rcube_utils::INPUT_POST, true);
         $delimiter    = $storage->get_hierarchy_delimiter();
         $trash_mbox   = $rcmail->config->get('trash_mbox');
         $trash_regexp = '/^' . preg_quote($trash_mbox . $delimiter, '/') . '/';
@@ -41,12 +41,12 @@ class rcmail_action_settings_folder_purge extends rcmail_action
 
         // we should only be purging trash (or their subfolders)
         if (!strlen($trash_mbox) || $mbox === $trash_mbox || preg_match($trash_regexp, $mbox)) {
-            $success = $storage->delete_message('*', $data['folder']);
+            $success = $storage->delete_message('*', $mbox);
             $delete  = true;
         }
         // move to Trash
         else {
-            $success = $storage->move_message('1:*', $trash_mbox, $data['folder']);
+            $success = $storage->move_message('1:*', $trash_mbox, $mbox);
             $delete  = false;
         }
 

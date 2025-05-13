@@ -148,7 +148,7 @@ class rcube_string_replacer
 
         // Store the reference and its occurrence position
         $this->linkrefs[$key][] = [
-            isset($this->urls[$matches[3][0]]) ? $this->urls[$matches[3][0]] : null,
+            $this->urls[$matches[3][0]] ?? null,
             $matches[0][1]
         ];
 
@@ -209,7 +209,7 @@ class rcube_string_replacer
      */
     protected function replace_callback($matches)
     {
-        return isset($this->values[$matches[1]]) ? $this->values[$matches[1]] : null;
+        return $this->values[$matches[1]] ?? null;
     }
 
     /**
@@ -221,6 +221,10 @@ class rcube_string_replacer
      */
     public function replace($str)
     {
+        if (!is_string($str)) {
+            return '';
+        }
+
         // search for patterns like links and e-mail addresses
         $str = preg_replace_callback($this->link_pattern, [$this, 'link_callback'], $str);
         $str = preg_replace_callback($this->mailto_pattern, [$this, 'mailto_callback'], $str);

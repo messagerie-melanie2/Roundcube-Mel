@@ -27,7 +27,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program. If not, see http://www.gnu.org/licenses/.
+ * along with this program. If not, see https://www.gnu.org/licenses/.
  */
 
 /**
@@ -45,9 +45,9 @@ class rcube_plesk_password
      * roundcube already validated the old password so we just need to change it at this point
      *
      * @author Cyrill von Wattenwyl <cyrill.vonwattenwyl@adfinis-sygroup.ch>
-     * @param string $curpass Current password
-     * @param string $newpass New password
-     * @returns int PASSWORD_SUCCESS|PASSWORD_ERROR
+     * @param string $currpass Current password
+     * @param string $newpass  New password
+     * @return int PASSWORD_SUCCESS|PASSWORD_ERROR
      */
     function save($currpass, $newpass, $username)
     {

@@ -114,7 +114,7 @@ rcube_webmail.prototype.enigma_key_import = function()
             win.rcmail.enigma_import();
         };
 
-    this.enigma_import_dialog = this.simple_dialog(dialog, this.gettext('enigma.importkeys'), import_func, {
+    this.enigma_import_dialog = this.simple_dialog(dialog, 'enigma.importkeys', import_func, {
         button: 'import',
         width: 500,
         height: 180
@@ -130,7 +130,7 @@ rcube_webmail.prototype.enigma_key_import_search = function()
             win.rcmail.enigma_import_search();
         };
 
-    this.enigma_import_dialog = this.simple_dialog(dialog, this.gettext('enigma.keyimportsearchlabel'), search_func, {
+    this.enigma_import_dialog = this.simple_dialog(dialog, 'enigma.keyimportsearchlabel', search_func, {
         button: 'search',
         width: 500,
         height: 150
@@ -180,11 +180,12 @@ rcube_webmail.prototype.enigma_key_create_save = function()
 
     // generate keys
     // use OpenPGP.js if browser supports required features
-    if (window.openpgp && (window.msCrypto || (window.crypto && (window.crypto.getRandomValues || window.crypto.subtle)))) {
+    if (window.openpgp && window.crypto && window.crypto.getRandomValues) {
         lock = this.set_busy(true, 'enigma.keygenerating');
         options = {
-            userIds: users,
-            passphrase: password
+            userIDs: users,
+            passphrase: password,
+            type: type.substring(0, 3)
         };
 
         if (type == 'ecc')
@@ -196,8 +197,12 @@ rcube_webmail.prototype.enigma_key_create_save = function()
 
         openpgp.generateKey(options).then(function(keypair) {
             // success
-            var post = {_a: 'import', _keys: keypair.privateKeyArmored, _generated: 1,
-                _passwd: password, _keyid: keypair.key.primaryKey.getFingerprint()};
+            var post = {
+              _a: 'import',
+              _keys: keypair.privateKey,
+              _generated: 1,
+              _passwd: password
+            };
 
             // send request to server
             rcmail.http_post('plugin.enigmakeys', post, lock);

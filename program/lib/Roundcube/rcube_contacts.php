@@ -202,9 +202,9 @@ class rcube_contacts extends rcube_addressbook
     /**
      * List the current set of contact records
      *
-     * @param array List of cols to show, Null means all
-     * @param int   Only return this number of records, use negative values for tail
-     * @param bool  True to skip the count query (select only)
+     * @param array $cols    List of cols to show, Null means all
+     * @param int   $subset  Only return this number of records, use negative values for tail
+     * @param bool  $nocount True to skip the count query (select only)
      *
      * @return array Indexed list of contact records, each a hash array
      */
@@ -487,7 +487,7 @@ class rcube_contacts extends rcube_addressbook
      */
     function count()
     {
-        $count = isset($this->cache['count']) ? $this->cache['count'] : $this->_count();
+        $count = $this->cache['count'] ?? $this->_count();
 
         return new rcube_result_set($count, ($this->list_page-1) * $this->page_size);
     }
@@ -618,9 +618,9 @@ class rcube_contacts extends rcube_addressbook
 
         // require at least some name or email
         if ($valid) {
-            $name = (isset($save_data['firstname']) ? $save_data['firstname'] : '')
-                . (isset($save_data['surname']) ? $save_data['surname'] : '')
-                . (isset($save_data['name']) ? $save_data['name'] : '');
+            $name = ($save_data['firstname'] ?? '')
+                . ($save_data['surname'] ?? '')
+                . ($save_data['name'] ?? '');
 
             if (!strlen($name) && !count(array_filter($this->get_col_values('email', $save_data, true)))) {
                 $this->set_error(self::ERROR_VALIDATE, 'nonamewarning');
@@ -986,8 +986,8 @@ class rcube_contacts extends rcube_addressbook
     /**
      * Add the given contact records the a certain group
      *
-     * @param string       Group identifier
-     * @param array|string List of contact identifiers to be added
+     * @param string       $group_id Group identifier
+     * @param array|string $ids      List of contact identifiers to be added
      *
      * @return int Number of contacts added
      */

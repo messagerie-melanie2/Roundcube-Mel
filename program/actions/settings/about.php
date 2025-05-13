@@ -37,11 +37,11 @@ class rcmail_action_settings_about extends rcmail_action
                 'supportlink' => [$this, 'supportlink'],
                 'pluginlist'  => [$this, 'plugins_list'],
                 'copyright'   => function() {
-                    return 'Copyright &copy; 2005-2021, The Roundcube Dev Team';
+                    return 'Copyright &copy; 2005-2025, The Roundcube Dev Team';
                 },
                 'license' => function() {
                     return 'This program is free software; you can redistribute it and/or modify it under the terms '
-                        . 'of the <a href="http://www.gnu.org/licenses/gpl.html" target="_blank">GNU General Public License</a> '
+                        . 'of the <a href="https://www.gnu.org/licenses/gpl.html" target="_blank">GNU General Public License</a> '
                         . 'as published by the Free Software Foundation, either version 3 of the License, '
                         . 'or (at your option) any later version.<br/>'
                         . 'Some <a href="https://roundcube.net/license" target="_blank">exceptions</a> '
@@ -107,7 +107,7 @@ class rcmail_action_settings_about extends rcmail_action
         $table->add_header('source', $rcmail->gettext('source'));
 
         foreach ($plugin_info as $name => $data) {
-            $uri = !empty($data['src_uri']) ? $data['src_uri'] : (isset($data['uri']) ? $data['uri'] : '');
+            $uri = !empty($data['src_uri']) ? $data['src_uri'] : ($data['uri'] ?? '');
             if ($uri && stripos($uri, 'http') !== 0) {
                 $uri = 'http://' . $uri;
             }

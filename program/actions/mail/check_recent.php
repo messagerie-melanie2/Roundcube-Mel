@@ -43,7 +43,7 @@ class rcmail_action_mail_check_recent extends rcmail_action_mail_index
         $page      = $rcmail->storage->get_page();
         $page_size = $rcmail->storage->get_pagesize();
 
-        $search_request = rcube_utils::get_input_value('_search', rcube_utils::INPUT_GPC);
+        $search_request = rcube_utils::get_input_string('_search', rcube_utils::INPUT_GPC);
         if ($search_request && $_SESSION['search_request'] != $search_request) {
             $search_request = null;
         }
@@ -52,7 +52,7 @@ class rcmail_action_mail_check_recent extends rcmail_action_mail_index
         if ($check_all) {
             $a_mailboxes = $rcmail->storage->list_folders_subscribed('', '*', 'mail');
         }
-        else if ($search_request && is_object($_SESSION['search'][1])) {
+        else if ($search_request && isset($_SESSION['search'][1]) && is_object($_SESSION['search'][1])) {
             $a_mailboxes = (array) $_SESSION['search'][1]->get_parameters('MAILBOX');
         }
         else {
@@ -74,6 +74,7 @@ class rcmail_action_mail_check_recent extends rcmail_action_mail_index
             $is_current = $mbox_name == $current
                 || (
                     !empty($search_request)
+                    && isset($_SESSION['search'][1])
                     && is_object($_SESSION['search'][1])
                     && in_array($mbox_name, (array)$_SESSION['search'][1]->get_parameters('MAILBOX'))
                 );

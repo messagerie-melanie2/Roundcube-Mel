@@ -30,7 +30,7 @@ class rcmail_action_mail_sendmdn extends rcmail_action
     {
         $rcmail = rcmail::get_instance();
 
-        if ($uid = rcube_utils::get_input_value('_uid', rcube_utils::INPUT_POST)) {
+        if ($uid = rcube_utils::get_input_string('_uid', rcube_utils::INPUT_POST)) {
             $sent = self::send_mdn($uid, $smtp_error);
         }
 
@@ -68,7 +68,7 @@ class rcmail_action_mail_sendmdn extends rcmail_action
      * @param mixed        $message    Original message object (rcube_message) or UID
      * @param array|string $smtp_error SMTP error array or (deprecated) string
      *
-     * @return boolean Send status
+     * @return bool Send status
      */
     public static function send_mdn($message, &$smtp_error)
     {

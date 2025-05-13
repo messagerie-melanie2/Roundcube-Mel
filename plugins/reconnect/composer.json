@@ -3,7 +3,7 @@
     "type": "roundcube-plugin",
     "description": "Reconnects to server for several attempts.",
     "license": "GPL-3.0-or-later",
-    "version": "0.1",
+    "version": "0.2",
     "authors": [
         {
             "name": "Sandro Knauß",
@@ -17,7 +17,7 @@
         }
     ],
     "require": {
-        "php": ">=5.4.0",
+        "php": ">=7.3.0",
         "roundcube/plugin-installer": ">=0.1.3"
     }
 }

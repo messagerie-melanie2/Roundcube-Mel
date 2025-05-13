@@ -75,13 +75,7 @@ class rcube_utils
         // session_get_cookie_params() return includes 'lifetime' but setcookie() does not use it, instead it uses 'expires'
         unset($attrib['lifetime']);
 
-        if (version_compare(PHP_VERSION, '7.3.0', '>=')) {
-            // An alternative signature for setcookie supporting an options array added in PHP 7.3.0
-            setcookie($name, $value, $attrib);
-        }
-        else {
-            setcookie($name, $value, $attrib['expires'], $attrib['path'], $attrib['domain'], $attrib['secure'], $attrib['httponly']);
-        }
+        setcookie($name, $value, $attrib);
     }
 
     /**
@@ -147,7 +141,9 @@ class rcube_utils
 
             // last domain part (allow extended TLD)
             $last_part = array_pop($domain_array);
-            if (/** PAMELA - MANTIS 3439: Les adresses mail en .i2 ne sont pas acceptées **/ $last_part != 'i2' && strpos($last_part, 'xn--') !== 0 && preg_match('/[^a-zA-Z]/', $last_part)) {
+            if (/** PAMELA - MANTIS 3439: Les adresses mail en .i2 ne sont pas acceptées **/ $last_part != 'i2' && strpos($last_part, 'xn--') !== 0
+                && (preg_match('/[^a-zA-Z0-9]/', $last_part) || preg_match('/^[0-9]+$/', $last_part))
+            ) {
                 return false;
             }
 
@@ -396,7 +392,7 @@ class rcube_utils
      * @param string $str    String input
      * @param bool   $encode Use base64 encoding
      *
-     * @param string Valid HTML identifier
+     * @return string Valid HTML identifier
      */
     public static function html_identifier($str, $encode = false)
     {
@@ -407,7 +403,6 @@ class rcube_utils
         return asciiwords($str, true, '_');
     }
 
-    
     /**
      * Replace all css definitions with #container [def]
      * and remove css-inlined scripting, make position style safe
@@ -571,7 +566,6 @@ class rcube_utils
         return count($output) > 0 ? implode('; ', $output) . ';' : '';
     }
 
-
     /**
      * Explode css style. Property names will be lower-cased and trimmed.
      * Values will be trimmed. Invalid entries will be skipped.
@@ -644,7 +638,7 @@ class rcube_utils
         return $result;
     }
 
-  /**
+    /**
      * Explode css style value
      *
      * @param string $style CSS style
@@ -762,7 +756,7 @@ class rcube_utils
 
         if (!empty($_SERVER['HTTP_X_FORWARDED_PROTO'])
             && strtolower($_SERVER['HTTP_X_FORWARDED_PROTO']) == 'https'
-            && in_array($_SERVER['REMOTE_ADDR'], (array) rcube::get_instance()->config->get('proxy_whitelist', []))
+            && self::check_proxy_whitelist_ip()
         ) {
             return true;
         }
@@ -776,6 +770,13 @@ class rcube_utils
         }
 
         return false;
+    }
+
+    /**
+     * Check if the reported REMOTE_ADDR is in the 'proxy_whitelist' config option
+     */
+    public static function check_proxy_whitelist_ip() {
+        return in_array($_SERVER['REMOTE_ADDR'], (array) rcube::get_instance()->config->get('proxy_whitelist', []));
     }
 
     /**
@@ -820,6 +821,45 @@ class rcube_utils
     }
 
     /**
+     * Parse host specification URI.
+     *
+     * @param string $host       Host URI
+     * @param int    $plain_port Plain port number
+     * @param int    $ssl_port   SSL port number
+     *
+     * @return array An array with three elements (hostname, scheme, port)
+     */
+    public static function parse_host_uri($host, $plain_port = null, $ssl_port = null)
+    {
+        if (preg_match('#^(unix|ldapi)://#i', $host, $matches)) {
+            return [$host, $matches[1], -1];
+        }
+
+        $url    = parse_url($host);
+        $port   = $plain_port;
+        $scheme = null;
+
+        if (!empty($url['host'])) {
+            $host   = $url['host'];
+            $scheme = $url['scheme'] ?? null;
+
+            if (!empty($url['port'])) {
+                $port = $url['port'];
+            }
+            else if (
+                $scheme
+                && $ssl_port
+                && ($scheme === 'ssl' || ($scheme != 'tls' && $scheme[strlen($scheme) - 1] === 's'))
+            ) {
+                // assign SSL port to ssl://, imaps://, ldaps://, but not tls://
+                $port = $ssl_port;
+            }
+        }
+
+        return [$host, $scheme, $port];
+    }
+
+    /**
      * Returns the server name after checking it against trusted hostname patterns.
      *
      * Returns 'localhost' and logs a warning when the hostname is not trusted.
@@ -835,7 +875,7 @@ class rcube_utils
             $type = 'SERVER_NAME';
         }
 
-        $name     = isset($_SERVER[$type]) ? $_SERVER[$type] : null;
+        $name     = $_SERVER[$type] ?? '';
         $rcube    = rcube::get_instance();
         $patterns = (array) $rcube->config->get('trusted_host_patterns');
 
@@ -878,7 +918,7 @@ class rcube_utils
      */
     public static function remote_ip()
     {
-        $address = isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : '';
+        $address = $_SERVER['REMOTE_ADDR'] ?? '';
 
         // append the NGINX X-Real-IP header, if set
         if (!empty($_SERVER['HTTP_X_REAL_IP']) && $_SERVER['HTTP_X_REAL_IP'] != $address) {
@@ -951,7 +991,7 @@ class rcube_utils
         if (!empty($headers)) {
             $headers = array_change_key_case($headers, CASE_UPPER);
 
-            return isset($headers[$key]) ? $headers[$key] : null;
+            return $headers[$key] ?? null;
         }
     }
 
@@ -1072,7 +1112,7 @@ class rcube_utils
      */
     public static function clean_datestr($date)
     {
-        $date = trim($date);
+        $date = trim((string) $date);
 
         // check for MS Outlook vCard date format YYYYMMDD
         if (preg_match('/^([12][90]\d\d)([01]\d)([0123]\d)$/', $date, $m)) {
@@ -1103,11 +1143,11 @@ class rcube_utils
             $mdy   = $m[2] > 12 && $m[1] <= 12;
             $day   = $mdy ? $m[2] : $m[1];
             $month = $mdy ? $m[1] : $m[2];
-            $date  = sprintf('%04d-%02d-%02d%s', $m[3], $month, $day, isset($m[4]) ? $m[4]: ' 00:00:00');
+            $date  = sprintf('%04d-%02d-%02d%s', $m[3], $month, $day, $m[4] ?? ' 00:00:00');
         }
         // I've found that YYYY.MM.DD is recognized wrong, so here's a fix
         else if (preg_match('/^(\d{4})\.(\d{1,2})\.(\d{1,2})(\s.*)?$/', $date, $m)) {
-            $date  = sprintf('%04d-%02d-%02d%s', $m[1], $m[2], $m[3], isset($m[4]) ? $m[4]: ' 00:00:00');
+            $date  = sprintf('%04d-%02d-%02d%s', $m[1], $m[2], $m[3], $m[4] ?? ' 00:00:00');
         }
 
         return $date;
@@ -1175,8 +1215,8 @@ class rcube_utils
     /**
      * Convert a string to ascii or utf8 (using IDNA standard)
      *
-     * @param string  $input  Decoded e-mail address
-     * @param boolean $is_utf Convert by idn_to_ascii if true and idn_to_utf8 if false
+     * @param string $input  Decoded e-mail address
+     * @param bool   $is_utf Convert by idn_to_ascii if true and idn_to_utf8 if false
      *
      * @return string Encoded e-mail address
      */
@@ -1193,7 +1233,7 @@ class rcube_utils
 
         // Note that in PHP 7.2/7.3 calling idn_to_* functions with default arguments
         // throws a warning, so we have to set the variant explicitly (#6075)
-        $variant = defined('INTL_IDNA_VARIANT_UTS46') ? INTL_IDNA_VARIANT_UTS46 : null;
+        $variant = INTL_IDNA_VARIANT_UTS46;
         $options = 0;
 
         // Because php-intl extension lowercases domains and return false
@@ -1201,12 +1241,12 @@ class rcube_utils
 
         if ($is_utf) {
             if (preg_match('/[^\x20-\x7E]/', $domain)) {
-                $options = defined('IDNA_NONTRANSITIONAL_TO_ASCII') ? IDNA_NONTRANSITIONAL_TO_ASCII : 0;
+                $options = IDNA_NONTRANSITIONAL_TO_ASCII;
                 $domain  = idn_to_ascii($domain, $options, $variant);
             }
         }
         else if (preg_match('/(^|\.)xn--/i', $domain)) {
-            $options = defined('IDNA_NONTRANSITIONAL_TO_UNICODE') ? IDNA_NONTRANSITIONAL_TO_UNICODE : 0;
+            $options = IDNA_NONTRANSITIONAL_TO_UNICODE;
             $domain  = idn_to_utf8($domain, $options, $variant);
         }
 
@@ -1227,6 +1267,10 @@ class rcube_utils
      */
     public static function tokenize_string($str, $minlen = 2)
     {
+        if (!is_string($str)) {
+            return [];
+        }
+
         $expr = ['/[\s;,"\'\/+-]+/ui', '/(\d)[-.\s]+(\d)/u'];
         $repl = [' ', '\\1\\2'];
 
@@ -1236,7 +1280,9 @@ class rcube_utils
             $repl[] = ' ';
         }
 
-        return array_filter(explode(" ", preg_replace($expr, $repl, $str)));
+        $str = preg_replace($expr, $repl, $str);
+
+        return is_string($str) ? array_filter(explode(" ", $str)) : [];
     }
 
     /**
@@ -1349,7 +1395,7 @@ class rcube_utils
             $value = true;
             $key   = null;
 
-            if ($arg[0] == '-') {
+            if (strlen($arg) && $arg[0] == '-') {
                 $key = preg_replace('/^-+/', '', $arg);
                 $sp  = strpos($arg, '=');
 
@@ -1431,7 +1477,7 @@ class rcube_utils
      */
     public static function get_boolean($str)
     {
-        $str = strtolower($str);
+        $str = strtolower((string) $str);
 
         return !in_array($str, ['false', '0', 'no', 'off', 'nein', ''], true);
     }
@@ -1471,11 +1517,11 @@ class rcube_utils
                 $default_port = 443;
             }
 
-            $host = isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : null;
-            $port = isset($_SERVER['SERVER_PORT']) ? $_SERVER['SERVER_PORT'] : null;
+            $host = $_SERVER['HTTP_HOST'] ?? '';
+            $port = $_SERVER['SERVER_PORT'] ?? 0;
 
             $prefix = $schema . '://' . preg_replace('/:\d+$/', '', $host);
-            if ($port != $default_port && $port != 80) {
+            if ($port && $port != $default_port && $port != 80) {
                 $prefix .= ':' . $port;
             }
 
@@ -1495,36 +1541,20 @@ class rcube_utils
      */
     public static function random_bytes($length, $raw = false)
     {
-        $hextab  = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
-        $tabsize = strlen($hextab);
-
         // Use PHP7 true random generator
-        if ($raw && function_exists('random_bytes')) {
+        if ($raw) {
             return random_bytes($length);
         }
 
-        if (!$raw && function_exists('random_int')) {
-            $result = '';
-            while ($length-- > 0) {
-                $result .= $hextab[random_int(0, $tabsize - 1)];
-            }
+        $hextab  = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        $tabsize = strlen($hextab);
 
-            return $result;
+        $result = '';
+        while ($length-- > 0) {
+            $result .= $hextab[random_int(0, $tabsize - 1)];
         }
 
-        $random = openssl_random_pseudo_bytes($length);
-
-        if ($random === false && $length > 0) {
-            throw new Exception("Failed to get random bytes");
-        }
-
-        if (!$raw) {
-            for ($x = 0; $x < $length; $x++) {
-                $random[$x] = $hextab[ord($random[$x]) % $tabsize];
-            }
-        }
-
-        return $random;
+        return $result;
     }
 
     /**
@@ -1632,6 +1662,10 @@ class rcube_utils
     {
         if (($preg_error = preg_last_error()) != PREG_NO_ERROR) {
             $errstr = "PCRE Error: $preg_error.";
+
+            if (function_exists('preg_last_error_msg')) {
+                $errstr .= ' ' . preg_last_error_msg();
+            }
 
             if ($preg_error == PREG_BACKTRACK_LIMIT_ERROR) {
                 $errstr .= " Consider raising pcre.backtrack_limit!";

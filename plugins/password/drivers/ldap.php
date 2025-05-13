@@ -4,7 +4,7 @@
  * LDAP Password Driver
  *
  * Driver for passwords stored in LDAP
- * This driver use the PEAR Net_LDAP2 class (http://pear.php.net/package/Net_LDAP2).
+ * This driver use the PEAR Net_LDAP2 class (https://pear.php.net/package/Net_LDAP2).
  *
  * @version 2.0
  * @author Edouard MOREAU <edouard.moreau@ensma.fr>
@@ -25,7 +25,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program. If not, see http://www.gnu.org/licenses/.
+ * along with this program. If not, see https://www.gnu.org/licenses/.
  */
 
 class rcube_ldap_password
@@ -86,7 +86,7 @@ class rcube_ldap_password
         $smbpwattr    = $rcmail->config->get('password_ldap_samba_pwattr');
         $smblchattr   = $rcmail->config->get('password_ldap_samba_lchattr');
         $samba        = $rcmail->config->get('password_ldap_samba');
-        $encodage     = $rcmail->config->get('password_ldap_encodage', 'crypt');
+        $encodage     = $rcmail->config->get('password_ldap_encodage', 'md5-crypt');
 
         // Support multiple userPassword values where desired.
         // multiple encodings can be specified separated by '+' (e.g. "cram-md5+ssha")

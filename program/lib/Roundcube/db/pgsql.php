@@ -41,9 +41,6 @@ class rcube_db_pgsql extends rcube_db
         'service'
     ];
 
-    /**
-     * {@inheritdoc}
-     */
     public function __construct($db_dsnw, $db_dsnr = '', $pconn = false)
     {
         parent::__construct($db_dsnw, $db_dsnr, $pconn);
@@ -172,7 +169,10 @@ class rcube_db_pgsql extends rcube_db
             return rcube::get_instance()->config->get('db_' . $varname, $default);
         }
 
-        $this->variables[$varname] = rcube::get_instance()->config->get('db_' . $varname);
+        $cfgval = rcube::get_instance()->config->get('db_' . $varname);
+        if (isset($cfgval)) {
+            return $cfgval;
+        }
 
         if (!isset($this->variables)) {
             $this->variables = [];
@@ -184,7 +184,7 @@ class rcube_db_pgsql extends rcube_db
             }
         }
 
-        return isset($this->variables[$varname]) ? $this->variables[$varname] : $default;
+        return $this->variables[$varname] ?? $default;
     }
 
     /**

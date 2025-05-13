@@ -80,15 +80,17 @@ abstract class rcmail_output extends rcube_output
     /**
      * Call a client method
      *
-     * @param string Method to call
-     * @param ... Additional arguments
+     * @param string $cmd     Method to call
+     * @param mixed  ...$args Method arguments
      */
-    abstract function command();
+    abstract function command($cmd, ...$args);
 
     /**
-     * Add a localized label to the client environment
+     * Add a localized label(s) to the client environment
+     *
+     * @param mixed ...$args Labels (an array of strings, or many string arguments)
      */
-    abstract function add_label();
+    abstract function add_label(...$args);
 
     /**
      * Register a template object handler
@@ -144,5 +146,19 @@ abstract class rcmail_output extends rcube_output
 
         print $body;
         exit;
+    }
+
+    /**
+     * A helper to send HTTP error code and message to the browser, and exit.
+     *
+     * @param int    $code    The HTTP error code
+     * @param string $message The HTTP error message
+     *
+     * @return void
+     */
+    public function sendExitError($code, $message = '')
+    {
+        http_response_code($code);
+        exit($message);
     }
 }

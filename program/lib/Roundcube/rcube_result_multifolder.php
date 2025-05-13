@@ -54,7 +54,7 @@ class rcube_result_multifolder
     /**
      * Initializes object with SORT command response
      *
-     * @param rcube_result_index|rcube_result_thread Search result
+     * @param rcube_result_index|rcube_result_thread $result Search result
      */
     public function add($result)
     {
@@ -71,7 +71,7 @@ class rcube_result_multifolder
     /**
      * Append message UIDs from the given result to our index
      *
-     * @param rcube_result_index|rcube_result_thread Search result
+     * @param rcube_result_index|rcube_result_thread $result Search result
      */
     protected function append_result($result)
     {
@@ -87,9 +87,9 @@ class rcube_result_multifolder
     /**
      * Store a global index of (sorted) message UIDs
      *
-     * @param 
-     * @param string $sort_field Header field to sort by
-     * @param string $sort_order Sort order
+     * @param rcube_message_header[] $headers    Messages in the index
+     * @param string                 $sort_field Header field to sort by
+     * @param string                 $sort_order Sort order
      */
     public function set_message_index($headers, $sort_field, $sort_order)
     {
@@ -258,7 +258,7 @@ class rcube_result_multifolder
         switch ($idx) {
             case 'FIRST': return $this->index[0];
             case 'LAST':  return end($this->index);
-            default:      return isset($this->index[$idx]) ? $this->index[$idx] : null;
+            default:      return $this->index[$idx] ?? null;
         }
     }
 
@@ -290,7 +290,7 @@ class rcube_result_multifolder
      *
      * @param string $folder Folder name
      *
-     * @return false|rcube_result_* instance of false if none found
+     * @return false|rcube_result_index|rcube_result_thread A result set or false if none found
      */
     public function get_set($folder)
     {
@@ -346,7 +346,7 @@ class rcube_result_multifolder
         $data = [];
         foreach ($this->index as $item) {
             list($uid, $folder) = explode('-', $item, 2);
-            $data[$folder] = (isset($data[$folder]) ? $data[$folder] : '') . ' ' . $uid;
+            $data[$folder] = ($data[$folder] ?? '') . ' ' . $uid;
         }
 
         foreach ($this->folders as $folder) {
@@ -354,7 +354,7 @@ class rcube_result_multifolder
                 $data_str = null;
             }
             else {
-                $data_str = '* SORT' . (isset($data[$folder]) ? $data[$folder] : '');
+                $data_str = '* SORT' . ($data[$folder] ?? '');
             }
 
             $set = new rcube_result_index($folder, $data_str, strtoupper($this->order));

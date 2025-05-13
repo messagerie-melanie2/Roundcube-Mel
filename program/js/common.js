@@ -412,7 +412,7 @@ triggerEvent: function(evt, e)
 
 // check if input is a valid email address
 // By Cal Henderson <cal@iamcal.com>
-// http://code.iamcal.com/php/rfc822/
+// https://code.iamcal.com/php/rfc822/
 function rcube_check_email(input, inline, count, strict)
 {
   if (!input)
@@ -429,13 +429,12 @@ function rcube_check_email(input, inline, count, strict)
       ipv6 = '\\[IPv6:[0-9a-f:.]+\\]',
       ip_addr = '(' + ipv4 + ')|(' + ipv6 + ')',
       // Use simplified domain matching, because we need to allow Unicode characters here
-      // So, e-mail address should be validated also on server side after idn_to_ascii() use
-      //domain_literal = '\\x5b('+dtext+'|'+quoted_pair+')*\\x5d',
-      //sub_domain = '('+atom+'|'+domain_literal+')',
-      // allow punycode/unicode top-level domain, allow extended domains (#5588)
+      // So, e-mail address should be validated also on server side after idn_to_ascii()
+      // Allow punycode/unicode top-level domains, allow extended domains (#5588)
+      // Allow a domain ending with .s (#8854)
       // PAMELA - MANTIS 3439: Les adresses mail en .i2 ne sont pas acceptées
-      //domain = '(('+ip_addr+')|(([^@\\x2e]+\\x2e)+([^\\x00-\\x2f\\x3a-\\x40\\x5b-\\x60\\x7b-\\x7f]{2,}|xn--[a-z0-9]{2,})))',
-      domain = '(('+ip_addr+')|(([^@\\x2e]+\\x2e)+([^\\x00-\\x2f\\x3a-\\x40\\x5b-\\x60\\x7b-\\x7f]{2,}|xn--[a-z0-9]{2,}|i2)))',
+      //domain = '(('+ip_addr+')|(([^@.]+\\.)+([^\\x00-\\x2f\\x3a-\\x40\\x5b-\\x60\\x7b-\\x7f]{2,}|s|xn--[a-z0-9]{2,})))',
+      domain = '(('+ip_addr+')|(([^@.]+\\.)+([^\\x00-\\x2f\\x3a-\\x40\\x5b-\\x60\\x7b-\\x7f]{2,}|s|xn--[a-z0-9]{2,}|i2)))',
       // ICANN e-mail test (http://idn.icann.org/E-mail_test)
       icann_domains = [
         '\\u0645\\u062b\\u0627\\u0644\\x2e\\u0625\\u062e\\u062a\\u0628\\u0627\\u0631',
@@ -458,8 +457,10 @@ function rcube_check_email(input, inline, count, strict)
       rx_flag = count ? 'ig' : 'i',
       rx = inline ? new RegExp('(^|<|'+delim+')'+addr_spec+'($|>|'+delim+')', rx_flag) : new RegExp('^'+addr_spec+'$', 'i');
 
-  if (count)
-    return input.match(rx).length;
+  if (count) {
+    var re = input.match(rx);
+    return re ? re.length : 0;
+  }
 
   return rx.test(input);
 };
@@ -482,14 +483,12 @@ function rcube_clone_object(obj)
 // make a string URL safe (and compatible with PHP's rawurlencode())
 function urlencode(str)
 {
-  if (window.encodeURIComponent)
-    return encodeURIComponent(str).replace('*', '%2A');
-
-  return escape(str)
-    .replace('+', '%2B')
+  return encodeURIComponent(str)
     .replace('*', '%2A')
-    .replace('/', '%2F')
-    .replace('@', '%40');
+    .replace('(', '%28')
+    .replace(')', '%29')
+    .replace('!', '%21')
+    .replace("'", '%27');
 };
 
 
@@ -671,7 +670,7 @@ var rcube_parse_query = function(query)
 };
 
 
-// Base64 code from Tyler Akins -- http://rumkin.com
+// Base64 code from Tyler Akins -- https://rumkin.com
 var Base64 = (function () {
   var keyStr = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
 

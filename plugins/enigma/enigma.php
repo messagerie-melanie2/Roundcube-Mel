@@ -156,7 +156,7 @@ class enigma extends rcube_plugin
      * Handler for message_part_structure hook.
      * Called for every part of the message.
      *
-     * @param array Original parameters
+     * @param array $p Original parameters
      *
      * @return array Modified parameters
      */
@@ -171,7 +171,7 @@ class enigma extends rcube_plugin
      * Handler for message_part_body hook.
      * Called to get body of a message part.
      *
-     * @param array Original parameters
+     * @param array $p Original parameters
      *
      * @return array Modified parameters
      */
@@ -186,7 +186,7 @@ class enigma extends rcube_plugin
      * Handler for settings_actions hook.
      * Adds Enigma settings section into preferences.
      *
-     * @param array Original parameters
+     * @param array $args Original parameters
      *
      * @return array Modified parameters
      */
@@ -219,7 +219,7 @@ class enigma extends rcube_plugin
      * Handler for preferences_sections_list hook.
      * Adds Encryption settings section into preferences sections list.
      *
-     * @param array Original parameters
+     * @param array $p Original parameters
      *
      * @return array Modified parameters
      */
@@ -236,7 +236,7 @@ class enigma extends rcube_plugin
      * Handler for preferences_list hook.
      * Adds options blocks into Enigma settings sections in Preferences.
      *
-     * @param array Original parameters
+     * @param array $p Original parameters
      *
      * @return array Modified parameters
      */
@@ -390,22 +390,20 @@ class enigma extends rcube_plugin
      * Handler for preferences_save hook.
      * Executed on Enigma settings form submit.
      *
-     * @param array Original parameters
+     * @param array $p Original parameters
      *
      * @return array Modified parameters
      */
     function preferences_save($p)
     {
         if ($p['section'] == 'encryption') {
-            $p['prefs'] = [
-                'enigma_signatures'    => (bool) rcube_utils::get_input_value('_enigma_signatures', rcube_utils::INPUT_POST),
-                'enigma_decryption'    => (bool) rcube_utils::get_input_value('_enigma_decryption', rcube_utils::INPUT_POST),
-                'enigma_encryption'    => (bool) rcube_utils::get_input_value('_enigma_encryption', rcube_utils::INPUT_POST),
-                'enigma_sign_all'      => (bool) rcube_utils::get_input_value('_enigma_sign_all', rcube_utils::INPUT_POST),
-                'enigma_encrypt_all'   => (bool) rcube_utils::get_input_value('_enigma_encrypt_all', rcube_utils::INPUT_POST),
-                'enigma_attach_pubkey' => (bool) rcube_utils::get_input_value('_enigma_attach_pubkey', rcube_utils::INPUT_POST),
-                'enigma_password_time' => intval(rcube_utils::get_input_value('_enigma_password_time', rcube_utils::INPUT_POST)),
-            ];
+            $p['prefs']['enigma_signatures'] = (bool) rcube_utils::get_input_value('_enigma_signatures', rcube_utils::INPUT_POST);
+            $p['prefs']['enigma_decryption'] = (bool) rcube_utils::get_input_value('_enigma_decryption', rcube_utils::INPUT_POST);
+            $p['prefs']['enigma_encryption'] = (bool) rcube_utils::get_input_value('_enigma_encryption', rcube_utils::INPUT_POST);
+            $p['prefs']['enigma_sign_all'] = (bool) rcube_utils::get_input_value('_enigma_sign_all', rcube_utils::INPUT_POST);
+            $p['prefs']['enigma_encrypt_all'] = (bool) rcube_utils::get_input_value('_enigma_encrypt_all', rcube_utils::INPUT_POST);
+            $p['prefs']['enigma_attach_pubkey'] = (bool) rcube_utils::get_input_value('_enigma_attach_pubkey', rcube_utils::INPUT_POST);
+            $p['prefs']['enigma_password_time'] = intval(rcube_utils::get_input_value('_enigma_password_time', rcube_utils::INPUT_POST));
         }
 
         return $p;
@@ -427,7 +425,7 @@ class enigma extends rcube_plugin
      * This will list private keys matching this identity
      * and add a link to enigma key management action.
      *
-     * @param array Original parameters
+     * @param array $p Original parameters
      *
      * @return array Modified parameters
      */
@@ -440,7 +438,12 @@ class enigma extends rcube_plugin
             if (!empty($p['record']['email'])) {
                 $listing = [];
                 $engine  = $this->load_engine();
-                $keys    = (array) $engine->list_keys($p['record']['email']);
+                $keys    = $engine->list_keys($p['record']['email']);
+
+                // On error do nothing, plugin/gnupg misconfigured?
+                if ($keys instanceof enigma_error) {
+                    return $p;
+                }
 
                 foreach ($keys as $key) {
                     if ($key->get_type() === enigma_key::TYPE_KEYPAIR) {
@@ -483,7 +486,7 @@ class enigma extends rcube_plugin
      * Adds infobox about signature verification and/or decryption
      * status above the body.
      *
-     * @param array Original parameters
+     * @param array $p Original parameters
      *
      * @return array Modified parameters
      */

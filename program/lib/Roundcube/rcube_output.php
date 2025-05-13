@@ -99,7 +99,7 @@ abstract class rcube_output
      */
     public function get_env($name)
     {
-        return isset($this->env[$name]) ? $this->env[$name] : null;
+        return $this->env[$name] ?? null;
     }
 
     /**
@@ -160,7 +160,7 @@ abstract class rcube_output
     /**
      * Send header with expire date 30 days in future
      *
-     * @param int Expiration time in seconds
+     * @param int $offset Expiration time in seconds
      */
     public function future_expire_header($offset = 2600000)
     {
@@ -239,16 +239,16 @@ abstract class rcube_output
         if (!empty($params['type']) && is_string($params['type']) && strlen($params['type']) < 256
             && preg_match('/^[a-z0-9!#$&.+^_-]+\/[a-z0-9!#$&.+^_-]+$/i', $params['type'])
         ) {
-            $ctype = $params['type'];
+            $ctype = strtolower($params['type']);
         }
 
         // Send unsafe content as plain text
         if ($disposition == 'inline') {
-            if (preg_match('~(javascript|jscript|ecmascript|xml|html|text/)~i', $ctype)) {
+            if ($ctype != 'image/svg+xml' && preg_match('~(javascript|jscript|ecmascript|xml|html|text/)~', $ctype)) {
                 $ctype = 'text/plain';
             }
 
-            if (stripos($ctype, 'text') === 0) {
+            if (strpos($ctype, 'text') === 0) {
                 $charset = $this->charset;
                 if (!empty($params['type_charset']) && rcube_charset::is_valid($params['type_charset'])) {
                     $charset = $params['type_charset'];
@@ -286,7 +286,8 @@ abstract class rcube_output
         }
 
         // Use strict security policy to make sure no javascript content is executed
-        header("Content-Security-Policy: default-src 'none'");
+        // img-src is needed to be able to print attachment preview page
+        header("Content-Security-Policy: default-src 'none'; img-src 'self'");
 
         // don't kill the connection if download takes more than 30 sec.
         if (!array_key_exists('time_limit', $params)) {
@@ -366,7 +367,7 @@ abstract class rcube_output
                     $colcounts[$name] = 0;
                 }
                 $idx   = intval($colcounts[$name]++);
-                $value = isset($postvalue[$idx]) ? $postvalue[$idx] : null;
+                $value = $postvalue[$idx] ?? null;
             }
             else {
                 $value = $postvalue;
@@ -387,7 +388,7 @@ abstract class rcube_output
      */
     public static function json_serialize($input, $pretty = false, $inline = true)
     {
-        $options = JSON_UNESCAPED_SLASHES;
+        $options = JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_IGNORE;
 
         // JSON_HEX_TAG is needed for inlining JSON inside of the <script> tag
         // if input contains a html tag it will cause issues (#6207)
@@ -395,22 +396,8 @@ abstract class rcube_output
             $options |= JSON_HEX_TAG;
         }
 
-        // JSON_UNESCAPED_UNICODE in PHP < 7.1.0 does not escape U+2028 and U+2029
-        // which causes issues (#6187)
-        if (PHP_VERSION_ID >= 70100) {
-            $options |= JSON_UNESCAPED_UNICODE;
-        }
-
         if ($pretty) {
             $options |= JSON_PRETTY_PRINT;
-        }
-
-        // The input need to be valid UTF-8 to use json_encode() in PHP < 7.2
-        if (PHP_VERSION_ID >= 70200) {
-            $options |= JSON_INVALID_UTF8_IGNORE;
-        }
-        else {
-            $input = rcube_charset::clean($input);
         }
 
         return json_encode($input, $options);

@@ -60,7 +60,7 @@ if (strtolower($input) == 'y') {
     $adds = [];
     $dirs = ['bin','SQL','plugins','skins','program'];
 
-    if (is_dir(INSTALL_PATH . 'vendor') && !is_file("$target_dir/composer.json")) {
+    if (is_dir(INSTALL_PATH . 'vendor') && (!is_file("$target_dir/composer.json") || rcmail_install::vendor_dir_untouched($target_dir))) {
         $dirs[] = 'vendor';
     }
     if (file_exists("$target_dir/installer")) {
@@ -140,7 +140,7 @@ if (strtolower($input) == 'y') {
     }
 
     echo "Running update script at target...\n";
-    system("cd $target_dir && php bin/update.sh --version=$oldversion" . ($accept ? ' -y' : ''));
+    system("cd $target_dir && bin/update.sh --version=$oldversion" . ($accept ? ' -y' : ''));
     echo "All done.\n";
 }
 else {
