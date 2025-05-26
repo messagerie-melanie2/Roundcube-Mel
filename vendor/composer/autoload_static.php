@@ -8,11 +8,16 @@ class ComposerStaticInitd30534b7ccef70d5be1f4ba9bc89dbe4
 {
     public static $files = array (
         '7b11c4dc42b3b3023073cb14e519683c' => __DIR__ . '/..' . '/ralouphie/getallheaders/src/getallheaders.php',
+        '2cffec82183ee1cea088009cef9a6fc3' => __DIR__ . '/..' . '/ezyang/htmlpurifier/library/HTMLPurifier.composer.php',
         '6e3fae29631ef280660b3cdad06f25a8' => __DIR__ . '/..' . '/symfony/deprecation-contracts/function.php',
         '37a3dc5111fe8f707ab4c132ef1dbc62' => __DIR__ . '/..' . '/guzzlehttp/guzzle/src/functions_include.php',
     );
 
     public static $prefixLengthsPsr4 = array (
+        'S' => 
+        array (
+            'Sabre\\VObject\\' => 14,
+        ),
         'R' => 
         array (
             'RtfHtmlPhp\\' => 11,
@@ -22,10 +27,15 @@ class ComposerStaticInitd30534b7ccef70d5be1f4ba9bc89dbe4
         array (
             'Psr\\Http\\Message\\' => 17,
             'Psr\\Http\\Client\\' => 16,
+            'PHPMailer\\PHPMailer\\' => 20,
         ),
         'M' => 
         array (
             'Masterminds\\' => 12,
+        ),
+        'L' => 
+        array (
+            'League\\HTMLToMarkdown\\' => 22,
         ),
         'G' => 
         array (
@@ -44,6 +54,10 @@ class ComposerStaticInitd30534b7ccef70d5be1f4ba9bc89dbe4
     );
 
     public static $prefixDirsPsr4 = array (
+        'Sabre\\VObject\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/sabre/vobject/lib',
+        ),
         'RtfHtmlPhp\\' => 
         array (
             0 => __DIR__ . '/..' . '/roundcube/rtf-html-php/src',
@@ -61,9 +75,17 @@ class ComposerStaticInitd30534b7ccef70d5be1f4ba9bc89dbe4
         array (
             0 => __DIR__ . '/..' . '/psr/http-client/src',
         ),
+        'PHPMailer\\PHPMailer\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/phpmailer/phpmailer/src',
+        ),
         'Masterminds\\' => 
         array (
             0 => __DIR__ . '/..' . '/masterminds/html5/src',
+        ),
+        'League\\HTMLToMarkdown\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/league/html-to-markdown/src',
         ),
         'GuzzleHttp\\Psr7\\' => 
         array (
@@ -103,12 +125,27 @@ class ComposerStaticInitd30534b7ccef70d5be1f4ba9bc89dbe4
                 0 => __DIR__ . '/..' . '/pear/mail_mime',
             ),
         ),
+        'H' => 
+        array (
+            'HTTP_Request2' => 
+            array (
+                0 => __DIR__ . '/..' . '/pear/http_request2',
+            ),
+            'HTMLPurifier' => 
+            array (
+                0 => __DIR__ . '/..' . '/ezyang/htmlpurifier/library',
+            ),
+        ),
         'C' => 
         array (
             'Console' => 
             array (
                 0 => __DIR__ . '/..' . '/pear/console_commandline',
                 1 => __DIR__ . '/..' . '/pear/console_getopt',
+            ),
+            'Caxy\\HtmlDiff' => 
+            array (
+                0 => __DIR__ . '/..' . '/caxy/php-htmldiff/lib',
             ),
         ),
         'A' => 
@@ -158,6 +195,7 @@ class ComposerStaticInitd30534b7ccef70d5be1f4ba9bc89dbe4
         'Net_LDAP3' => __DIR__ . '/..' . '/kolab/net_ldap3/lib/Net/LDAP3.php',
         'Net_LDAP3_Result' => __DIR__ . '/..' . '/kolab/net_ldap3/lib/Net/LDAP3/Result.php',
         'Net_Sieve' => __DIR__ . '/..' . '/pear/net_sieve/Sieve.php',
+        'Net_URL2' => __DIR__ . '/..' . '/pear/net_url2/Net/URL2.php',
         'OS_Guess' => __DIR__ . '/..' . '/pear/pear-core-minimal/src/OS/Guess.php',
         'PEAR' => __DIR__ . '/..' . '/pear/pear-core-minimal/src/PEAR.php',
         'PEAR_Error' => __DIR__ . '/..' . '/pear/pear-core-minimal/src/PEAR.php',

@@ -43,6 +43,7 @@ return array(
     'Net_LDAP3' => $vendorDir . '/kolab/net_ldap3/lib/Net/LDAP3.php',
     'Net_LDAP3_Result' => $vendorDir . '/kolab/net_ldap3/lib/Net/LDAP3/Result.php',
     'Net_Sieve' => $vendorDir . '/pear/net_sieve/Sieve.php',
+    'Net_URL2' => $vendorDir . '/pear/net_url2/Net/URL2.php',
     'OS_Guess' => $vendorDir . '/pear/pear-core-minimal/src/OS/Guess.php',
     'PEAR' => $vendorDir . '/pear/pear-core-minimal/src/PEAR.php',
     'PEAR_Error' => $vendorDir . '/pear/pear-core-minimal/src/PEAR.php',

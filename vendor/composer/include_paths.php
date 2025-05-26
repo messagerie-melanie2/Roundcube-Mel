@@ -6,14 +6,16 @@ $vendorDir = dirname(__DIR__);
 $baseDir = dirname($vendorDir);
 
 return array(
-    $vendorDir . '/pear/pear_exception',
-    $vendorDir . '/pear/console_getopt',
-    $vendorDir . '/pear/pear-core-minimal/src',
-    $vendorDir . '/pear/net_ldap2',
     $vendorDir . '/pear/auth_sasl',
     $vendorDir . '/pear/console_commandline',
-    $vendorDir . '/pear/crypt_gpg',
+    $vendorDir . '/pear/console_getopt',
     $vendorDir . '/pear/mail_mime',
-    $vendorDir . '/pear/net_socket',
+    $vendorDir . '/pear/net_ldap2',
     $vendorDir . '/pear/net_smtp',
+    $vendorDir . '/pear/net_socket',
+    $vendorDir . '/pear/pear-core-minimal/src',
+    $vendorDir . '/pear/pear_exception',
+    $vendorDir . '/pear/net_url2',
+    $vendorDir . '/pear/http_request2',
+    $vendorDir . '/pear/crypt_gpg',
 );
