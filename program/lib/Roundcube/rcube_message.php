@@ -138,7 +138,7 @@ class rcube_message
         }
 
         $this->mime    = new rcube_mime($this->headers->charset);
-        $this->subject = str_replace("\n", '', $this->headers->get('subject'));
+        $this->subject = str_replace("\n", '', (string) $this->headers->get('subject'));
         $from          = $this->mime->decode_address_list($this->headers->from, 1);
         $this->sender  = current($from);
 
@@ -883,7 +883,10 @@ class rcube_message
                     continue;
                 }
                 // part is Microsoft Outlook TNEF (winmail.dat)
-                else if ($part_mimetype == 'application/ms-tnef' && $this->tnef_decode) {
+                // Note: It can be application/ms-tnef or application/vnd.ms-tnef
+                else if ($primary_type == 'application' && strpos($secondary_type, 'ms-tnef') !== false
+                    && $this->tnef_decode
+                ) {
                     $tnef_parts = (array) $this->tnef_decode($mail_part);
                     $tnef_body  = '';
 
