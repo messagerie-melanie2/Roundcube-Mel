@@ -323,6 +323,40 @@ class rcube_utils
     }
 
     /**
+     * Read input value and make sure it is a string.
+     *
+     * @param string $fname      Field name to read
+     * @param int    $source     Source to get value from (see self::INPUT_*)
+     * @param bool   $allow_html Allow HTML tags in field value
+     * @param string $charset    Charset to convert into
+     *
+     * @return string Request parameter value
+     * @see self::get_input_value()
+     */
+    public static function get_input_string($fname, $source, $allow_html = false, $charset = null)
+    {
+        $value = self::get_input_value($fname, $source, $allow_html, $charset);
+
+        return is_string($value) ? $value : '';
+    }
+
+    /**
+     * Check if input value is a "simple" string.
+     * "Simple" is defined as a non-empty string containing only
+     *  - "word" characters (alphanumeric plus underscore),
+     *  - dots,
+     *  - dashes.
+     *
+     * @param string $input The string to test
+     *
+     * @return bool
+     */
+    public static function is_simple_string($input)
+    {
+        return is_string($input) && !!preg_match('/^[\w.-]+$/i', $input);
+    }
+
+    /**
      * Read input value and convert it for internal use
      * Performs stripslashes() and charset conversion if necessary
      *
