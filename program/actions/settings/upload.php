@@ -29,8 +29,15 @@ class rcmail_action_settings_upload extends rcmail_action
     public function run($args = [])
     {
         $rcmail = rcmail::get_instance();
-        $from   = rcube_utils::get_input_value('_from', rcube_utils::INPUT_GET);
+        $from   = rcube_utils::get_input_string('_from', rcube_utils::INPUT_GET);
         $type   = preg_replace('/(add|edit)-/', '', $from);
+
+       // Validate URL input.
+        if (!rcube_utils::is_simple_string($type)) {
+            rcmail::write_log('errors', 'The URL parameter "_from" contains disallowed characters and the request is thus rejected.');
+            $rcmail->output->command('display_message', 'Invalid input', 'error');
+            $rcmail->output->send('iframe');
+        }
 
         // Plugins in Settings may use this file for some uploads (#5694)
         // Make sure it does not contain a dot, which is a special character
@@ -44,7 +51,7 @@ class rcmail_action_settings_upload extends rcmail_action
         $rcmail->output->reset();
 
         $max_size = $rcmail->config->get($type . '_image_size', 64) * 1024;
-        $uploadid = rcube_utils::get_input_value('_uploadid', rcube_utils::INPUT_GET);
+        $uploadid = rcube_utils::get_input_string('_uploadid', rcube_utils::INPUT_GET);
 
         if (!empty($_FILES['_file']['tmp_name']) && is_array($_FILES['_file']['tmp_name'])) {
             $multiple = count($_FILES['_file']['tmp_name']) > 1;
