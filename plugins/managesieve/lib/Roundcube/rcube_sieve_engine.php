@@ -256,12 +256,12 @@ class rcube_sieve_engine
             if (!empty($this->active)) {
                $script_name = $this->active[0];
             }
-            else if ($list) {
+            else if (!empty($list)) {
                 $script_name = $list[0];
             }
             else {
                 // if script does not exist create one with default content
-                $this->create_default_script();
+                $script_name = $this->create_default_script();
             }
         }
 
