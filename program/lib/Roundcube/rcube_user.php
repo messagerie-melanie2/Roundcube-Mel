@@ -216,6 +216,8 @@ class rcube_user
         $this->prefs = $save_prefs = $a_user_prefs + $old_prefs;
         unset($save_prefs['language']);
 
+        // PAMELA - Prendre en compte les saves prefs supprimés
+        $hasRemoved = false;
         // don't save prefs with default values if they haven't been changed yet
         // Warning: we use result of rcube_config::all() here instead of just get() (#5782)
         foreach ($a_user_prefs as $key => $value) {
@@ -223,6 +225,9 @@ class rcube_user
                 unset($save_prefs[$key]);
                 // PAMELA - Optimisation du save_prefs
                 unset($a_user_prefs[$key]);
+
+                // PAMELA - Prendre en compte les saves prefs supprimés
+                if (!$hasRemoved && $value === null) $hasRemoved = true;
             }
             // PAMELA - Optimisation du save_prefs
             if ($value === $old_prefs[$key]) {
@@ -231,7 +236,7 @@ class rcube_user
         }
 
         // PAMELA - Optimisation du save_prefs
-        if (empty($a_user_prefs)) {
+        if (empty($a_user_prefs) && !$hasRemoved) {
             return true;
         }
 
