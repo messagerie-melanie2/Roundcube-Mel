@@ -32,7 +32,8 @@ class rcmail_action_settings_upload extends rcmail_action
         $from   = rcube_utils::get_input_string('_from', rcube_utils::INPUT_GET);
         $type   = preg_replace('/(add|edit)-/', '', $from);
 
-        // Validate URL input.
+
+       // Validate URL input.
         if (!rcube_utils::is_simple_string($type)) {
             rcmail::write_log('errors', 'The URL parameter "_from" contains disallowed characters and the request is thus rejected.');
             $rcmail->output->command('display_message', 'Invalid input', 'error');
