@@ -23,7 +23,7 @@
         "guzzlehttp/guzzle": "^7.3.0",
         "kolab/net_ldap3": "~1.1.4",
         "sabre/vobject": "~3.5.3",
-        "pear/http_request2": "~2.3.0",
+        "pear/http_request2": "~2.7.0",
         "caxy/php-htmldiff": "~0.1.7",
         "league/html-to-markdown": "^5.1.1",
         "messagerie-melanie2/orm-m2": "~0.6.13",

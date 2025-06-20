@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "b8e2b838f48c577ba73ee0b7e3a64dd0",
+    "content-hash": "1751800c9c989ba39d9e5bd0d2d65e45",
     "packages": [
         {
             "name": "bacon/bacon-qr-code",
@@ -764,6 +764,65 @@
             "time": "2022-08-18T16:18:26+00:00"
         },
         {
+            "name": "messagerie-melanie2/orm-m2",
+            "version": "0.6.18",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/messagerie-melanie2/ORM-M2.git",
+                "reference": "475f1610eed40d38d2231eee1a4092b811dae55d"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/messagerie-melanie2/ORM-M2/zipball/475f1610eed40d38d2231eee1a4092b811dae55d",
+                "reference": "475f1610eed40d38d2231eee1a4092b811dae55d",
+                "shasum": ""
+            },
+            "require": {
+                "ext-ldap": "*",
+                "ext-pgsql": "*",
+                "php": ">=5.3.1"
+            },
+            "require-dev": {
+                "composer/composer": "*"
+            },
+            "type": "library",
+            "autoload": {
+                "files": [
+                    "includes/includes_conf.php"
+                ],
+                "psr-4": {
+                    "LibMelanie\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "GPL-3.0-or-later"
+            ],
+            "authors": [
+                {
+                    "name": "Thomas Payen",
+                    "email": "thomas.payen@i-carre.net",
+                    "homepage": "https://github.com/tpayen",
+                    "role": "Developer"
+                }
+            ],
+            "description": "ORM pour l'accès aux données Mél",
+            "homepage": "https://github.com/messagerie-melanie2/orm-m2",
+            "keywords": [
+                "Tasks",
+                "addressbook",
+                "calendar",
+                "ldap",
+                "orm",
+                "sql"
+            ],
+            "support": {
+                "issues": "https://github.com/messagerie-melanie2/ORM-M2/issues",
+                "source": "https://github.com/messagerie-melanie2/ORM-M2/tree/0.6.18"
+            },
+            "time": "2025-04-08T07:40:37+00:00"
+        },
+        {
             "name": "pear/auth_sasl",
             "version": "v1.1.0",
             "source": {
@@ -1004,44 +1063,40 @@
         },
         {
             "name": "pear/http_request2",
-            "version": "v2.3.0",
+            "version": "v2.7.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/pear/HTTP_Request2.git",
-                "reference": "3599cf0fe455a4e281da464f6510bfc5c2ce54c4"
+                "reference": "b1c61b71128045734d757c4d3d436457ace80ea7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/pear/HTTP_Request2/zipball/3599cf0fe455a4e281da464f6510bfc5c2ce54c4",
-                "reference": "3599cf0fe455a4e281da464f6510bfc5c2ce54c4",
+                "url": "https://api.github.com/repos/pear/HTTP_Request2/zipball/b1c61b71128045734d757c4d3d436457ace80ea7",
+                "reference": "b1c61b71128045734d757c4d3d436457ace80ea7",
                 "shasum": ""
             },
             "require": {
                 "pear/net_url2": "^2.2.0",
                 "pear/pear_exception": "^1.0.0",
-                "php": ">=5.2.0"
+                "php": ">=5.6.0"
+            },
+            "require-dev": {
+                "pear/log": "^1",
+                "yoast/phpunit-polyfills": "^1.0.0"
             },
             "suggest": {
+                "ext-curl": "Allows using cURL as a request backend.",
                 "ext-fileinfo": "Adds support for looking up mime-types using finfo.",
-                "ext-zlib": "Allows handling gzip compressed responses.",
-                "lib-curl": "Allows using cURL as a request backend.",
-                "lib-openssl": "Allows handling SSL requests when not using cURL."
+                "ext-openssl": "Allows handling SSL requests when not using cURL.",
+                "ext-zlib": "Allows handling gzip compressed responses."
             },
             "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-trunk": "2.2-dev"
-                }
-            },
             "autoload": {
                 "psr-0": {
                     "HTTP_Request2": ""
                 }
             },
             "notification-url": "https://packagist.org/downloads/",
-            "include-path": [
-                "./"
-            ],
             "license": [
                 "BSD-3-Clause"
             ],
@@ -1052,7 +1107,7 @@
                 }
             ],
             "description": "Provides an easy way to perform HTTP requests.",
-            "homepage": "http://pear.php.net/package/HTTP_Request2",
+            "homepage": "https://pear.php.net/package/HTTP_Request2",
             "keywords": [
                 "PEAR",
                 "curl",
@@ -1060,10 +1115,11 @@
                 "request"
             ],
             "support": {
-                "issues": "http://pear.php.net/bugs/search.php?cmd=display&package_name[]=HTTP_Request2",
+                "docs": "https://pear.php.net/manual/en/package.http.http-request2.php",
+                "issues": "https://github.com/pear/HTTP_Request2/issues",
                 "source": "https://github.com/pear/HTTP_Request2"
             },
-            "time": "2016-02-13T20:20:39+00:00"
+            "time": "2025-04-06T13:48:50+00:00"
         },
         {
             "name": "pear/mail_mime",
@@ -2085,5 +2141,5 @@
         "php": ">=7.3.0"
     },
     "platform-dev": [],
-    "plugin-api-version": "2.6.0"
+    "plugin-api-version": "2.3.0"
 }
