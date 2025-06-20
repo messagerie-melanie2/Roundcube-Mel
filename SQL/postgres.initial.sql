@@ -21,11 +21,11 @@ CREATE TABLE users (
     username varchar(128) DEFAULT '' NOT NULL,
     mail_host varchar(128) DEFAULT '' NOT NULL,
     created timestamp with time zone DEFAULT now() NOT NULL,
-    last_login timestamp with time zone DEFAULT NULL,
-    failed_login timestamp with time zone DEFAULT NULL,
-    failed_login_counter integer DEFAULT NULL,
+    last_login timestamp with time zone,
+    failed_login timestamp with time zone,
+    failed_login_counter integer,
     "language" varchar(16),
-    preferences text DEFAULT NULL,
+    preferences text,
     CONSTRAINT users_username_key UNIQUE (username, mail_host)
 );
 
@@ -75,11 +75,43 @@ CREATE TABLE identities (
     "reply-to" varchar(128),
     bcc varchar(128),
     signature text,
-    html_signature integer DEFAULT 0 NOT NULL
+    html_signature smallint DEFAULT 0 NOT NULL
 );
 
 CREATE INDEX identities_user_id_idx ON identities (user_id, del);
 CREATE INDEX identities_email_idx ON identities (email, del);
+
+
+--
+-- Sequence "responses_seq"
+-- Name: responses_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE responses_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MAXVALUE
+    NO MINVALUE
+    CACHE 1;
+
+--
+-- Table "responses"
+-- Name: responses; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE responses (
+    response_id integer DEFAULT nextval('responses_seq'::text) PRIMARY KEY,
+    user_id integer NOT NULL
+        REFERENCES users (user_id) ON DELETE CASCADE ON UPDATE CASCADE,
+    changed timestamp with time zone DEFAULT now() NOT NULL,
+    del smallint DEFAULT 0 NOT NULL,
+    name varchar(255) NOT NULL,
+    data text NOT NULL,
+    is_html smallint DEFAULT 0 NOT NULL
+);
+
+CREATE INDEX responses_user_id_idx ON responses (user_id, del);
+
 
 --
 -- Sequence "collected_addresses_seq"
@@ -196,7 +228,7 @@ CREATE TABLE "cache" (
     user_id integer NOT NULL
         REFERENCES users (user_id) ON DELETE CASCADE ON UPDATE CASCADE,
     cache_key varchar(128) DEFAULT '' NOT NULL,
-    expires timestamp with time zone DEFAULT NULL,
+    expires timestamp with time zone,
     data text NOT NULL,
     PRIMARY KEY (user_id, cache_key)
 );
@@ -210,7 +242,7 @@ CREATE INDEX cache_expires_idx ON "cache" (expires);
 
 CREATE TABLE "cache_shared" (
     cache_key varchar(255) NOT NULL PRIMARY KEY,
-    expires timestamp with time zone DEFAULT NULL,
+    expires timestamp with time zone,
     data text NOT NULL
 );
 
@@ -225,7 +257,7 @@ CREATE TABLE cache_index (
     user_id integer NOT NULL
         REFERENCES users (user_id) ON DELETE CASCADE ON UPDATE CASCADE,
     mailbox varchar(255) NOT NULL,
-    expires timestamp with time zone DEFAULT NULL,
+    expires timestamp with time zone,
     valid smallint NOT NULL DEFAULT 0,
     data text NOT NULL,
     PRIMARY KEY (user_id, mailbox)
@@ -242,7 +274,7 @@ CREATE TABLE cache_thread (
     user_id integer NOT NULL
         REFERENCES users (user_id) ON DELETE CASCADE ON UPDATE CASCADE,
     mailbox varchar(255) NOT NULL,
-    expires timestamp with time zone DEFAULT NULL,
+    expires timestamp with time zone,
     data text NOT NULL,
     PRIMARY KEY (user_id, mailbox)
 );
@@ -259,7 +291,7 @@ CREATE TABLE cache_messages (
         REFERENCES users (user_id) ON DELETE CASCADE ON UPDATE CASCADE,
     mailbox varchar(255) NOT NULL,
     uid integer NOT NULL,
-    expires timestamp with time zone DEFAULT NULL,
+    expires timestamp with time zone,
     data text NOT NULL,
     flags integer NOT NULL DEFAULT 0,
     PRIMARY KEY (user_id, mailbox, uid)
@@ -273,7 +305,7 @@ CREATE INDEX cache_messages_expires_idx ON cache_messages (expires);
 --
 
 CREATE TABLE dictionary (
-    user_id integer DEFAULT NULL
+    user_id integer
         REFERENCES users (user_id) ON DELETE CASCADE ON UPDATE CASCADE,
    "language" varchar(16) NOT NULL,
     data text NOT NULL,
@@ -343,4 +375,4 @@ CREATE TABLE "system" (
     value text
 );
 
-INSERT INTO "system" (name, value) VALUES ('roundcube-version', '2020122900');
+INSERT INTO "system" (name, value) VALUES ('roundcube-version', '2022081200');

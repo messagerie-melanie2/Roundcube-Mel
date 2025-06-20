@@ -23,7 +23,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program. If not, see http://www.gnu.org/licenses/.
+ * along with this program. If not, see https://www.gnu.org/licenses/.
  */
 
 class newmail_notifier extends rcube_plugin
@@ -161,7 +161,7 @@ class newmail_notifier extends rcube_plugin
         foreach (['basic', 'desktop', 'sound'] as $type) {
             $key = 'newmail_notifier_' . $type;
             if (!in_array($key, $dont_override)) {
-                $args['prefs'][$key] = rcube_utils::get_input_value('_' . $key, rcube_utils::INPUT_POST) ? true : false;
+                $args['prefs'][$key] = !empty(rcube_utils::get_input_value('_' . $key, rcube_utils::INPUT_POST));
             }
         }
 
@@ -227,8 +227,8 @@ class newmail_notifier extends rcube_plugin
                     'basic'   => $this->opt['basic'],
                     'sound'   => $this->opt['sound'],
                     'desktop' => $this->opt['desktop'],
-                    // PAMELA - Mél title
-                    'title'   => $title,
+                                        // PAMELA - Mél title
+                                        'title'   => $title,
                 ]
             );
         }

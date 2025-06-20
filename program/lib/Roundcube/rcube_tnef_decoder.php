@@ -5,7 +5,7 @@
  | This file is part of the Roundcube Webmail client                     |
  |                                                                       |
  | Copyright (C) The Roundcube Dev Team                                  |
- | Copyright (C) 2002-2010, The Horde Project (http://www.horde.org/)    |
+ | Copyright (C) 2002-2010, The Horde Project (https://www.horde.org/)   |
  |                                                                       |
  | Licensed under the GNU General Public License version 3 or            |
  | any later version with exceptions for skins & plugins.                |
@@ -162,7 +162,7 @@ class rcube_tnef_decoder
         }
 
         // Return the message body as HTML
-        if ($message && $as_html) {
+        if ($as_html) {
             // HTML body
             if (!empty($message['size']) && $message['subtype'] == 'html') {
                 $message = $message['stream'];
@@ -180,6 +180,7 @@ class rcube_tnef_decoder
                 }
                 catch (Exception $e) {
                     // ignore the body
+                    $message = null;
                     rcube::raise_error([
                             'file' => __FILE__,
                             'line' => __LINE__,
@@ -268,8 +269,8 @@ class rcube_tnef_decoder
     /**
      * TODO
      *
-     * @param string $data   The data string.
-     * @param array  &result TODO
+     * @param string $data    The data string.
+     * @param array  &$result TODO
      */
     protected function _extractMapiAttributes($data, &$result)
     {

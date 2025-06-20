@@ -18,15 +18,6 @@ if (!class_exists('rcmail_install', false) || !isset($RCI)) {
     die("Not allowed! Please open installer/index.php instead.");
 }
 
-// register these boolean fields
-$RCI->bool_config_props = [
-  'ip_check'          => 1,
-  'enable_spellcheck' => 1,
-  'auto_create_user'  => 1,
-  'smtp_log'          => 1,
-  'prefer_html'       => 1,
-];
-
 // allow the current user to get to the next step
 $_SESSION['allowinstaller'] = true;
 
@@ -175,8 +166,7 @@ $select_spell->add('ATD', 'atd');
 echo $select_spell->show($RCI->is_post ? $_POST['_spellcheck_engine'] : 'pspell');
 ?>
 
-<label for="cfgspellcheckengine">Which spell checker to use</label><br />
-
+<div>Which spell checker to use</div>
 <p class="hint">Googie implies that the message content will be sent to external server to check the spelling.</p>
 </dd>
 
@@ -290,15 +280,15 @@ $input_dbpass = new html_inputfield(['name' => '_dbpass', 'size' => 20, 'id' => 
 
 $dsnw = rcube_db::parse_dsn($RCI->getprop('db_dsnw'));
 
-echo $select_dbtype->show($RCI->is_post ? $_POST['_dbtype'] : $dsnw['phptype']);
+echo $select_dbtype->show($RCI->is_post ? $_POST['_dbtype'] : ($dsnw['phptype'] ?? ''));
 echo '<label for="cfgdbtype">Database type</label><br />';
-echo $input_dbhost->show($RCI->is_post ? $_POST['_dbhost'] : $dsnw['hostspec']);
+echo $input_dbhost->show($RCI->is_post ? $_POST['_dbhost'] : ($dsnw['hostspec'] ?? ''));
 echo '<label for="cfgdbhost">Database server (omit for sqlite)</label><br />';
-echo $input_dbname->show($RCI->is_post ? $_POST['_dbname'] : $dsnw['database']);
+echo $input_dbname->show($RCI->is_post ? $_POST['_dbname'] : ($dsnw['database'] ?? ''));
 echo '<label for="cfgdbname">Database name (use absolute path and filename for sqlite)</label><br />';
-echo $input_dbuser->show($RCI->is_post ? $_POST['_dbuser'] : $dsnw['username']);
-echo '<label for="cfgdbuser">Database user name (needs write permissions)(omit for sqlite)</label><br />';
-echo $input_dbpass->show($RCI->is_post ? $_POST['_dbpass'] : $dsnw['password']);
+echo $input_dbuser->show($RCI->is_post ? $_POST['_dbuser'] : ($dsnw['username'] ?? ''));
+echo '<label for="cfgdbuser">Database user name (needs write permissions) (omit for sqlite)</label><br />';
+echo $input_dbpass->show($RCI->is_post ? $_POST['_dbpass'] : ($dsnw['password'] ?? ''));
 echo '<label for="cfgdbpass">Database password (omit for sqlite)</label><br />';
 
 ?>
@@ -322,13 +312,12 @@ echo $input_prefix->show($RCI->getprop('db_prefix'));
 <fieldset>
 <legend>IMAP Settings</legend>
 <dl class="configblock" id="cgfblockimap">
-<dt class="propname">default_host</dt>
+<dt class="propname">imap_host</dt>
 <dd>
-<div>The IMAP host(s) chosen to perform the log-in</div>
 <div id="defaulthostlist">
 <?php
 
-$text_imaphost = new html_inputfield(['name' => '_default_host[]', 'size' => 30]);
+$text_imaphost = new html_inputfield(['name' => '_imap_host[]', 'size' => 30]);
 $default_hosts = $RCI->get_hostlist();
 
 if (empty($default_hosts)) {
@@ -348,18 +337,8 @@ foreach ($default_hosts as $host) {
 </div>
 <div><a href="javascript:addhostfield()" class="addlink" title="Add another field">add</a></div>
 
-<p class="hint">Leave blank to show a textbox at login. To use SSL/IMAPS connection, type ssl://hostname</p>
-</dd>
-
-<dt class="propname">default_port</dt>
-<dd>
-<?php
-
-$text_imapport = new html_inputfield(['name' => '_default_port', 'size' => 6, 'id' => 'cfgimapport']);
-echo $text_imapport->show($RCI->getprop('default_port'));
-
-?>
-<div>TCP port used for IMAP connections</div>
+<div>The IMAP host(s) chosen to perform the log-in</div>
+<p class="hint">Leave blank to show a textbox at login. To use SSL/STARTTLS connection add ssl:// or tls:// prefix. It can also contain the port number, e.g. tls://imap.domain.tld:143.
 </dd>
 
 <dt class="propname">username_domain</dt>
@@ -451,50 +430,39 @@ echo $text_junkmbox->show($RCI->getprop('junk_mbox'));
 <fieldset>
 <legend>SMTP Settings</legend>
 <dl class="configblock" id="cgfblocksmtp">
-<dt class="propname">smtp_server</dt>
+<dt class="propname">smtp_host</dt>
 <dd>
 <?php
 
-$text_smtphost = new html_inputfield(['name' => '_smtp_server', 'size' => 30, 'id' => 'cfgsmtphost']);
-echo $text_smtphost->show($RCI->getprop('smtp_server', 'localhost'));
+$text_smtphost = new html_inputfield(['name' => '_smtp_host', 'size' => 30, 'id' => 'cfgsmtphost']);
+echo $text_smtphost->show($RCI->getprop('smtp_host', 'localhost:587'));
 
 ?>
 <div>Use this host for sending mails</div>
-
-<p class="hint">To use SSL connection, set ssl://smtp.host.com.</p>
-</dd>
-
-<dt class="propname">smtp_port</dt>
-<dd>
-<?php
-
-$text_smtpport = new html_inputfield(['name' => '_smtp_port', 'size' => 6, 'id' => 'cfgsmtpport']);
-echo $text_smtpport->show($RCI->getprop('smtp_port'));
-
-?>
-<div>SMTP port (default is 587)</div>
+<p class="hint">To use SSL/STARTTLS connection add ssl:// or tls:// prefix. It can also contain the port number, e.g. tls://smtp.domain.tld:587.</p>
 </dd>
 
 <dt class="propname">smtp_user/smtp_pass</dt>
 <dd>
 <?php
 
-$text_smtpuser = new html_inputfield(['name' => '_smtp_user', 'size' => 20, 'id' => 'cfgsmtpuser']);
-$text_smtppass = new html_inputfield(['name' => '_smtp_pass', 'size' => 20, 'id' => 'cfgsmtppass']);
+$text_smtpuser = new html_inputfield(['name' => '_smtp_user', 'size' => 20, 'id' => 'cfgsmtpuser', 'placeholder' => 'username']);
+$text_smtppass = new html_inputfield(['name' => '_smtp_pass', 'size' => 20, 'id' => 'cfgsmtppass', 'placeholder' => 'password']);
 echo $text_smtpuser->show($RCI->getprop('smtp_user'));
 echo $text_smtppass->show($RCI->getprop('smtp_pass'));
 
 ?>
-<div>SMTP username and password (if required)</div>
-<p>
+<div>
 <?php
 
-$check_smtpuser = new html_checkbox(['name' => '_smtp_user_u', 'id' => 'cfgsmtpuseru']);
+$check_smtpuser = new html_checkbox(['name' => '_smtp_user_u', 'id' => 'cfgsmtpuseru', 'onchange' => 'smtp_auth_switch(this)']);
 echo $check_smtpuser->show($RCI->getprop('smtp_user') == '%u' || !empty($_POST['_smtp_user_u']) ? 1 : 0, ['value' => 1]);
 
 ?>
-<label for="cfgsmtpuseru">Use the current IMAP username and password for SMTP authentication</label>
-</p>
+<label for="cfgsmtpuseru">Use the current (IMAP) username and password</label>
+</div>
+<p>SMTP username and password (if required)</p>
+<p class="hint">Note: To disable SMTP authentication uncheck the checkbox above and leave the inputs empty.</p>
 </dd>
 
 <dt class="propname">smtp_log</dt>
@@ -525,7 +493,7 @@ echo $input_locale->show($RCI->getprop('language'));
 
 ?>
 <div>The default locale setting. This also defines the language of the login screen.<br/>Leave it empty to auto-detect the user agent language.</div>
-<p class="hint">Enter a <a href="http://www.faqs.org/rfcs/rfc1766">RFC1766</a> formatted language name. Examples: en_US, de_DE, de_CH, fr_FR, pt_BR</p>
+<p class="hint">Enter a <a href="https://www.faqs.org/rfcs/rfc1766">RFC1766</a> formatted language name. Examples: en_US, de_DE, de_CH, fr_FR, pt_BR</p>
 </dd>
 
 <dt class="propname">skin <span class="userconf">*</span></dt>

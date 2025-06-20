@@ -337,6 +337,8 @@ body.task-error-login #layout {
     div.rcmBody {
         // Remove margins that can be set by the mail message styles
         margin: 0 auto !important;
+        // Fix floating table issue (#9804)
+        overflow: auto hidden;
     }
 
     blockquote {
@@ -404,6 +406,18 @@ body.task-error-login #layout {
     div.pre {
         font-family: monospace;
         font-size: 13px;
+    }
+
+    // This is needed for proper display of quoted plain text
+    blockquote {
+        display: inline-block;
+        min-width: 100%;
+
+        & + br {
+            // compensate the spacing "removed" by the inline-block style above
+            display: block;
+            margin-top: 1em;
+        }
     }
 }
 

@@ -30,8 +30,8 @@ class rcmail_action_mail_bounce extends rcmail_action
     public function run($args = [])
     {
         $rcmail     = rcmail::get_instance();
-        $msg_uid    = rcube_utils::get_input_value('_uid', rcube_utils::INPUT_GP);
-        $msg_folder = rcube_utils::get_input_value('_mbox', rcube_utils::INPUT_GP, true);
+        $msg_uid    = rcube_utils::get_input_string('_uid', rcube_utils::INPUT_GP);
+        $msg_folder = rcube_utils::get_input_string('_mbox', rcube_utils::INPUT_GP, true);
         $MESSAGE    = new rcube_message($msg_uid, $msg_folder);
 
         self::$MESSAGE = $MESSAGE;
@@ -64,8 +64,8 @@ class rcmail_action_mail_bounce extends rcmail_action
             ['mode' => rcmail_sendmail::MODE_FORWARD],
             [
                 'sendmail'      => true,
-                'error_handler' => function() use ($rcmail) {
-                    call_user_func_array([$rcmail->output, 'show_message'], func_get_args());
+                'error_handler' => function(...$args) use ($rcmail) {
+                    call_user_func_array([$rcmail->output, 'show_message'], $args);
                     $rcmail->output->send('iframe');
                 }
             ]

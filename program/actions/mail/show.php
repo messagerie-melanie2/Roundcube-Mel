@@ -34,7 +34,7 @@ class rcmail_action_mail_show extends rcmail_action_mail_index
         self::$PRINT_MODE = $rcmail->action == 'print';
 
         // Read browser capabilities and store them in session
-        if ($caps = rcube_utils::get_input_value('_caps', rcube_utils::INPUT_GET)) {
+        if ($caps = rcube_utils::get_input_string('_caps', rcube_utils::INPUT_GET)) {
             $browser_caps = [];
             foreach (explode(',', $caps) as $cap) {
                 $cap = explode('=', $cap);
@@ -44,7 +44,7 @@ class rcmail_action_mail_show extends rcmail_action_mail_index
             $_SESSION['browser_caps'] = $browser_caps;
         }
 
-        $msg_id    = rcube_utils::get_input_value('_uid', rcube_utils::INPUT_GET);
+        $msg_id    = rcube_utils::get_input_string('_uid', rcube_utils::INPUT_GET);
         $uid       = preg_replace('/\.[0-9.]+$/', '', $msg_id);
         $mbox_name = $rcmail->storage->get_folder();
 
@@ -176,6 +176,13 @@ class rcmail_action_mail_show extends rcmail_action_mail_index
         exit;
     }
 
+    /**
+     * Handler for the template object 'messageattachments'.
+     *
+     * @param array $attrib Named parameters
+     *
+     * @return string HTML content showing the message attachments list
+     */
     public static function message_attachments($attrib)
     {
         if (empty(self::$MESSAGE->attachments)) {
@@ -198,6 +205,11 @@ class rcmail_action_mail_show extends rcmail_action_mail_index
                 $mimetype = $type;
             }
 
+            // Skip inline images
+            if (strpos($mimetype, 'image/') === 0 && !self::is_attachment(self::$MESSAGE, $attach_prop)) {
+                continue;
+            }
+
             if (!empty($attrib['maxlength']) && mb_strlen($filename) > $attrib['maxlength']) {
                 $title    = $filename;
                 $filename = abbreviate_string($filename, $attrib['maxlength']);
@@ -214,7 +226,7 @@ class rcmail_action_mail_show extends rcmail_action_mail_index
             if (!self::$PRINT_MODE) {
                 $link_attrs = [
                     'href'        => self::$MESSAGE->get_part_url($attach_prop->mime_id, false),
-                    'onclick'     => sprintf('return %s.command(\'load-attachment\',\'%s\',this)',
+                    'onclick'     => sprintf('%s.command(\'load-attachment\',\'%s\',this); return false',
                         rcmail_output::JS_OBJECT_NAME, $attach_prop->mime_id),
                     'onmouseover' => $title ? '' : 'rcube_webmail.long_subject_title_ex(this, 0)',
                     'title'       => $title,
@@ -308,8 +320,11 @@ class rcmail_action_mail_show extends rcmail_action_mail_index
         $dbox   = $rcmail->config->get('drafts_mbox');
 
         // the message is not a draft
-        if (self::$MESSAGE->context
-            || (self::$MESSAGE->folder != $dbox && strpos(self::$MESSAGE->folder, $dbox.$delim) !== 0)
+        if (!empty(self::$MESSAGE->context)
+            || (
+                !empty(self::$MESSAGE->folder)
+                && (self::$MESSAGE->folder != $dbox && strpos(self::$MESSAGE->folder, $dbox.$delim) !== 0)
+            )
         ) {
             return '';
         }
@@ -329,6 +344,14 @@ class rcmail_action_mail_show extends rcmail_action_mail_index
         return html::div($attrib, $msg);
     }
 
+    /**
+     * Handler for the template object 'messageobjects' that contains
+     * warning/info boxes, buttons, etc. related to the displayed message.
+     *
+     * @param array $attrib Named parameters
+     *
+     * @return string HTML content showing the message objects
+     */
     public static function message_objects($attrib)
     {
         if (empty($attrib['id'])) {
@@ -350,6 +373,13 @@ class rcmail_action_mail_show extends rcmail_action_mail_index
         return html::div($attrib, $content);
     }
 
+    /**
+     * Handler for the template object 'contactphoto'.
+     *
+     * @param array $attrib Named parameters
+     *
+     * @return string HTML content for the IMG tag
+     */
     public static function message_contactphoto($attrib)
     {
         $rcmail        = rcmail::get_instance();
@@ -365,12 +395,13 @@ class rcmail_action_mail_show extends rcmail_action_mail_index
             $attrib['onerror'] = "this.onerror = null; this.src = '$placeholder';";
         }
 
-        if (self::$MESSAGE->sender) {
+        if (!empty(self::$MESSAGE->sender)) {
             $photo_img = $rcmail->url([
                     '_task'   => 'addressbook',
                     '_action' => 'photo',
                     '_email'  => self::$MESSAGE->sender['mailto'],
                     '_error'  => $error_handler ? 1 : null,
+                    '_bgcolor' => $attrib['bg-color'] ?? null
             ]);
         }
         else {
@@ -420,8 +451,8 @@ class rcmail_action_mail_show extends rcmail_action_mail_index
         $exclude_headers = !empty($attrib['exclude']) ? explode(',', $attrib['exclude']) : [];
         $output_headers  = [];
 
-        $attr_max     = isset($attrib['max']) ? $attrib['max'] : null;
-        $attr_addicon = isset($attrib['addicon']) ? $attrib['addicon'] : null;
+        $attr_max     = $attrib['max'] ?? null;
+        $attr_addicon = $attrib['addicon'] ?? null;
         $charset      = !empty($headers['charset']) ? $headers['charset'] : null;
 
         foreach ($standard_headers as $hkey) {
@@ -442,51 +473,35 @@ class rcmail_action_mail_show extends rcmail_action_mail_index
 
             $ishtml       = false;
             $header_title = $rcmail->gettext(preg_replace('/(^mail-|-)/', '', $hkey));
+            $header_value = null;
 
             if ($hkey == 'date') {
                 $header_value = $rcmail->format_date($value,
                     self::$PRINT_MODE ? $rcmail->config->get('date_long', 'x') : null);
             }
             else if ($hkey == 'priority') {
-                if ($value) {
-                    $header_value = html::span('prio' . $value, rcube::Q(self::localized_priority($value)));
-                    $ishtml       = true;
-                }
-                else {
-                    continue;
-                }
+                $header_value = html::span('prio' . $value, rcube::Q(self::localized_priority($value)));
+                $ishtml       = true;
             }
             else if ($hkey == 'replyto') {
                 // PAMELA - Pas de replyto si mail = from 
                 // 0008631: Ne pas afficher Répondre à si le mail est égal au from
                 if (explode(' <', $headers['replyto'], 2)[1] != explode(' <', $headers['from'], 2)[1]) {
-                // if ($headers['replyto'] != $headers['from']) {
-                    $header_value = self::address_string($value, $attr_max, true, $attr_addicon, $charset, $header_title);
-                    $ishtml = true;
-                }
-                else {
-                    continue;
-                }
+                    // if ($headers['replyto'] != $headers['from']) {
+                        $header_value = self::address_string($value, $attr_max, true, $attr_addicon, $charset, $header_title);
+                        $ishtml = true;
+                    }
             }
             else if ($hkey == 'mail-reply-to') {
-                if ($value
-                    && (!isset($headers['mail-replyto']) || $headers['mail-replyto'] != $headers['replyto'])
-                    && $headers['replyto'] != $headers['from']
-                ) {
+                if ((!isset($headers['replyto']) || $value != $headers['replyto']) && $value != $headers['from']) {
                     $header_value = self::address_string($value, $attr_max, true, $attr_addicon, $charset, $header_title);
                     $ishtml = true;
-                }
-                else {
-                    continue;
                 }
             }
             else if ($hkey == 'sender') {
-                if ($value && (!isset($headers['sender']) || $headers['sender'] != $headers['from'])) {
+                if ($value != $headers['from']) {
                     $header_value = self::address_string($value, $attr_max, true, $attr_addicon, $charset, $header_title);
                     $ishtml = true;
-                }
-                else {
-                    continue;
                 }
             }
             else if ($hkey == 'mail-followup-to') {
@@ -558,8 +573,8 @@ class rcmail_action_mail_show extends rcmail_action_mail_index
         }
 
         $rcmail = rcmail::get_instance();
-        //PAMELA - 0007110: Dans les éléments envoyés afficher en première ligne l'émetteur plutôt que le destinataire
-        $header = "from";
+               //PAMELA - 0007110: Dans les éléments envoyés afficher en première ligne l'émetteur plutôt que le destinataire
+               $header = "from";
         $label  = 'shortheader' . $header;
         $date   = $rcmail->format_date(self::$MESSAGE->headers->date, $rcmail->config->get('date_long', 'x'));
         $user   = self::$MESSAGE->headers->$header;
@@ -634,7 +649,10 @@ class rcmail_action_mail_show extends rcmail_action_mail_index
      */
     public static function message_body($attrib)
     {
-        if (!is_array(self::$MESSAGE->parts) && empty(self::$MESSAGE->body)) {
+        if (
+            empty(self::$MESSAGE)
+            || (!is_array(self::$MESSAGE->parts) && empty(self::$MESSAGE->body))
+        ) {
             return '';
         }
 
@@ -735,7 +753,7 @@ class rcmail_action_mail_show extends rcmail_action_mail_index
         else {
             // Check if we have enough memory to handle the message in it
             // #1487424: we need up to 10x more memory than the body
-            if (!rcube_utils::mem_check(strlen(self::$MESSAGE->body) * 10)) {
+            if (isset(self::$MESSAGE->body) && !rcube_utils::mem_check(strlen(self::$MESSAGE->body) * 10)) {
                 $out .= self::part_too_big_message(self::$MESSAGE, 0);
             }
             else {
@@ -754,20 +772,20 @@ class rcmail_action_mail_show extends rcmail_action_mail_index
             $download_label   = rcube::Q($rcmail->gettext('download'));
 
             foreach (self::$MESSAGE->attachments as $attach_prop) {
-                // skip inline images
-                if (!empty($attach_prop->content_id) && $attach_prop->disposition == 'inline') {
-                    continue;
-                }
-
                 // Content-Type: image/*...
                 if ($mimetype = self::part_image_type($attach_prop)) {
+                    // Skip inline images
+                    if (!self::is_attachment(self::$MESSAGE, $attach_prop)) {
+                        continue;
+                    }
+
                     // display thumbnails
                     if ($thumbnail_size) {
                         $supported = in_array($mimetype, self::$CLIENT_MIMETYPES);
                         $show_link_attr = [
                             'href'    => self::$MESSAGE->get_part_url($attach_prop->mime_id, false),
                             'onclick' => sprintf(
-                                'return %s.command(\'load-attachment\',\'%s\',this)',
+                                '%s.command(\'load-attachment\',\'%s\',this); return false',
                                 rcmail_output::JS_OBJECT_NAME,
                                 $attach_prop->mime_id
                             )
@@ -823,8 +841,13 @@ class rcmail_action_mail_show extends rcmail_action_mail_index
 
     /**
      * Returns a HTML notice element for too big message parts
+     *
+     * @param rcube_message $message Email message object
+     * @param string        $part_id Message part identifier
+     *
+     * @return string HTML content
      */
-    public static function part_too_big_message($MESSAGE, $part_id)
+    public static function part_too_big_message($message, $part_id)
     {
         $rcmail = rcmail::get_instance();
         $token  = $rcmail->get_request_token();
@@ -832,17 +855,20 @@ class rcmail_action_mail_show extends rcmail_action_mail_index
                 'task'     => 'mail',
                 'action'   => 'get',
                 'download' => 1,
-                'uid'      => $MESSAGE->uid,
+                'uid'      => $message->uid,
                 'part'     => $part_id,
-                'mbox'     => $MESSAGE->folder,
+                'mbox'     => $message->folder,
                 'token'    => $token,
         ]);
 
-        return html::span('part-notice', $rcmail->gettext('messagetoobig') . '&nbsp;' . html::a($url, $rcmail->gettext('download')));
+        return html::span('part-notice', $rcmail->gettext('messagetoobig')
+            . '&nbsp;' . html::a($url, $rcmail->gettext('download')));
     }
 
     /**
      * Handle disposition notification requests
+     *
+     * @param rcube_message $message Email message object
      */
     public static function mdn_request_handler($message)
     {
@@ -897,5 +923,31 @@ class rcmail_action_mail_show extends rcmail_action_mail_index
                 $rcmail->output->set_env('mdn_request', true);
             }
         }
+    }
+
+    /**
+     * Check whether the message part is a normal attachment
+     *
+     * @param rcube_message      $message Message object
+     * @param rcube_message_part $part    Message part
+     *
+     * @return bool
+     */
+    protected static function is_attachment($message, $part)
+    {
+        // Inline attachment with Content-Id specified
+        if (!empty($part->content_id) && $part->disposition == 'inline') {
+            return false;
+        }
+
+        // Any image attached to multipart/related message (#7184)
+        $parent_id = preg_replace('/\.[0-9]+$/', '', $part->mime_id);
+        $parent = $message->mime_parts[$parent_id] ?? null;
+
+        if ($parent && $parent->mimetype == 'multipart/related') {
+            return false;
+        }
+
+        return true;
     }
 }

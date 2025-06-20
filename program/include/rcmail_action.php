@@ -193,7 +193,7 @@ abstract class rcmail_action
         $quota  = $rcmail->plugins->exec_hook('quota', $quota);
 
         $quota_result           = (array) $quota;
-        $quota_result['type']   = isset($_SESSION['quota_display']) ? $_SESSION['quota_display'] : '';
+        $quota_result['type']   = $_SESSION['quota_display'] ?? '';
         $quota_result['folder'] = $folder !== null && $folder !== '' ? $folder : 'INBOX';
 
         if (!empty($quota['total']) && $quota['total'] > 0) {
@@ -229,15 +229,15 @@ abstract class rcmail_action
                         $table->add(['colspan' => 3, 'class' => 'root'], rcube::Q($root));
                     }
 
-                    if ($storage = $data['storage']) {
-                        $percent = min(100, round(($storage['used']/max(1,$storage['total']))*100));
+                    if ($storage = ($data['storage'] ?? null)) {
+                        $percent = min(100, round(($storage['used'] / max(1, $storage['total'])) * 100));
 
                         $table->add('name', rcube::Q($rcmail->gettext('quotastorage')));
                         $table->add(null, self::show_bytes($storage['total'] * 1024));
                         $table->add(null, sprintf('%s (%.0f%%)', self::show_bytes($storage['used'] * 1024), $percent));
                     }
-                    if ($message = $data['message']) {
-                        $percent = min(100, round(($message['used']/max(1,$message['total']))*100));
+                    if ($message = ($data['message'] ?? null)) {
+                        $percent = min(100, round(($message['used'] / max(1, $message['total'])) * 100));
 
                         $table->add('name', rcube::Q($rcmail->gettext('quotamessage')));
                         $table->add(null, intval($message['total']));
@@ -348,9 +348,10 @@ abstract class rcmail_action
     /**
      * Output HTML editor scripts
      *
-     * @param string $mode Editor mode
+     * @param string  $mode     Editor mode
+     * @param ?string $editorId Editor textarea element ID
      */
-    public static function html_editor($mode = '')
+    public static function html_editor($mode = '', $editorId = null)
     {
         $rcmail           = rcmail::get_instance();
         $spellcheck       = intval($rcmail->config->get('enable_spellcheck'));
@@ -368,8 +369,8 @@ abstract class rcmail_action
                 'mode'             => $mode,
                 'disabled_plugins' => $disabled_plugins,
                 'disabled_buttons' => $disabled_buttons,
-                'extra_plugins' => $extra_plugins,
-                'extra_buttons' => $extra_buttons,
+                'extra_plugins'    => $extra_plugins,
+                'extra_buttons'    => $extra_buttons,
         ]);
 
         if (!empty($hook['abort'])) {
@@ -435,6 +436,13 @@ abstract class rcmail_action
             if ($path != 'none' && ($path = $rcmail->find_asset($path))) {
                 $rcmail->output->include_css($path);
             }
+        }
+
+        if (!empty($editorId)) {
+            $script = rcmail_output::JS_OBJECT_NAME . ".enable_command('toggle-editor', true);"
+                . rcmail_output::JS_OBJECT_NAME . ".editor_init(null, '$editorId');";
+
+            $rcmail->output->add_script($script, 'docready');
         }
 
         $rcmail->output->include_script('tinymce/tinymce.min.js');
@@ -543,7 +551,7 @@ abstract class rcmail_action
         }
 
         $input   = new html_inputfield($input_attr);
-        $content = (isset($attrib['prefix']) ? $attrib['prefix'] : '') . $input->show();
+        $content = ($attrib['prefix'] ?? '') . $input->show();
 
         if (empty($attrib['mode']) || $attrib['mode'] != 'smart') {
             $content = html::div(null, $content . $hint);
@@ -716,7 +724,6 @@ abstract class rcmail_action
 
         $rcmail->output->set_env('autocomplete_max', (int) $rcmail->config->get('autocomplete_max', 15));
         $rcmail->output->set_env('autocomplete_min_length', $rcmail->config->get('autocomplete_min_length'));
-        $rcmail->output->set_env('autocomplete_clean_duplicates', (bool) $rcmail->config->get('autocomplete_clean_duplicates', false));
         $rcmail->output->add_label('autocompletechars', 'autocompletemore');
     }
 
@@ -848,7 +855,7 @@ abstract class rcmail_action
         // the form of <ID>-<MBOX>[,<ID>-<MBOX>]*
 
         $_uid  = $uids ?: rcube_utils::get_input_value('_uid', $mode ?: rcube_utils::INPUT_GPC, true);
-        $_mbox = $mbox ?: (string) rcube_utils::get_input_value('_mbox', $mode ?: rcube_utils::INPUT_GPC, true);
+        $_mbox = $mbox ?: rcube_utils::get_input_string('_mbox', $mode ?: rcube_utils::INPUT_GPC, true);
 
         // already a hash array
         if (is_array($_uid) && !isset($_uid[0])) {
@@ -1004,7 +1011,7 @@ abstract class rcmail_action
             $a_folders   = $storage->list_folders_subscribed(
                 '',
                 $attrib['folder_name'],
-                isset($attrib['folder_filter']) ? $attrib['folder_filter'] : null
+                $attrib['folder_filter'] ?? null
             );
 
             foreach ($a_folders as $folder) {
@@ -1032,9 +1039,9 @@ abstract class rcmail_action
                 $select->add(html::quote($rcmail->gettext($attrib['noselection'])), '');
             }
 
-            $maxlength = isset($attrib['maxlength']) ? $attrib['maxlength'] : null;
-            $realnames = isset($attrib['realnames']) ? $attrib['realnames'] : null;
-            $default   = isset($attrib['default']) ? $attrib['default'] : null;
+            $maxlength = $attrib['maxlength'] ?? null;
+            $realnames = $attrib['realnames'] ?? null;
+            $default   = $attrib['default'] ?? null;
 
             self::render_folder_tree_select($a_mailboxes, $mbox_name, $maxlength, $select, $realnames);
             $out = $select->show($default);
@@ -1049,7 +1056,7 @@ abstract class rcmail_action
 
                 $rcmail->output->include_script('treelist.js');
                 $rcmail->output->add_gui_object('mailboxlist', $attrib['id']);
-                $rcmail->output->set_env('unreadwrap', isset($attrib['unreadwrap']) ? $attrib['unreadwrap'] : false);
+                $rcmail->output->set_env('unreadwrap', $attrib['unreadwrap'] ?? false);
                 $rcmail->output->set_env('collapsed_folders', (string) $rcmail->config->get('collapsed_folders'));
             }
 
@@ -1085,8 +1092,8 @@ abstract class rcmail_action
             $p['folder_name'] = '*';
         }
 
-        $f_filter = isset($p['folder_filter']) ? $p['folder_filter'] : null;
-        $f_rights = isset($p['folder_rights']) ? $p['folder_rights'] : null;
+        $f_filter = $p['folder_filter'] ?? null;
+        $f_rights = $p['folder_rights'] ?? null;
 
         if (!empty($p['unsubscribed'])) {
             $list = $storage->list_folders('', $p['folder_name'], $f_filter, $f_rights);
@@ -1216,16 +1223,16 @@ abstract class rcmail_action
         $maxlength = intval($attrib['maxlength']);
         $realnames = (bool) $attrib['realnames'];
         $msgcounts = $storage->get_cache('messagecount');
-        $collapsed = $rcmail->config->get('collapsed_folders');
-        $realnames = $rcmail->config->get('show_real_foldernames');
+        $collapsed = (string) $rcmail->config->get('collapsed_folders');
+        $realnames = (bool) $rcmail->config->get('show_real_foldernames');
 
         $out = '';
         foreach ($arrFolders as $folder) {
             $title        = null;
-            $folder_class = self::folder_classname($folder['id'], isset($folder['class']) ? $folder['class'] : null);
+            $folder_class = self::folder_classname($folder['id'], $folder['class'] ?? null);
             $is_collapsed = strpos($collapsed, '&'.rawurlencode($folder['id']).'&') !== false;
             $unread       = 0;
-            $realname     = isset($folder['realname']) ? $folder['realname'] : $realnames;
+            $realname     = $folder['realname'] ?? $realnames;
 
             if ($msgcounts && !empty($msgcounts[$folder['id']]['UNSEEN'])) {
                 $unread = intval($msgcounts[$folder['id']]['UNSEEN']);
@@ -1332,8 +1339,8 @@ abstract class rcmail_action
                 }
             }
 
-            $folder_class = self::folder_classname($folder['id'], isset($folder['class']) ? $folder['class'] : null);
-            $realname     = isset($folder['realname']) ? $folder['realname'] : $realnames;
+            $folder_class = self::folder_classname($folder['id'], $folder['class'] ?? null);
+            $realname     = $folder['realname'] ?? $realnames;
 
             if ($folder_class && !$realname && $rcmail->text_exists($folder_class)) {
                 $foldername = $rcmail->gettext($folder_class);
@@ -1376,7 +1383,7 @@ abstract class rcmail_action
 
             // PAMELA - Gérer les INBOX des BALP en plus
             $data = $rcmail->plugins->exec_hook('mel_is_inbox',
-                array('mbox' => $folder_id, 'isInbox' => $folder_id == 'INBOX'));
+            array('mbox' => $folder_id, 'isInbox' => $folder_id == 'INBOX'));
 
             if ($data['isInbox']) {
                 return 'inbox';
@@ -1386,7 +1393,7 @@ abstract class rcmail_action
             $classes = ['INBOX' => 'inbox'];
 
             // for these mailboxes we have css classes
-                    // PAMELA - Modèles
+            // PAMELA - Modèles
             foreach (['sent', 'drafts', 'models', 'trash', 'junk'] as $type) {
                 if (($mbox = $rcmail->config->get($type . '_mbox')) && !isset($classes[$mbox])) {
                     $classes[$mbox] = $type;

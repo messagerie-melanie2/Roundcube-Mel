@@ -36,9 +36,9 @@ class rcmail_action_contacts_import extends rcmail_action_contacts_index
         $has_map    = isset($_POST['_map']) && is_array($_POST['_map']);
 
         if ($has_map || (isset($_FILES['_file']) && is_array($_FILES['_file']))) {
-            $replace      = (bool)rcube_utils::get_input_value('_replace', rcube_utils::INPUT_GPC);
-            $target       = rcube_utils::get_input_value('_target', rcube_utils::INPUT_GPC);
-            $with_groups  = intval(rcube_utils::get_input_value('_groups', rcube_utils::INPUT_GPC));
+            $replace      = (bool) rcube_utils::get_input_string('_replace', rcube_utils::INPUT_GPC);
+            $target       = rcube_utils::get_input_string('_target', rcube_utils::INPUT_GPC);
+            $with_groups  = (int) rcube_utils::get_input_string('_groups', rcube_utils::INPUT_GPC);
 
             // reload params for CSV field mapping screen
             if ($has_map && !empty($_SESSION['contactcsvimport']['params'])) {
@@ -184,7 +184,7 @@ class rcmail_action_contacts_import extends rcmail_action_contacts_index
                     if (empty($a_record['name'])) {
                         $a_record['name'] = rcube_addressbook::compose_display_name($a_record, true);
                         // Reset it if equals to email address (from compose_display_name())
-                        if ($a_record['name'] == $a_record['email'][0]) {
+                        if ($a_record['name'] == ($a_record['email'][0] ?? null)) {
                             $a_record['name'] = '';
                         }
                     }
@@ -288,7 +288,7 @@ class rcmail_action_contacts_import extends rcmail_action_contacts_index
     public static function import_form($attrib)
     {
         $rcmail = rcmail::get_instance();
-        $target = rcube_utils::get_input_value('_target', rcube_utils::INPUT_GPC);
+        $target = rcube_utils::get_input_string('_target', rcube_utils::INPUT_GPC);
 
         $attrib += ['id' => 'rcmImportForm'];
 
@@ -352,7 +352,7 @@ class rcmail_action_contacts_import extends rcmail_action_contacts_index
         // checkbox to replace the entire address book
         $check_replace = new html_checkbox(['name' => '_replace', 'value' => 1, 'id' => 'rcmimportreplace']);
         $table->add('title', html::label('rcmimportreplace', $rcmail->gettext('importreplace')));
-        $table->add(null, $check_replace->show(rcube_utils::get_input_value('_replace', rcube_utils::INPUT_GPC)));
+        $table->add(null, $check_replace->show(rcube_utils::get_input_string('_replace', rcube_utils::INPUT_GPC)));
 
         $form .= $table->show(['id' => null] + $attrib);
 

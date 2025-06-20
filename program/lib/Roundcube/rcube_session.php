@@ -51,7 +51,7 @@ abstract class rcube_session
     /**
      * Blocks session data from being written to database.
      * Can be used if write-race conditions are to be expected
-     * @var boolean
+     * @var bool
      */
     public $nowrite = false;
 
@@ -265,7 +265,7 @@ abstract class rcube_session
     /**
      * Register additional garbage collector functions
      *
-     * @param mixed Callback function
+     * @param mixed $func Callback function
      */
     public function register_gc_handler($func)
     {
@@ -497,7 +497,7 @@ abstract class rcube_session
 
     /**
      * Unserialize session data
-     * http://www.php.net/manual/en/function.session-decode.php#56106
+     * https://www.php.net/manual/en/function.session-decode.php#56106
      *
      * @param string $str Serialized data string
      *
@@ -737,7 +737,7 @@ abstract class rcube_session
     /**
      * Writes debug information to the log
      *
-     * @param string Log line
+     * @param string $line Log line
      */
     function log($line)
     {

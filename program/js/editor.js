@@ -36,9 +36,11 @@
 function rcube_text_editor(config, id)
 {
   var ref = this,
+    editorElement = $('#' + id),
     abs_url = location.href.replace(/[?#].*$/, '').replace(/\/$/, ''),
     conf = {
-      selector: '#' + ($('#' + id).is('.mce_editor') ? id : 'fake-editor-id'),
+      selector: '#' + (editorElement.is('.mce_editor') ? id : 'fake-editor-id'),
+      readonly: editorElement.is('[readonly],[disabled]'),
       // PAMELA - Mise à jour du build pour les langues
       cache_suffix: 's=5080203',
       theme: 'silver',
@@ -60,7 +62,7 @@ function rcube_text_editor(config, id)
       remove_script_host: false,
       convert_urls: false, // #1486944
       image_description: false,
-      paste_webkit_style: "color font-size font-family",
+      paste_webkit_styles: "color font-size font-family font-weight background-color",
       automatic_uploads: false, // allows to paste images
       paste_data_images: true,
       // Note: We disable contextmenu options specifically for browser_spellcheck:true.
@@ -72,7 +74,9 @@ function rcube_text_editor(config, id)
       anchor_bottom: false,
       anchor_top: false,
       file_picker_types: 'image media',
-      file_picker_callback: function(callback, value, meta) { ref.file_picker_callback(callback, value, meta); }
+      file_picker_callback: function(callback, value, meta) { ref.file_picker_callback(callback, value, meta); },
+      min_height: config.mode == 'identity' ? 100 : 400,
+      deprecation_warnings: false
     };
 
   // register spellchecker for plain text editor
@@ -97,24 +101,24 @@ function rcube_text_editor(config, id)
   }
 
   // minimal editor
-  if (config.mode == 'identity') {
+  if (config.mode == 'identity' || config.mode == 'response') {
     conf.toolbar += ' | charmap hr link unlink image code $extra';
     $.extend(conf, {
       plugins: 'autolink charmap code hr image link paste tabfocus',
       file_picker_types: 'image'
     });
   }
-  //PAMELA
-  if (config.mode == 'forum') {
-    conf.toolbar += ' | bullist numlist | charmap hr link unlink image code $extra';
-    $.extend(conf, {
-      plugins: 'autolink charmap code hr image link lists paste tabfocus autoresize',
-      file_picker_types: 'image',
-      min_height: 400,
-      resize : 'vertical',
-    });
-    
-  }
+    //PAMELA
+    if (config.mode == 'forum') {
+      conf.toolbar += ' | bullist numlist | charmap hr link unlink image code $extra';
+      $.extend(conf, {
+        plugins: 'autolink charmap code hr image link lists paste tabfocus autoresize',
+        file_picker_types: 'image',
+        min_height: 400,
+        resize : 'vertical',
+      });
+      
+    }
   // full-featured editor
   else { //PAMELA toolbar
     conf.toolbar += ' | bullist numlist outdent indent lineheightselect ltr rtl superscript subscript blockquote'
@@ -187,13 +191,22 @@ function rcube_text_editor(config, id)
   //PAMELA - Garder la conf en mémoire
   this._conf = conf;
   this._initial_conf = {...conf};
-  
+
   tinymce.init(conf);
 
   // react to real individual tinyMCE editor init
   this.init_callback = function(editor)
   {
     this.editor = editor;
+
+    // Browsers have performance problems with rendering a lot of content in a textarea.
+    // To workaround that we create a separate hidden textarea for the content and copy it
+    // to the editor after the page is already loaded (#8108)
+    var content, editorContentElement = editorElement.data('html-editor-content-element');
+    if (editorContentElement && (content = $('#' + editorContentElement).val())) {
+      editor.setContent(content);
+      $('#' + editorContentElement).remove();
+    }
 
     if (rcmail.env.action == 'compose') {
       var area = $('#' + this.id),
@@ -222,14 +235,15 @@ function rcube_text_editor(config, id)
       }
     }
 
-    rcmail.triggerEvent('editor-load', {config: conf, ref: ref});
+    rcmail.triggerEvent('editor-load', {config: conf, ref: this});
 
     // set tabIndex and set focus to element that was focused before
-    ref.tabindex(ref.force_focus || (fe && fe.id == ref.id));
+    this.tabindex(this.force_focus || (fe && fe.id == this.id));
 
     // Trigger resize (needed for proper editor resizing in some browsers)
     $(window).resize();
   };
+
 
   //PAMELA - MAJ de l'éditeur
   this.update = function(editedConf)
@@ -298,6 +312,12 @@ function rcube_text_editor(config, id)
   {
     $(this.editor || ('#' + this.id)).focus();
     this.force_focus = false;
+  };
+
+  // Returns current editor mode
+  this.is_html = function()
+  {
+    return !!this.editor;
   };
 
   // switch html/plain mode
@@ -670,7 +690,7 @@ function rcube_text_editor(config, id)
 
     // put cursor before signature and scroll the window
     if (this.editor && position_element && position_element.length) {
-      this.editor.selection.setCursorLocation(position_element.get(0));
+      this.editor.selection.select(position_element.get(0), true);
       this.editor.getWin().scroll(0, position_element.offset().top);
     }
   };
@@ -713,7 +733,7 @@ function rcube_text_editor(config, id)
     rcmail.env.file_picker_type = type;
 
     dialog = $('#image-selector');
-    
+
     if (!form.length)
       form = this.file_upload_form(rcmail.gui_objects.uploadform);
     else

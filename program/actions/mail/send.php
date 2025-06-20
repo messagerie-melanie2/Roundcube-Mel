@@ -33,7 +33,7 @@ class rcmail_action_mail_send extends rcmail_action
         $rcmail->output->reset();
         $rcmail->output->framed = true;
 
-        $COMPOSE_ID = rcube_utils::get_input_value('_id', rcube_utils::INPUT_GPC);
+        $COMPOSE_ID = rcube_utils::get_input_string('_id', rcube_utils::INPUT_GPC);
         $COMPOSE    =& $_SESSION['compose_data_'.$COMPOSE_ID];
 
         // Sanity checks
@@ -59,10 +59,11 @@ class rcmail_action_mail_send extends rcmail_action
                 'sendmail'      => true,
                 'saveonly'      => $saveonly,
                 'savedraft'     => $savedraft,
-                'error_handler' => function() use ($rcmail) {
-                    call_user_func_array([$rcmail->output, 'show_message'], func_get_args());
+                'error_handler' => function(...$args) use ($rcmail) {
+                    call_user_func_array([$rcmail->output, 'show_message'], $args);
                     $rcmail->output->send('iframe');
-                }
+                },
+                'keepformatting' => !empty($_POST['_keepformatting']),
         ]);
 
         if (!isset($COMPOSE['attachments'])) {
@@ -76,12 +77,12 @@ class rcmail_action_mail_send extends rcmail_action
 
         $message_id      = $headers['Message-ID'];
         $message_charset = $SENDMAIL->options['charset'];
-        $message_body    = rcube_utils::get_input_value('_message', rcube_utils::INPUT_POST, true, $message_charset);
-        $isHtml          = (bool) rcube_utils::get_input_value('_is_html', rcube_utils::INPUT_POST);
+        $message_body    = rcube_utils::get_input_string('_message', rcube_utils::INPUT_POST, true, $message_charset);
+        $isHtml          = (bool) rcube_utils::get_input_string('_is_html', rcube_utils::INPUT_POST);
 
         // Reset message body and attachments in Mailvelope mode
         if (isset($_POST['_pgpmime'])) {
-            $pgp_mime     = rcube_utils::get_input_value('_pgpmime', rcube_utils::INPUT_POST);
+            $pgp_mime     = rcube_utils::get_input_string('_pgpmime', rcube_utils::INPUT_POST);
             $isHtml       = false;
             $message_body = '';
 
@@ -154,7 +155,7 @@ class rcmail_action_mail_send extends rcmail_action
                 && empty($COMPOSE['spell_checked'])
                 && !empty($message_body)
             ) {
-                $language     = rcube_utils::get_input_value('_lang', rcube_utils::INPUT_GPC);
+                $language     = rcube_utils::get_input_string('_lang', rcube_utils::INPUT_GPC);
                 $message_body = str_replace("\r\n", "\n", $message_body);
                 $spellchecker = new rcube_spellchecker($language);
                 $spell_result = $spellchecker->check($message_body, $isHtml);
@@ -197,7 +198,7 @@ class rcmail_action_mail_send extends rcmail_action
         }
 
         // sort attachments to make sure the order is the same as in the UI (#1488423)
-        if ($files = rcube_utils::get_input_value('_attachments', rcube_utils::INPUT_POST)) {
+        if ($files = rcube_utils::get_input_string('_attachments', rcube_utils::INPUT_POST)) {
             $files = explode(',', $files);
             $files = array_flip($files);
             foreach ($files as $idx => $val) {
@@ -269,8 +270,8 @@ class rcmail_action_mail_send extends rcmail_action
         $store_folder = $SENDMAIL->options['store_folder'];
 
         // delete previous saved draft
-        $drafts_mbox =  $savemodel ? $rcmail->config->get('models_mbox') : $rcmail->config->get('drafts_mbox');
-        $old_id      = rcube_utils::get_input_value('_draft_saveid', rcube_utils::INPUT_POST);
+        $drafts_mbox = $rcmail->config->get('drafts_mbox');
+        $old_id      = rcube_utils::get_input_string('_draft_saveid', rcube_utils::INPUT_POST);
 
         if ($old_id && (!empty($sent) || $saved)) {
             $deleted = $rcmail->storage->delete_message($old_id, $drafts_mbox);
@@ -418,10 +419,10 @@ class rcmail_action_mail_send extends rcmail_action
                 $message->addAttachment($file,
                     $ctype,
                     $attachment['name'],
-                    !empty($attachment['data']) ? false : true,
+                    empty($attachment['data']),
                     $ctype == 'message/rfc822' ? '8bit' : 'base64',
                     'attachment',
-                    isset($attachment['charset']) ? $attachment['charset'] : null,
+                    $attachment['charset'] ?? null,
                     '', '',
                     $folding ? 'quoted-printable' : null,
                     $folding == 2 ? 'quoted-printable' : null,

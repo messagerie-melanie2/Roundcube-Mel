@@ -28,7 +28,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program. If not, see http://www.gnu.org/licenses/.
+ * along with this program. If not, see https://www.gnu.org/licenses/.
  */
 
 class rcube_httpapi_password
@@ -113,7 +113,7 @@ class rcube_httpapi_password
         if ($response_code < 200 || $response_code > 299) {
             rcube::raise_error([
                     'code' => 600, 'file' => __FILE__, 'line' => __LINE__,
-                    'message' => "Password plugin: Unexpected response code ${response_code}: "
+                    'message' => "Password plugin: Unexpected response code {$response_code}: "
                         . substr($result, 0, 1024)
                 ],
                 true, false

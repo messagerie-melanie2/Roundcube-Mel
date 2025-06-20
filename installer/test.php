@@ -53,7 +53,7 @@ else {
 echo '<br />';
 
 if ($RCI->configured && ($messages = $RCI->check_config())) {
-    if (is_array($messages['replaced'])) {
+    if (!empty($messages['replaced'])) {
         echo '<h3 class="warning">Replaced config options</h3>';
         echo '<p class="hint">The following config options have been replaced or renamed. ';
         echo 'Please update them accordingly in your config files.</p>';
@@ -66,7 +66,7 @@ if ($RCI->configured && ($messages = $RCI->check_config())) {
         echo '</ul>';
     }
 
-    if (is_array($messages['obsolete'])) {
+    if (!empty($messages['obsolete'])) {
         echo '<h3>Obsolete config options</h3>';
         echo '<p class="hint">You still have some obsolete or inexistent properties set. This isn\'t a problem but should be noticed.</p>';
 
@@ -82,7 +82,7 @@ if ($RCI->configured && ($messages = $RCI->check_config())) {
     echo html::a(['href' => './?_mergeconfig=1'], 'config.inc.php') . ' &nbsp;';
     echo "</p>";
 
-    if (is_array($messages['dependencies'])) {
+    if (!empty($messages['dependencies'])) {
         echo '<h3 class="warning">Dependency check failed</h3>';
         echo '<p class="hint">Some of your configuration settings require other options to be configured or additional PHP modules to be installed</p>';
 
@@ -252,9 +252,8 @@ if ($errors = $RCI->check_mime_detection()) {
     $RCI->fail('Fileinfo/mime_content_type configuration');
     if (!empty($RCI->config['mime_magic'])) {
         echo '<p class="hint">Try setting the <tt>mime_magic</tt> config option to <tt>null</tt>.</p>';
-    }
-    else {
-        echo '<p class="hint">Check the <a href="http://www.php.net/manual/en/function.finfo-open.php">Fileinfo functions</a> of your PHP installation.<br/>';
+    } else {
+        echo '<p class="hint">Check the <a href="https://www.php.net/manual/en/function.finfo-open.php">Fileinfo functions</a> of your PHP installation.<br/>';
         echo 'The path to the magic.mime file can be set using the <tt>mime_magic</tt> config option in Roundcube.</p>';
     }
 }
@@ -267,20 +266,19 @@ else {
 if ($errors = $RCI->check_mime_extensions()) {
     $RCI->fail('Mimetype to file extension mapping');
     echo '<p class="hint">Please set a valid path to your webserver\'s mime.types file to the <tt>mime_types</tt> config option.<br/>';
-    echo 'If you can\'t find such a file, download it from <a href="http://svn.apache.org/repos/asf/httpd/httpd/trunk/docs/conf/mime.types">svn.apache.org</a>.</p>';
-}
-else {
+    echo 'If you can\'t find such a file, download it from <a href="https://svn.apache.org/repos/asf/httpd/httpd/trunk/docs/conf/mime.types">svn.apache.org</a>.</p>';
+} else {
     $RCI->pass('Mimetype to file extension mapping');
     echo "<br/>";
 }
 
-$smtp_hosts = $RCI->get_hostlist('smtp_server');
+$smtp_hosts = $RCI->get_hostlist('smtp_host');
 if (!empty($smtp_hosts)) {
-    $smtp_host_field = new html_select(['name' => '_smtp_host', 'id' => 'smtp_server']);
+    $smtp_host_field = new html_select(['name' => '_smtp_host', 'id' => 'smtp_host']);
     $smtp_host_field->add($smtp_hosts, $smtp_hosts);
 }
 else {
-    $smtp_host_field = new html_inputfield(['name' => '_smtp_host', 'id' => 'smtp_server']);
+    $smtp_host_field = new html_inputfield(['name' => '_smtp_host', 'id' => 'smtp_host']);
 }
 
 $user = $RCI->getprop('smtp_user', '(none)');
@@ -311,12 +309,8 @@ else {
 <table>
 <tbody>
   <tr>
-    <td><label for="smtp_server">Server</label></td>
+    <td><label for="smtp_host">Host</label></td>
     <td><?php echo $smtp_host_field->show(isset($_POST['_smtp_host']) ? $_POST['_smtp_host'] : ''); ?></td>
-  </tr>
-  <tr>
-    <td><label for="smtp_port">Port</label></td>
-    <td><?php echo rcube::Q($RCI->getprop('smtp_port')); ?></td>
   </tr>
   <tr>
     <td><label for="smtp_user">Username</label></td>
@@ -340,7 +334,6 @@ if (isset($_POST['sendmail'])) {
     echo '<p>Trying to send email...<br />';
 
     $smtp_host = trim($_POST['_smtp_host']);
-    $smtp_port = $RCI->getprop('smtp_port');
 
     $from = rcube_utils::idn_to_ascii(trim($_POST['_from']));
     $to   = rcube_utils::idn_to_ascii(trim($_POST['_to']));
@@ -360,19 +353,15 @@ if (isset($_POST['sendmail'])) {
         // send mail using configured SMTP server
         $CONFIG = $RCI->config;
 
-        if (!empty($_POST['_smtp_user'])) {
-            $CONFIG['smtp_user'] = $_POST['_smtp_user'];
-        }
-        if (!empty($_POST['_smtp_pass'])) {
-            $CONFIG['smtp_pass'] = $_POST['_smtp_pass'];
-        }
+        $CONFIG['smtp_user'] = trim($_POST['_smtp_user']);
+        $CONFIG['smtp_pass'] = trim($_POST['_smtp_pass']);
 
         $mail_object  = new Mail_mime();
         $send_headers = $mail_object->headers($headers);
         $head         = $mail_object->txtHeaders($send_headers);
 
         $SMTP = new rcube_smtp();
-        $SMTP->connect($smtp_host, $smtp_port, $CONFIG['smtp_user'], $CONFIG['smtp_pass']);
+        $SMTP->connect($smtp_host, null, $CONFIG['smtp_user'], $CONFIG['smtp_pass']);
 
         $status        = $SMTP->send_mail($headers['From'], $headers['To'], $head, $body);
         $smtp_response = $SMTP->get_response();
@@ -433,21 +422,17 @@ $pass_field = new html_passwordfield(['name' => '_pass', 'id' => 'imappass']);
 <table>
 <tbody>
   <tr>
-    <td><label for="imaphost">Server</label></td>
+    <td><label for="imaphost">Host</label></td>
     <td><?php echo $host_field->show(isset($_POST['_host']) ? $_POST['_host'] : ''); ?></td>
   </tr>
   <tr>
-    <td>Port</td>
-    <td><?php echo $RCI->getprop('default_port'); ?></td>
+    <td><label for="imapuser">Username</label></td>
+    <td><?php echo $user_field->show(isset($_POST['_user']) ? $_POST['_user'] : ''); ?></td>
   </tr>
-    <tr>
-      <td><label for="imapuser">Username</label></td>
-      <td><?php echo $user_field->show(isset($_POST['_user']) ? $_POST['_user'] : ''); ?></td>
-    </tr>
-    <tr>
-      <td><label for="imappass">Password</label></td>
-      <td><?php echo $pass_field->show(); ?></td>
-    </tr>
+  <tr>
+    <td><label for="imappass">Password</label></td>
+    <td><?php echo $pass_field->show(); ?></td>
+  </tr>
 </tbody>
 </table>
 
@@ -458,19 +443,14 @@ if (isset($_POST['imaptest']) && !empty($_POST['_host']) && !empty($_POST['_user
     echo '<p>Connecting to ' . rcube::Q($_POST['_host']) . '...<br />';
 
     $imap_host = trim($_POST['_host']);
-    $imap_port = $RCI->getprop('default_port');
+    $imap_port = 143;
     $imap_ssl  = false;
-    $a_host    = parse_url($imap_host);
 
-    if ($a_host['host']) {
+    $a_host = parse_url($imap_host);
+    if (!empty($a_host['host'])) {
         $imap_host = $a_host['host'];
         $imap_ssl  = (isset($a_host['scheme']) && in_array($a_host['scheme'], ['ssl','imaps','tls'])) ? $a_host['scheme'] : null;
-        if (isset($a_host['port'])) {
-            $imap_port = $a_host['port'];
-        }
-        else if ($imap_ssl && $imap_ssl != 'tls' && (!$imap_port || $imap_port == 143)) {
-            $imap_port = 993;
-        }
+        $imap_port = $a_host['port'] ?? ($imap_ssl && $imap_ssl != 'tls' ? 993 : 143);
     }
 
     $imap_host = rcube_utils::idn_to_ascii($imap_host);

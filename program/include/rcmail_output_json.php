@@ -94,27 +94,28 @@ class rcmail_output_json extends rcmail_output
     /**
      * Call a client method
      *
-     * @param string Method to call
-     * @param ... Additional arguments
+     * @param string $cmd    Method to call
+     * @param mixed ...$args Additional arguments
      */
-    public function command()
+    public function command($cmd, ...$args)
     {
-        $cmd = func_get_args();
+        array_unshift($args, $cmd);
 
-        if (strpos($cmd[0], 'plugin.') === 0) {
-            $this->callbacks[] = $cmd;
+        if (strpos($args[0], 'plugin.') === 0) {
+            $this->callbacks[] = $args;
         }
         else {
-            $this->commands[] = $cmd;
+            $this->commands[] = $args;
         }
     }
 
     /**
-     * Add a localized label to the client environment
+     * Add a localized label(s) to the client environment
+     *
+     * @param mixed ...$args Labels (an array of strings, or many string arguments)
      */
-    public function add_label()
+    public function add_label(...$args)
     {
-        $args = func_get_args();
         if (count($args) == 1 && is_array($args[0])) {
             $args = $args[0];
         }
@@ -225,7 +226,7 @@ class rcmail_output_json extends rcmail_output
         $rcmail = rcmail::get_instance();
         $response['action'] = $rcmail->action;
 
-        if ($unlock = rcube_utils::get_input_value('_unlock', rcube_utils::INPUT_GPC)) {
+        if ($unlock = rcube_utils::get_input_string('_unlock', rcube_utils::INPUT_GPC)) {
             $response['unlock'] = $unlock;
         }
 

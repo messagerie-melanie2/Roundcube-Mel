@@ -170,72 +170,6 @@ class rcube_csv2vcard
         'phone1'                => 'phone:home',
         'phone'                 => 'phone:work',
         'email'                 => 'email:home',
-
-        // 0005948: Améliorer l'import csv des contacts
-        'city'                  => 'locality:work',
-        'countryregion'         => 'country:work',
-        'fax'                   => 'phone:work,fax',
-        'phone'                 => 'phone:work',
-        'postal_code'           => 'zipcode:work',
-        'state'                 => 'region:work',
-        'street'                => 'street:work',
-        'address'               => 'street:work',
-
-        'work_city'             => 'locality:work',
-        'work_countryregion'    => 'country:work',
-        'work_fax'              => 'phone:work,fax',
-        'work_phone'            => 'phone:work',
-        'work_postal_code'      => 'zipcode:work',
-        'work_state'            => 'region:work',
-        'work_street'           => 'street:work',
-
-        'full_name'             => 'displayname',
-        'home_email'            => 'email:home',
-        'work_email'            => 'email:work',
-        'other_email'           => 'email:other',
-
-        'home_address_street'       => 'street:home',
-        'home_address_city'         => 'locality:home',
-        'home_address_postal_code'  => 'zipcode:home',
-        'home_address_region'       => 'region:home',
-        'home_address_country'      => 'country:home',
-
-        'work_address_street'       => 'street:work',
-        'work_address_city'         => 'locality:work',
-        'work_address_postal_code'  => 'zipcode:work',
-        'work_address_region'       => 'region:work',
-        'work_address_country'      => 'country:work',
-
-        'other_address_street'       => 'street:other',
-        'other_address_city'         => 'locality:other',
-        'other_address_postal_code'  => 'zipcode:other',
-        'other_address_region'       => 'region:other',
-        'other_address_country'      => 'country:other',
-
-        '_home_phone'           => 'phone:home',
-        '_work_phone'           => 'phone:work',
-        '_other_phone'          => 'phone:other',
-        'other_phone_2'         => 'phone:other',
-        'mobile'                => 'phone:cell',
-
-        '_home_fax'           => 'phone:home,fax',
-        '_work_fax'           => 'phone:work,fax',
-
-        'structure'          => 'organization',
-        'function'           => 'jobtitle',
-        'manager'            => 'manager',
-        'groups'             => 'groups',
-        'room'               => 'room',
-
-        'home_website'       => 'website:homepage',
-        'work_website'       => 'website:other',
-
-        'unity'                => 'department',
-        'email'                => 'email:work',
-        'office'               => 'office',
-        'description'          => 'description',
-        'function_manager'     => 'manager',
-        'function_jobtitle'    => 'jobtitle',
     ];
 
     /**
@@ -472,9 +406,6 @@ class rcube_csv2vcard
                 $this->local_label_map = array_merge($this->label_map, $map);
             }
         }
-
-        $this->label_map       = array_flip($this->label_map);
-        $this->local_label_map = array_flip($this->local_label_map);
     }
 
     /**
@@ -488,12 +419,12 @@ class rcube_csv2vcard
      */
     public function import($csv, $dry_run = false, $skip_head = true)
     {
-        // convert to UTF-8
-        $head      = substr($csv, 0, 4096);
-        $charset   = rcube_charset::detect($head, RCUBE_CHARSET);
-        $csv       = rcube_charset::convert($csv, $charset);
-        $csv       = preg_replace(['/^[\xFE\xFF]{2}/', '/^\xEF\xBB\xBF/', '/^\x00+/'], '', $csv); // also remove BOM
-        $head      = '';
+        // convert to UTF-8 (supports default_charset and RCUBE_CHARSET as input)
+        // TODO: If the input charset is invalid we should probably just abort here
+        if ($charset = rcube_charset::check($csv)) {
+            $csv = rcube_charset::convert($csv, $charset);
+        }
+        $csv = preg_replace(['/^[\xFE\xFF]{2}/', '/^\xEF\xBB\xBF/', '/^\x00+/'], '', $csv); // also remove BOM
 
         // Split CSV file into lines
         $lines = rcube_utils::explode_quoted_string('[\r\n]+', $csv);
@@ -526,7 +457,7 @@ class rcube_csv2vcard
     /**
      * Set field mapping info
      *
-     * @param array Field mapping
+     * @param array $elements Field mapping
      */
     public function set_map($elements)
     {
@@ -548,7 +479,6 @@ class rcube_csv2vcard
         // get all vcard fields
         $fields            = array_unique($this->csv2vcard_map);
         $local_field_names = $this->local_label_map ?: $this->label_map;
-        $local_field_names = array_flip($local_field_names);
 
         // translate with the local map
         $map = [];
@@ -606,6 +536,9 @@ class rcube_csv2vcard
     {
         $elements = $this->parse_line($lines[0]);
 
+        $label_map = array_flip($this->label_map);
+        $local_label_map = array_flip($this->local_label_map);
+
         if (count($lines) == 2) {
             // first line of contents needed to properly identify fields in gmail CSV
             $contents = $this->parse_line($lines[1]);
@@ -617,8 +550,8 @@ class rcube_csv2vcard
 
         // check English labels
         for ($i = 0; $i < $size; $i++) {
-            if (!empty($this->label_map[$elements[$i]])) {
-                $label = $this->label_map[$elements[$i]];
+            if (!empty($label_map[$elements[$i]])) {
+                $label = $label_map[$elements[$i]];
                 if ($label && !empty($this->csv2vcard_map[$label])) {
                     $map1[$i] = $this->csv2vcard_map[$label];
                 }
@@ -626,9 +559,9 @@ class rcube_csv2vcard
         }
 
         // check localized labels
-        if (!empty($this->local_label_map)) {
+        if (!empty($local_label_map)) {
             for ($i = 0; $i < $size; $i++) {
-                $label = $this->local_label_map[$elements[$i]];
+                $label = $local_label_map[$elements[$i]];
 
                 // special localization label
                 if ($label && $label[0] == '_') {
@@ -749,11 +682,11 @@ class rcube_csv2vcard
             $name = explode(':', $name);
             if (is_array($value) && $name[0] != 'address') {
                 foreach ((array) $value as $val) {
-                    $vcard->set($name[0], $val, isset($name[1]) ? $name[1] : null);
+                    $vcard->set($name[0], $val, $name[1] ?? null);
                 }
             }
             else {
-                $vcard->set($name[0], $value, isset($name[1]) ? $name[1] : null);
+                $vcard->set($name[0], $value, $name[1] ?? null);
             }
         }
 

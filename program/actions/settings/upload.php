@@ -32,6 +32,7 @@ class rcmail_action_settings_upload extends rcmail_action
         $from   = rcube_utils::get_input_string('_from', rcube_utils::INPUT_GET);
         $type   = preg_replace('/(add|edit)-/', '', $from);
 
+
        // Validate URL input.
         if (!rcube_utils::is_simple_string($type)) {
             rcmail::write_log('errors', 'The URL parameter "_from" contains disallowed characters and the request is thus rejected.');
@@ -113,7 +114,7 @@ class rcmail_action_settings_upload extends rcmail_action
                         $error_label = 'invalidimageformat';
                     }
                     else if ($err == 'size_error') {
-                        $error_label = ['name' => 'filesizeerror', 'vars' => ['size' => $max_size]];
+                        $error_label = ['name' => 'filesizeerror', 'vars' => ['size' => self::show_bytes($max_size)]];
                     }
 
                     self::upload_error($err, $attachment, $error_label);
