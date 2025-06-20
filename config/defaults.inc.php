@@ -1226,6 +1226,10 @@ $config['autocomplete_threads'] = 0;
 // Max. number of entries in autocomplete popup. Default: 15.
 $config['autocomplete_max'] = 15;
 
+// PAMELA
+// Clean duplicates in automcomplete list. Default: false
+$config['autocomplete_clean_duplicates'] = true;
+
 // show address fields in this order
 // available placeholders: {street}, {locality}, {zipcode}, {country}, {region}
 $config['address_template'] = '{street}<br/>{locality} {zipcode}<br/>{country} {region}';
