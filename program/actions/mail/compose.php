@@ -1779,12 +1779,15 @@ class rcmail_action_mail_compose extends rcmail_action_mail_index
 
     // PAMELA - Pouvoir sauvegarder le compose_data autre part qu'en session
     /**
-     * Retrieve compose data by ID from the configured storage backend.
+     * Handles storage actions (get, set, remove) for compose data using the configured backend.
      *
-     * @param string $id The compose data identifier
-     * @return mixed The compose data if found, or null otherwise
+     * @param string $id   The compose data identifier
+     * @param int    $type The action type: 0 = get, 1 = set, 2 = remove
+     * @param mixed  $data Optional data to store (used for set)
+     * @return mixed|null  The compose data for get, or null for set/remove
+     * @throws Exception   If an invalid storage type or action is provided
      */
-    public static function get_compose_data($id) {
+    private static function _compose_storage_action($id, $type, $data = null) {
         $compose_id = null;
 
         $key = "compose_data_$id";
@@ -1793,24 +1796,80 @@ class rcmail_action_mail_compose extends rcmail_action_mail_index
 
         switch ($storage_type) {
             case 'session':
-                $compose_id = $_SESSION[$key];
+                switch ($type) {
+                    case 0:
+                        $compose_id = $_SESSION[$key];
+                        break;
+
+                    case 1:
+                        $_SESSION[$key] = $data;
+                        break;
+
+                    case 2:
+                        $rcmail->session->remove($key);
+                        break;
+
+                    default:
+                        throw new Exception("Invalide storage type");
+                        
+                }
                 break;
 
             case 'apc':
-            case 'db';
+            case 'db':
             case 'redis':
             case 'memcache':
                 $ttl = $rcmail->config->get('compose_data_ttl', '8h');
-                $compose_id = $rcmail->get_cache('compose_data', $storage_type, $ttl)->get($key);
+                $compose_id = call_user_func([$rcmail->get_cache('compose_data', $storage_type, $ttl), self::_get_cache_function($type)], $key, $data);
                 break;
             
             default:
-                $plugin = $rcmail->plugins->exec_hook('get_compose_id', ['id' => $id, 'storage_type' => $storage_type]);
+                $plugin = $rcmail->plugins->exec_hook(self::_get_cache_function($type).'_compose_id', ['id' => $id, 'storage_type' => $storage_type, 'data' => $data]);
                 if (isset($plugin['compose_id'])) $compose_id = $plugin['compose_id'];
                 break;
         }
 
         return $compose_id;
+    }
+
+    /**
+     * Returns the cache function name corresponding to the action type.
+     *
+     * @param int $type The action type: 0 = get, 1 = set, 2 = remove
+     * @return string   The cache function name ('get', 'set', or 'remove')
+     * @throws Exception If an invalid action type is provided
+     */
+    private static function _get_cache_function($type) : string {
+        $cache_function = null;
+        switch ($type) {
+            case 0:
+                $cache_function = 'get';
+                break;
+
+            case 1:
+                $cache_function = 'set';
+                break;
+
+            case 2:
+                $cache_function = 'remove';
+                break;
+
+            default:
+                throw new Exception("Invalide storage type");
+                
+        }
+
+        return $cache_function;
+    }
+
+    /**
+     * Retrieve compose data by ID from the configured storage backend.
+     *
+     * @param string $id The compose data identifier
+     * @return mixed The compose data if found, or null otherwise
+     */
+    public static function get_compose_data($id) {
+        return self::_compose_storage_action($id, 0);
     }
 
     /**
@@ -1821,27 +1880,7 @@ class rcmail_action_mail_compose extends rcmail_action_mail_index
      * @return mixed The stored compose data
      */
     public static function set_compose_data($id, $data) {
-        $key = "compose_data_$id";
-        $rcmail = rcmail::get_instance();
-        $storage_type = $rcmail->config->get('compose_data_storage', 'session');
-
-        switch ($storage_type) {
-            case 'session':
-                $_SESSION[$key] = $data;
-                break;
-
-            case 'apc':
-            case 'db';
-            case 'redis':
-            case 'memcache':
-                $ttl = $rcmail->config->get('compose_data_ttl', '8h');
-                $rcmail->get_cache('compose_data', $storage_type, $ttl)->set($key, $data);
-                break;
-            
-            default:
-                $rcmail->plugins->exec_hook('set_compose_id', ['id' => $id, 'storage_type' => $storage_type]);
-                break;
-        }
+        self::_compose_storage_action($id, 1, $data);
 
         return $data;
     }
@@ -1852,28 +1891,8 @@ class rcmail_action_mail_compose extends rcmail_action_mail_index
      * @param string $id The compose data identifier
      * @return void
      */
-    public static function remove_compose_data($id) {
-        $key = "compose_data_$id";
-        $rcmail = rcmail::get_instance();
-        $storage_type = $rcmail->config->get('compose_data_storage', 'session');
-
-        switch ($storage_type) {
-            case 'session':
-                $rcmail->session->remove($key);
-                break;
-
-            case 'apc':
-            case 'db';
-            case 'redis':
-            case 'memcache':
-                $ttl = $rcmail->config->get('compose_data_ttl', '8h');
-                $rcmail->get_cache('compose_data', $ttl)->remove($key);
-                break;
-            
-            default:
-                $rcmail->plugins->exec_hook('remove_compose_id', ['id' => $id, 'storage_type' => $storage_type]);
-                break;
-        }
+    public static function remove_compose_data($id) : void {
+        self::_compose_storage_action($id, 2);
     }
     // END PAMELA
 }
