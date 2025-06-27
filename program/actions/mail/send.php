@@ -35,7 +35,7 @@ class rcmail_action_mail_send extends rcmail_action
 
         $COMPOSE_ID = rcube_utils::get_input_string('_id', rcube_utils::INPUT_GPC);
         // PAMELA - Pouvoir sauvegarder le compose_data autre part qu'en session
-        $COMPOSE    =& rcmail_action_mail_compose::get_compose_data($COMPOSE_ID);
+        $COMPOSE    = rcmail_action_mail_compose::get_compose_data($COMPOSE_ID);
 
         // Sanity checks
         if (!isset($COMPOSE['id'])) {

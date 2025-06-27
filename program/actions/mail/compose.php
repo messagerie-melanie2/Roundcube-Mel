@@ -42,7 +42,7 @@ class rcmail_action_mail_compose extends rcmail_action_mail_index
         // PAMELA - Pouvoir sauvegarder le compose_data autre part qu'en session
         if (self::$COMPOSE_ID && !empty(self::get_compose_data(self::$COMPOSE_ID))) {
             // PAMELA - Pouvoir sauvegarder le compose_data autre part qu'en session
-            self::$COMPOSE =& self::get_compose_data(self::$COMPOSE_ID);
+            self::$COMPOSE = self::get_compose_data(self::$COMPOSE_ID);
         }
 
         // give replicated session storage some time to synchronize
@@ -53,7 +53,7 @@ class rcmail_action_mail_compose extends rcmail_action_mail_index
             // PAMELA - Pouvoir sauvegarder le compose_data autre part qu'en session
             if (self::get_compose_data(self::$COMPOSE_ID)) {
                 // PAMELA - Pouvoir sauvegarder le compose_data autre part qu'en session
-                self::$COMPOSE =& self::get_compose_data(self::$COMPOSE_ID);
+                self::$COMPOSE = self::get_compose_data(self::$COMPOSE_ID);
             }
         }
 
@@ -75,15 +75,13 @@ class rcmail_action_mail_compose extends rcmail_action_mail_index
             self::$COMPOSE_ID = uniqid(mt_rand());
             $params     = rcube_utils::request2param(rcube_utils::INPUT_GET, 'task|action', true);
 
-            $compose_data = [
+            // PAMELA - Pouvoir sauvegarder le compose_data autre part qu'en session
+            self::$COMPOSE = [
                 'id'      => self::$COMPOSE_ID,
                 'param'   => $params,
                 'mailbox' => isset($params['mbox']) && strlen($params['mbox'])
                     ? $params['mbox'] : $rcmail->storage->get_folder(),
             ];
-
-            // PAMELA - Pouvoir sauvegarder le compose_data autre part qu'en session
-            self::$COMPOSE =& $compose_data;
             self::process_compose_params(self::$COMPOSE);
             // PAMELA - Pouvoir sauvegarder le compose_data autre part qu'en session
             self::set_compose_data(self::$COMPOSE_ID, self::$COMPOSE);
@@ -1788,17 +1786,16 @@ class rcmail_action_mail_compose extends rcmail_action_mail_index
      * @throws Exception   If an invalid storage type or action is provided
      */
     private static function _compose_storage_action($id, $type, $data = null) {
-        $compose_id = null;
-
-        $key = "compose_data_$id";
+        $compose_data = null;
         $rcmail = rcmail::get_instance();
         $storage_type = $rcmail->config->get('compose_data_storage', 'session');
 
         switch ($storage_type) {
             case 'session':
+                $key = "compose_data_$id";
                 switch ($type) {
                     case 0:
-                        $compose_id = $_SESSION[$key];
+                        $compose_data = $_SESSION[$key];
                         break;
 
                     case 1:
@@ -1820,16 +1817,16 @@ class rcmail_action_mail_compose extends rcmail_action_mail_index
             case 'redis':
             case 'memcache':
                 $ttl = $rcmail->config->get('compose_data_ttl', '8h');
-                $compose_id = call_user_func([$rcmail->get_cache('compose_data', $storage_type, $ttl), self::_get_cache_function($type)], $key, $data);
+                $compose_data = call_user_func([$rcmail->get_cache('compose_data', $storage_type, $ttl), self::_get_cache_function($type)], $id, $data); //$id instead of $key for avoid redundant name in cache
                 break;
             
             default:
-                $plugin = $rcmail->plugins->exec_hook(self::_get_cache_function($type).'_compose_id', ['id' => $id, 'storage_type' => $storage_type, 'data' => $data]);
-                if (isset($plugin['compose_id'])) $compose_id = $plugin['compose_id'];
+                $plugin = $rcmail->plugins->exec_hook(self::_get_cache_function($type).'_compose_data', ['id' => $id, 'storage_type' => $storage_type, 'data' => $data, 'compose_data' => null]);
+                if (isset($plugin['compose_data'])) $compose_data = $plugin['compose_data'];
                 break;
         }
 
-        return $compose_id;
+        return $compose_data;
     }
 
     /**
