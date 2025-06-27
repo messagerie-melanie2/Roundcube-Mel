@@ -39,8 +39,10 @@ class rcmail_action_mail_compose extends rcmail_action_mail_index
         self::$COMPOSE_ID = rcube_utils::get_input_string('_id', rcube_utils::INPUT_GET);
         self::$COMPOSE    = null;
 
-        if (self::$COMPOSE_ID && !empty($_SESSION['compose_data_' . self::$COMPOSE_ID])) {
-            self::$COMPOSE =& $_SESSION['compose_data_' . self::$COMPOSE_ID];
+        // PAMELA - Pouvoir sauvegarder le compose_data autre part qu'en session
+        if (self::$COMPOSE_ID && !empty(self::get_compose_data(self::$COMPOSE_ID))) {
+            // PAMELA - Pouvoir sauvegarder le compose_data autre part qu'en session
+            self::$COMPOSE =& self::get_compose_data(self::$COMPOSE_ID);
         }
 
         // give replicated session storage some time to synchronize
@@ -48,8 +50,10 @@ class rcmail_action_mail_compose extends rcmail_action_mail_index
         while (self::$COMPOSE_ID && !is_array(self::$COMPOSE) && $rcmail->db->is_replicated() && $retries++ < 5) {
             usleep(500000);
             $rcmail->session->reload();
-            if ($_SESSION['compose_data_' . self::$COMPOSE_ID]) {
-                self::$COMPOSE =& $_SESSION['compose_data_' . self::$COMPOSE_ID];
+            // PAMELA - Pouvoir sauvegarder le compose_data autre part qu'en session
+            if (self::get_compose_data(self::$COMPOSE_ID)) {
+                // PAMELA - Pouvoir sauvegarder le compose_data autre part qu'en session
+                self::$COMPOSE =& self::get_compose_data(self::$COMPOSE_ID);
             }
         }
 
@@ -71,15 +75,18 @@ class rcmail_action_mail_compose extends rcmail_action_mail_index
             self::$COMPOSE_ID = uniqid(mt_rand());
             $params     = rcube_utils::request2param(rcube_utils::INPUT_GET, 'task|action', true);
 
-            $_SESSION['compose_data_' . self::$COMPOSE_ID] = [
+            $compose_data = [
                 'id'      => self::$COMPOSE_ID,
                 'param'   => $params,
                 'mailbox' => isset($params['mbox']) && strlen($params['mbox'])
                     ? $params['mbox'] : $rcmail->storage->get_folder(),
             ];
 
-            self::$COMPOSE =& $_SESSION['compose_data_' . self::$COMPOSE_ID];
+            // PAMELA - Pouvoir sauvegarder le compose_data autre part qu'en session
+            self::$COMPOSE =& $compose_data;
             self::process_compose_params(self::$COMPOSE);
+            // PAMELA - Pouvoir sauvegarder le compose_data autre part qu'en session
+            self::set_compose_data(self::$COMPOSE_ID, self::$COMPOSE);
 
             // check if folder for saving sent messages exists and is subscribed (#1486802)
             if (!empty(self::$COMPOSE['param']['sent_mbox'])) {
@@ -355,6 +362,9 @@ class rcmail_action_mail_compose extends rcmail_action_mail_index
         $rcmail->output->include_script('publickey.js');
 
         self::spellchecker_init();
+
+        // PAMELA - Pouvoir sauvegarder le compose_data autre part qu'en session
+        self::set_compose_data(self::$COMPOSE_ID, self::$COMPOSE);
 
         $rcmail->output->send('compose');
     }
@@ -1766,4 +1776,104 @@ class rcmail_action_mail_compose extends rcmail_action_mail_index
 
         return rtrim($out, "\n");
     }
+
+    // PAMELA - Pouvoir sauvegarder le compose_data autre part qu'en session
+    /**
+     * Retrieve compose data by ID from the configured storage backend.
+     *
+     * @param string $id The compose data identifier
+     * @return mixed The compose data if found, or null otherwise
+     */
+    public static function get_compose_data($id) {
+        $compose_id = null;
+
+        $key = "compose_data_$id";
+        $rcmail = rcmail::get_instance();
+        $storage_type = $rcmail->config->get('compose_data_storage', 'session');
+
+        switch ($storage_type) {
+            case 'session':
+                $compose_id = $_SESSION[$key];
+                break;
+
+            case 'apc':
+            case 'db';
+            case 'redis':
+            case 'memcache':
+                $ttl = $rcmail->config->get('compose_data_ttl', '8h');
+                $compose_id = $rcmail->get_cache('compose_data', $storage_type, $ttl)->get($key);
+                break;
+            
+            default:
+                $plugin = $rcmail->plugins->exec_hook('get_compose_id', ['id' => $id, 'storage_type' => $storage_type]);
+                if (isset($plugin['compose_id'])) $compose_id = $plugin['compose_id'];
+                break;
+        }
+
+        return $compose_id;
+    }
+
+    /**
+     * Store compose data by ID in the configured storage backend.
+     *
+     * @param string $id   The compose data identifier
+     * @param mixed  $data The compose data to store
+     * @return mixed The stored compose data
+     */
+    public static function set_compose_data($id, $data) {
+        $key = "compose_data_$id";
+        $rcmail = rcmail::get_instance();
+        $storage_type = $rcmail->config->get('compose_data_storage', 'session');
+
+        switch ($storage_type) {
+            case 'session':
+                $_SESSION[$key] = $data;
+                break;
+
+            case 'apc':
+            case 'db';
+            case 'redis':
+            case 'memcache':
+                $ttl = $rcmail->config->get('compose_data_ttl', '8h');
+                $rcmail->get_cache('compose_data', $storage_type, $ttl)->set($key, $data);
+                break;
+            
+            default:
+                $rcmail->plugins->exec_hook('set_compose_id', ['id' => $id, 'storage_type' => $storage_type]);
+                break;
+        }
+
+        return $data;
+    }
+
+    /**
+     * Remove compose data by ID from the configured storage backend.
+     *
+     * @param string $id The compose data identifier
+     * @return void
+     */
+    public static function remove_compose_data($id) {
+        $key = "compose_data_$id";
+        $rcmail = rcmail::get_instance();
+        $storage_type = $rcmail->config->get('compose_data_storage', 'session');
+
+        switch ($storage_type) {
+            case 'session':
+                $rcmail->session->remove($key);
+                break;
+
+            case 'apc':
+            case 'db';
+            case 'redis':
+            case 'memcache':
+                $ttl = $rcmail->config->get('compose_data_ttl', '8h');
+                $rcmail->get_cache('compose_data', $ttl)->remove($key);
+                break;
+            
+            default:
+                $rcmail->plugins->exec_hook('remove_compose_id', ['id' => $id, 'storage_type' => $storage_type]);
+                break;
+        }
+    }
+    // END PAMELA
 }

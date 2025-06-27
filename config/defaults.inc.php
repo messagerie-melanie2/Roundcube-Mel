@@ -22,7 +22,6 @@ $config = [];
 // ----------------------------------
 // SQL DATABASE
 // ----------------------------------
-
 // Database connection string (DSN) for read+write operations
 // Format (compatible with PEAR MDB2): db_provider://user:password@host/database
 // Currently supported db_providers: mysql, pgsql, sqlite, mssql, sqlsrv, oracle
@@ -1486,3 +1485,9 @@ $config['message_show_email'] = false;
 // 0 - Reply-All always
 // 1 - Reply-List if mailing list is detected
 $config['reply_all_mode'] = 0;
+// PAMELA - Pouvoir sauvegarder le compose_data autre part qu'en session
+// Backend to use for compose_data storage. 
+//Can either be 'session' (default), 'redis', 'memcache', 'apc', or 'db'
+$config['compose_data_storage'] = 'session';
+// Lifetime of compose data storage. Possible units: s, m, h, d, w
+$config['compose_data_storage_ttl'] = '8h'; 
