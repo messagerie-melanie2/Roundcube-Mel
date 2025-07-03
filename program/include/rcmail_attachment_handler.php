@@ -95,7 +95,8 @@ class rcmail_attachment_handler
         }
         else if ($file_id && $compose_id) {
             $file_id = preg_replace('/^rcmfile/', '', $file_id);
-            $compose = $_SESSION['compose_data_' . $compose_id] ?? null;
+            // PAMELA - Pouvoir sauvegarder le compose_data autre part qu'en session
+            $compose = rcmail_action_mail_compose::get_compose_data($compose_id) ?? null;
 
             if ($compose && ($this->upload = $compose['attachments'][$file_id])) {
                 $this->filename = $this->upload['name'];
