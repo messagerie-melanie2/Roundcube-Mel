@@ -167,12 +167,8 @@ class rcmail_action_mail_attachment_upload extends rcmail_action_mail_index
     public static function init()
     {
         self::$COMPOSE_ID  = rcube_utils::get_input_string('_id', rcube_utils::INPUT_GPC);
-        self::$COMPOSE     = null;
-        self::$SESSION_KEY = 'compose_data_' . self::$COMPOSE_ID;
-
-        if (self::$COMPOSE_ID && !empty($_SESSION[self::$SESSION_KEY])) {
-            self::$COMPOSE =& $_SESSION[self::$SESSION_KEY];
-        }
+        // PAMELA - Pouvoir sauvegarder le compose_data autre part qu'en session
+        self::$COMPOSE     = rcmail_action_mail_compose::get_compose_data(self::$COMPOSE_ID);
 
         if (!self::$COMPOSE) {
             die("Invalid session var!");

@@ -299,6 +299,9 @@ class rcmail_action_mail_send extends rcmail_action
             }
 
             if ($saved) {
+                // PAMELA - Pouvoir sauvegarder le compose_data autre part qu'en session
+                rcmail_action_mail_compose::set_compose_data($COMPOSE_ID, $COMPOSE);
+
                 $plugin = $rcmail->plugins->exec_hook('message_draftsaved', [
                         'msgid'  => $message_id,
                         'uid'    => $saved,

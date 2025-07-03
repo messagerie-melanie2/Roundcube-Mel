@@ -1490,4 +1490,4 @@ $config['reply_all_mode'] = 0;
 //Can either be 'session' (default), 'redis', 'memcache', 'apc', or 'db'
 $config['compose_data_storage'] = 'session';
 // Lifetime of compose data storage. Possible units: s, m, h, d, w
-$config['compose_data_storage_ttl'] = '8h'; 
+$config['compose_data_storage_ttl'] = '24h'; 
