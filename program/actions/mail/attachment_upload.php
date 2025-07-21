@@ -129,7 +129,8 @@ class rcmail_action_mail_attachment_upload extends rcmail_action_mail_index
                 if (!$err && !empty($attachment['status']) && empty($attachment['abort'])) {
                     // store new attachment in session
                     unset($attachment['status'], $attachment['abort']);
-                    $rcmail->session->append(self::$SESSION_KEY . '.attachments', $attachment['id'], $attachment);
+                    // PAMELA - Pouvoir sauvegarder le compose_data autre part qu'en session
+                    rcmail_action_mail_compose::add_attachments_to_compose_data(self::$COMPOSE_ID, $attachment['id'], $attachment);
 
                     self::attachment_success($attachment, $uploadid);
                 }

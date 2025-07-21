@@ -1883,6 +1883,51 @@ class rcmail_action_mail_compose extends rcmail_action_mail_index
     }
 
     /**
+     * Ajoute une pièce jointe aux données de composition du message selon le backend de stockage configuré.
+     *
+     * Selon le type de stockage (session, cache, base de données, etc.), la pièce jointe est ajoutée
+     * à la structure de données appropriée. Pour les backends de cache ou base de données, la pièce jointe
+     * est insérée dans le tableau 'attachments' du compose_data. Pour les autres types, un hook plugin est appelé.
+     *
+     * @param string $composeID Identifiant unique de la composition du message
+     * @param string $key       Clé de la pièce jointe (généralement son identifiant)
+     * @param mixed  $value     Valeur de la pièce jointe (données ou métadonnées)
+     *
+     * @return void
+     */
+    public static function add_attachments_to_compose_data($composeID, $key, $value) {
+        $rcmail = rcmail::get_instance();
+        $storage_type = $rcmail->config->get('compose_data_storage', 'session');
+
+        switch ($storage_type) {
+            case 'session':
+                $storageKey = "compose_data_$composeID.attachments";
+                $rcmail->session->append($storageKey, $key, $value);
+                break;
+
+            case 'apc':
+            case 'db':
+            case 'redis':
+            case 'memcache':
+                $data = self::get_compose_data($composeID);
+
+                if (!is_array($data)) $data = [];
+                
+                if (!isset($data['attachments'])) $data['attachments'] = [];
+
+                $data['attachments'][$key] = $value;
+
+                self::set_compose_data($composeID, $data);
+
+                break;
+            
+            default:
+                $rcmail->plugins->exec_hook('add_attachments_compose_data', ['id' => $composeID, 'storage_type' => $storage_type, 'data' => ['key' => $key, 'value' => $value]]);
+                break;
+        }
+    }
+
+    /**
      * Remove compose data by ID from the configured storage backend.
      *
      * @param string $id The compose data identifier
