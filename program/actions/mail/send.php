@@ -34,7 +34,8 @@ class rcmail_action_mail_send extends rcmail_action
         $rcmail->output->framed = true;
 
         $COMPOSE_ID = rcube_utils::get_input_string('_id', rcube_utils::INPUT_GPC);
-        $COMPOSE    =& $_SESSION['compose_data_'.$COMPOSE_ID];
+        // PAMELA - Pouvoir sauvegarder le compose_data autre part qu'en session
+        $COMPOSE    = rcmail_action_mail_compose::get_compose_data($COMPOSE_ID);
 
         // Sanity checks
         if (!isset($COMPOSE['id'])) {
@@ -298,6 +299,9 @@ class rcmail_action_mail_send extends rcmail_action
             }
 
             if ($saved) {
+                // PAMELA - Pouvoir sauvegarder le compose_data autre part qu'en session
+                rcmail_action_mail_compose::set_compose_data($COMPOSE_ID, $COMPOSE);
+
                 $plugin = $rcmail->plugins->exec_hook('message_draftsaved', [
                         'msgid'  => $message_id,
                         'uid'    => $saved,
@@ -343,7 +347,8 @@ class rcmail_action_mail_send extends rcmail_action
             }
             else {
                 $rcmail->plugins->exec_hook('attachments_cleanup', ['group' => $COMPOSE_ID]);
-                $rcmail->session->remove('compose_data_' . $COMPOSE_ID);
+                // PAMELA - Pouvoir sauvegarder le compose_data autre part qu'en session
+                rcmail_action_mail_compose::remove_compose_data($COMPOSE_ID);
                 $_SESSION['last_compose_session'] = $COMPOSE_ID;
 
                 $rcmail->output->command('remove_compose_data', $COMPOSE_ID);
