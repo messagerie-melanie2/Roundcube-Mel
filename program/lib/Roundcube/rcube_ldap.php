@@ -858,6 +858,11 @@ class rcube_ldap extends rcube_addressbook
                 return $this->result;
             }
 
+            // PAMELA - Slow autocomplete - MANTIS 3508: L'autocomplétion LDAP n'est pas efficace
+            if (implode(',', (array)$fields) == implode(',', $list_fields)) {
+                $fields = array('name');
+            }
+
             // get all entries of this page and post-filter those that really match the query
             $search = mb_strtolower($value);
             foreach ($ldap_data as $entry) {
@@ -876,6 +881,11 @@ class rcube_ldap extends rcube_addressbook
             }
 
             return $this->result;
+        }
+
+        // PAMELA - Slow autocomplete - MANTIS 3508: L'autocomplétion LDAP n'est pas efficace
+        if (implode(',', (array)$fields) == implode(',', $list_fields)) {
+            $fields = array('name');
         }
 
         // advanced per-attribute search
