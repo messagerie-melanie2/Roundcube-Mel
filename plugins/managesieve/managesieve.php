@@ -266,7 +266,7 @@ class managesieve extends rcube_plugin
 
         $engine = $this->get_engine();
 
-        // PAMEL - MANTIS 0008829: Faire un message de notification lorsque qu'une redirection Sieve vers l'extérieur est positionnée
+        // PAMELA - MANTIS 0008829: Faire un message de notification lorsque qu'une redirection Sieve vers l'extérieur est positionnée
         rcmail::get_instance()->plugins->exec_hook('managesieve_save_after', ['plugin' => $this, 'engine' => $engine]);
 
         // PAMELA - MANTIS 8807: Faire une trace de log lorsque d'une règle Sieve (Filtres) est enregistrée
