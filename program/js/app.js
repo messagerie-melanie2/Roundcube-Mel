@@ -1602,14 +1602,23 @@ else xmlhttp.setRequestHeader('X-Roundcube-Request', ref.env.request_token);
   };
 
   // return a localized string
-  this.get_label = function(name, domain)
-  {
-    if (domain && this.labels[domain+'.'+name])
-      return this.labels[domain+'.'+name];
-    else if (this.labels[name])
-      return this.labels[name];
-    else
-      return name;
+  // PAMELA NOTE: added variables parameter to replace $var in localized strings
+  this.get_label = function (label, domain, variables = null) {
+      if (domain && this.labels[domain + '.' + label]) {
+          label = this.labels[domain + '.' + label];
+      }
+      else if (this.labels[label]) {
+          label = this.labels[label];
+      }
+
+      // set variable value in localized string
+      if (variables && Object.keys(variables).length) {
+          for (const [key, value] of Object.entries(variables)) {
+              label = label.replaceAll(`$${key}`, value);
+          }
+      }
+
+      return label;
   };
 
   // alias for convenience reasons
