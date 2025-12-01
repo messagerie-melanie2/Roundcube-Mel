@@ -405,7 +405,8 @@ $labels['qrcode'] = 'Code QR';
 $labels['typehome'] = 'Domicile';
 $labels['typework'] = 'Travail';
 $labels['typeother'] = 'Autre';
-$labels['typemobile'] = 'Téléphone mobile';
+//PAMELA
+$labels['typemobile'] = 'Mobile';
 $labels['typemain'] = 'Principale';
 $labels['typehomefax'] = 'Fax personnel';
 $labels['typeworkfax'] = 'Fax professionnel';
