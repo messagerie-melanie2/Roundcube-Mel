@@ -75,7 +75,11 @@ CREATE TABLE identities (
     "reply-to" varchar(128),
     bcc varchar(128),
     signature text,
-    html_signature smallint DEFAULT 0 NOT NULL
+    html_signature smallint DEFAULT 0 NOT NULL,
+    signature_medium text,
+    html_signature_medium smallint DEFAULT 0 NOT NULL,
+    signature_simple text,
+    html_signature_simple smallint DEFAULT 0 NOT NULL
 );
 
 CREATE INDEX identities_user_id_idx ON identities (user_id, del);
