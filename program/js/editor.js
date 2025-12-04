@@ -602,20 +602,104 @@ function rcube_text_editor(config, id)
       message = input_message.val(),
       sig = rcmail.env.identity;
 
-    if (!this.editor) { // plain text mode
-      // remove the 'old' signature
-      if (show_sig && sig && rcmail.env.signatures && rcmail.env.signatures[sig]) {
-        sig = rcmail.env.signatures[sig].text;
-        sig = sig.replace(/\r\n/g, '\n');
+    // PAMELA - 0008128 - Plusieurs signatures
+    // Choix automatique du type de signature (full/intermediaire/simple)
+    // si l'utilisateur n'a pas déjà choisi via le menu
+    if (!rcmail.env.signature_type) {
+      var mode     = rcmail.env.show_sig_mode || 0; // 0–12 (config show_sig)
+      var is_reply = !!rcmail.env.compose_is_reply_or_forward;
+      var auto_type = null;
 
-        p = rcmail.env.top_posting ? message.indexOf(sig) : message.lastIndexOf(sig);
-        if (p >= 0)
-          message = message.substring(0, p) + message.substring(p+sig.length, message.length);
+      switch (mode) {
+        case 1:  // toujours avoir la signature complète
+          auto_type = 'full';
+          break;
+        case 2:  // toujours avoir la signature intermédiaire
+          auto_type = 'intermediaire';
+          break;
+        case 3:  // toujours avoir la signature simple
+          auto_type = 'simple';
+          break;
+        case 4:  // nouveau message = complète / réponse+transfert = intermédiaire
+          auto_type = is_reply ? 'intermediaire' : 'full';
+          break;
+        case 5:  // nouveau message = complète / réponse+transfert = simple
+          auto_type = is_reply ? 'simple' : 'full';
+          break;
+        case 6:  // nouveau message = intermédiaire / réponse+transfert = simple
+          auto_type = is_reply ? 'simple' : 'intermediaire';
+          break;
+        case 7:  // nouveau message uniquement = complète
+          auto_type = is_reply ? null : 'full';
+          break;
+        case 8:  // nouveau message uniquement = intermédiaire
+          auto_type = is_reply ? null : 'intermediaire';
+          break;
+        case 9:  // nouveau message uniquement = simple
+          auto_type = is_reply ? null : 'simple';
+          break;
+        case 10: // réponse+transfert uniquement = complète
+          auto_type = is_reply ? 'full' : null;
+          break;
+        case 11: // réponse+transfert uniquement = intermédiaire
+          auto_type = is_reply ? 'intermediaire' : null;
+          break;
+        case 12: // réponse+transfert uniquement = simple
+          auto_type = is_reply ? 'simple' : null;
+          break;
+        default: // 0 = jamais
+          auto_type = null;
       }
 
+      // Si dans ce contexte il ne faut pas de signature, on ne fait rien
+      if (!auto_type) {
+        if (show_sig) {
+          return;
+        }
+      }
+      else {
+        rcmail.env.signature_type = auto_type;
+      }
+    }
+
+    if (!this.editor) { // plain text mode
+      // PAMELA - 0008128 - Plusieurs signatures 
+      // Type de signature à utiliser (full/intermediaire/simple)
+      var sig_type = rcmail.env.signature_type || 'full';
+
+      // PAMELA - 0008128 - Plusieurs signatures
+      // Suppression de l'ancienne signature
+      if (show_sig && sig && (rcmail.env.signatures || rcmail.env.signatures_intermediaire || rcmail.env.signatures_simple)) {
+        var map_names = ['signatures', 'signatures_intermediaire', 'signatures_simple'];
+
+        for (var i = 0; i < map_names.length; i++) {
+          var map = rcmail.env[map_names[i]];
+          if (map && map[sig]) {
+            var old_sig = map[sig].text;
+            old_sig = old_sig.replace(/\r\n/g, '\n');
+
+            p = rcmail.env.top_posting ? message.indexOf(old_sig) : message.lastIndexOf(old_sig);
+            if (p >= 0) {
+              message = message.substring(0, p) + message.substring(p + old_sig.length, message.length);
+              break;
+            }
+          }
+        }
+      }
+
+      // PAMELA - 0008128 - Plusieurs signatures
+      // Choix de la map de signatures en fonction du type
+      var sig_map = rcmail.env.signatures; // par défaut: signature complète
+      if (sig_type == 'intermediaire' && rcmail.env.signatures_intermediaire)
+        sig_map = rcmail.env.signatures_intermediaire;
+      else if (sig_type == 'simple' && rcmail.env.signatures_simple)
+        sig_map = rcmail.env.signatures_simple;
+
       // add the new signature string
-      if (show_sig && rcmail.env.signatures && rcmail.env.signatures[id]) {
-        sig = rcmail.env.signatures[id].text;
+      // PAMELA - 0008128 - Plusieurs signatures 
+      // utilisation de la map sig_map
+      if (show_sig && sig_map && sig_map[id]) {
+        sig = sig_map[id].text;
         sig = sig.replace(/\r\n/g, '\n');
 
         // in place of removed signature
@@ -682,7 +766,17 @@ function rcube_text_editor(config, id)
         }
       }
 
-      sigElem.innerHTML = rcmail.env.signatures[id] ? rcmail.env.signatures[id].html : '';
+      // PAMELA - 0008128 - Plusieurs signatures
+      // Choix de la signature HTML en fonction du type
+      var sig_type_html = rcmail.env.signature_type || 'full',
+        sig_map_html = rcmail.env.signatures;
+
+      if (sig_type_html == 'intermediaire' && rcmail.env.signatures_intermediaire)
+        sig_map_html = rcmail.env.signatures_intermediaire;
+      else if (sig_type_html == 'simple' && rcmail.env.signatures_simple)
+        sig_map_html = rcmail.env.signatures_simple;
+
+      sigElem.innerHTML = sig_map_html && sig_map_html[id] ? sig_map_html[id].html : '';
     }
     else if (!rcmail.env.top_posting) {
       position_element = $(this.editor.getBody()).children().last();
@@ -693,6 +787,24 @@ function rcube_text_editor(config, id)
       this.editor.selection.select(position_element.get(0), true);
       this.editor.getWin().scroll(0, position_element.offset().top);
     }
+
+    // PAMELA - 0008128 - Plusieurs signatures
+    // Mettre à jour la coche dans le menu signature après avoir changé la signature
+    if (show_sig) {
+      this.update_signature_menu();
+    }
+  };
+
+  // PAMELA - 0008128 - Plusieurs signatures
+  // Fonction pour mettre à jour les coches dans le menu des signatures
+  this.update_signature_menu = function() {
+    var sig_type = rcmail.env.signature_type || 'full';
+    
+    // Masquer toutes les coches
+    $('#sigmenu .sig-checkmark').hide();
+    
+    // Afficher la coche pour la signature active
+    $('#sigmenu-' + sig_type + ' .sig-checkmark').show();
   };
 
   // trigger content save
