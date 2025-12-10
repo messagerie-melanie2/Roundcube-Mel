@@ -476,7 +476,8 @@ class rcube
         }
 
         // set session cookie lifetime so it never expires (#5961)
-        ini_set('session.cookie_lifetime', 0);
+        // PAMELA - 0009317: Problème de déconnexion mobile
+        ini_set('session.cookie_lifetime', $lifetime ? $lifetime * 10 : 0);
         ini_set('session.cookie_secure', $is_secure);
         ini_set('session.name', $sess_name ?: 'roundcube_sessid');
         ini_set('session.use_cookies', 1);
