@@ -508,8 +508,9 @@ $labels['timezone'] = 'Fuseau horaire';
 $labels['pagesize'] = 'Lignes par page';
 // PAMELA - 0008128 - Plusieurs signatures
 $labels['signature_full'] = 'Signature complète';
-$labels['signature_intermediate'] = 'Signature intermédiaire';
+$labels['signature_medium'] = 'Signature intermédiaire';
 $labels['signature_simple'] = 'Signature simple';
+$labels['signature_none'] = 'Pas de signature';
 $labels['dstactive'] = 'Heure avancée';
 $labels['showinextwin'] = 'Ouvrir le courriel dans une nouvelle fenêtre';
 $labels['showinextwin_short'] = 'Courriel dans une nouvelle fenêtre';

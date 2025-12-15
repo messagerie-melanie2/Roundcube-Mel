@@ -124,13 +124,13 @@ class rcmail_action_settings_identity_edit extends rcmail_action
                     'html_signature' => [
                         'type' => 'checkbox',
                         'label'   => $rcmail->gettext('htmlsignature'),
-                        'onclick' => "return rcmail.command('toggle-editor', {id: 'rcmfd_signature', html: this.checked}, '', event)"
+                        'onclick' => "return rcmail.command('toggle-signature-editor-full', '', this, event)"
                     ],
                 ]
             ],
             // PAMELA - 0008128 - Plusieurs signatures
             'signature_intermediaire' => [
-                'name'    => $rcmail->gettext('signature_intermediate'),
+                'name'    => $rcmail->gettext('signature_medium'),
                 'content' => [
                     'signature_medium' => [
                         'type'             => 'textarea',
@@ -142,7 +142,7 @@ class rcmail_action_settings_identity_edit extends rcmail_action
                     'html_signature_medium' => [
                         'type'    => 'checkbox',
                         'label'   => $rcmail->gettext('htmlsignature'),
-                        'onclick' => "return rcmail.command('toggle-editor', {id: 'rcmfd_signature_medium', html: this.checked}, '', event)"
+                        'onclick' => "return rcmail.command('toggle-signature-editor-medium', '', this, event)"
                     ],
                 ]
             ],
@@ -160,7 +160,7 @@ class rcmail_action_settings_identity_edit extends rcmail_action
                     'html_signature_simple' => [
                         'type'    => 'checkbox',
                         'label'   => $rcmail->gettext('htmlsignature'),
-                        'onclick' => "return rcmail.command('toggle-editor', {id: 'rcmfd_signature_simple', html: this.checked}, '', event)"
+                        'onclick' => "return rcmail.command('toggle-signature-editor-simple', '', this, event)"
                     ],
                 ]
             ],
@@ -181,8 +181,8 @@ class rcmail_action_settings_identity_edit extends rcmail_action
         }
         // PAMELA - 0008128 - Plusieurs signatures
         if (!empty(self::$record['html_signature_medium'])) {
-            $form['signature_medium']['content']['signature_medium']['class'] = 'mce_editor';
-            $form['signature_medium']['content']['signature_medium']['is_escaped'] = true;
+            $form['signature_intermediaire']['content']['signature_medium']['class'] = 'mce_editor';
+            $form['signature_intermediaire']['content']['signature_medium']['is_escaped'] = true;
             self::$record['signature_medium'] = htmlspecialchars(self::$record['signature_medium'] ?? '', ENT_NOQUOTES, RCUBE_CHARSET);
         }
         // PAMELA - 0008128 - Plusieurs signatures
@@ -259,14 +259,7 @@ class rcmail_action_settings_identity_edit extends rcmail_action
                     }
                     else {
                         $val   = self::$record[$col] ?? '';
-
-                        // PAMELA - 0008128 - Plusieurs signatures
-                        $fieldname = $col;
-                        if ($col === 'signature') {
-                            $fieldname = 'signature_full';
-                        }
-                        
-                        $value = rcube_output::get_edit_field($fieldname, $val, $colprop, $colprop['type']);
+                        $value = rcube_output::get_edit_field($col, $val, $colprop, $colprop['type']);
                     }
 
                     $table->add('title', html::label($colprop['id'], rcube::Q($label)));
