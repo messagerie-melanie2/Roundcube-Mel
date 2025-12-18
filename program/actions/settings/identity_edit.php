@@ -85,6 +85,10 @@ class rcmail_action_settings_identity_edit extends rcmail_action
 
         // Add HTML editor script(s)
         self::html_editor('identity', 'rcmfd_signature');
+        // PAMELA - 0008128 - Plusieurs signatures
+        self::html_editor('identity', 'rcmfd_signature_medium');
+        self::html_editor('identity', 'rcmfd_signature_simple');
+
 
         // add some labels to client
         $rcmail->output->add_label('noemailwarning', 'converting', 'editorwarning');
@@ -106,8 +110,9 @@ class rcmail_action_settings_identity_edit extends rcmail_action
                     'standard'     => ['type' => 'checkbox', 'label' => $rcmail->gettext('setdefault')],
                 ]
             ],
+            // PAMELA - 0008128 - Plusieurs signatures
             'signature' => [
-                'name'    => $rcmail->gettext('signature'),
+                'name'    => $rcmail->gettext('signature_full'),
                 'content' => [
                     'signature'      => [
                         'type'       => 'textarea',
@@ -119,7 +124,43 @@ class rcmail_action_settings_identity_edit extends rcmail_action
                     'html_signature' => [
                         'type' => 'checkbox',
                         'label'   => $rcmail->gettext('htmlsignature'),
-                        'onclick' => "return rcmail.command('toggle-editor', {id: 'rcmfd_signature', html: this.checked}, '', event)"
+                        'onclick' => "return rcmail.command('toggle-signature-editor-full', '', this, event)"
+                    ],
+                ]
+            ],
+            // PAMELA - 0008128 - Plusieurs signatures
+            'signature_intermediaire' => [
+                'name'    => $rcmail->gettext('signature_medium'),
+                'content' => [
+                    'signature_medium' => [
+                        'type'             => 'textarea',
+                        'size'             => $t_cols,
+                        'rows'             => $t_rows,
+                        'spellcheck'       => true,
+                        'data-html-editor' => true
+                    ],
+                    'html_signature_medium' => [
+                        'type'    => 'checkbox',
+                        'label'   => $rcmail->gettext('htmlsignature'),
+                        'onclick' => "return rcmail.command('toggle-signature-editor-medium', '', this, event)"
+                    ],
+                ]
+            ],
+            // PAMELA - 0008128 - Plusieurs signatures
+            'signature_simple' => [
+                'name'    => $rcmail->gettext('signature_simple'),
+                'content' => [
+                    'signature_simple' => [
+                        'type'             => 'textarea',
+                        'size'             => $t_cols,
+                        'rows'             => $t_rows,
+                        'spellcheck'       => true,
+                        'data-html-editor' => true
+                    ],
+                    'html_signature_simple' => [
+                        'type'    => 'checkbox',
+                        'label'   => $rcmail->gettext('htmlsignature'),
+                        'onclick' => "return rcmail.command('toggle-signature-editor-simple', '', this, event)"
                     ],
                 ]
             ],
@@ -137,6 +178,18 @@ class rcmail_action_settings_identity_edit extends rcmail_action
 
             // Correctly handle HTML entities in HTML editor (#1488483)
             self::$record['signature'] = htmlspecialchars(self::$record['signature'], ENT_NOQUOTES, RCUBE_CHARSET);
+        }
+        // PAMELA - 0008128 - Plusieurs signatures
+        if (!empty(self::$record['html_signature_medium'])) {
+            $form['signature_intermediaire']['content']['signature_medium']['class'] = 'mce_editor';
+            $form['signature_intermediaire']['content']['signature_medium']['is_escaped'] = true;
+            self::$record['signature_medium'] = htmlspecialchars(self::$record['signature_medium'] ?? '', ENT_NOQUOTES, RCUBE_CHARSET);
+        }
+        // PAMELA - 0008128 - Plusieurs signatures
+        if (!empty(self::$record['html_signature_simple'])) {
+            $form['signature_simple']['content']['signature_simple']['class'] = 'mce_editor';
+            $form['signature_simple']['content']['signature_simple']['is_escaped'] = true;
+            self::$record['signature_simple'] = htmlspecialchars(self::$record['signature_simple'] ?? '', ENT_NOQUOTES, RCUBE_CHARSET);
         }
 
         // hide "default" checkbox if only one identity is allowed

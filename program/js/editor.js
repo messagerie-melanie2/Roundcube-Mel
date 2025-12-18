@@ -320,93 +320,141 @@ function rcube_text_editor(config, id)
     return !!this.editor;
   };
 
-  // switch html/plain mode
-  this.toggle = function(ishtml, noconvert)
-  {
-    var curr, content, result,
-      // these non-printable chars are not removed on text2html and html2text
-      // we can use them as temp signature replacement
-      sig_mark = "\u0002\u0003",
-      input = $('#' + this.id),
-      signature = rcmail.env.identity ? rcmail.env.signatures[rcmail.env.identity] : null,
-      is_sig = signature && signature.text && signature.text.length > 1;
+    // switch html/plain mode
+    this.toggle = function(ishtml, noconvert)
+    {
+      var curr, content, result,
+        // these non-printable chars are not removed on text2html and html2text
+        // we can use them as temp signature replacement
+        sig_mark = "\u0002\u0003",
+        input = $('#' + this.id),
 
-    // apply spellcheck changes if spell checker is active
-    this.spellcheck_stop();
+        // PAMELA - 0008128 - Plusieurs signatures
+        // Sélection de la bonne map en fonction du type de signature choisi
+        sig_type = rcmail.env.signature_type || 'full',
+        sig_map  = rcmail.env.signatures;
 
-    if (ishtml) {
-      content = input.val();
+      // PAMELA - 0008128 - Plusieurs signatures
+      // rediriger vers les maps secondaires si nécessaire
+      if (sig_type == 'intermediaire' && rcmail.env.signatures_intermediaire)
+        sig_map = rcmail.env.signatures_intermediaire;
+      else if (sig_type == 'simple' && rcmail.env.signatures_simple)
+        sig_map = rcmail.env.signatures_simple;
+      else if (sig_type == 'none')
+        sig_map = null; // pas de signature active
 
-      // replace current text signature with temp mark
-      if (is_sig) {
-        content = content.replace(/\r\n/, "\n");
-        content = content.replace(signature.text.replace(/\r\n/, "\n"), sig_mark);
+      // signature sélectionnée dans la bonne map
+      var signature = (rcmail.env.identity && sig_map)
+          ? sig_map[rcmail.env.identity]
+          : null,
+
+        is_sig = signature && signature.text && signature.text.length > 1;
+
+      // apply spellcheck changes if spell checker is active
+      this.spellcheck_stop();
+
+      if (ishtml) {
+        content = input.val();
+
+        // Normalisation des sauts de lignes pour la recherche/remplacement
+        var contentNL = content.replace(/\r\n/g, "\n");
+
+        if (is_sig && sig_type != 'none') {
+          // replace current text signature with temp mark
+          var sig_txt = signature.text.replace(/\r\n/g, "\n");
+          contentNL = contentNL.replace(sig_txt, sig_mark);
+        }
+        else if (sig_type == 'none' && rcmail.env.identity) {
+          // PAMELA - 0008128 - Plusieurs signatures
+          // Si pas de signature demandée, on nettoie toutes les signatures 
+          // du contenu texte avant conversion.
+          var map_names = ['signatures', 'signatures_intermediaire', 'signatures_simple'];
+
+          for (var i = 0; i < map_names.length; i++) {
+            var map = rcmail.env[map_names[i]];
+            if (map && map[rcmail.env.identity] && map[rcmail.env.identity].text) {
+              var old_txt = map[rcmail.env.identity].text.replace(/\r\n/g, "\n");
+              contentNL = contentNL.replace(old_txt, '');
+            }
+          }
+        }
+
+        // on réutilise content normalisé
+        content = contentNL;
+
+        var init_editor = function(data) {
+          // replace signature mark with html version of the signature
+          if (is_sig && sig_type != 'none') {
+            data = data.replace(
+              sig_mark,
+              '<div id="_rc_sig">' + signature.html + '</div>'
+            );
+          }
+
+          ref.force_focus = true;
+          input.val(data);
+          tinymce.execCommand('mceAddEditor', false, ref.id);
+        };
+
+        // convert to html
+        if (!noconvert) {
+          result = rcmail.plain2html(content, init_editor);
+        }
+        else {
+          init_editor(content);
+          result = true;
+        }
+      }
+      else if (this.editor) {
+        if (is_sig && sig_type != 'none') {
+          // get current version of signature, we'll need it in
+          // case of html2text conversion abort
+          if (curr = this.editor.dom.get('_rc_sig'))
+            curr = curr.innerHTML;
+
+          // replace current signature with some non-printable characters
+          // we use non-printable characters, because this replacement
+          // is visible to the user
+          // doing this after getContent() would be hard
+          this.editor.dom.setHTML('_rc_sig', sig_mark);
+        }
+
+        // get html content
+        content = this.editor.getContent();
+
+        var init_plaintext = function(data) {
+          tinymce.execCommand('mceRemoveEditor', false, ref.id);
+          ref.editor = null;
+
+          // replace signature mark with text version of the signature
+          if (is_sig && sig_type != 'none') {
+            data = data.replace(
+              sig_mark,
+              "\n" + signature.text
+            );
+          }
+
+          input.val(data).focus().trigger('input');
+          rcmail.set_caret_pos(input.get(0), 0);
+        };
+
+        // convert html to text
+        if (!noconvert) {
+          result = rcmail.html2plain(content, init_plaintext);
+        }
+        else {
+          init_plaintext(input.val());
+          result = true;
+        }
+
+        // bring back current signature
+        if (!result && curr)
+          this.editor.dom.setHTML('_rc_sig', curr);
       }
 
-      var init_editor = function(data) {
-        // replace signature mark with html version of the signature
-        if (is_sig)
-          data = data.replace(sig_mark, '<div id="_rc_sig">' + signature.html + '</div>');
+      return result;
+    };
 
-        ref.force_focus = true;
-        input.val(data);
-        tinymce.execCommand('mceAddEditor', false, ref.id);
-      };
-
-      // convert to html
-      if (!noconvert) {
-        result = rcmail.plain2html(content, init_editor);
-      }
-      else {
-        init_editor(content);
-        result = true;
-      }
-    }
-    else if (this.editor) {
-      if (is_sig) {
-        // get current version of signature, we'll need it in
-        // case of html2text conversion abort
-        if (curr = this.editor.dom.get('_rc_sig'))
-          curr = curr.innerHTML;
-
-        // replace current signature with some non-printable characters
-        // we use non-printable characters, because this replacement
-        // is visible to the user
-        // doing this after getContent() would be hard
-        this.editor.dom.setHTML('_rc_sig', sig_mark);
-      }
-
-      // get html content
-      content = this.editor.getContent();
-
-      var init_plaintext = function(data) {
-        tinymce.execCommand('mceRemoveEditor', false, ref.id);
-        ref.editor = null;
-
-        // replace signature mark with text version of the signature
-        if (is_sig)
-          data = data.replace(sig_mark, "\n" + signature.text);
-
-        input.val(data).focus().trigger('input');
-        rcmail.set_caret_pos(input.get(0), 0);
-      };
-
-      // convert html to text
-      if (!noconvert) {
-        result = rcmail.html2plain(content, init_plaintext);
-      }
-      else {
-        init_plaintext(input.val());
-        result = true;
-      }
-
-      // bring back current signature
-      if (!result && curr)
-        this.editor.dom.setHTML('_rc_sig', curr);
-    }
-
-    return result;
-  };
 
   // start spellchecker
   this.spellcheck_start = function()
@@ -602,26 +650,153 @@ function rcube_text_editor(config, id)
       message = input_message.val(),
       sig = rcmail.env.identity;
 
-    if (!this.editor) { // plain text mode
-      // remove the 'old' signature
-      if (show_sig && sig && rcmail.env.signatures && rcmail.env.signatures[sig]) {
-        sig = rcmail.env.signatures[sig].text;
-        sig = sig.replace(/\r\n/g, '\n');
+      // PAMELA - 0008128 - Plusieurs signatures
+      // Mémorise la dernière position connue de la signature en mode texte
+      if (typeof this.last_sig_pos_plain === 'undefined') {
+        this.last_sig_pos_plain = -1;
+      }
+    // PAMELA - 0008128 - Plusieurs signatures
+    // helper pour ajouter un seul <br> avant la signature en HTML
+    var insert_single_br_before = function(elem) {
+      var $elem = $(elem);
+      var prev = $elem.prev();
 
-        p = rcmail.env.top_posting ? message.indexOf(sig) : message.lastIndexOf(sig);
-        if (p >= 0)
-          message = message.substring(0, p) + message.substring(p+sig.length, message.length);
+      // S'il y a déjà un <br> juste avant, on ne rajoute rien
+      if (prev.length && prev.is('br')) {
+        return;
+      }
+
+      // Sinon on insère un <br> avant la signature
+      $('<br>').insertBefore($elem);
+    };
+    // PAMELA - 0008128 - Plusieurs signatures
+    // Choix automatique du type de signature (full/intermediaire/simple)
+    // si l'utilisateur n'a pas déjà choisi via le menu
+    if (!rcmail.env.signature_type) {
+      var mode     = rcmail.env.show_sig_mode || 0; // 0–12 (config show_sig)
+      var is_reply = !!rcmail.env.compose_is_reply_or_forward;
+      var auto_type = null;
+
+      switch (mode) {
+        case 1:  // toujours avoir la signature complète
+          auto_type = 'full';
+          break;
+        case 2:  // toujours avoir la signature intermédiaire
+          auto_type = 'intermediaire';
+          break;
+        case 3:  // toujours avoir la signature simple
+          auto_type = 'simple';
+          break;
+        case 4:  // nouveau message = complète / réponse+transfert = intermédiaire
+          auto_type = is_reply ? 'intermediaire' : 'full';
+          break;
+        case 5:  // nouveau message = complète / réponse+transfert = simple
+          auto_type = is_reply ? 'simple' : 'full';
+          break;
+        case 6:  // nouveau message = intermédiaire / réponse+transfert = simple
+          auto_type = is_reply ? 'simple' : 'intermediaire';
+          break;
+        case 7:  // nouveau message uniquement = complète
+          auto_type = is_reply ? null : 'full';
+          break;
+        case 8:  // nouveau message uniquement = intermédiaire
+          auto_type = is_reply ? null : 'intermediaire';
+          break;
+        case 9:  // nouveau message uniquement = simple
+          auto_type = is_reply ? null : 'simple';
+          break;
+        case 10: // réponse+transfert uniquement = complète
+          auto_type = is_reply ? 'full' : null;
+          break;
+        case 11: // réponse+transfert uniquement = intermédiaire
+          auto_type = is_reply ? 'intermediaire' : null;
+          break;
+        case 12: // réponse+transfert uniquement = simple
+          auto_type = is_reply ? 'simple' : null;
+          break;
+        default: // 0 = jamais
+          auto_type = null;
+      }
+
+      // Si dans ce contexte il ne faut pas de signature, on ne fait rien
+      if (!auto_type) {
+        if (show_sig) {
+          return;
+        }
+      }
+      else {
+        rcmail.env.signature_type = auto_type;
+      }
+    }
+
+    // --- MODE TEXTE ---
+    if (!this.editor) { // plain text mode
+      // PAMELA - 0008128 - Plusieurs signatures 
+      // Type de signature à utiliser (full/intermediaire/simple)
+      var sig_type = rcmail.env.signature_type || 'full';
+
+      // PAMELA - 0008128 - Plusieurs signatures
+      // Suppression de l'ancienne signature
+      if (show_sig && sig && (rcmail.env.signatures || rcmail.env.signatures_intermediaire || rcmail.env.signatures_simple)) {
+        var map_names = ['signatures', 'signatures_intermediaire', 'signatures_simple'];
+
+        for (var i = 0; i < map_names.length; i++) {
+          var map = rcmail.env[map_names[i]];
+          if (map && map[sig]) {
+            var old_sig = map[sig].text;
+            old_sig = old_sig.replace(/\r\n/g, '\n');
+
+            p = rcmail.env.top_posting ? message.indexOf(old_sig) : message.lastIndexOf(old_sig);
+            if (p >= 0) {
+              message = message.substring(0, p) + message.substring(p + old_sig.length, message.length);
+
+              // on mémorise l'emplacement où se trouvait la signature
+              this.last_sig_pos_plain = p;
+
+              break;
+            }
+          }
+        }
+      }
+
+      // PAMELA - 0008128 - Plusieurs signatures
+      // Choix de la map de signatures en fonction du type
+      var sig_map = rcmail.env.signatures; // par défaut: signature complète
+      if (sig_type == 'intermediaire' && rcmail.env.signatures_intermediaire)
+        sig_map = rcmail.env.signatures_intermediaire;
+      else if (sig_type == 'simple' && rcmail.env.signatures_simple)
+        sig_map = rcmail.env.signatures_simple;
+      else if (sig_type == 'none') {
+        sig_map = null; // pas de nouvelle signature
       }
 
       // add the new signature string
-      if (show_sig && rcmail.env.signatures && rcmail.env.signatures[id]) {
-        sig = rcmail.env.signatures[id].text;
+      if (show_sig && sig_type != 'none' && sig_map && sig_map[id]) {
+        sig = sig_map[id].text;
         sig = sig.replace(/\r\n/g, '\n');
 
-        // in place of removed signature
+        // PAMELA - 0008128 - Plusieurs signatures
+        // position d'insertion de la signature
+        var sig_insert_pos = -1;
+
+        // si on trouve une ancienne signature dans le message
         if (p >= 0) {
-          message = message.substring(0, p) + sig + message.substring(p, message.length);
-          cursor_pos = p - 1;
+          sig_insert_pos = p;
+        }
+        // si on a mémorisé une position lors d'un appel précédent
+        else if (typeof this.last_sig_pos_plain === 'number'
+            && this.last_sig_pos_plain >= 0
+            && this.last_sig_pos_plain <= message.length) {
+          sig_insert_pos = this.last_sig_pos_plain;
+        }
+
+        // in place of removed signature (ou de l'ancien emplacement mémorisé)
+        if (sig_insert_pos >= 0) {
+          message = message.substring(0, sig_insert_pos) + sig + message.substring(sig_insert_pos, message.length);
+          cursor_pos = sig_insert_pos - 1;
+
+          // on met à jour la dernière position connue
+          this.last_sig_pos_plain = sig_insert_pos;
         }
         // empty message or new-message mode
         else if (!message || !rcmail.env.compose_mode) {
@@ -655,34 +830,281 @@ function rcube_text_editor(config, id)
       // move cursor before the signature
       rcmail.set_caret_pos(input_message.get(0), cursor_pos);
     }
-    else if (show_sig && rcmail.env.signatures) {  // html
-      var sigElem = this.editor.dom.get('_rc_sig');
 
-      // Append the signature as a div within the body
-      if (!sigElem) {
-        var body = this.editor.getBody();
+    // --- MODE HTML ---
+    else if (show_sig) {  // html mode
+      var body   = this.editor.getBody(),
+          sigElem;
+      // PAMELA - 0008128 - Plusieurs signatures
+      // Type de signature HTML et map
+      var sig_type_html = rcmail.env.signature_type || 'full',
+          sig_map_html  = rcmail.env.signatures;
 
-        sigElem = $('<div id="_rc_sig"></div>').get(0);
+      if (sig_type_html == 'intermediaire' && rcmail.env.signatures_intermediaire)
+        sig_map_html = rcmail.env.signatures_intermediaire;
+      else if (sig_type_html == 'simple' && rcmail.env.signatures_simple)
+        sig_map_html = rcmail.env.signatures_simple;
 
-        // insert at start or at cursor position in top-posting mode
-        // (but not if the content is empty and not in new-message mode)
-        if (rcmail.env.top_posting && !rcmail.env.sig_below
-          && rcmail.env.compose_mode && (body.childNodes.length > 1 || $(body).text())
-        ) {
-          this.editor.getWin().focus(); // correct focus in IE & Chrome
+      // PAMELA - 0008128 - Plusieurs signatures
+      // Suppression des anciennes signatures HTML
+      // + nettoyage des <p> vides juste autour
+      $(body).find('#_rc_sig').each(function () {
+        var $sig  = $(this),
+            $prev = $sig.prev('p'),
+            $next = $sig.next('p');
 
-          var node = this.editor.selection.getNode();
-
-          $(sigElem).insertBefore(node.nodeName == 'BODY' ? body.firstChild : node.nextSibling);
-          $('<p>').append($('<br>')).insertBefore(sigElem);
+        // On garde un placeholder à la place de l’ancienne signature
+        if (!$(body).find('#_rc_sig_placeholder').length) {
+          // ajout &nbsp; pour éviter que TinyMCE ne supprime le span si vide
+          $('<span id="_rc_sig_placeholder">&nbsp;</span>').insertBefore($sig);
         }
-        else {
-          body.appendChild(sigElem);
-          position_element = rcmail.env.top_posting && rcmail.env.compose_mode ? body.firstChild : $(sigElem).prev();
+
+        // est ce qu'un <p> est "vide"
+        var clean_if_empty = function ($p) {
+          if (!$p.length) return;
+          // texte vide (ou juste espaces / nbsp)
+          var txt = $p.text().replace(/\u00a0/g, '').trim();
+          if (txt.length) return;
+
+          // uniquement des <br> éventuellement
+          var only_br = true;
+          $p.contents().each(function () {
+            if (this.nodeType === 1 && this.nodeName !== 'BR') {
+              only_br = false;
+              return false;
+            }
+          });
+
+          if (only_br) {
+            $p.remove();
+          }
+        };
+
+        clean_if_empty($prev);
+        clean_if_empty($next);
+
+        $sig.remove();
+      });
+
+      sigElem = null;
+
+      // PAMELA - 0008128 - Plusieurs signatures
+      // Si type = none, on n'insère rien, mais on garde le placeholder
+      if (sig_type_html == 'none') {
+        if (!rcmail.env.top_posting) {
+          position_element = $(body).children().last();
         }
+
+        this.update_signature_menu();
+        return;
       }
 
-      sigElem.innerHTML = rcmail.env.signatures[id] ? rcmail.env.signatures[id].html : '';
+      // PAMELA - 0008128 - Plusieurs signatures
+      if (sig_map_html && sig_map_html[id]) {
+        sigElem = $('<div id="_rc_sig"></div>').get(0);
+        sigElem.innerHTML = sig_map_html[id].html;
+
+        // Si on a un placeholder, on réutilise strictement cette position
+        var $placeholder = $(body).find('#_rc_sig_placeholder');
+        if ($placeholder.length) {
+
+            // Supprimer les <br> ou espaces multiples avant le placeholder
+            var prev = $placeholder.prev();
+            if (prev.length && prev.is('br')) {
+                prev.remove();
+            }
+
+            // Insérer exactement une ligne vide
+            $placeholder.after('<br>');
+
+            // Insérer la signature après cette ligne vide
+            $placeholder.next().after(sigElem);
+
+            position_element = $(sigElem);
+
+            // retirer le placeholder
+            $placeholder.remove();
+        }
+        else if (rcmail.env.compose_is_reply_or_forward) {
+          // Gestion pour les réponses/transferts en HTML
+          // Chercher la ligne de citation selon le type de message
+          var allElements = $(body).find('*');
+          var originalContentStart = null;
+          var is_forward = false;
+          
+          // Détecter le type de citation en fonction du motif
+          allElements.each(function() {
+            var text = $(this).text().trim();
+            var html = $(this).html();
+            
+            // Pour les réponses : motif "Le JJ/MM/AAAA HH:MM, ... a écrit :"
+            if (text.match(/^Le\s+\d{1,2}\/\d{1,2}\/\d{4}\s+\d{1,2}:\d{2},\s+.+\s+a\s+écrit\s*:/)) {
+              originalContentStart = $(this);
+              is_forward = false;
+              return false;
+            }
+            // Pour les transferts : motif "Courriel original"
+            else if (text.includes('Courriel original') || html.includes('Courriel original')) {
+              originalContentStart = $(this);
+              is_forward = true;
+              return false;
+            }
+            // Vérifier aussi le parent si le texte est découpé
+            else if ($(this).find(':contains("Courriel original")').length > 0) {
+              originalContentStart = $(this).find(':contains("Courriel original")').first();
+              is_forward = true;
+              return false;
+            }
+          });
+          
+          // Vérifie si l'utilisateur a déjà rédigé du texte
+          var userHasContent = false;
+          var lastUserElement = null;
+          
+          // Si on a trouvé le début du contenu original
+          if (originalContentStart) {
+            if (is_forward) {
+              // Transfert : remonter au conteneur principal si besoin
+              var $container = originalContentStart;
+              var containerText = $container.text();
+              
+              if (!containerText.includes('Date:') && !containerText.includes('De:')) {
+                $container = $container.closest('div, p, blockquote, table');
+              }
+              
+              if ($container.length > 0) {
+                originalContentStart = $container;
+              }
+            }
+            
+            // Chercher les blocs AVANT le contenu original au niveau des enfants directs du body
+            var elementsBeforeOriginal = [];
+            var foundOriginal = false;
+
+            $(body).children().each(function () {
+              if (foundOriginal) {
+                return;
+              }
+
+              var $elem = $(this);
+
+              if ($elem.is(originalContentStart) || $elem.find(originalContentStart).length > 0) {
+                foundOriginal = true;
+                return;
+              }
+
+              var text = $elem.text().replace(/\u00a0/g, ' ').trim();
+              if (!text.length) {
+                return;
+              }
+
+              elementsBeforeOriginal.push({
+                element: this,
+                text: text
+              });
+            });
+
+            // Cherche le dernier élément non-vide avant le contenu original
+            for (var i = elementsBeforeOriginal.length - 1; i >= 0; i--) {
+              var elemData = elementsBeforeOriginal[i];
+              var text = elemData.text;
+
+              // Ignorer les métadonnées typiques (lignes "De :", "À :", ...)
+              if (
+                text.length > 2 &&
+                !/^De\s*:/.test(text) &&
+                !/^À\s*:/.test(text) &&
+                !/^Objet\s*:/.test(text) &&
+                !/^Date\s*:/.test(text) &&
+                !/Courriel original/i.test(text) &&
+                !/^Le\s+\d{1,2}\/\d{1,2}\/\d{4}\s+\d{1,2}:\d{2},\s+.+\s+a\s+écrit\s*:/.test(text)
+              ) {
+                userHasContent = true;
+                lastUserElement = elemData.element;
+                break;
+              }
+            }
+            
+            if (userHasContent && lastUserElement) {
+              // L'utilisateur a déjà rédigé une réponse alors on insére la signature après sa réponse
+              $(lastUserElement).after(sigElem);
+              insert_single_br_before(sigElem);
+              position_element = $(sigElem);
+            } else {
+              // Pas de réponse de l'utilisateur, alors insérer la signature avant le contenu original
+              $(originalContentStart).before(sigElem);
+              insert_single_br_before(sigElem);
+              position_element = $(sigElem);
+            }
+          } else {
+            // si aucune ligne de citation détectée, alors on cherche du contenu utilisateur
+            var allChildren = $(body).children();
+            var nonEmptyElements = [];
+            
+            allChildren.each(function() {
+              var $elem = $(this);
+              var text = $elem.text().replace(/\u00a0/g, ' ').trim();
+              
+              // Ignorer les signatures
+              if (!$elem.is('#_rc_sig') && text.length > 0) {
+                nonEmptyElements.push({
+                  element: this,
+                  text: text
+                });
+              }
+            });
+            
+            if (nonEmptyElements.length > 0) {
+              // Prendre le dernier élément non-vide
+              var lastElemData = nonEmptyElements[nonEmptyElements.length - 1];
+              var $lastElem = $(lastElemData.element);
+              
+              // Vérifier si c'est du contenu utilisateur (pas une métadonnée)
+              var text = lastElemData.text;
+              if (!text.includes('De :') && 
+                  !text.includes('À :') && 
+                  !text.includes('Objet :') &&
+                  !text.includes('Date :') &&
+                  !text.includes('Date:') &&
+                  !text.includes('Courriel original') &&
+                  !text.match(/^Le\s+\d{1,2}\/\d{1,2}\/\d{4}\s+\d{1,2}:\d{2},\s+.+\s+a\s+écrit\s*:/)) {
+                
+                // Insérer la signature après le dernier contenu utilisateur
+                $lastElem.after(sigElem);
+                insert_single_br_before(sigElem);
+                position_element = $(sigElem);
+              } else {
+                // si métadonnée insérer la signature à la fin
+                $(body).append(sigElem);
+                insert_single_br_before(sigElem);
+                position_element = $(sigElem);
+              }
+            } else {
+              // Pas de contenu du tout, insérer à la fin
+              $(body).append(sigElem);
+              insert_single_br_before(sigElem);
+              position_element = $(sigElem);
+            }
+          }
+        }
+        else {
+          // Nouveau message uniquement
+          var is_top_posting2 = rcmail.env.top_posting && !rcmail.env.sig_below
+            && rcmail.env.compose_mode && (body.childNodes.length > 1 || $(body).text());
+
+          if (is_top_posting2) {
+            // Insérer au début
+            $(body).prepend(sigElem);
+            insert_single_br_before(sigElem);
+            position_element = $(sigElem);
+          } else {
+            // Ajouter à la fin
+            $(body).append(sigElem);
+            insert_single_br_before(sigElem);
+            position_element = $(sigElem);
+          }
+        }
+      }
     }
     else if (!rcmail.env.top_posting) {
       position_element = $(this.editor.getBody()).children().last();
@@ -690,9 +1112,33 @@ function rcube_text_editor(config, id)
 
     // put cursor before signature and scroll the window
     if (this.editor && position_element && position_element.length) {
-      this.editor.selection.select(position_element.get(0), true);
+      this.editor.focus();
+
+      var range = this.editor.selection.getRng();
+      range.setStartBefore(position_element[0]);
+      range.setEndBefore(position_element[0]);
+      this.editor.selection.setRng(range);
+
       this.editor.getWin().scroll(0, position_element.offset().top);
     }
+
+    // PAMELA - 0008128 - Plusieurs signatures
+    // Mettre à jour la coche dans le menu signature après avoir changé la signature
+    if (show_sig) {
+      this.update_signature_menu();
+    }
+  };
+
+  // PAMELA - 0008128 - Plusieurs signatures
+  // Fonction pour mettre à jour les coches dans le menu des signatures
+  this.update_signature_menu = function() {
+    var sig_type = rcmail.env.signature_type || 'full';
+    
+    // Masquer toutes les coches
+    $('#sigmenu .sig-checkmark').hide();
+    
+    // Afficher la coche pour la signature active
+    $('#sigmenu-' + sig_type + ' .sig-checkmark').show();
   };
 
   // trigger content save
