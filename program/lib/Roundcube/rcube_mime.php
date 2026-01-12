@@ -312,7 +312,7 @@ class rcube_mime
         $str = preg_replace('/\r?\n(\s|\t)?/', ' ', $str);
 
         // extract list items, remove comments
-        $str = self::explode_header_string(',;', $str, true);
+        $str = self::explode_header_string(',;', $str, false);
         $result = array();
 
         // simplified regexp, supporting quoted local part
