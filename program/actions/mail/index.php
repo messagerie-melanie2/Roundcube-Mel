@@ -153,7 +153,8 @@ class rcmail_action_mail_index extends rcmail_action
 
         // register UI objects
         $rcmail->output->add_handlers([
-            'mailboxlist'         => [$rcmail, 'folder_list'],
+            // PAMELA - Commenté car conflit avec le plugin Mel Elastic
+            //'mailboxlist'         => [$rcmail, 'folder_list'],
             'quotadisplay'        => [$this, 'quota_display'],
             'messages'            => [$this, 'message_list'],
             'messagecountdisplay' => [$this, 'messagecount_display'],
