@@ -3047,7 +3047,7 @@ class rcube_imap extends rcube_storage
 
         // PAMELA - Add user account (for shared mailboxes) in cache key
         $account = rcube::get_instance()->plugins->exec_hook('m2_get_account', ['folder' => $this->folder]);
-        if (isset($account) && isset($account['account'])) $cache_key .= ':'.$account['account'];
+        if (isset($account) && isset($account['account']) && $account['account'] !== '') $cache_key .= ':'.$account['account'];
         
         // get cached folder list
         $a_mboxes = $this->get_cache($cache_key);
