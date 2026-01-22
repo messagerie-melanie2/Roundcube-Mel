@@ -32,9 +32,8 @@ class rcmail_action_settings_identity_save extends rcmail_action_settings_index
 
         $IDENTITIES_LEVEL = intval($rcmail->config->get('identities_level', 0));
 
-        // PAMELA - 0008128 - Plusieurs signatures
-        $a_save_cols = ['name', 'email', 'organization', 'reply-to', 'bcc', 'standard', 'signature', 'html_signature', 'signature_medium', 'html_signature_medium', 'signature_simple', 'html_signature_simple'];
-        $a_bool_cols = ['standard', 'html_signature', 'html_signature_medium', 'html_signature_simple'];
+        $a_save_cols = ['name', 'email', 'organization', 'reply-to', 'bcc', 'standard', 'signature', 'html_signature'];
+        $a_bool_cols = ['standard', 'html_signature'];
         $updated     = false;
 
         // check input
@@ -42,11 +41,6 @@ class rcmail_action_settings_identity_save extends rcmail_action_settings_index
             $rcmail->output->show_message('noemailwarning', 'warning');
             $rcmail->overwrite_action('edit-identity');
             return;
-        }
-
-        // PAMELA - 0008128 - Plusieurs signatures
-        if (isset($_POST['_signature_full']) && !isset($_POST['_signature'])) {
-            $_POST['_signature'] = $_POST['_signature_full'];
         }
 
         $save_data = [];
@@ -75,15 +69,10 @@ class rcmail_action_settings_identity_save extends rcmail_action_settings_index
         if ($IDENTITIES_LEVEL == 1 || $IDENTITIES_LEVEL == 3) {
             unset($save_data['email']);
         }
-        // PAMELA - 0008128 - Plusieurs signatures
         // unset all fields except signature
         else if ($IDENTITIES_LEVEL == 4) {
             foreach ($save_data as $idx => $value) {
-                if (!in_array($idx, [
-                    'signature','html_signature',
-                    'signature_medium','html_signature_medium',
-                    'signature_simple','html_signature_simple'
-                ])) {
+                if ($idx != 'signature' && $idx != 'html_signature') {
                     unset($save_data[$idx]);
                 }
             }
@@ -117,24 +106,7 @@ class rcmail_action_settings_identity_save extends rcmail_action_settings_index
 
             // clear POST data of signature, we want to use safe content
             // when the form is displayed again
-            // PAMELA - 0008128 - Plusieurs signatures
-            unset($_POST['_signature'], $_POST['_signature_full']);
-        }
-
-        // PAMELA - 0008128 - Plusieurs signatures
-        // Signature intermédiaire
-        if (!empty($save_data['signature_medium']) && !empty($save_data['html_signature_medium'])) {
-            $save_data['signature_medium'] = self::attach_images($save_data['signature_medium'], 'identity');
-            $save_data['signature_medium'] = self::wash_html($save_data['signature_medium']);
-            unset($_POST['_signature_medium']);
-        }
-
-        // PAMELA - 0008128 - Plusieurs signatures
-        // Signature simple
-        if (!empty($save_data['signature_simple']) && !empty($save_data['html_signature_simple'])) {
-            $save_data['signature_simple'] = self::attach_images($save_data['signature_simple'], 'identity');
-            $save_data['signature_simple'] = self::wash_html($save_data['signature_simple']);
-            unset($_POST['_signature_simple']);
+            unset($_POST['_signature']);
         }
 
         // update an existing identity

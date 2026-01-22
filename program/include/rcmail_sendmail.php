@@ -987,9 +987,6 @@ class rcmail_sendmail
 
         if (!empty($this->data['identities'])) {
             $a_signatures = [];
-            // PAMELA - 0008128 - Plusieurs signatures
-            $a_signatures_inter = [];
-            $a_signatures_simple = [];
             $identities   = [];
             $top_posting  = intval($this->rcmail->config->get('reply_mode')) > 0
                 && !$this->rcmail->config->get('sig_below')
@@ -1028,56 +1025,6 @@ class rcmail_sendmail
                     $a_signatures[$identity_id]['html'] = $html;
                 }
 
-                // PAMELA - 0008128 - Plusieurs signatures
-                // Signature intermédiaire
-                if (!empty($sql_arr['signature_medium']) && empty($this->data['param']['nosig'])) {
-                    $text = $html = $sql_arr['signature_medium'];
-
-                    if (!empty($sql_arr['html_signature_medium'])) {
-                        $text = $this->rcmail->html2text($html, ['links' => false]);
-                        $text = trim($text, "\r\n");
-                    }
-                    else {
-                        $t2h  = new rcube_text2html($text, false);
-                        $html = $t2h->get_html();
-                    }
-
-                    if ($add_separator && !preg_match('/^--[ -]\r?\n/m', $text)) {
-                        $text = $separator . "\n" . ltrim($text, "\r\n");
-                        $html = $separator . "<br>" . $html;
-                    }
-
-                    $a_signatures_inter[$identity_id] = [
-                        'text' => $text,
-                        'html' => $html
-                    ];
-                }
-
-                // PAMELA - 0008128 - Plusieurs signatures
-                // Signature simple
-                if (!empty($sql_arr['signature_simple']) && empty($this->data['param']['nosig'])) {
-                    $text = $html = $sql_arr['signature_simple'];
-
-                    if (!empty($sql_arr['html_signature_simple'])) {
-                        $text = $this->rcmail->html2text($html, ['links' => false]);
-                        $text = trim($text, "\r\n");
-                    }
-                    else {
-                        $t2h  = new rcube_text2html($text, false);
-                        $html = $t2h->get_html();
-                    }
-
-                    if ($add_separator && !preg_match('/^--[ -]\r?\n/m', $text)) {
-                        $text = $separator . "\n" . ltrim($text, "\r\n");
-                        $html = $separator . "<br>" . $html;
-                    }
-
-                    $a_signatures_simple[$identity_id] = [
-                        'text' => $text,
-                        'html' => $html
-                    ];
-                }
-
                 // add bcc and reply-to
                 if (!empty($sql_arr['reply-to'])) {
                     $identities[$identity_id]['replyto'] = $sql_arr['reply-to'];
@@ -1093,9 +1040,6 @@ class rcmail_sendmail
 
             // add signatures to client
             $this->rcmail->output->set_env('signatures', $a_signatures);
-            // PAMELA - 0008128 - Plusieurs signatures
-            $this->rcmail->output->set_env('signatures_intermediaire', $a_signatures_inter);
-            $this->rcmail->output->set_env('signatures_simple', $a_signatures_simple);
             $this->rcmail->output->set_env('identities', $identities);
         }
         // no identities, display text input field

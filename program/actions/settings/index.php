@@ -885,19 +885,9 @@ class rcmail_action_settings_index extends rcmail_action
                     ]);
 
                     $select->add($rcmail->gettext('never'), 0);
-                    // PAMELA - 0008128 - Plusieurs signatures
-                    $select->add($rcmail->gettext('sig_always_full'), 1);
-                    $select->add($rcmail->gettext('sig_always_intermediate'), 2);
-                    $select->add($rcmail->gettext('sig_always_simple'), 3);
-                    $select->add($rcmail->gettext('sig_new_full_reply_intermediate'), 4);
-                    $select->add($rcmail->gettext('sig_new_full_reply_simple'), 5);
-                    $select->add($rcmail->gettext('sig_new_intermediate_reply_simple'), 6);
-                    $select->add($rcmail->gettext('sig_new_only_full'), 7);
-                    $select->add($rcmail->gettext('sig_new_only_intermediate'), 8);
-                    $select->add($rcmail->gettext('sig_new_only_simple'), 9);
-                    $select->add($rcmail->gettext('sig_reply_only_full'), 10);
-                    $select->add($rcmail->gettext('sig_reply_only_intermediate'), 11);
-                    $select->add($rcmail->gettext('sig_reply_only_simple'), 12);
+                    $select->add($rcmail->gettext('always'), 1);
+                    $select->add($rcmail->gettext('newmessageonly'), 2);
+                    $select->add($rcmail->gettext('replyandforwardonly'), 3);
 
                     $blocks['sig']['options']['show_sig'] = [
                         'title'   => html::label($field_id, rcube::Q($rcmail->gettext('autoaddsignature'))),
