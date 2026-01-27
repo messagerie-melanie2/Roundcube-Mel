@@ -56,12 +56,30 @@ class rcmail_action_settings_identity_save extends rcmail_action_settings_index
                 $save_data[$col] = rcube_utils::get_input_string($fname, rcube_utils::INPUT_POST, true);
             }
         }
+        
+        // PAMELA - 0008128 - Plusieurs signatures
+        // Déduction automatique du flag HTML
+        // Si l'UI ne poste pas _html_signature*, on le déduit du contenu
+        if (!isset($_POST['_html_signature']) && isset($save_data['signature'])) {
+            $save_data['html_signature'] = (int) preg_match('/<[^>]+>/', $save_data['signature']);
+        }
+
+        if (!isset($_POST['_html_signature_medium']) && isset($save_data['signature_medium'])) {
+            $save_data['html_signature_medium'] = (int) preg_match('/<[^>]+>/', $save_data['signature_medium']);
+        }
+
+        if (!isset($_POST['_html_signature_simple']) && isset($save_data['signature_simple'])) {
+            $save_data['html_signature_simple'] = (int) preg_match('/<[^>]+>/', $save_data['signature_simple']);
+        }
 
         // set "off" values for checkboxes that were not checked, and therefore
         // not included in the POST body.
         foreach ($a_bool_cols as $col) {
             $fname = '_' . $col;
-            if (!isset($_POST[$fname])) {
+
+            // PAMELA - 0008128 - Plusieurs signatures
+            // Ne force à 0 que si la valeur n'a pas déjà été définie dans $save_data
+            if (!isset($_POST[$fname]) && !isset($save_data[$col])) {
                 $save_data[$col] = 0;
             }
         }

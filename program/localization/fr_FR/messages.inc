@@ -226,6 +226,8 @@ $messages['errcomposesessionexplain'] = 'La session de rédaction demandée est 
 $messages['clicktocompose'] = 'Cliquer ici pour rédiger un nouveau courriel';
 $messages['nosupporterror'] = 'Cette fonction n’est pas prise en charge par votre navigateur Web.';
 $messages['siginserted'] = 'La signature a été insérée avec succès.';
+//PAMELA - 0008128 - Plusieurs signatures
+$messages['sigremoved'] = 'La signature a été suprimée avec succès.';
 $messages['responseinserted'] = 'La réponse a été insérée avec succès.';
 $messages['noresponsesavailable'] = 'Aucune réponse n’est proposée';
 $messages['listempty'] = 'La liste est vide.';

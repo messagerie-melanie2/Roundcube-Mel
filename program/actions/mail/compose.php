@@ -103,6 +103,7 @@ class rcmail_action_mail_compose extends rcmail_action_mail_index
         }
 
         // add some labels to client
+        //PAMELA - 0008128 - Plusieurs signatures - ajout label sigremoved pour la suppression de la signature
         $rcmail->output->add_label('notuploadedwarning', 'savingmessage', 'siginserted', 'responseinserted',
             'messagesaved', 'converting', 'editorwarning', 'discard',
             'fileuploaderror', 'sendmessage', 'newresponse', 'responsename', 'responsetext', 'save',
@@ -110,7 +111,7 @@ class rcmail_action_mail_compose extends rcmail_action_mail_index
             'selectimportfile', 'messageissent', 'loadingdata', 'nopubkeyfor', 'nopubkeyforsender',
             'encryptnoattachments','encryptedsendialog','searchpubkeyservers', 'importpubkeys',
             'encryptpubkeysfound',  'search', 'close', 'import', 'keyid', 'keylength', 'keyexpired',
-            'keyrevoked', 'keyimportsuccess', 'keyservererror', 'attaching', 'namex', 'attachmentrename'
+            'keyrevoked', 'keyimportsuccess', 'keyservererror', 'attaching', 'namex', 'attachmentrename', 'sigremoved'
         );
 
         $rcmail->output->set_pagetitle($rcmail->gettext('compose'));

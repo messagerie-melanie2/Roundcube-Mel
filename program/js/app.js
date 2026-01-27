@@ -606,10 +606,8 @@ else xmlhttp.setRequestHeader('X-Roundcube-Request', ref.env.request_token);
           // PAMELA - 0008128 - Plusieurs signatures
           // Interception du clic sur le bouton TinyMCE pour passer en mode Texte pour chaque éditeur de signature.
           $(document)
-            .off('click.rc_sig_plain')
             .on('click.rc_sig_plain',
-              '.html-editor .tox-tbtn[aria-label="Texte en clair"], ' +
-              '.html-editor .tox-tbtn[title="Texte en clair"]',
+              '.html-editor .tox-toolbar-overlord .tox-tbtn:first-child',
               function(ev) {
                 ev.preventDefault();
                 ev.stopPropagation();
@@ -1327,9 +1325,35 @@ else xmlhttp.setRequestHeader('X-Roundcube-Request', ref.env.request_token);
         }
         break;
 
-      case 'insert-sig':
+      case 'insert-sig': {
+        //PAMELA - 0008128 - Plusieurs signatures
+        const getBody = () => {
+          if (this.editor) {
+            if (typeof this.editor.get_content === 'function') return this.editor.get_content();
+            if (typeof this.editor.get_html === 'function') return this.editor.get_html();
+          }
+          const $ta = $('#composebody, #compose-body');
+          return $ta.length ? $ta.val() : '';
+        };
+
+        const before = getBody();
+
         this.change_identity($("[name='_from']")[0], true);
+
+        const after = getBody();
+
+        if (before !== after) {
+
+          if (this.env.signature_type === 'none') {
+            this.display_message('sigremoved', 'confirmation');
+            
+          } else {
+            this.display_message('siginserted', 'confirmation');
+          }
+        }
+
         break;
+      }
 
       case 'list-addresses':
         this.list_contacts(props);
@@ -5114,65 +5138,91 @@ else xmlhttp.setRequestHeader('X-Roundcube-Request', ref.env.request_token);
 
   this.toggle_editor = function(props, obj, e)
   {
-    // PAMELA - 0008128 - Plusieurs signatures
+    //PAMELA - 0008128 - Plusieurs signatures
     props = props || {};
 
     // Détermine l'ID du textarea concerné
     var id = props.id || this.env.current_signature_id;
 
-    if (!id && this.editor)
-      id = this.editor.id;
-    if (!id && this.env.composebody)
-      id = this.env.composebody;
-
-    if (!id)
-      return;
+    if (!id && this.editor) id = this.editor.id;
+    if (!id && this.env.composebody) id = this.env.composebody;
+    if (!id) return false;
 
     // Multi-éditeurs = un rcube_text_editor par id
-    if (!this.editors)
-      this.editors = {};
+    if (!this.editors) this.editors = {};
 
+    // Récupère/initialise l’éditeur
     var editor = this.editors[id];
-
     if (!editor) {
-      // config globale générée par self::html_editor()
       var cfg = $.extend(true, {}, this.env.editor_config || {});
-      editor = this.editors[id] = new rcube_text_editor(cfg, id);
+      this.editor_init(cfg, id);
+      editor = this.editor;
+      this.editors[id] = editor;
+      editor.save();
+    } else {
+      this.editor = editor;
     }
 
-    this.editor = editor;
+    // Etat réel : Est ce que TinyMCE est présent ?
+    var has_tinymce_now = !!(window.tinymce && tinymce.get(id));
 
     // Détermine si on veut du HTML ou du texte
     var want_html;
-    if (typeof props.html === 'boolean') {
-      want_html = props.html;
-    }
-    else {
-    want_html = !editor.is_html();
+    if (Object.prototype.hasOwnProperty.call(props, 'html')) {
+      want_html = !!props.html;
+    } else {
+      // toggle basé sur l’état UI réel
+      want_html = !has_tinymce_now;
     }
 
-    var result  = editor.toggle(want_html, props.noconvert || false),
-        control = $('#' + id).data('control') || $(e ? e.target : []),
-        mode;
+    // Applique le toggle
+    editor.toggle(want_html, !!props.noconvert);
 
-    if (result)
-      mode = want_html ? 'html' : 'plain';
-    else
-      mode = want_html ? 'plain' : 'html';
+    // Sécuriser HTML -> plain
+    if (!want_html && window.tinymce) {
+      var inst = tinymce.get(id);
+      if (inst) {
+        try { inst.save(); } catch (err) {}
+        try { inst.remove(); } catch (err) {}
+
+          if (!want_html) {
+          var $ta = $('#' + id);
+          var v = $ta.val();
+
+          if (v && /<\s*[a-z][\s\S]*>/i.test(v)) {
+            // Convertir tout HTML résiduel en texte
+            var div = document.createElement('div');
+            div.innerHTML = v.replace(/<br\s*\/?>/gi, '\n');
+            $ta.val((div.textContent || '').replace(/\u00a0/g, ' ').trim());
+          }
+        }
+
+      }
+      $('#' + id).show();
+    }
+
+    // Etat réel après (UI)
+    var has_tinymce_after = !!(window.tinymce && tinymce.get(id));
+
+    // Résultat + mode basés sur l’UI réelle
+    var result = want_html ? has_tinymce_after : !has_tinymce_after;
+    var mode = has_tinymce_after ? 'html' : 'plain';
 
     // Mettre à jour le flag _is_html pour le corps du message
     if (id == this.env.composebody) {
       $("[name='_is_html']").val(mode == 'html' ? 1 : 0);
     }
 
-    // Synchroniser la checkbox
+    // Synchroniser la checkbox / select
+    var control = $('#' + id).data('control') || $(e ? e.target : []);
     if (control.is('[type=checkbox]'))
       control.prop('checked', mode == 'html');
-    else
+    else if (control.length)
       control.val(mode);
 
     return result;
   };
+
 
   // Inserts a predefined response to the compose editor
   this.insert_response = function(response)
@@ -5186,6 +5236,7 @@ else xmlhttp.setRequestHeader('X-Roundcube-Request', ref.env.request_token);
     }
     else {
       var lock = this.display_message('', 'loading');
+
       this.http_get('settings/response-get', {_id: response, _is_html: this.editor.is_html() ? 1 : 0}, lock);
     }
   };
@@ -5486,8 +5537,8 @@ else xmlhttp.setRequestHeader('X-Roundcube-Request', ref.env.request_token);
     if (this.editor)
       this.editor.change_signature(id, show_sig);
 
-    if (show && got_sig)
-      this.display_message('siginserted', 'confirmation');
+    // if (show && got_sig)
+    //   this.display_message('siginserted', 'confirmation');
 
     this.env.identity = id;
     this.triggerEvent('change_identity');
