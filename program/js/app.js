@@ -5534,14 +5534,29 @@ else xmlhttp.setRequestHeader('X-Roundcube-Request', ref.env.request_token);
         input.val(input_val).change();
     });
 
-    if (this.editor)
+    //PAMELA - 0008128 - Plusieurs signatures
+    // Empecher l'apparition d'une modale lors du chgt de signature
+    this.env.signature_switching = true;
+
+    if (this.editor) {
       this.editor.change_signature(id, show_sig);
 
-    // if (show && got_sig)
-    //   this.display_message('siginserted', 'confirmation');
+      if (this.editor.save)
+        this.editor.save();
+    }
+
+    // Eviter que roundcube considère le chnagement de signature,
+    // comme une modification utilisateur non enregistrée
+    if (this.env.action == 'compose' && this.cmp_hash !== undefined)
+      this.compose_field_hash(true);
+
+    if (this.compose_type_activity_last !== undefined && this.compose_type_activity !== undefined)
+      this.compose_type_activity_last = this.compose_type_activity;
 
     this.env.identity = id;
     this.triggerEvent('change_identity');
+
+    this.env.signature_switching = false;
 
     return true;
   };
