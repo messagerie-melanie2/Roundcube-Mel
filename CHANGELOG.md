@@ -1,5 +1,24 @@
 # Changelog Roundcube Webmail
 
+## Release 1.6.13
+
+- Managesieve: Fix handling of string-list format values for date tests in Out of Office (#10075)
+- Fix remote image blocking bypass via SVG content reported by nullcathedral
+- Fix CSS injection vulnerability reported by CERT Polska
+
+## Release 1.6.12
+
+- Support IPv6 in database DSN (#9937)
+- Don't force specific error_reporting setting
+- Fix compatibility with PHP 8.5 regarding array_first()
+- Remove X-XSS-Protection example from .htaccess file (#9875)
+- Fix "Assign to group" action state after creation of a first group (#9889)
+- Fix bug where contacts search would fail if `contactlist_fields` contained vcard fields (#9850)
+- Fix bug where an mbox export file could include inconsistent message delimiters (#9879)
+- Fix parsing of inline styles that aren't well-formatted (#9948)
+- Fix Cross-Site-Scripting vulnerability via SVG's animate tag
+- Fix Information Disclosure vulnerability in the HTML style sanitizer
+
 ## Release 1.6.11
 - Managesieve: Fix match-type selector (remove unsupported options) in delete header action (#9610)
 - Improve installer to fix confusion about disabling SMTP authentication (#9801)

@@ -1,3 +1,4 @@
+- Fix handling of string-list format values for date tests in Out of Office (#10075)
 - Fix invalid line break characters in multi-line text in Sieve scripts (#9543)
 - Fix javascript error when relational or spamtest extension is not enabled (#9139)
 - Removed managesieve_usetls option (in favor of the scheme prefix in managesieve_host)
@@ -6,6 +7,7 @@
 - Protect special scripts in managesieve_kolab_master mode
 - Fix infinite loop when parsing a malformed script (#9562)
 - Fix current script state after initial scripts creation in managesieve_kolab_master mode
+- Fix match-type selector (remove unsupported options) in delete header action (#9610)
 
 * version 9.4 [2021-06-06]
 -----------------------------------------------------------
