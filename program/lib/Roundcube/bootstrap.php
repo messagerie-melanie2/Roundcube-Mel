@@ -26,7 +26,6 @@
  */
 
 $config = [
-    'error_reporting' => E_ALL & ~E_NOTICE & ~E_STRICT,
     'display_errors'  => false,
     'log_errors'      => true,
     // Some users are not using Installer, so we'll check some
@@ -58,7 +57,7 @@ foreach ($config as $optname => $optval) {
 }
 
 // framework constants
-define('RCUBE_VERSION', '1.6.10');
+define('RCUBE_VERSION', '1.6.13');
 define('RCUBE_CHARSET', 'UTF-8');
 define('RCUBE_TEMP_FILE_PREFIX', 'RCMTEMP');
 
@@ -298,6 +297,7 @@ function array_keys_recursive($array)
     return $keys;
 }
 
+if (!function_exists('array_first')) {
 /**
  * Get first element from an array
  *
@@ -311,6 +311,7 @@ function array_first($array)
         reset($array);
         foreach ($array as $element) {
             return $element;
+            }
         }
     }
 }
