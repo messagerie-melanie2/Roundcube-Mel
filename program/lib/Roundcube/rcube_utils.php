@@ -145,19 +145,8 @@ class rcube_utils
      */
     public static function parse_css_block($style)
     {
-        $pos = 0;
-
-        // first remove comments
-        while (($pos = strpos($style, '/*', $pos)) !== false) {
-            $end = strpos($style, '*/', $pos+2);
-
-            if ($end === false) {
-                $style = substr($style, 0, $pos);
-            }
-            else {
-                $style = substr_replace($style, '', $pos, $end - $pos + 2);
-            }
-        }
+        // Remove comments
+        $style = self::remove_css_comments($style);
 
         // Replace new lines with spaces
         $style = preg_replace('/[\r\n]+/', ' ', $style);
@@ -196,6 +185,8 @@ class rcube_utils
 
             $value_length = $i - $colon_pos - ($s ? 1 : 0);
             $value        = trim(substr($style, $colon_pos + 1, $value_length));
+            // Remove "orfaned" semicolons (#9948)
+            $name = ltrim($name, "; \t\r\n");
 
             if (strlen($name) && !preg_match('/[^a-z-]/', $name) && strlen($value) && $value !== ';') {
                 $result[] = [$name, $value];
@@ -205,6 +196,30 @@ class rcube_utils
         }
 
         return $result;
+    }
+
+    /**
+     * Remove CSS comments from styles.
+     *
+     * @param string $style CSS style
+     *
+     * @return string CSS style
+     */
+    public static function remove_css_comments($style)
+    {
+        $pos = 0;
+
+        while (($pos = strpos($style, '/*', $pos)) !== false) {
+            $end = strpos($style, '*/', $pos + 2);
+
+            if ($end === false) {
+                $style = substr($style, 0, $pos);
+            } else {
+                $style = substr_replace($style, '', $pos, $end - $pos + 2);
+            }
+        }
+
+        return $style;
     }
 
     /**
@@ -496,6 +511,13 @@ class rcube_utils
             return '/* invalid! */';
         }
 
+        // If after removing comments there are still comments it's most likely a hack
+        // Note: In <=1.6 comments are being removed by xss_entity_decode() above
+        // $source = self::remove_css_comments($source);
+        if (strpos($source, '/*') !== false || strpos($source, '<!--') !== false) {
+            return '/* evil! */';
+        }
+
         // To prevent from a double-escaping tricks we consider a script with
         // any escape sequences (after de-escaping them above) an evil script.
         // This probably catches many valid scripts, but we\'re on the safe side.
@@ -611,6 +633,9 @@ class rcube_utils
                                 $value .= ' url(' . $url . ')';
                             }
                         }
+                    } elseif (preg_match('/;.+/', $val)) {
+                        // Invalid or evil content, ignore
+                        continue;
                     } else {
                         // whitelist ?
                         $value .= ' ' . $val;

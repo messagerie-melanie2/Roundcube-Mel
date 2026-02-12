@@ -40,8 +40,8 @@ class ComposerStaticInit5e108e3a9f277fcb66266622d96cf3d6
         array (
             'Net' => 
             array (
-                0 => __DIR__ . '/..' . '/pear/net_idna2',
-                1 => __DIR__ . '/..' . '/pear/net_smtp',
+                0 => __DIR__ . '/..' . '/pear/net_smtp',
+                1 => __DIR__ . '/..' . '/pear/net_idna2',
                 2 => __DIR__ . '/..' . '/pear/net_socket',
             ),
         ),
@@ -69,10 +69,6 @@ class ComposerStaticInit5e108e3a9f277fcb66266622d96cf3d6
         ),
     );
 
-    public static $fallbackDirsPsr0 = array (
-        0 => __DIR__ . '/..' . '/pear/pear-core-minimal/src',
-    );
-
     public static $classMap = array (
         'Auth_SASL' => __DIR__ . '/..' . '/pear/auth_sasl/Auth/SASL.php',
         'Auth_SASL_Anonymous' => __DIR__ . '/..' . '/pear/auth_sasl/Auth/SASL/Anonymous.php',
@@ -83,6 +79,7 @@ class ComposerStaticInit5e108e3a9f277fcb66266622d96cf3d6
         'Auth_SASL_Login' => __DIR__ . '/..' . '/pear/auth_sasl/Auth/SASL/Login.php',
         'Auth_SASL_Plain' => __DIR__ . '/..' . '/pear/auth_sasl/Auth/SASL/Plain.php',
         'Auth_SASL_SCRAM' => __DIR__ . '/..' . '/pear/auth_sasl/Auth/SASL/SCRAM.php',
+        'Composer\\InstalledVersions' => __DIR__ . '/..' . '/composer/InstalledVersions.php',
         'Console_CommandLine' => __DIR__ . '/..' . '/pear/console_commandline/Console/CommandLine.php',
         'Console_CommandLine_Action' => __DIR__ . '/..' . '/pear/console_commandline/Console/CommandLine/Action.php',
         'Console_CommandLine_Action_Callback' => __DIR__ . '/..' . '/pear/console_commandline/Console/CommandLine/Action/Callback.php',
@@ -240,7 +237,6 @@ class ComposerStaticInit5e108e3a9f277fcb66266622d96cf3d6
             $loader->prefixLengthsPsr4 = ComposerStaticInit5e108e3a9f277fcb66266622d96cf3d6::$prefixLengthsPsr4;
             $loader->prefixDirsPsr4 = ComposerStaticInit5e108e3a9f277fcb66266622d96cf3d6::$prefixDirsPsr4;
             $loader->prefixesPsr0 = ComposerStaticInit5e108e3a9f277fcb66266622d96cf3d6::$prefixesPsr0;
-            $loader->fallbackDirsPsr0 = ComposerStaticInit5e108e3a9f277fcb66266622d96cf3d6::$fallbackDirsPsr0;
             $loader->classMap = ComposerStaticInit5e108e3a9f277fcb66266622d96cf3d6::$classMap;
 
         }, null, ClassLoader::class);

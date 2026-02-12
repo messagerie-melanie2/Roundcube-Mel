@@ -2118,9 +2118,16 @@ class rcube_imap extends rcube_storage
         */
 
         // regular part
-        $struct->ctype_primary = strtolower($part[0]);
-        $struct->ctype_secondary = strtolower($part[1]);
-        $struct->mimetype = $struct->ctype_primary.'/'.$struct->ctype_secondary;
+        // Note: If the BODYSTRUCTURE is invalid index 0 and 1 can be NULL (#9896)
+        if (is_array($part[1])) {
+            $struct->ctype_primary = 'multipart';
+            $struct->ctype_secondary = isset($part[0]) ? strtolower($part[0]) : 'mixed';
+        } else {
+            $struct->ctype_primary = isset($part[0]) ? strtolower($part[0]) : 'text';
+            $struct->ctype_secondary = isset($part[1]) ? strtolower($part[1]) : 'plain';
+        }
+
+        $struct->mimetype = $struct->ctype_primary . '/' . $struct->ctype_secondary;
 
         // read content type parameters
         if (is_array($part[2])) {

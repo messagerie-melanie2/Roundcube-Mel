@@ -600,7 +600,7 @@ class Net_LDAP3
             return false;
         }
 
-        if (is_resource($this->conn)) {
+        if (isset($this->conn) && $this->conn !== false) {
             $this->_debug("Connection already exists");
             return true;
         }
@@ -644,7 +644,7 @@ class Net_LDAP3
             $this->_debug("S: NOT OK");
         }
 
-        if (!is_resource($this->conn)) {
+        if (!isset($this->conn) || $this->conn === false) {
             $this->_error("Could not connect to LDAP");
             return false;
         }
@@ -2372,7 +2372,7 @@ class Net_LDAP3
         if (is_array($attributes['rename']) && !empty($attributes['rename'])) {
             $olddn      = $attributes['rename']['dn'];
             $newrdn     = $attributes['rename']['new_rdn'];
-            $new_parent = $attributes['rename']['new_parent'];
+            $new_parent = isset($attributes['rename']['new_parent']) ? $attributes['rename']['new_parent'] : null;
 
             $this->_debug("C: Rename $olddn to $newrdn,$new_parent");
 
