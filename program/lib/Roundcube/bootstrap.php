@@ -26,6 +26,8 @@
  */
 
 $config = [
+    // PAMELA - Issue Logs PHP Notice enable with Roundcube 1.6.12 #39
+    'error_reporting' => E_ALL & ~E_NOTICE & ~E_STRICT,
     'display_errors'  => false,
     'log_errors'      => true,
     // Some users are not using Installer, so we'll check some
