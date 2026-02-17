@@ -10,12 +10,12 @@ class Version
   /**
    * Version number
    */
-  const VERSION = '25.11';
+  const VERSION = '25.11.1';
 
   /**
    * Build
    */
-  const BUILD = '20250825101900';
+  const BUILD = '20260217090400';
 }
 
 // Afficher le numéro de version si demandé
