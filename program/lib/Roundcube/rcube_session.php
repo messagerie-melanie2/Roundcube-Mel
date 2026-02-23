@@ -714,7 +714,8 @@ abstract class rcube_session
     public function set_auth_cookie()
     {
         $this->cookie = $this->_mkcookie($this->now);
-        rcube_utils::setcookie($this->cookiename, $this->cookie, 0);
+        // PAMELA - 0009317: Problème de déconnexion mobile
+        rcube_utils::setcookie($this->cookiename, $this->cookie, $this->lifetime ? time() + $this->lifetime * 100 : 0);
         $_COOKIE[$this->cookiename] = $this->cookie;
     }
 
