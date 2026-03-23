@@ -2291,6 +2291,9 @@ class rcmail extends rcube
             header('Content-Type: ' . $file['mimetype']);
             header('Content-Length: ' . $file['size']);
 
+            // Use strict security policy to make sure no javascript is executed
+            header("Content-Security-Policy: script-src 'none'");
+
             if ($file['data']) {
                 echo $file['data'];
             }

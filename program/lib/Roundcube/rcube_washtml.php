@@ -388,7 +388,7 @@ class rcube_washtml
         }
 
         if (preg_match('/^(http|https|ftp):.+/i', $uri)) {
-            if (!empty($this->config['allow_remote'])) {
+            if (!empty($this->config['allow_remote']) || rcube_utils::is_local_url($uri)) {
                 return $uri;
             }
 
@@ -420,6 +420,11 @@ class rcube_washtml
                 }
 
                 return 'data:image/' . $type . ',' . base64_encode($svg);
+            }
+
+            // At this point we allow only valid base64 images
+            if (stripos($type, 'base64') === false || preg_match('|[^0-9a-z\s/+]|i', $matches[2])) {
+                return '';
             }
 
             return $uri;

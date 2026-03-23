@@ -1565,7 +1565,7 @@ function rcmail_washtml_link_callback($tag, $attribs, $content, $washtml)
         $attrib['href'] = preg_replace('/[\x00-\x1F]/', '', $attrib['href']);
     }
 
-    if ($tag == 'link' && preg_match('/^https?:\/\//i', $attrib['href'])) {
+    if ($tag == 'link' && preg_match('/^https?:\/\//i', $attrib['href']) && !rcube_utils::is_local_url($attrib['href'])) {
         $tempurl = 'tmp-' . md5($attrib['href']) . '.css';
         $_SESSION['modcssurls'][$tempurl] = $attrib['href'];
         $attrib['href'] = $RCMAIL->url(array('task' => 'utils', 'action' => 'modcss', 'u' => $tempurl, 'c' => $GLOBALS['rcmail_html_container_id']));
