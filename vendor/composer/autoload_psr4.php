@@ -7,5 +7,11 @@ $baseDir = dirname(dirname(dirname($vendorDir))).'/roundcube-mel-deploiement/web
 
 return array(
     'Sabre\\VObject\\' => array($vendorDir . '/sabre/vobject/lib'),
+    'Psr\\Http\\Message\\' => array($vendorDir . '/psr/http-factory/src', $vendorDir . '/psr/http-message/src'),
+    'Psr\\Http\\Client\\' => array($vendorDir . '/psr/http-client/src'),
+    'IPLib\\' => array($vendorDir . '/mlocati/ip-lib/src'),
+    'GuzzleHttp\\Psr7\\' => array($vendorDir . '/guzzlehttp/psr7/src'),
+    'GuzzleHttp\\Promise\\' => array($vendorDir . '/guzzlehttp/promises/src'),
+    'GuzzleHttp\\' => array($vendorDir . '/guzzlehttp/guzzle/src'),
     'Endroid\\QrCode\\' => array($vendorDir . '/endroid/qr-code/src'),
 );
