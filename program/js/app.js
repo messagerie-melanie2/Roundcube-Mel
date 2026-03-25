@@ -5160,18 +5160,6 @@ else xmlhttp.setRequestHeader('X-Roundcube-Request', ref.env.request_token);
     // Multi-éditeurs = un rcube_text_editor par id
     if (!this.editors) this.editors = {};
 
-    // Récupère/initialise l’éditeur
-    var editor = this.editors[id];
-    if (!editor) {
-      var cfg = $.extend(true, {}, this.env.editor_config || {});
-      this.editor_init(cfg, id);
-      editor = this.editor;
-      this.editors[id] = editor;
-      editor.save();
-    } else {
-      this.editor = editor;
-    }
-
     // Etat réel : Est ce que TinyMCE est présent ?
     var has_tinymce_now = !!(window.tinymce && tinymce.get(id));
 
@@ -5183,55 +5171,70 @@ else xmlhttp.setRequestHeader('X-Roundcube-Request', ref.env.request_token);
       // toggle basé sur l’état UI réel
       want_html = !has_tinymce_now;
     }
+    
+    // Récupère/initialise l’éditeur
+    var editor = this.editors[id];
+    if (!editor) {
+      var cfg = $.extend(true, {}, this.env.editor_config || {});
+      this.editor_init(cfg, id);
+      editor = this.editor;
+      this.editors[id] = editor;
+    } else {
+      this.editor = editor;
+    }
 
-    // Applique le toggle
-    editor.toggle(want_html, !!props.noconvert);
+    if (!editor) {
+      return false;
+    }
 
-    // Sécuriser HTML -> plain
+    // Lance le toggle
+    var result = false;
+    try {
+      result = editor.toggle(want_html, !!props.noconvert);
+    }
+    catch (err) {
+       console.error('editor.toggle exception=', err);
+      return false;
+    }
+
+    var mode = want_html ? 'html' : 'plain';
+
+    // En mode texte, on force la suppression éventuelle de TinyMCE
     if (!want_html && window.tinymce) {
       var inst = tinymce.get(id);
+
       if (inst) {
         try { inst.save(); } catch (err) {}
         try { inst.remove(); } catch (err) {}
-
-          if (!want_html) {
-          var $ta = $('#' + id);
-          var v = $ta.val();
-
-          if (v && /<\s*[a-z][\s\S]*>/i.test(v)) {
-            // Convertir tout HTML résiduel en texte
-            var div = document.createElement('div');
-            div.innerHTML = v.replace(/<br\s*\/?>/gi, '\n');
-            $ta.val((div.textContent || '').replace(/\u00a0/g, ' ').trim());
-          }
-        }
-
       }
-      $('#' + id).show();
+
+      var $ta = $('#' + id);
+      var v = $ta.val();
+
+      if (v && /<\s*[a-z][\s\S]*>/i.test(v)) {
+        var div = document.createElement('div');
+        div.innerHTML = v.replace(/<br\s*\/?>/gi, '\n');
+        $ta.val((div.textContent || '').replace(/\u00a0/g, ' ').trim());
+      }
+
+      $ta.show();
     }
-
-    // Etat réel après (UI)
-    var has_tinymce_after = !!(window.tinymce && tinymce.get(id));
-
-    // Résultat + mode basés sur l’UI réelle
-    var result = want_html ? has_tinymce_after : !has_tinymce_after;
-    var mode = has_tinymce_after ? 'html' : 'plain';
 
     // Mettre à jour le flag _is_html pour le corps du message
     if (id == this.env.composebody) {
-      $("[name='_is_html']").val(mode == 'html' ? 1 : 0);
+      $("[name='_is_html']").val(want_html ? '1' : '0');
     }
 
     // Synchroniser la checkbox / select
     var control = $('#' + id).data('control') || $(e ? e.target : []);
-    if (control.is('[type=checkbox]'))
+    if (control.is('[type=checkbox]')) {
       control.prop('checked', mode == 'html');
+    }
     else if (control.length)
       control.val(mode);
 
     return result;
   };
-
 
   // Inserts a predefined response to the compose editor
   this.insert_response = function(response)
