@@ -394,6 +394,33 @@ else xmlhttp.setRequestHeader('X-Roundcube-Request', ref.env.request_token);
           // init message compose form
           this.init_messageform();
 
+          // PAMELA - 0008128 - Choix du type de signature (complète/intermédiaire/simple/aucune)
+          this.register_command('set-signature-type', function(type) {
+            var ident_id = rcmail.env.identity;
+
+            // si pas d’identité ou pas d’éditeur,on ne fait rien
+            if (!ident_id || !rcmail.editor)
+              return false;
+
+            // mémoriser le type choisi pour les prochains appels
+            // 'full' | 'intermediaire' | 'simple' | 'none'
+            rcmail.env.signature_type = type;
+
+            if (type === 'none') {
+              // on supprime la signature (texte + html)
+              rcmail.editor.change_signature(ident_id, false);
+            }
+            else {
+              // on (ré)insère la signature du type demandé
+              rcmail.editor.change_signature(ident_id, true);
+            }
+
+            // met à jour les coches dans le menu Signature
+            rcmail.editor.update_signature_menu();
+
+            return false;
+          }, true);
+
           this.check_mailvelope(this.env.action);
         }
         else if (this.env.action == 'bounce') {
@@ -558,6 +585,43 @@ else xmlhttp.setRequestHeader('X-Roundcube-Request', ref.env.request_token);
           if (this.env.action == 'edit-identity') {
             this.check_mailvelope(this.env.action);
           }
+
+          // PAMELA - 0008128 - Plusieurs signatures
+          // commandes pour les checkboxes html_signature
+          this.register_command('toggle-signature-editor-full', function(props, obj, ev) {
+            rcmail.env.current_signature_id = 'rcmfd_signature';
+            rcmail.command('toggle-editor', { id: 'rcmfd_signature', html: obj.checked }, obj, ev);
+          }, true);
+
+          this.register_command('toggle-signature-editor-medium', function(props, obj, ev) {
+            rcmail.env.current_signature_id = 'rcmfd_signature_medium';
+            rcmail.command('toggle-editor', { id: 'rcmfd_signature_medium', html: obj.checked }, obj, ev);
+          }, true);
+
+          this.register_command('toggle-signature-editor-simple', function(props, obj, ev) {
+            rcmail.env.current_signature_id = 'rcmfd_signature_simple';
+            rcmail.command('toggle-editor', { id: 'rcmfd_signature_simple', html: obj.checked }, obj, ev);
+          }, true);
+
+          // PAMELA - 0008128 - Plusieurs signatures
+          // Interception du clic sur le bouton TinyMCE pour passer en mode Texte pour chaque éditeur de signature.
+          $(document)
+            .on('click.rc_sig_plain',
+              '.html-editor .tox-toolbar-overlord .tox-tbtn:first-child',
+              function(ev) {
+                ev.preventDefault();
+                ev.stopPropagation();
+
+                var ta = $(this).closest('.html-editor').find('textarea').first();
+
+                if (ta.length) {
+                  var id = ta.attr('id');
+                  rcmail.command('toggle-editor', { id: id, html: false }, this, ev);
+                }
+
+                return false;
+              }
+            );
         }
         else if (this.env.action == 'folders') {
           this.enable_command('subscribe', 'unsubscribe', 'create-folder', 'rename-folder', true);
@@ -1261,9 +1325,35 @@ else xmlhttp.setRequestHeader('X-Roundcube-Request', ref.env.request_token);
         }
         break;
 
-      case 'insert-sig':
+      case 'insert-sig': {
+        //PAMELA - 0008128 - Plusieurs signatures
+        const getBody = () => {
+          if (this.editor) {
+            if (typeof this.editor.get_content === 'function') return this.editor.get_content();
+            if (typeof this.editor.get_html === 'function') return this.editor.get_html();
+          }
+          const $ta = $('#composebody, #compose-body');
+          return $ta.length ? $ta.val() : '';
+        };
+
+        const before = getBody();
+
         this.change_identity($("[name='_from']")[0], true);
+
+        const after = getBody();
+
+        if (before !== after) {
+
+          if (this.env.signature_type === 'none') {
+            this.display_message('sigremoved', 'confirmation');
+            
+          } else {
+            this.display_message('siginserted', 'confirmation');
+          }
+        }
+
         break;
+      }
 
       case 'list-addresses':
         this.list_contacts(props);
@@ -5057,25 +5147,91 @@ else xmlhttp.setRequestHeader('X-Roundcube-Request', ref.env.request_token);
 
   this.toggle_editor = function(props, obj, e)
   {
-    // @todo: this should work also with many editors on page
-    var mode, result = this.editor.toggle(props.html, props.noconvert || false),
-      control = $('#' + this.editor.id).data('control') || $(e ? e.target : []);
+    //PAMELA - 0008128 - Plusieurs signatures
+    props = props || {};
 
-    if (result)
-      mode = props.html ? 'html' : 'plain';
-    else
-      mode = props.html ? 'plain' : 'html';
+    // Détermine l'ID du textarea concerné
+    var id = props.id || this.env.current_signature_id;
 
-    // update internal format flag
-    $("[name='_is_html']").val(mode == 'html' ? 1 : 0);
+    if (!id && this.editor) id = this.editor.id;
+    if (!id && this.env.composebody) id = this.env.composebody;
+    if (!id) return false;
 
+    // Multi-éditeurs = un rcube_text_editor par id
+    if (!this.editors) this.editors = {};
+
+    // Récupère/initialise l’éditeur
+    var editor = this.editors[id];
+    if (!editor) {
+      var cfg = $.extend(true, {}, this.env.editor_config || {});
+      this.editor_init(cfg, id);
+      editor = this.editor;
+      this.editors[id] = editor;
+      editor.save();
+    } else {
+      this.editor = editor;
+    }
+
+    // Etat réel : Est ce que TinyMCE est présent ?
+    var has_tinymce_now = !!(window.tinymce && tinymce.get(id));
+
+    // Détermine si on veut du HTML ou du texte
+    var want_html;
+    if (Object.prototype.hasOwnProperty.call(props, 'html')) {
+      want_html = !!props.html;
+    } else {
+      // toggle basé sur l’état UI réel
+      want_html = !has_tinymce_now;
+    }
+
+    // Applique le toggle
+    editor.toggle(want_html, !!props.noconvert);
+
+    // Sécuriser HTML -> plain
+    if (!want_html && window.tinymce) {
+      var inst = tinymce.get(id);
+      if (inst) {
+        try { inst.save(); } catch (err) {}
+        try { inst.remove(); } catch (err) {}
+
+          if (!want_html) {
+          var $ta = $('#' + id);
+          var v = $ta.val();
+
+          if (v && /<\s*[a-z][\s\S]*>/i.test(v)) {
+            // Convertir tout HTML résiduel en texte
+            var div = document.createElement('div');
+            div.innerHTML = v.replace(/<br\s*\/?>/gi, '\n');
+            $ta.val((div.textContent || '').replace(/\u00a0/g, ' ').trim());
+          }
+        }
+
+      }
+      $('#' + id).show();
+    }
+
+    // Etat réel après (UI)
+    var has_tinymce_after = !!(window.tinymce && tinymce.get(id));
+
+    // Résultat + mode basés sur l’UI réelle
+    var result = want_html ? has_tinymce_after : !has_tinymce_after;
+    var mode = has_tinymce_after ? 'html' : 'plain';
+
+    // Mettre à jour le flag _is_html pour le corps du message
+    if (id == this.env.composebody) {
+      $("[name='_is_html']").val(mode == 'html' ? 1 : 0);
+    }
+
+    // Synchroniser la checkbox / select
+    var control = $('#' + id).data('control') || $(e ? e.target : []);
     if (control.is('[type=checkbox]'))
       control.prop('checked', mode == 'html');
-    else
+    else if (control.length)
       control.val(mode);
 
     return result;
   };
+
 
   // Inserts a predefined response to the compose editor
   this.insert_response = function(response)
@@ -5089,6 +5245,7 @@ else xmlhttp.setRequestHeader('X-Roundcube-Request', ref.env.request_token);
     }
     else {
       var lock = this.display_message('', 'loading');
+
       this.http_get('settings/response-get', {_id: response, _is_html: this.editor.is_html() ? 1 : 0}, lock);
     }
   };
@@ -5386,14 +5543,29 @@ else xmlhttp.setRequestHeader('X-Roundcube-Request', ref.env.request_token);
         input.val(input_val).change();
     });
 
-    if (this.editor)
+    //PAMELA - 0008128 - Plusieurs signatures
+    // Empecher l'apparition d'une modale lors du chgt de signature
+    this.env.signature_switching = true;
+
+    if (this.editor) {
       this.editor.change_signature(id, show_sig);
 
-    if (show && got_sig)
-      this.display_message('siginserted', 'confirmation');
+      if (this.editor.save)
+        this.editor.save();
+    }
+
+    // Eviter que roundcube considère le chnagement de signature,
+    // comme une modification utilisateur non enregistrée
+    if (this.env.action == 'compose' && this.cmp_hash !== undefined)
+      this.compose_field_hash(true);
+
+    if (this.compose_type_activity_last !== undefined && this.compose_type_activity !== undefined)
+      this.compose_type_activity_last = this.compose_type_activity;
 
     this.env.identity = id;
     this.triggerEvent('change_identity');
+
+    this.env.signature_switching = false;
 
     return true;
   };

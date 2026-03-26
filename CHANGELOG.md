@@ -1,5 +1,17 @@
 # Changelog Roundcube Webmail
 
+## Release 1.6.14
+
+- Fix Postgres connection using IPv6 address (#10104)
+- Security: Fix pre-auth arbitrary file write via unsafe deserialization in redis/memcache session handler
+- Security: Fix bug where a password could get changed without providing the old password
+- Security: Fix IMAP Injection + CSRF bypass in mail search
+- Security: Fix remote image blocking bypass via various SVG animate attributes
+- Security: Fix remote image blocking bypass via a crafted body background attribute
+- Security: Fix fixed position mitigation bypass via use of !important
+- Security: Fix XSS issue in a HTML attachment preview
+- Security: Fix SSRF + Information Disclosure via stylesheet links to a local network hosts
+
 ## Release 1.6.13
 
 - Managesieve: Fix handling of string-list format values for date tests in Out of Office (#10075)

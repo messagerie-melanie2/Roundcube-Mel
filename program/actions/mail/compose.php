@@ -103,6 +103,7 @@ class rcmail_action_mail_compose extends rcmail_action_mail_index
         }
 
         // add some labels to client
+        //PAMELA - 0008128 - Plusieurs signatures - ajout label sigremoved pour la suppression de la signature
         $rcmail->output->add_label('notuploadedwarning', 'savingmessage', 'siginserted', 'responseinserted',
             'messagesaved', 'converting', 'editorwarning', 'discard',
             'fileuploaderror', 'sendmessage', 'newresponse', 'responsename', 'responsetext', 'save',
@@ -110,7 +111,7 @@ class rcmail_action_mail_compose extends rcmail_action_mail_index
             'selectimportfile', 'messageissent', 'loadingdata', 'nopubkeyfor', 'nopubkeyforsender',
             'encryptnoattachments','encryptedsendialog','searchpubkeyservers', 'importpubkeys',
             'encryptpubkeysfound',  'search', 'close', 'import', 'keyid', 'keylength', 'keyexpired',
-            'keyrevoked', 'keyimportsuccess', 'keyservererror', 'attaching', 'namex', 'attachmentrename'
+            'keyrevoked', 'keyimportsuccess', 'keyservererror', 'attaching', 'namex', 'attachmentrename', 'sigremoved'
         );
 
         $rcmail->output->set_pagetitle($rcmail->gettext('compose'));
@@ -127,7 +128,8 @@ class rcmail_action_mail_compose extends rcmail_action_mail_index
         $rcmail->output->set_env('mailvelope_main_keyring', $rcmail->config->get('mailvelope_main_keyring'));
 
         $drafts_mbox     = $rcmail->config->get('drafts_mbox');
-        $config_show_sig = $rcmail->config->get('show_sig', 1);
+        // PAMELA - 0008128 - Plusieurs signatures
+        $config_show_sig = (int) $rcmail->config->get('show_sig', 1);
 
         // add config parameters to client script
         if (strlen($drafts_mbox)) {
@@ -178,25 +180,74 @@ class rcmail_action_mail_compose extends rcmail_action_mail_index
             $rcmail->output->set_env('compose_mode', $compose_mode);
         }
 
+        // PAMELA - 0008128 - Plusieurs signatures
+        // Expose les différents mode de signatures au JS.
+        $rcmail->output->set_env('show_sig_mode', $config_show_sig);
+
+        // show_sig reste un booléen car utilisé dans d'autres parties du JS
+        $rcmail->output->set_env('show_sig', $config_show_sig > 0);
+
+        // Détermine si compose est un "nouveau" ou une "réponse / transfert"
+        $is_reply_or_forward = $compose_mode == rcmail_sendmail::MODE_REPLY
+            || $compose_mode == rcmail_sendmail::MODE_FORWARD;
+
+        // Nouveau message (pas de reply/forward/edit/draft)
+        $is_new_message = empty($compose_mode);
+
+        // PAMELA - 0008128 - Plusieurs signatures
+        $rcmail->output->set_env('compose_is_reply_or_forward', $is_reply_or_forward);
+        $rcmail->output->set_env('compose_is_new', $is_new_message);
+
+        $auto_new = false;
+        $auto_reply = false;
+
+        switch ($config_show_sig) {
+            case 0: // jamais
+                $auto_new = $auto_reply = false;
+                break;
+
+            case 1: // toujours avoir la signature complète
+            case 2: // toujours avoir la signature intermédiaire
+            case 3: // toujours avoir la signature simple
+            case 4: // nouveau message = complète / réponse+transfert = intermédiaire
+            case 5: // nouveau message = complète / réponse+transfert = simple
+            case 6: // nouveau message = intermédiaire / réponse+transfert = simple
+                $auto_new   = true;
+                $auto_reply = true;
+                break;
+
+            case 7: // nouveau message uniquement = complète
+            case 8: // nouveau message uniquement = intermédiaire
+            case 9: // nouveau message uniquement = simple
+                $auto_new   = true;
+                $auto_reply = false;
+                break;
+
+            case 10: // réponse+transfert uniquement = complète
+            case 11: // réponse+transfert uniquement = intermédiaire
+            case 12: // réponse+transfert uniquement = simple
+                $auto_new   = false;
+                $auto_reply = true;
+                break;
+
+            default:
+                $auto_new = $auto_reply = false;
+        }
+
+        $should_add_sig = ($is_new_message && $auto_new) || ($is_reply_or_forward && $auto_reply);
+
         if ($compose_mode == rcmail_sendmail::MODE_EDIT || $compose_mode == rcmail_sendmail::MODE_DRAFT) {
-            // don't add signature in draft/edit mode, we'll also not remove the old-one
-            // but only on page display, later we should be able to change identity/sig (#1489229)
-            if ($config_show_sig == 1 || $config_show_sig == 2) {
+            // Mode edit/draft
+            // indique au JS qu'il pourra la gérer plus tard (#1489229).
+            if ($should_add_sig) {
                 $rcmail->output->set_env('show_sig_later', true);
             }
         }
-        else if ($config_show_sig == 1) {
+        else if ($should_add_sig) {
+            // Compose "normal" (nouveau, reply, forward) pour l'insertion automatique
             $rcmail->output->set_env('show_sig', true);
         }
-        else if ($config_show_sig == 2 && empty($compose_mode)) {
-            $rcmail->output->set_env('show_sig', true);
-        }
-        else if (
-            $config_show_sig == 3
-            && ($compose_mode == rcmail_sendmail::MODE_REPLY || $compose_mode == rcmail_sendmail::MODE_FORWARD)
-        ) {
-            $rcmail->output->set_env('show_sig', true);
-        }
+
 
         if (!empty($msg_uid) && (empty(self::$COMPOSE['as_attachment']) || $compose_mode == rcmail_sendmail::MODE_DRAFT)) {
             $mbox_name = $rcmail->storage->get_folder();
@@ -1938,3 +1989,4 @@ class rcmail_action_mail_compose extends rcmail_action_mail_index
     }
     // END PAMELA
 }
+

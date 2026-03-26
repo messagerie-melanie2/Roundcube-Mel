@@ -32,8 +32,9 @@ class rcmail_action_settings_identity_save extends rcmail_action_settings_index
 
         $IDENTITIES_LEVEL = intval($rcmail->config->get('identities_level', 0));
 
-        $a_save_cols = ['name', 'email', 'organization', 'reply-to', 'bcc', 'standard', 'signature', 'html_signature'];
-        $a_bool_cols = ['standard', 'html_signature'];
+        // PAMELA - 0008128 - Plusieurs signatures
+        $a_save_cols = ['name', 'email', 'organization', 'reply-to', 'bcc', 'standard', 'signature', 'html_signature', 'signature_medium', 'html_signature_medium', 'signature_simple', 'html_signature_simple'];
+        $a_bool_cols = ['standard', 'html_signature', 'html_signature_medium', 'html_signature_simple'];
         $updated     = false;
 
         // check input
@@ -43,6 +44,11 @@ class rcmail_action_settings_identity_save extends rcmail_action_settings_index
             return;
         }
 
+        // PAMELA - 0008128 - Plusieurs signatures
+        if (isset($_POST['_signature_full']) && !isset($_POST['_signature'])) {
+            $_POST['_signature'] = $_POST['_signature_full'];
+        }
+
         $save_data = [];
         foreach ($a_save_cols as $col) {
             $fname = '_'.$col;
@@ -50,12 +56,30 @@ class rcmail_action_settings_identity_save extends rcmail_action_settings_index
                 $save_data[$col] = rcube_utils::get_input_string($fname, rcube_utils::INPUT_POST, true);
             }
         }
+        
+        // PAMELA - 0008128 - Plusieurs signatures
+        // Déduction automatique du flag HTML
+        // Si l'UI ne poste pas _html_signature*, on le déduit du contenu
+        if (!isset($_POST['_html_signature']) && isset($save_data['signature'])) {
+            $save_data['html_signature'] = (int) preg_match('/<[^>]+>/', $save_data['signature']);
+        }
+
+        if (!isset($_POST['_html_signature_medium']) && isset($save_data['signature_medium'])) {
+            $save_data['html_signature_medium'] = (int) preg_match('/<[^>]+>/', $save_data['signature_medium']);
+        }
+
+        if (!isset($_POST['_html_signature_simple']) && isset($save_data['signature_simple'])) {
+            $save_data['html_signature_simple'] = (int) preg_match('/<[^>]+>/', $save_data['signature_simple']);
+        }
 
         // set "off" values for checkboxes that were not checked, and therefore
         // not included in the POST body.
         foreach ($a_bool_cols as $col) {
             $fname = '_' . $col;
-            if (!isset($_POST[$fname])) {
+
+            // PAMELA - 0008128 - Plusieurs signatures
+            // Ne force à 0 que si la valeur n'a pas déjà été définie dans $save_data
+            if (!isset($_POST[$fname]) && !isset($save_data[$col])) {
                 $save_data[$col] = 0;
             }
         }
@@ -69,10 +93,15 @@ class rcmail_action_settings_identity_save extends rcmail_action_settings_index
         if ($IDENTITIES_LEVEL == 1 || $IDENTITIES_LEVEL == 3) {
             unset($save_data['email']);
         }
+        // PAMELA - 0008128 - Plusieurs signatures
         // unset all fields except signature
         else if ($IDENTITIES_LEVEL == 4) {
             foreach ($save_data as $idx => $value) {
-                if ($idx != 'signature' && $idx != 'html_signature') {
+                if (!in_array($idx, [
+                    'signature','html_signature',
+                    'signature_medium','html_signature_medium',
+                    'signature_simple','html_signature_simple'
+                ])) {
                     unset($save_data[$idx]);
                 }
             }
@@ -106,7 +135,24 @@ class rcmail_action_settings_identity_save extends rcmail_action_settings_index
 
             // clear POST data of signature, we want to use safe content
             // when the form is displayed again
-            unset($_POST['_signature']);
+            // PAMELA - 0008128 - Plusieurs signatures
+            unset($_POST['_signature'], $_POST['_signature_full']);
+        }
+
+        // PAMELA - 0008128 - Plusieurs signatures
+        // Signature intermédiaire
+        if (!empty($save_data['signature_medium']) && !empty($save_data['html_signature_medium'])) {
+            $save_data['signature_medium'] = self::attach_images($save_data['signature_medium'], 'identity');
+            $save_data['signature_medium'] = self::wash_html($save_data['signature_medium']);
+            unset($_POST['_signature_medium']);
+        }
+
+        // PAMELA - 0008128 - Plusieurs signatures
+        // Signature simple
+        if (!empty($save_data['signature_simple']) && !empty($save_data['html_signature_simple'])) {
+            $save_data['signature_simple'] = self::attach_images($save_data['signature_simple'], 'identity');
+            $save_data['signature_simple'] = self::wash_html($save_data['signature_simple']);
+            unset($_POST['_signature_simple']);
         }
 
         // update an existing identity
