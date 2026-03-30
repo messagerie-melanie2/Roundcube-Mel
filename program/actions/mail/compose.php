@@ -184,9 +184,8 @@ class rcmail_action_mail_compose extends rcmail_action_mail_index
         // Expose les différents mode de signatures au JS.
         $rcmail->output->set_env('show_sig_mode', $config_show_sig);
 
-        // show_sig : false par défaut, sera activé plus bas si nécessaire
-        // En draft/edit, on ne réinjecte jamais (la signature est déjà dans le corps)
-        $rcmail->output->set_env('show_sig', false);
+        // show_sig reste un booléen car utilisé dans d'autres parties du JS
+        $rcmail->output->set_env('show_sig', $config_show_sig > 0);
 
         // Détermine si compose est un "nouveau" ou une "réponse / transfert"
         $is_reply_or_forward = $compose_mode == rcmail_sendmail::MODE_REPLY
@@ -236,12 +235,13 @@ class rcmail_action_mail_compose extends rcmail_action_mail_index
         }
 
         $should_add_sig = ($is_new_message && $auto_new) || ($is_reply_or_forward && $auto_reply);
-        
-        // PAMELA - 0008128 - Plusieurs signatures
-        // En mode draft/edit, la signature est déjà dans le corps sauvegardé.
-        // On ne réinjecte pas automatiquement pour éviter la duplication.
+
         if ($compose_mode == rcmail_sendmail::MODE_EDIT || $compose_mode == rcmail_sendmail::MODE_DRAFT) {
-            // Ne pas mettre show_sig_later — le corps contient déjà la signature
+            // Mode edit/draft
+            // indique au JS qu'il pourra la gérer plus tard (#1489229).
+            if ($should_add_sig) {
+                $rcmail->output->set_env('show_sig_later', true);
+            }
         }
         else if ($should_add_sig) {
             // Compose "normal" (nouveau, reply, forward) pour l'insertion automatique

@@ -402,16 +402,8 @@ else xmlhttp.setRequestHeader('X-Roundcube-Request', ref.env.request_token);
             if (!ident_id || !rcmail.editor)
               return false;
 
-            // PAMELA - 0008128 - En mode texte brut + draft/edit : mémoriser la position
-            // de la signature existante AVANT de changer le type, pour un remplacement propre
-            var is_draft_or_edit = (rcmail.env.compose_mode == 'draft' || rcmail.env.compose_mode == 'edit');
-            var is_plain = rcmail.editor && !rcmail.editor.is_html();
-
-            if (is_draft_or_edit && is_plain) {
-              rcmail.editor._detect_plain_sig_position();
-            }
-
-            // PAMELA - 0008128 - Mémoriser le type choisi : 'full' | 'intermediaire' | 'simple' | 'none'
+            // mémoriser le type choisi pour les prochains appels
+            // 'full' | 'intermediaire' | 'simple' | 'none'
             rcmail.env.signature_type = type;
 
             if (type === 'none') {
@@ -1334,34 +1326,27 @@ else xmlhttp.setRequestHeader('X-Roundcube-Request', ref.env.request_token);
         break;
 
       case 'insert-sig': {
-        // PAMELA - 0008128 - Plusieurs signatures
-        // En mode texte brut + draft/edit : mémoriser la position
-        // de la signature existante AVANT d'appeler change_identity
-        var is_draft_or_edit = (this.env.compose_mode == 'draft' || this.env.compose_mode == 'edit');
-        var is_plain = this.editor && !this.editor.is_html();
-
-        if (is_draft_or_edit && is_plain) {
-          this.editor._detect_plain_sig_position();
-        }
-
-        // PAMELA - 0008128 - Lire le contenu avant et après le changement d'identité
-        // pour détecter si la signature a effectivement changé et afficher un message
+        //PAMELA - 0008128 - Plusieurs signatures
         const getBody = () => {
           if (this.editor) {
             if (typeof this.editor.get_content === 'function') return this.editor.get_content();
+            if (typeof this.editor.get_html === 'function') return this.editor.get_html();
           }
-          const $ta = $('#' + this.env.composebody);
+          const $ta = $('#composebody, #compose-body');
           return $ta.length ? $ta.val() : '';
         };
 
         const before = getBody();
+
         this.change_identity($("[name='_from']")[0], true);
+
         const after = getBody();
 
-        // PAMELA - 0008128 - Afficher un message de confirmation si la signature a changé
         if (before !== after) {
+
           if (this.env.signature_type === 'none') {
             this.display_message('sigremoved', 'confirmation');
+            
           } else {
             this.display_message('siginserted', 'confirmation');
           }
@@ -4760,27 +4745,12 @@ else xmlhttp.setRequestHeader('X-Roundcube-Request', ref.env.request_token);
 
       pos = this.env.top_posting && this.env.compose_mode ? 0 : input_message.value.length;
 
-      //PAMELA - 0008128 - Plusieurs signatures
       // add signature according to selected identity
-      // but do not auto-insert when opening an existing draft/edit
-      // or when the body already contains a signature
-      var body_value = input_message && input_message.value ? input_message.value : '';
-      var body_has_signature =
-        body_value.indexOf('id="_rc_sig"') !== -1 ||
-        body_value.indexOf('id="_rcm_sig"') !== -1 ||
-        /(^|\r?\n)--\s/m.test(body_value);
-
-      var is_existing_message =
-        this.env.compose_mode == 'draft' ||
-        this.env.compose_mode == 'edit';
-
+      // if we have HTML editor, signature is added in a callback
       if (input_from.prop('type') == 'select-one') {
         // for some reason the caret initially is not at pos=0 in Firefox 51 (#5628)
         this.set_caret_pos(input_message, 0);
-
-        // Appel normal, mais sans insertion auto de signature
-        // si le message est déjà existant ou déjà signé
-        this.change_identity(input_from[0], !(is_existing_message || body_has_signature));
+        this.change_identity(input_from[0]);
       }
 
       // set initial cursor position
