@@ -17,7 +17,7 @@
 $messages['errortitle']  = 'Radās kļūda!';
 $messages['loginfailed']  = 'Pieslēgties neizdevās';
 $messages['cookiesdisabled'] = 'Jūsu pārlūkprogramma neatbalsta sīkdatnes (cookies)';
-$messages['sessionerror'] = 'Jūsu sessija ir beigusies.';
+$messages['sessionerror'] = 'Jūsu sesija ir beigusies.';
 $messages['cookiesmismatch'] = 'Konstatēta sīkfailu neatbilstība. Lūdzu, notīriet Jūsu interneta pārlūkprogrammas sīkfailus.';
 $messages['storageerror'] = 'Neizdevās pieslēgties IMAP serverim';
 $messages['servererror'] = 'Servera kļūda!';
