@@ -402,14 +402,8 @@ else xmlhttp.setRequestHeader('X-Roundcube-Request', ref.env.request_token);
             if (!ident_id || !rcmail.editor)
               return false;
 
-            // PAMELA - 0008128 - En mode texte brut + draft/edit : mémoriser la position
-            // de la signature existante AVANT de changer le type, pour un remplacement propre
-            const is_draft_or_edit = (rcmail.env.compose_mode == 'draft' || rcmail.env.compose_mode == 'edit');
-            const is_plain = rcmail.editor && !rcmail.editor.is_html();
-
-            if (is_draft_or_edit && is_plain) {
-              rcmail.editor._detect_plain_sig_position();
-            }
+            // PAMELA - 0008128 - Mémoriser la position de la signature existante si nécessaire
+            rcmail._detect_plain_sig_if_needed();
 
             // PAMELA - 0008128 - Mémoriser le type choisi : 'full' | 'intermediaire' | 'simple' | 'none'
             rcmail.env.signature_type = type;
@@ -1334,15 +1328,8 @@ else xmlhttp.setRequestHeader('X-Roundcube-Request', ref.env.request_token);
         break;
 
       case 'insert-sig': {
-        // PAMELA - 0008128 - Plusieurs signatures
-        // En mode texte brut + draft/edit : mémoriser la position
-        // de la signature existante AVANT d'appeler change_identity
-        const is_draft_or_edit = (this.env.compose_mode == 'draft' || this.env.compose_mode == 'edit');
-        const is_plain = this.editor && !this.editor.is_html();
-
-        if (is_draft_or_edit && is_plain) {
-          this.editor._detect_plain_sig_position();
-        }
+        // PAMELA - 0008128 - Mémoriser la position de la signature existante si nécessaire
+        this._detect_plain_sig_if_needed();
 
         // PAMELA - 0008128 - Lire le contenu avant et après le changement d'identité
         // pour détecter si la signature a effectivement changé et afficher un message
