@@ -253,7 +253,7 @@ function rcube_text_editor(config, id)
   // sans marqueur id=_rc_sig pour permettre son remplacement ultérieur
   this._tag_existing_signature = function(editor)
   {
-    var body = editor.getBody();
+    const body = editor.getBody();
 
     // Déjà balisé, rien à faire
     if ($(body).find('#_rc_sig').length) {
@@ -261,18 +261,18 @@ function rcube_text_editor(config, id)
       return;
     }
 
-    var identity_id = rcmail.env.identity;
+    const identity_id = rcmail.env.identity;
     if (!identity_id) return;
 
     // Comparaison HTML normalisée
-    var all_sig_maps = [
+    const all_sig_maps = [
       { map: rcmail.env.signatures,               type: 'full'          },
       { map: rcmail.env.signatures_intermediaire,  type: 'intermediaire' },
       { map: rcmail.env.signatures_simple,         type: 'simple'        }
     ];
 
     // Normalisation, supprime tous les attributs de style, espaces superflus, ...
-    var normalize = function(s) {
+    const normalize = function(s) {
       return s
         .replace(/\s+style="[^"]*"/gi, '')
         .replace(/\s+class="[^"]*"/gi, '')
@@ -284,36 +284,36 @@ function rcube_text_editor(config, id)
     };
 
     // Extraire le texte brut d'un élément HTML
-    var strip_html = function(s) {
+    const strip_html = function(s) {
       return s.replace(/<[^>]+>/g, '').replace(/&nbsp;/g, ' ').replace(/\s+/g, ' ').trim();
     };
 
-    var found = false;
+    let found = false;
 
     // Parcourir les enfants directs du body en partant de la fin
-    var $children = $(body).children();
+    const $children = $(body).children();
 
-    for (var m = 0; m < all_sig_maps.length && !found; m++) {
-      var entry = all_sig_maps[m];
+    for (let m = 0; m < all_sig_maps.length && !found; m++) {
+      const entry = all_sig_maps[m];
       if (!entry.map || !entry.map[identity_id] || !entry.map[identity_id].html) continue;
 
-      var sig_html_ref  = entry.map[identity_id].html.trim();
-      var sig_text_ref  = strip_html(sig_html_ref);
-      var sig_norm_ref  = normalize(sig_html_ref);
+      const sig_html_ref  = entry.map[identity_id].html.trim();
+      const sig_text_ref  = strip_html(sig_html_ref);
+      const sig_norm_ref  = normalize(sig_html_ref);
 
       // Parcourir tous les éléments du body
       $children.toArray().reverse().forEach(function(child) {
         if (found) return;
 
-        var $child = $(child);
+        const $child = $(child);
 
         // Ignorer les éléments déjà marqués
         if ($child.attr('id') === '_rc_sig' || $child.attr('id') === '_rc_sig_placeholder') return;
 
         // Comparaison HTML normalisée sur l'enfant direct
-        var child_norm = normalize($child.prop('outerHTML') || '');
+        const child_norm = normalize($child.prop('outerHTML') || '');
         // Comparaison du innerHTML
-        var child_inner_norm = normalize($child.html() || '');
+        const child_inner_norm = normalize($child.html() || '');
 
         if (child_inner_norm === sig_norm_ref || child_norm.indexOf(sig_norm_ref) !== -1) {
           $child.attr({ 'id': '_rc_sig', 'data-sig-type': entry.type });
@@ -324,8 +324,8 @@ function rcube_text_editor(config, id)
         }
 
         // Comparaison du texte brut
-        var child_text = strip_html($child.html() || '').toLowerCase();
-        var sig_text_lc = sig_text_ref.toLowerCase();
+        const child_text = strip_html($child.html() || '').toLowerCase();
+        const sig_text_lc = sig_text_ref.toLowerCase();
 
         if (sig_text_lc.length > 10 && child_text === sig_text_lc) {
           $child.attr({ 'id': '_rc_sig', 'data-sig-type': entry.type });
@@ -338,9 +338,9 @@ function rcube_text_editor(config, id)
         // Chercher dans les enfants si la signature est imbriquée
         $child.find('div, p, table, td').each(function() {
           if (found) return false;
-          var $desc = $(this);
-          var desc_inner_norm = normalize($desc.html() || '');
-          var desc_text = strip_html($desc.html() || '').toLowerCase();
+          const $desc = $(this);
+          const desc_inner_norm = normalize($desc.html() || '');
+          const desc_text = strip_html($desc.html() || '').toLowerCase();
 
           if (desc_inner_norm === sig_norm_ref) {
             $desc.attr({ 'id': '_rc_sig', 'data-sig-type': entry.type });
@@ -363,12 +363,12 @@ function rcube_text_editor(config, id)
 
     // Si aucune signature n'est reconnue par comparaison, tentative par position :
     if (!found && !rcmail.env.compose_is_reply_or_forward) {
-      var last_child = null;
+      let last_child = null;
 
       $children.toArray().reverse().forEach(function(child) {
         if (last_child) return;
-        var $child = $(child);
-        var text = $child.text().replace(/\u00a0/g, '').trim();
+        const $child = $(child);
+        const text = $child.text().replace(/\u00a0/g, '').trim();
         if (text.length > 0) {
           last_child = $child;
         }
@@ -376,14 +376,14 @@ function rcube_text_editor(config, id)
 
       if (last_child) {
         // Vérifier que ce n'est pas clairement du contenu de l'utilisateur
-        var last_text = last_child.text().trim();
-        var has_any_sig = false;
+        const last_text = last_child.text().trim();
+        let has_any_sig = false;
 
         // Vérifier si ce texte existe dans une des signatures connues
         all_sig_maps.forEach(function(entry) {
           if (has_any_sig) return;
           if (!entry.map || !entry.map[identity_id]) return;
-          var ref_text = strip_html(entry.map[identity_id].html || '').toLowerCase();
+          const ref_text = strip_html(entry.map[identity_id].html || '').toLowerCase();
           if (ref_text.length > 5 && last_text.toLowerCase().indexOf(ref_text.substring(0, 20)) !== -1) {
             last_child.attr({ 'id': '_rc_sig', 'data-sig-type': entry.type });
             rcmail.env.signature_type = entry.type;
@@ -398,9 +398,9 @@ function rcube_text_editor(config, id)
   // PAMELA - 0008128 - Restaurer le type depuis data-sig-type si déjà balisé
   this._restore_sig_type_from_marker = function(body)
   {
-    var existing = $(body).find('#_rc_sig');
+    const existing = $(body).find('#_rc_sig');
     if (existing.length) {
-      var saved_type = existing.attr('data-sig-type');
+      const saved_type = existing.attr('data-sig-type');
       if (saved_type && !rcmail.env.signature_type) {
         rcmail.env.signature_type = saved_type;
         this.update_signature_menu();
@@ -415,22 +415,22 @@ function rcube_text_editor(config, id)
     // PAMELA - Ne pas recalculer si déjà mémorisé
     if (typeof this.last_sig_pos_plain !== 'undefined' && this.last_sig_pos_plain >= 0) return;
 
-    var input_message = $('#' + this.id);
-    var message = input_message.val();
+    const input_message = $('#' + this.id);
+    const message = input_message.val();
     if (!message) return;
 
-    var identity_id = rcmail.env.identity;
+    const identity_id = rcmail.env.identity;
     if (!identity_id) return;
 
     // PAMELA 0008128 - Normaliser les sauts de ligne pour la recherche
-    var msg = message.replace(/\r\n/g, '\n');
+    const msg = message.replace(/\r\n/g, '\n');
 
-    var sep_pos = -1;
+    let sep_pos = -1;
     // PAMELA 0008128 - Tester les deux variantes du séparateur : "-- \n\n" et "-- \n"
     var sep_variants = ['-- \n\n', '-- \n'];
 
-    for (var s = 0; s < sep_variants.length; s++) {
-      var pos = rcmail.env.top_posting
+    for (let s = 0; s < sep_variants.length; s++) {
+      const pos = rcmail.env.top_posting
         ? msg.indexOf(sep_variants[s])
         : msg.lastIndexOf(sep_variants[s]);
       if (pos >= 0) {
@@ -445,15 +445,15 @@ function rcube_text_editor(config, id)
     this.last_sig_pos_plain = sep_pos;
 
     // PAMELA 0008128 - Détecter le type de signature en comparant le contenu après le séparateur
-    var sig_content = msg.substring(sep_pos).replace(/\r\n/g, '\n').trim();
+    const sig_content = msg.substring(sep_pos).replace(/\r\n/g, '\n').trim();
 
-    var all_sig_maps = [
+    const all_sig_maps = [
       { map: rcmail.env.signatures,               type: 'full'          },
       { map: rcmail.env.signatures_intermediaire,  type: 'intermediaire' },
       { map: rcmail.env.signatures_simple,         type: 'simple'        }
     ];
 
-    var normalize_for_compare = function(s) {
+    const normalize_for_compare = function(s) {
       return s
         .replace(/\r\n/g, '\n')
         .replace(/-- \n\n/g, '-- \n')
@@ -462,15 +462,15 @@ function rcube_text_editor(config, id)
         .trim();
     };
 
-    var sig_content_norm = normalize_for_compare(sig_content);
-    var best_type = null;
-    var best_length = 0;
+    const sig_content_norm = normalize_for_compare(sig_content);
+    let best_type = null;
+    let best_length = 0;
 
-    for (var m = 0; m < all_sig_maps.length; m++) {
-      var entry = all_sig_maps[m];
+    for (let m = 0; m < all_sig_maps.length; m++) {
+      const entry = all_sig_maps[m];
       if (!entry.map || !entry.map[identity_id] || !entry.map[identity_id].text) continue;
 
-      var ref_text = normalize_for_compare(entry.map[identity_id].text);
+      const ref_text = normalize_for_compare(entry.map[identity_id].text);
 
       // PAMELA 008128 - Prendre la correspondance la plus précise
       if (sig_content_norm.startsWith(ref_text) || sig_content_norm === ref_text) {

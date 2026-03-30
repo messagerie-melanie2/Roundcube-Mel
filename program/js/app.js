@@ -404,8 +404,8 @@ else xmlhttp.setRequestHeader('X-Roundcube-Request', ref.env.request_token);
 
             // PAMELA - 0008128 - En mode texte brut + draft/edit : mémoriser la position
             // de la signature existante AVANT de changer le type, pour un remplacement propre
-            var is_draft_or_edit = (rcmail.env.compose_mode == 'draft' || rcmail.env.compose_mode == 'edit');
-            var is_plain = rcmail.editor && !rcmail.editor.is_html();
+            const is_draft_or_edit = (rcmail.env.compose_mode == 'draft' || rcmail.env.compose_mode == 'edit');
+            const is_plain = rcmail.editor && !rcmail.editor.is_html();
 
             if (is_draft_or_edit && is_plain) {
               rcmail.editor._detect_plain_sig_position();
@@ -1337,8 +1337,8 @@ else xmlhttp.setRequestHeader('X-Roundcube-Request', ref.env.request_token);
         // PAMELA - 0008128 - Plusieurs signatures
         // En mode texte brut + draft/edit : mémoriser la position
         // de la signature existante AVANT d'appeler change_identity
-        var is_draft_or_edit = (this.env.compose_mode == 'draft' || this.env.compose_mode == 'edit');
-        var is_plain = this.editor && !this.editor.is_html();
+        const is_draft_or_edit = (this.env.compose_mode == 'draft' || this.env.compose_mode == 'edit');
+        const is_plain = this.editor && !this.editor.is_html();
 
         if (is_draft_or_edit && is_plain) {
           this.editor._detect_plain_sig_position();
@@ -1350,7 +1350,7 @@ else xmlhttp.setRequestHeader('X-Roundcube-Request', ref.env.request_token);
           if (this.editor) {
             if (typeof this.editor.get_content === 'function') return this.editor.get_content();
           }
-          const $ta = $('#' + this.env.composebody);
+          const $ta = $(`#${this.env.composebody}`);
           return $ta.length ? $ta.val() : '';
         };
 
@@ -4727,6 +4727,23 @@ else xmlhttp.setRequestHeader('X-Roundcube-Request', ref.env.request_token);
     }
   };
 
+  // PAMELA - 0008128 - Helper : appelle _detect_plain_sig_position si on est
+  // en mode texte brut dans un brouillon/modèle
+  this._detect_plain_sig_if_needed = function() {
+    const is_draft_or_edit = (this.env.compose_mode == 'draft' || this.env.compose_mode == 'edit');
+    const is_plain = this.editor && !this.editor.is_html();
+    if (is_draft_or_edit && is_plain) {
+      this.editor._detect_plain_sig_position();
+    }
+  };
+
+  //Détecte si un body contient déjà une signature
+  this.body_has_signature = function(body_value) {
+    return body_value.includes('id="_rc_sig"')
+      || body_value.includes('id="_rcm_sig"')
+      || /(^|\r?\n)--\s/m.test(body_value);
+  };
+
   // init message compose form: set focus and eventhandlers
   this.init_messageform = function()
   {
@@ -4762,15 +4779,9 @@ else xmlhttp.setRequestHeader('X-Roundcube-Request', ref.env.request_token);
 
       // PAMELA - 0008128 - Plusieurs signatures
       // Ne pas insérer automatiquement la signature
-      var body_value = input_message && input_message.value ? input_message.value : '';
-      var body_has_signature =
-        body_value.indexOf('id="_rc_sig"') !== -1 ||
-        body_value.indexOf('id="_rcm_sig"') !== -1 ||
-        /(^|\r?\n)--\s/m.test(body_value);
-
-      var is_existing_message =
-        this.env.compose_mode == 'draft' ||
-        this.env.compose_mode == 'edit';
+      const body_value = input_message && input_message.value ? input_message.value : '';
+      const body_has_signature = this.body_has_signature(body_value);
+      const is_existing_message = this.is_draft_or_edit();
 
       if (input_from.prop('type') == 'select-one') {
         // for some reason the caret initially is not at pos=0 in Firefox 51 (#5628)
