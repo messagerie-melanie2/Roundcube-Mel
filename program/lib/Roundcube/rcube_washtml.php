@@ -423,7 +423,7 @@ class rcube_washtml
             }
 
             // At this point we allow only valid base64 images
-            if (stripos($type, 'base64') === false || preg_match('|[^0-9a-z\s/+]|i', $matches[2])) {
+            if (stripos($type, 'base64') === false || preg_match('|[^0-9a-z\s/+=]|i', $matches[2])) {
                 return '';
             }
 
@@ -529,6 +529,28 @@ class rcube_washtml
     }
 
     /**
+     * Check if the node is an insecure element
+     *
+     * @param \DOMElement $node
+     */
+    private static function is_insecure_tag($node)
+    {
+        $tagName = strtolower($node->nodeName);
+
+        if (!in_array($tagName, ['animate', 'animatecolor', 'set', 'animatetransform'])) {
+            return false;
+        }
+
+        if (self::attribute_value($node, 'attributeName', '/^href$/i')) {
+            return true;
+        }
+
+        $rx = '/^(mask|cursor|fill|filter|stroke|clip-path|marker-start|marker-end|marker-mid)$/i';
+        return self::attribute_value($node, 'attributeName', $rx)
+            && self::attribute_value($node, 'values', '/url\(/i');
+    }
+
+    /**
      * The main loop that recurse on a node tree.
      * It output only allowed tags with allowed attributes and allowed inline styles
      *
@@ -579,10 +601,9 @@ class rcube_washtml
 
                     $node->setAttribute('href', (string) $uri);
                 }
-                else if (in_array($tagName, ['animate', 'animatecolor', 'set', 'animatetransform'])
-                    && self::attribute_value($node, 'attributename', 'href')
-                ) {
+                else if (self::is_insecure_tag($node)) {
                     // Insecure svg tags
+                    // TODO: We really should use wash_attribs()/wash_uri() for these cases
                     if ($this->config['add_comments']) {
                         $dump .= "<!-- {$tagName} blocked -->";
                     }

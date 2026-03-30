@@ -48,6 +48,10 @@ $search_request = md5($mbox.$scope.$interval.$filter.$str);
 // add list filter string
 $search_str = $filter && $filter != 'ALL' ? $filter : '';
 
+// We pass the filter as-is into IMAP SEARCH command. A newline could be used
+// to inject extra commands, so we remove these.
+$search_str = preg_replace('/[\r\n]+/', ' ', $search_str);
+
 // Check the search string for type of search
 if (preg_match("/^from:.*/i", $str)) {
     list(,$srch) = explode(":", $str);
@@ -114,10 +118,6 @@ if (!empty($subject)) {
 
 $search_str  = trim($search_str);
 $sort_column = rcmail_sort_column();
-
-// We pass the filter as-is into IMAP SEARCH command. A newline could be used
-// to inject extra commands, so we remove these.
-$search_str = preg_replace('/[\r\n]+/', ' ', $search_str);
 
 // set message set for already stored (but incomplete) search request
 if (!empty($continue) && isset($_SESSION['search']) && $_SESSION['search_request'] == $continue) {
