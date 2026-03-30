@@ -470,7 +470,7 @@ function rcube_text_editor(config, id)
       const entry = all_sig_maps[m];
       if (!entry.map || !entry.map[identity_id] || !entry.map[identity_id].text) continue;
 
-      const ref_text = normalize_for_compare(entry.map[identity_id].text);
+       ref_text = normalize_for_compare(entry.map[identity_id].text);
 
       // PAMELA 008128 - Prendre la correspondance la plus précise
       if (sig_content_norm.startsWith(ref_text) || sig_content_norm === ref_text) {
@@ -976,7 +976,7 @@ function rcube_text_editor(config, id)
     if (!this.editor) { // plain text mode
       // PAMELA - 0008128 - Plusieurs signatures 
       // Type de signature à utiliser (full/intermediaire/simple)
-      var sig_type = rcmail.env.signature_type || 'full';
+      const sig_type = rcmail.env.signature_type || 'full';
 
       // PAMELA - 0008128 - Plusieurs signatures
       // Suppression de l'ancienne signature
@@ -984,12 +984,12 @@ function rcube_text_editor(config, id)
 
         // Suppression de l'ancienne signature en texte brut
         // On cherche le séparateur -- et on supprime tout depuis ce point
-        var msg_nl = message.replace(/\r\n/g, '\n');
-        var sep_pos_found = -1;
-        var sep_variants_del = ['-- \n\n', '-- \n'];
+        const msg_nl = message.replace(/\r\n/g, '\n');
+        let sep_pos_found = -1;
+        const sep_variants_del = ['-- \n\n', '-- \n'];
 
-        for (var s = 0; s < sep_variants_del.length; s++) {
-          var sp = rcmail.env.top_posting
+        for (let s = 0; s < sep_variants_del.length; s++) {
+          const sp = rcmail.env.top_posting
             ? msg_nl.indexOf(sep_variants_del[s])
             : msg_nl.lastIndexOf(sep_variants_del[s]);
           if (sp >= 0) {
@@ -1100,28 +1100,28 @@ function rcube_text_editor(config, id)
       // PAMELA - 0008128 - Brouillon/modèle : détecter une signature existante
       // sans marqueur id=_rc_sig et la baliser pour pouvoir la remplacer ensuite
       if (!$(body).find('#_rc_sig').length && (rcmail.env.compose_mode == 'draft' || rcmail.env.compose_mode == 'edit')) {
-        var all_sig_maps = [
+        const all_sig_maps = [
           rcmail.env.signatures,
           rcmail.env.signatures_intermediaire,
           rcmail.env.signatures_simple
         ];
 
-        var found = false;
-        for (var m = 0; m < all_sig_maps.length && !found; m++) {
-          var map = all_sig_maps[m];
+        let found = false;
+        for (let m = 0; m < all_sig_maps.length && !found; m++) {
+          const map = all_sig_maps[m];
           if (!map || !rcmail.env.identity || !map[rcmail.env.identity]) continue;
 
-          var sig_html = map[rcmail.env.identity].html;
+          const sig_html = map[rcmail.env.identity].html;
           if (!sig_html) continue;
 
           // Chercher dans le corps un élément dont le innerHTML correspond à la signature
           $(body).find('div, p, span').each(function() {
             if (found) return false;
 
-            var elem_html = this.innerHTML.trim();
-            var sig_trimmed = sig_html.trim();
+            const elem_html = this.innerHTML.trim();
+            const sig_trimmed = sig_html.trim();
 
-            var normalize = function(s) {
+            const normalize = function(s) {
               return s.replace(/\s+/g, ' ').replace(/>\s+</g, '><').trim();
             };
 
