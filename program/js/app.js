@@ -402,8 +402,10 @@ else xmlhttp.setRequestHeader('X-Roundcube-Request', ref.env.request_token);
             if (!ident_id || !rcmail.editor)
               return false;
 
-            // mémoriser le type choisi pour les prochains appels
-            // 'full' | 'intermediaire' | 'simple' | 'none'
+            // PAMELA - 0008128 - Mémoriser la position de la signature existante si nécessaire
+            rcmail._detect_plain_sig_if_needed();
+
+            // PAMELA - 0008128 - Mémoriser le type choisi : 'full' | 'intermediaire' | 'simple' | 'none'
             rcmail.env.signature_type = type;
 
             if (type === 'none') {
@@ -1326,27 +1328,27 @@ else xmlhttp.setRequestHeader('X-Roundcube-Request', ref.env.request_token);
         break;
 
       case 'insert-sig': {
-        //PAMELA - 0008128 - Plusieurs signatures
+        // PAMELA - 0008128 - Mémoriser la position de la signature existante si nécessaire
+        this._detect_plain_sig_if_needed();
+
+        // PAMELA - 0008128 - Lire le contenu avant et après le changement d'identité
+        // pour détecter si la signature a effectivement changé et afficher un message
         const getBody = () => {
           if (this.editor) {
             if (typeof this.editor.get_content === 'function') return this.editor.get_content();
-            if (typeof this.editor.get_html === 'function') return this.editor.get_html();
           }
-          const $ta = $('#composebody, #compose-body');
+          const $ta = $(`#${this.env.composebody}`);
           return $ta.length ? $ta.val() : '';
         };
 
         const before = getBody();
-
         this.change_identity($("[name='_from']")[0], true);
-
         const after = getBody();
 
+        // PAMELA - 0008128 - Afficher un message de confirmation si la signature a changé
         if (before !== after) {
-
           if (this.env.signature_type === 'none') {
             this.display_message('sigremoved', 'confirmation');
-            
           } else {
             this.display_message('siginserted', 'confirmation');
           }
@@ -4712,6 +4714,23 @@ else xmlhttp.setRequestHeader('X-Roundcube-Request', ref.env.request_token);
     }
   };
 
+  // PAMELA - 0008128 - Helper : appelle _detect_plain_sig_position si on est
+  // en mode texte brut dans un brouillon/modèle
+  this._detect_plain_sig_if_needed = function() {
+    const is_draft_or_edit = (this.env.compose_mode == 'draft' || this.env.compose_mode == 'edit');
+    const is_plain = this.editor && !this.editor.is_html();
+    if (is_draft_or_edit && is_plain) {
+      this.editor._detect_plain_sig_position();
+    }
+  };
+
+  //Détecte si un body contient déjà une signature
+  this.body_has_signature = function(body_value) {
+    return body_value.includes('id="_rc_sig"')
+      || body_value.includes('id="_rcm_sig"')
+      || /(^|\r?\n)--\s/m.test(body_value);
+  };
+
   // init message compose form: set focus and eventhandlers
   this.init_messageform = function()
   {
@@ -4745,12 +4764,18 @@ else xmlhttp.setRequestHeader('X-Roundcube-Request', ref.env.request_token);
 
       pos = this.env.top_posting && this.env.compose_mode ? 0 : input_message.value.length;
 
-      // add signature according to selected identity
-      // if we have HTML editor, signature is added in a callback
+      // PAMELA - 0008128 - Plusieurs signatures
+      // Ne pas insérer automatiquement la signature
+      const body_value = input_message && input_message.value ? input_message.value : '';
+      const body_has_signature = this.body_has_signature(body_value);
+      const is_existing_message = this.is_draft_or_edit();
+
       if (input_from.prop('type') == 'select-one') {
         // for some reason the caret initially is not at pos=0 in Firefox 51 (#5628)
         this.set_caret_pos(input_message, 0);
-        this.change_identity(input_from[0]);
+
+        // Pas d'insertion automatique de signature si le message est déjà existant ou déjà signé
+        this.change_identity(input_from[0], !(is_existing_message || body_has_signature));
       }
 
       // set initial cursor position
