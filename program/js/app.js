@@ -402,8 +402,10 @@ else xmlhttp.setRequestHeader('X-Roundcube-Request', ref.env.request_token);
             if (!ident_id || !rcmail.editor)
               return false;
 
-            // mémoriser le type choisi pour les prochains appels
-            // 'full' | 'intermediaire' | 'simple' | 'none'
+            // PAMELA - 0008128 - Mémoriser la position de la signature existante si nécessaire
+            rcmail._detect_plain_sig_if_needed();
+
+            // PAMELA - 0008128 - Mémoriser le type choisi : 'full' | 'intermediaire' | 'simple' | 'none'
             rcmail.env.signature_type = type;
 
             if (type === 'none') {
@@ -1326,27 +1328,27 @@ else xmlhttp.setRequestHeader('X-Roundcube-Request', ref.env.request_token);
         break;
 
       case 'insert-sig': {
-        //PAMELA - 0008128 - Plusieurs signatures
+        // PAMELA - 0008128 - Mémoriser la position de la signature existante si nécessaire
+        this._detect_plain_sig_if_needed();
+
+        // PAMELA - 0008128 - Lire le contenu avant et après le changement d'identité
+        // pour détecter si la signature a effectivement changé et afficher un message
         const getBody = () => {
           if (this.editor) {
             if (typeof this.editor.get_content === 'function') return this.editor.get_content();
-            if (typeof this.editor.get_html === 'function') return this.editor.get_html();
           }
-          const $ta = $('#composebody, #compose-body');
+          const $ta = $(`#${this.env.composebody}`);
           return $ta.length ? $ta.val() : '';
         };
 
         const before = getBody();
-
         this.change_identity($("[name='_from']")[0], true);
-
         const after = getBody();
 
+        // PAMELA - 0008128 - Afficher un message de confirmation si la signature a changé
         if (before !== after) {
-
           if (this.env.signature_type === 'none') {
             this.display_message('sigremoved', 'confirmation');
-            
           } else {
             this.display_message('siginserted', 'confirmation');
           }
@@ -4712,6 +4714,28 @@ else xmlhttp.setRequestHeader('X-Roundcube-Request', ref.env.request_token);
     }
   };
 
+  //PAMELA - 0008128 - Helper : is_draft_or_edit
+  this.is_draft_or_edit = function() {
+    return (this.env.compose_mode == 'draft' || this.env.compose_mode == 'edit');
+  };
+
+  // PAMELA - 0008128 - Helper : appelle _detect_plain_sig_position si on est
+  // en mode texte brut dans un brouillon/modèle
+  this._detect_plain_sig_if_needed = function() {
+    const is_draft_or_edit = this.is_draft_or_edit();
+    const is_plain = this.editor && !this.editor.is_html();
+    if (is_draft_or_edit && is_plain) {
+      this.editor._detect_plain_sig_position();
+    }
+  };
+
+  //Détecte si un body contient déjà une signature
+  this.body_has_signature = function(body_value) {
+    return body_value.includes('id="_rc_sig"')
+      || body_value.includes('id="_rcm_sig"')
+      || /(^|\r?\n)--\s/m.test(body_value);
+  };
+
   // init message compose form: set focus and eventhandlers
   this.init_messageform = function()
   {
@@ -4745,12 +4769,18 @@ else xmlhttp.setRequestHeader('X-Roundcube-Request', ref.env.request_token);
 
       pos = this.env.top_posting && this.env.compose_mode ? 0 : input_message.value.length;
 
-      // add signature according to selected identity
-      // if we have HTML editor, signature is added in a callback
+      // PAMELA - 0008128 - Plusieurs signatures
+      // Ne pas insérer automatiquement la signature
+      const body_value = input_message && input_message.value ? input_message.value : '';
+      const body_has_signature = this.body_has_signature(body_value);
+      const is_existing_message = this.is_draft_or_edit();
+
       if (input_from.prop('type') == 'select-one') {
         // for some reason the caret initially is not at pos=0 in Firefox 51 (#5628)
         this.set_caret_pos(input_message, 0);
-        this.change_identity(input_from[0]);
+
+        // Pas d'insertion automatique de signature si le message est déjà existant ou déjà signé
+        this.change_identity(input_from[0], !(is_existing_message || body_has_signature));
       }
 
       // set initial cursor position
@@ -5160,18 +5190,6 @@ else xmlhttp.setRequestHeader('X-Roundcube-Request', ref.env.request_token);
     // Multi-éditeurs = un rcube_text_editor par id
     if (!this.editors) this.editors = {};
 
-    // Récupère/initialise l’éditeur
-    var editor = this.editors[id];
-    if (!editor) {
-      var cfg = $.extend(true, {}, this.env.editor_config || {});
-      this.editor_init(cfg, id);
-      editor = this.editor;
-      this.editors[id] = editor;
-      editor.save();
-    } else {
-      this.editor = editor;
-    }
-
     // Etat réel : Est ce que TinyMCE est présent ?
     var has_tinymce_now = !!(window.tinymce && tinymce.get(id));
 
@@ -5183,55 +5201,70 @@ else xmlhttp.setRequestHeader('X-Roundcube-Request', ref.env.request_token);
       // toggle basé sur l’état UI réel
       want_html = !has_tinymce_now;
     }
+    
+    // Récupère/initialise l’éditeur
+    var editor = this.editors[id];
+    if (!editor) {
+      var cfg = $.extend(true, {}, this.env.editor_config || {});
+      this.editor_init(cfg, id);
+      editor = this.editor;
+      this.editors[id] = editor;
+    } else {
+      this.editor = editor;
+    }
 
-    // Applique le toggle
-    editor.toggle(want_html, !!props.noconvert);
+    if (!editor) {
+      return false;
+    }
 
-    // Sécuriser HTML -> plain
+    // Lance le toggle
+    var result = false;
+    try {
+      result = editor.toggle(want_html, !!props.noconvert);
+    }
+    catch (err) {
+       console.error('editor.toggle exception=', err);
+      return false;
+    }
+
+    var mode = want_html ? 'html' : 'plain';
+
+    // En mode texte, on force la suppression éventuelle de TinyMCE
     if (!want_html && window.tinymce) {
       var inst = tinymce.get(id);
+
       if (inst) {
         try { inst.save(); } catch (err) {}
         try { inst.remove(); } catch (err) {}
-
-          if (!want_html) {
-          var $ta = $('#' + id);
-          var v = $ta.val();
-
-          if (v && /<\s*[a-z][\s\S]*>/i.test(v)) {
-            // Convertir tout HTML résiduel en texte
-            var div = document.createElement('div');
-            div.innerHTML = v.replace(/<br\s*\/?>/gi, '\n');
-            $ta.val((div.textContent || '').replace(/\u00a0/g, ' ').trim());
-          }
-        }
-
       }
-      $('#' + id).show();
+
+      var $ta = $('#' + id);
+      var v = $ta.val();
+
+      if (v && /<\s*[a-z][\s\S]*>/i.test(v)) {
+        var div = document.createElement('div');
+        div.innerHTML = v.replace(/<br\s*\/?>/gi, '\n');
+        $ta.val((div.textContent || '').replace(/\u00a0/g, ' ').trim());
+      }
+
+      $ta.show();
     }
-
-    // Etat réel après (UI)
-    var has_tinymce_after = !!(window.tinymce && tinymce.get(id));
-
-    // Résultat + mode basés sur l’UI réelle
-    var result = want_html ? has_tinymce_after : !has_tinymce_after;
-    var mode = has_tinymce_after ? 'html' : 'plain';
 
     // Mettre à jour le flag _is_html pour le corps du message
     if (id == this.env.composebody) {
-      $("[name='_is_html']").val(mode == 'html' ? 1 : 0);
+      $("[name='_is_html']").val(want_html ? '1' : '0');
     }
 
     // Synchroniser la checkbox / select
     var control = $('#' + id).data('control') || $(e ? e.target : []);
-    if (control.is('[type=checkbox]'))
+    if (control.is('[type=checkbox]')) {
       control.prop('checked', mode == 'html');
+    }
     else if (control.length)
       control.val(mode);
 
     return result;
   };
-
 
   // Inserts a predefined response to the compose editor
   this.insert_response = function(response)
