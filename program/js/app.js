@@ -4714,10 +4714,15 @@ else xmlhttp.setRequestHeader('X-Roundcube-Request', ref.env.request_token);
     }
   };
 
+  //PAMELA - 0008128 - Helper : is_draft_or_edit
+  this.is_draft_or_edit = function() {
+    return (this.env.compose_mode == 'draft' || this.env.compose_mode == 'edit');
+  };
+
   // PAMELA - 0008128 - Helper : appelle _detect_plain_sig_position si on est
   // en mode texte brut dans un brouillon/modèle
   this._detect_plain_sig_if_needed = function() {
-    const is_draft_or_edit = (this.env.compose_mode == 'draft' || this.env.compose_mode == 'edit');
+    const is_draft_or_edit = this.is_draft_or_edit();
     const is_plain = this.editor && !this.editor.is_html();
     if (is_draft_or_edit && is_plain) {
       this.editor._detect_plain_sig_position();
