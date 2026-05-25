@@ -1149,8 +1149,7 @@ $config['ldap_public']['Verisign'] = [
   'sub_fields' => [],
   // Generate values for the following LDAP attributes automatically when creating a new record
   'autovalues' => [
-    // 'uid'  => 'md5(microtime())',               // You may specify PHP code snippets which are then eval'ed
-    // 'mail' => '{givenname}.{sn}@mydomain.com',  // or composite strings with placeholders for existing attributes
+    // 'mail' => '{givenname}.{sn}@mydomain.com',  // composite strings with placeholders for existing attributes  
   ],
   'sort'           => 'cn',         // The field to sort the listing by.
   'scope'          => 'sub',        // search mode: sub|base|list
@@ -1485,9 +1484,11 @@ $config['message_show_email'] = false;
 // 0 - Reply-All always
 // 1 - Reply-List if mailing list is detected
 $config['reply_all_mode'] = 0;
+
 // PAMELA - Pouvoir sauvegarder le compose_data autre part qu'en session
 // Backend to use for compose_data storage. 
 //Can either be 'session' (default), 'redis', 'memcache', 'apc', or 'db'
 $config['compose_data_storage'] = 'session';
+
 // Lifetime of compose data storage. Possible units: s, m, h, d, w
 $config['compose_data_storage_ttl'] = '24h'; 

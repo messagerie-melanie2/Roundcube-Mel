@@ -77,16 +77,6 @@ class rcmail_sendmail
     }
 
     /**
-     * Object destructor to cleanup temporary files
-     */
-    public function __destruct()
-    {
-        foreach ($this->temp_files as $file) {
-            @unlink($file);
-        }
-    }
-
-    /**
      * Collect input data for message headers
      *
      * @return array Message headers
