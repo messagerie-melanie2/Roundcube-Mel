@@ -1,5 +1,17 @@
 # Changelog Roundcube Webmail
 
+## Release 1.6.16
+
+- Fix potential too long value in IMAP ID command (#10136)
+- Security: Fix stored XSS/HTML/CSS injection in subject field of the draft restore dialog
+- Security: Fix CSS injection bypass in HTML sanitizer via SVG `<animate attributeName="style">`
+- Security: Fix pre-auth SQL injection in `virtuser_query` plugin via preg_replace backslash escape bypass
+- Security: Fix SSRF bypass via specific local address URLs
+- Security: Fix bypass of remote image blocking via CSS var()
+- Security: Fix local/private URL fetch bypass when remote resources were not allowed
+- Security: Fix pre-auth arbitrary file delete via redis/memcache session poisoning bypass
+- Security: Fix code injection vulnerability - remove support for code evaluation in LDAP `autovalues` option 
+
 ## Release 1.6.15
 
 - Fix regression where mail search would fail on non-ascii search criteria (#10121)
@@ -38,6 +50,7 @@
 - Fix Information Disclosure vulnerability in the HTML style sanitizer
 
 ## Release 1.6.11
+
 - Managesieve: Fix match-type selector (remove unsupported options) in delete header action (#9610)
 - Improve installer to fix confusion about disabling SMTP authentication (#9801)
 - Fix PHP warning in index.php (#9813)
