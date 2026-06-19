@@ -4729,6 +4729,21 @@ else xmlhttp.setRequestHeader('X-Roundcube-Request', ref.env.request_token);
     }
   };
 
+  // PAMELA - 0009194 : Helper détection PJ manquante
+  this._mentions_attachment = function(text) {
+      var keywords = this.env.missing_attachment_keywords || [],
+          case_sensitive = this.env.missing_attachment_case_sensitive || false,
+          haystack = case_sensitive ? text : text.toLowerCase();
+
+      for (var i = 0; i < keywords.length; i++) {
+          var needle = case_sensitive ? keywords[i] : keywords[i].toLowerCase();
+          if (needle && haystack.indexOf(needle) !== -1) {
+              return true;
+          }
+      }
+      return false;
+  };
+
   //Détecte si un body contient déjà une signature
   this.body_has_signature = function(body_value) {
     return body_value.includes('id="_rc_sig"')
@@ -5077,6 +5092,37 @@ else xmlhttp.setRequestHeader('X-Roundcube-Request', ref.env.request_token);
 
       this.env.nosubject_warned = true;
       return false;
+    }
+
+    // PAMELA - 0009194 : détection pièce jointe manquante
+    if (!this.mailvelope_editor) {
+      var attachments = this.env.attachments || {},
+        has_attachments = Object.keys(attachments).length > 0;
+
+      if (!has_attachments) {
+        var body_text = '';
+
+            // Récupère le corps en texte brut (HTML ou plain)
+        if (window.tinyMCE && tinyMCE.get(this.env.composebody)) {
+          body_text = tinyMCE.get(this.env.composebody).getContent({ format: 'text' });
+        }
+        else {
+          var ta = document.getElementById(this.env.composebody);
+          if (ta) body_text = ta.value || '';
+        }
+
+        // Vérifie aussi dans l'objet si configuré à "true" dans la config
+        if (this.env.missing_attachment_check_subject) {
+          var subj = $("[name='_subject']").val() || '';
+          body_text += ' ' + subj;
+        }
+
+        if (this._mentions_attachment(body_text)) {
+          if (!confirm(this.get_label('missingattachmentconfirm'))) {
+            return false;
+          }
+        }
+      }
     }
 
     // check for empty body (only possible if not mailvelope encrypted)

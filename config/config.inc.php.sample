@@ -68,4 +68,15 @@ $config['skin'] = 'elastic';
 //Can either be 'session' (default), 'redis', 'memcache', 'apc', or 'db'
 $config['compose_data_storage'] = 'session';
 // Lifetime of compose data storage. Possible units: s, m, h, d, w
-$config['compose_data_storage_ttl'] = '8h'; 
+$config['compose_data_storage_ttl'] = '8h';
+
+// PAMELA - 0009194 : détection PJ manquante
+// Liste des mots-clés déclenchant l'alerte si aucune PJ n'est jointe.
+// Laisser vide [] pour désactiver la détection.
+// $config['missing_attachment_keywords'] = [
+//     'ci-joint', 'ci joint', 'pièce jointe', 'en pj', 'attached', ...
+// ];
+// Scanner aussi l'objet du message (défaut : true)
+// $config['missing_attachment_check_subject'] = true;
+// Sensible à la casse (défaut : false)
+// $config['missing_attachment_case_sensitive'] = false;

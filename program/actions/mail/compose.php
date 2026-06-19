@@ -104,6 +104,7 @@ class rcmail_action_mail_compose extends rcmail_action_mail_index
 
         // add some labels to client
         //PAMELA - 0008128 - Plusieurs signatures - ajout label sigremoved pour la suppression de la signature
+        //PAMELA - 0009194 : Ajout label missingattachmentconfirm pour la détection pièce jointe manquante
         $rcmail->output->add_label('notuploadedwarning', 'savingmessage', 'siginserted', 'responseinserted',
             'messagesaved', 'converting', 'editorwarning', 'discard',
             'fileuploaderror', 'sendmessage', 'newresponse', 'responsename', 'responsetext', 'save',
@@ -111,7 +112,7 @@ class rcmail_action_mail_compose extends rcmail_action_mail_index
             'selectimportfile', 'messageissent', 'loadingdata', 'nopubkeyfor', 'nopubkeyforsender',
             'encryptnoattachments','encryptedsendialog','searchpubkeyservers', 'importpubkeys',
             'encryptpubkeysfound',  'search', 'close', 'import', 'keyid', 'keylength', 'keyexpired',
-            'keyrevoked', 'keyimportsuccess', 'keyservererror', 'attaching', 'namex', 'attachmentrename', 'sigremoved'
+            'keyrevoked', 'keyimportsuccess', 'keyservererror', 'attaching', 'namex', 'attachmentrename', 'sigremoved', 'missingattachmentconfirm'
         );
 
         $rcmail->output->set_pagetitle($rcmail->gettext('compose'));
@@ -198,6 +199,17 @@ class rcmail_action_mail_compose extends rcmail_action_mail_index
         // PAMELA - 0008128 - Plusieurs signatures
         $rcmail->output->set_env('compose_is_reply_or_forward', $is_reply_or_forward);
         $rcmail->output->set_env('compose_is_new', $is_new_message);
+
+        // PAMELA - 0009194 : détection par mots clés PJ manquante - valeurs lues depuis config.inc.php
+        $rcmail->output->set_env('missing_attachment_keywords',
+            $rcmail->config->get('missing_attachment_keywords', [])
+        );
+        $rcmail->output->set_env('missing_attachment_check_subject',
+            (bool) $rcmail->config->get('missing_attachment_check_subject')
+        );
+        $rcmail->output->set_env('missing_attachment_case_sensitive',
+            (bool) $rcmail->config->get('missing_attachment_case_sensitive')
+        );
 
         $auto_new = false;
         $auto_reply = false;

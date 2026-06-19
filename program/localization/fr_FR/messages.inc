@@ -235,3 +235,5 @@ $messages['listusebutton'] = 'Utiliser le bouton Créer pour ajouter un nouvel e
 $messages['keypaircreatesuccess'] = 'Une nouvelle biclé a été créée avec succès pour $identity.';
 $messages['emptyattachment'] = 'Votre fichier joint semble vide.<br>Veuillez vérifier auprès de la personne qui l’a envoyé.';
 $messages['oauthloginfailed'] = 'Échec de connexion OAuth. Veuillez réessayer.';
+// PAMELA - 0009194
+$messages['missingattachmentconfirm'] = 'Votre message semble faire référence à une pièce jointe, mais aucun fichier n\'est joint.\n\nEnvoyer quand même ?';
