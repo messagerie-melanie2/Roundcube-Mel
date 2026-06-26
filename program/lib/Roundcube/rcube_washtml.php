@@ -291,9 +291,15 @@ class rcube_washtml
             $key   = strtolower($name);
             $value = $attr->nodeValue;
 
-            if ($key == 'style' && ($style = $this->wash_style($value))) {
-                // replace double quotes to prevent syntax error and XSS issues (#1490227)
-                $result .= ' style="' . str_replace('"', '&quot;', $style) . '"';
+            if ($key == 'style' || ($key == 'values' && self::attribute_value($node, 'attributename', '/^style$/i'))) {
+                $style = '';
+                if ($value === '' || ($style = $this->wash_style($value))) {
+                    // replace double quotes to prevent syntax error and XSS issues (#1490227)
+                    $result .= ' ' . $attr->nodeName . '="' . str_replace('"', '&quot;', $style) . '"';
+                }
+                else {
+                    $washed[] = htmlspecialchars($attr->nodeName, \ENT_QUOTES, $this->config['charset']);
+                }
             }
             else if (isset($this->_html_attribs[$key]) || in_array($key, $additional_attribs)) {
                 $value = trim($value);
@@ -388,7 +394,7 @@ class rcube_washtml
         }
 
         if (preg_match('/^(http|https|ftp):.+/i', $uri)) {
-            if (!empty($this->config['allow_remote']) || rcube_utils::is_local_url($uri)) {
+            if (!empty($this->config['allow_remote'])) {
                 return $uri;
             }
 

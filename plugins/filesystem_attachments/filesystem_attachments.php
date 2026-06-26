@@ -136,7 +136,7 @@ class filesystem_attachments extends rcube_plugin
      */
     function get($args)
     {
-        if (!$this->verify_path($args['path'])) {
+        if (!isset($args['path']) || !$this->verify_path($args['path'])) {
             $args['path'] = null;
         }
 

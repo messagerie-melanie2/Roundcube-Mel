@@ -195,6 +195,10 @@ class redundant_attachments extends filesystem_attachments
         if ($args['path'] && ($args['status'] = file_exists($args['path'])))
           return $args;
 
+        if (empty($args['id'])) {
+            return $args;
+        }
+
         $this->_load_drivers();
 
         // fetch from database if not found on FS
