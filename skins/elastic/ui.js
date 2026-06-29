@@ -2354,6 +2354,20 @@ function rcube_elastic_ui()
                     menus[popup_id].transitioning = true;
                 }
 
+                // PAMELA - Masquer visuellement le popover avant l'affichage pour éviter le flash visuel
+                if (popup_id === 'folder-selector') {
+                    var click_x = $(item).data('popup-click-x'),
+                    click_y = $(item).data('popup-click-y');
+
+                    if (click_x !== undefined && click_y !== undefined) {
+                        // PAMELA - setTimeout 0 pour attendre l'injection du DOM du popover par Bootstrap
+                        setTimeout(function() {
+                            var popover = $('#' + $(item).attr('aria-describedby'));
+                            popover.css('visibility', 'hidden');
+                        }, 0);
+                    }
+                }
+
                 if (init_func && ref[init_func]) {
                     ref[init_func](popup.get(0), item, event);
                 }
@@ -2379,6 +2393,24 @@ function rcube_elastic_ui()
             .on('shown.bs.popover', function(event) {
                 var mobile = is_mobile(),
                     popover = $('#' + $(item).attr('aria-describedby'));
+
+                // PAMELA - Repositionnement du popover folder-selector à la position du clic souris
+                if (popup_id === 'folder-selector') {
+                    var click_x = $(item).data('popup-click-x'),
+                        click_y = $(item).data('popup-click-y');
+
+                    // PAMELA - Appliquer le transform uniquement si les coordonnées du clic sont disponibles
+                    if (click_x !== undefined && click_y !== undefined) {
+                        // PAMELA - Repositionnement avec le popover encore caché pour éviter le flash visuel
+                        popover.css({top: 0, left: 0, visibility: 'hidden'});
+                        popover[0].style.setProperty('transform', 'translate3d(' + click_x + 'px, ' + click_y + 'px, 0px)', 'important');
+
+                        // PAMELA - Rendre visible seulement après que le navigateur a appliqué le repositionnement
+                        requestAnimationFrame(function() {
+                            popover.css('visibility', 'visible');
+                        });
+                    }
+                }
 
                 level = $(item).data('level') || 1;
 
@@ -2595,6 +2627,16 @@ function rcube_elastic_ui()
                         visibility: 'hidden'
                     })
                     .appendTo(document.body).get(0);
+            }
+
+            // PAMELA - Mémoriser la position du clic souris sur l'élément déclencheur du folder-selector
+            // afin de pouvoir positionner le popover à cet endroit lors de son affichage
+            if (p.name === 'folder-selector' && p.originalEvent && !rcube_event.is_keyboard(p.originalEvent)) {
+                var click_pos = rcube_event.get_mouse_pos(p.originalEvent);
+                $(target).data({
+                    'popup-click-x': click_pos.x,
+                    'popup-click-y': click_pos.y
+                });
             }
 
             pos = $(target).data('popup-pos') || 'right';
