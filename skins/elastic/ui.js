@@ -2354,6 +2354,18 @@ function rcube_elastic_ui()
                     menus[popup_id].transitioning = true;
                 }
 
+                if (popup_id === 'folder-selector') {
+                    var click_x = $(item).data('popup-click-x'),
+                    click_y = $(item).data('popup-click-y');
+
+                    if (click_x !== undefined && click_y !== undefined) {
+                        setTimeout(function() {
+                            var popover = $('#' + $(item).attr('aria-describedby'));
+                            popover.css('visibility', 'hidden');
+                        }, 0);
+                    }
+                }
+
                 if (init_func && ref[init_func]) {
                     ref[init_func](popup.get(0), item, event);
                 }
@@ -2385,8 +2397,12 @@ function rcube_elastic_ui()
                         click_y = $(item).data('popup-click-y');
 
                     if (click_x !== undefined && click_y !== undefined) {
-                        popover.css({top: 0, left: 0});
+                        popover.css({top: 0, left: 0, visibility: 'hidden'});
                         popover[0].style.setProperty('transform', 'translate3d(' + click_x + 'px, ' + click_y + 'px, 0px)', 'important');
+
+                        requestAnimationFrame(function() {
+                            popover.css('visibility', 'visible');
+                        });
                     }
                 }
 
