@@ -212,9 +212,9 @@ class rcube_tnef_decoder
     {
         $value = null;
 
-        if (strlen($data) >= $bytes) {
+        if (strlen($data)) {
             $value = substr($data, 0, $bytes);
-            $data  = substr($data, $bytes);
+            $data = substr($data, strlen($value));
         }
 
         return $value;
@@ -243,6 +243,8 @@ class rcube_tnef_decoder
             }
 
             $data = substr($data, $bytes);
+        } else {
+            $data = '';
         }
 
         return $value;
@@ -358,6 +360,9 @@ class rcube_tnef_decoder
 
                     // Read and truncate to length.
                     $value = $this->_getx($data, $datalen);
+                    if ($value === null) {
+                        break;
+                    }
                 }
 
                 if ($attr_type == self::MAPI_UNICODE_STRING) {
@@ -534,6 +539,7 @@ class rcube_tnef_decoder
         $uncomp    = '';
         $preload   = "{\\rtf1\\ansi\\mac\\deff0\\deftab720{\\fonttbl;}{\\f0\\fnil \\froman \\fswiss \\fmodern \\fscript \\fdecor MS Sans SerifSymbolArialTimes New RomanCourier{\\colortbl\\red0\\green0\\blue0\n\r\\par \\pard\\plain\\f0\\fs20\\b\\i\\u\\tab\\tx";
         $length_preload = strlen($preload);
+        $max_len = strlen($data);
 
         for ($cnt = 0; $cnt < $length_preload; $cnt++) {
             $uncomp .= $preload[$cnt];
@@ -569,6 +575,10 @@ class rcube_tnef_decoder
             else {
                 $uncomp .= $data[$in++];
                 ++$out;
+            }
+
+            if ($in >= $max_len) {
+                break;
             }
         }
 
