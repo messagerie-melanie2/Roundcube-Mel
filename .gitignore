@@ -35,3 +35,5 @@ plugins/roundcube_auth
 plugins/tchap
 plugins/bnum
 plugins/bnum_*
+.claude
+CLAUDE.md
