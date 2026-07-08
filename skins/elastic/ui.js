@@ -2355,7 +2355,7 @@ function rcube_elastic_ui()
                 }
 
                 // PAMELA - Masquer visuellement le popover avant l'affichage pour éviter le flash visuel
-                if (popup_id === 'folder-selector') {
+                if (popup_id === 'folder-selector' || popup_id === 'zipdownload-menu') {
                     var click_x = $(item).data('popup-click-x'),
                     click_y = $(item).data('popup-click-y');
 
@@ -2395,7 +2395,7 @@ function rcube_elastic_ui()
                     popover = $('#' + $(item).attr('aria-describedby'));
 
                 // PAMELA - Repositionnement du popover folder-selector à la position du clic souris
-                if (popup_id === 'folder-selector') {
+                if (popup_id === 'folder-selector' || popup_id === 'zipdownload-menu') {
                     var click_x = $(item).data('popup-click-x'),
                         click_y = $(item).data('popup-click-y');
 
@@ -2631,7 +2631,7 @@ function rcube_elastic_ui()
 
             // PAMELA - Mémoriser la position du clic souris sur l'élément déclencheur du folder-selector
             // afin de pouvoir positionner le popover à cet endroit lors de son affichage
-            if (p.name === 'folder-selector' && p.originalEvent && !rcube_event.is_keyboard(p.originalEvent)) {
+            if ((p.name === 'folder-selector' || p.name === 'zipdownload-menu') && p.originalEvent && !rcube_event.is_keyboard(p.originalEvent)) {
                 var click_pos = rcube_event.get_mouse_pos(p.originalEvent);
                 $(target).data({
                     'popup-click-x': click_pos.x,
