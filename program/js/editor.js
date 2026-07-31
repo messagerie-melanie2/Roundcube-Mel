@@ -315,7 +315,8 @@ function rcube_text_editor(config, id)
         // Comparaison du innerHTML
         const child_inner_norm = normalize($child.html() || '');
 
-        if (child_inner_norm === sig_norm_ref || child_norm.indexOf(sig_norm_ref) !== -1) {
+        // PAMELA - 0009492 - Problème suppression du texte dans les brouillons
+        if (child_inner_norm === sig_norm_ref || child_norm === sig_norm_ref) {
           $child.attr({ 'id': '_rc_sig', 'data-sig-type': entry.type });
           rcmail.env.signature_type = entry.type;
           ref.update_signature_menu();
@@ -377,6 +378,7 @@ function rcube_text_editor(config, id)
       if (last_child) {
         // Vérifier que ce n'est pas clairement du contenu de l'utilisateur
         const last_text = last_child.text().trim();
+        const last_text_lc = last_text.toLowerCase();
         let has_any_sig = false;
 
         // Vérifier si ce texte existe dans une des signatures connues
@@ -384,7 +386,11 @@ function rcube_text_editor(config, id)
           if (has_any_sig) return;
           if (!entry.map || !entry.map[identity_id]) return;
           const ref_text = strip_html(entry.map[identity_id].html || '').toLowerCase();
-          if (ref_text.length > 5 && last_text.toLowerCase().indexOf(ref_text.substring(0, 20)) !== -1) {
+
+          // PAMELA - 0009492 - Problème suppression du texte dans les brouillons
+          if (ref_text.length > 5
+              && last_text_lc.endsWith(ref_text)
+              && (last_text_lc.length - ref_text.length) < 20) {
             last_child.attr({ 'id': '_rc_sig', 'data-sig-type': entry.type });
             rcmail.env.signature_type = entry.type;
             ref.update_signature_menu();
