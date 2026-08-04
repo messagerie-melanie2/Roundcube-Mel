@@ -3491,7 +3491,7 @@ function rcube_elastic_ui()
                     recipients.push({
                         name: '',
                         email: email.replace(/(^<|>$)/g, '') // trim < and > characters
-                            .replace(/[,\s;.]+$/, '') // remove trailing comma or any non-letter character at the end (#7899, #9257)
+                            .replace(/[,\s;.]+$/, '') // Pamela - Ticket 0009542: preserve internal email addresses ending with digits (e.g. .i2) while removing only trailing separators
                     });
 
                     str = str.replace(email, '').trim();
