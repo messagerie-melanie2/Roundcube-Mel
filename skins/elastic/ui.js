@@ -449,7 +449,8 @@ function rcube_elastic_ui()
         color_mode_init();
 
         // Select current layout element
-        env.last_selected = $('#layout > div.selected')[0];
+        // PAMELA
+        env.last_selected = $('#layout').children('.selected')[0];
         if (!env.last_selected && layout.content.length) {
             $.each(['sidebar', 'list', 'content'], function() {
                 if (layout[this].length) {
@@ -1770,7 +1771,8 @@ function rcube_elastic_ui()
      */
     function screen_resize_headers()
     {
-        $('#layout > div > .header').each(function() {
+        // PAMELA
+        $('#layout > * > .header').each(function() {
             var title, right = 0, left = 0, padding = 0,
                 sizes = {left: 0, right: 0};
 
