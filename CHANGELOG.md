@@ -1,5 +1,32 @@
 # Changelog Roundcube Webmail
 
+## Release 1.6.18
+
+- Password: Fix fatal error "Class 'Zxcvbn' not found" (#10274)
+- Fix out-of-bounds string reads on truncated compressed-RTF in the TNEF decoder (#10269)
+- Security: Add basic validation for content proxied by the css proxy
+- Security: Fix SSRF bypass via specific local address URLs using 100.64.0.0/10 and fe80::/10 nets
+- Security: Fix SSRF filter bypass via various forms of nip.io/sslip.io hostnames evading is_local_url() check
+- Security: Fix remote content blocking bypass via unclosed url() in a FuncIRI attribute
+- Security: Fix LDAP filter injection via unescaped %u/%fu/%d substitution into the `search_filter`
+- Security: Fix arbitrary Sieve script injection via a filter rule name bypassing `managesieve_disabled_actions`
+- Security: Fix RCE via `cmd_learn` driver of markasjunk plugin
+- Security: Fix IMAP command injection via mail search and LITERAL+ byte-count desynchronization
+- Security: Fix password's modoboa driver leak of an authentication token to a user-controlled host
+- Security: Fix stored XSS in "Add to address book" action
+- Security: Fix HTML/CSS sanitization bypass via SVG animate `by` attribute
+
+## Release 1.6.17
+
+- Enigma: Support automatic public key lookup (import) using HKP v1 protocol (#5314)
+- Enigma: Kolab WOAT Support (#8626)
+- Security: Fix an infinite loop in TNEF (winmail.dat) decoder (#10193)
+- Security: Fix various vulnerabilities in the password plugin using session-injected username
+- Security: Fix stored XSS via unescaped attachment MIME type on the attachment-validation warning page [CVE-2026-54432]
+- Security: Fix SSRF bypass via specific local address URLs - two new cases
+- Security: Fix zero-click stored XSS in plain-text rendering [CVE-2026-54433]
+- Security: Fix DoS via crafted compressed-RTF size in the TNEF (winmail.dat) file
+
 ## Release 1.6.16
 
 - Fix potential too long value in IMAP ID command (#10136)

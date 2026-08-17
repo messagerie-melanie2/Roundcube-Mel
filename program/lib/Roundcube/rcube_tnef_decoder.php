@@ -212,9 +212,9 @@ class rcube_tnef_decoder
     {
         $value = null;
 
-        if (strlen($data) >= $bytes) {
+        if (strlen($data)) {
             $value = substr($data, 0, $bytes);
-            $data  = substr($data, $bytes);
+            $data = substr($data, strlen($value));
         }
 
         return $value;
@@ -243,6 +243,8 @@ class rcube_tnef_decoder
             }
 
             $data = substr($data, $bytes);
+        } else {
+            $data = '';
         }
 
         return $value;
@@ -358,6 +360,9 @@ class rcube_tnef_decoder
 
                     // Read and truncate to length.
                     $value = $this->_getx($data, $datalen);
+                    if ($value === null) {
+                        break;
+                    }
                 }
 
                 if ($attr_type == self::MAPI_UNICODE_STRING) {
@@ -534,6 +539,7 @@ class rcube_tnef_decoder
         $uncomp    = '';
         $preload   = "{\\rtf1\\ansi\\mac\\deff0\\deftab720{\\fonttbl;}{\\f0\\fnil \\froman \\fswiss \\fmodern \\fscript \\fdecor MS Sans SerifSymbolArialTimes New RomanCourier{\\colortbl\\red0\\green0\\blue0\n\r\\par \\pard\\plain\\f0\\fs20\\b\\i\\u\\tab\\tx";
         $length_preload = strlen($preload);
+        $max_len = strlen($data);
 
         for ($cnt = 0; $cnt < $length_preload; $cnt++) {
             $uncomp .= $preload[$cnt];
@@ -541,6 +547,12 @@ class rcube_tnef_decoder
         }
 
         while ($out < ($size + $length_preload)) {
+            // Bail out if the input is exhausted to avoid out-of-bounds reads
+            // on truncated/malformed payloads.
+            if ($in >= $max_len) {
+                break;
+            }
+
             if (($flag_count++ % 8) == 0) {
                 $flags = ord($data[$in++]);
             }
@@ -549,6 +561,11 @@ class rcube_tnef_decoder
             }
 
             if (($flags & 1) != 0) {
+                // The back-reference branch reads two more bytes.
+                if ($in + 1 >= $max_len) {
+                    break;
+                }
+
                 $offset = ord($data[$in++]);
                 $length = ord($data[$in++]);
                 $offset = ($offset << 4) | ($length >> 4);
@@ -567,6 +584,11 @@ class rcube_tnef_decoder
                 }
             }
             else {
+                // The literal branch reads one more byte.
+                if ($in >= $max_len) {
+                    break;
+                }
+
                 $uncomp .= $data[$in++];
                 ++$out;
             }

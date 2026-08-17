@@ -442,10 +442,17 @@ class rcube_utils
             $host = trim($host, '[]');
 
             // IPLib does not seem to work with IPv6 syntax for IPv4 addresses
-            $host = preg_replace('/^::ffff:/i', '', $host);
+            $host = preg_replace('/^[0:]*:ffff:/i', '', $host);
 
-            if (preg_match('/([0-9a-f.-]+)\.nip\.io$/i', $host, $matches)) {
-                $host = trim($matches[1], '-.');
+            if (preg_match('/([0-9a-f.-]+)\.(nip|sslip)\.io$/i', $host, $matches)) {
+                $host = $matches[1];
+                if (preg_match('/([0-9]{1,3}([.-][0-9]{1,3}){3})$/', $host, $m)) {
+                    $host = str_replace('-', '.', $m[1]); // IPv4
+                } elseif (preg_match('/^([0-9a-f]{8})$/i', $host, $m)) {
+                    $host = long2ip(base_convert($m[1], 16, 10)); // Hexadecimal
+                } else {
+                    $host = str_replace('-', ':', $host); // IPv6
+                }
             }
 
             // TODO: This is pretty fast, but a single message can contain multiple links
@@ -458,8 +465,10 @@ class rcube_utils
                     '172.16.0.0/12',  // RFC1918
                     '192.168.0.0/16', // RFC1918
                     '169.254.0.0/16', // link-local / cloud metadata
+                    '100.64.0.0/10', // RFC6598: Shared Address Space (carrier-grade NAT)
                     '::1/128',
                     'fc00::/7',
+                    'fe80::/10', // IPv6 link-local
                 ];
 
                 foreach ($nets as $net) {
