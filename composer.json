@@ -28,7 +28,8 @@
         "caxy/php-htmldiff": "~0.1.7",
         "league/html-to-markdown": "^5.1.1",
         "messagerie-melanie2/orm-m2": "~0.6.13",
-        "phpmailer/phpmailer": "^6.9.1"
+        "phpmailer/phpmailer": "^6.9.1",
+        "sentry/sentry": "^4.30.0"
     },
     "suggest": {
         "bjeavons/zxcvbn-php": "^1.0 required for Zxcvbn password strength driver"

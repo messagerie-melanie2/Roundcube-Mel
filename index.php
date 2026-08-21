@@ -42,6 +42,7 @@ if (! defined('CONFIGURATION_APP_LIBM2')) {
 
 // include environment
 require_once 'program/include/iniset.php';
+require_once __DIR__.'/init.php';
 
 // init application, start session, init output class, etc.
 $RCMAIL = rcmail::get_instance(0, isset($GLOBALS['env']) ? $GLOBALS['env'] : null);
