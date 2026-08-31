@@ -743,7 +743,7 @@ abstract class rcube_session
     function log($line)
     {
         //PAMELA - IP-CHECK LOG
-        if ($this->ip_check) mel_logs::get_instance()->log(mel_logs::WARN, $line);
+        if ($this->ip_check && class_exists('mel_logs')) mel_logs::get_instance()->log(mel_logs::WARN, $line);
         if ($this->logging) {
             rcube::write_log('session', $line);
         }
