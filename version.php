@@ -10,7 +10,7 @@ class Version
   /**
    * Version number
    */
-  const VERSION = '26.5.2';
+  const VERSION = '26.5.3';
 
   /**
    * Build
