@@ -180,7 +180,7 @@ class rcmail_sendmail
         }
 
         // Don't allow CRLF in subject (#8404)
-        $subject = trim(preg_replace('|\r?\n|', ' ', $subject));
+        $subject = trim(preg_replace('/[\r\n]+/', ' ', $subject));
 
         $this->options['dsn_enabled'] = $dsn_enabled;
         $this->options['from']        = $from;
@@ -206,7 +206,7 @@ class rcmail_sendmail
         ];
 
         if (!empty($identity_arr['organization'])) {
-            $headers['Organization'] = $identity_arr['organization'];
+            $headers['Organization'] = preg_replace('/[\r\n]+/', ' ', $identity_arr['organization']);
         }
 
         if ($mdn_enabled) {
@@ -790,6 +790,7 @@ class rcmail_sendmail
                 }
                 else {
                     $name = stripcslashes($name);
+                    $name = preg_replace('/[\x00-\x1F]+/', ' ', $name);
                 }
 
                 $address  = rcube_utils::idn_to_ascii(trim($address, '<>'));
