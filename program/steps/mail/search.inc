@@ -42,6 +42,8 @@ $interval = rcube_utils::get_input_value('_interval', rcube_utils::INPUT_GET);
 $continue = rcube_utils::get_input_value('_continue', rcube_utils::INPUT_GET);
 $subject = array();
 
+$str = preg_replace('/[\r\n]+/', ' ', $str);
+
 $filter         = trim($filter);
 $search_request = md5($mbox.$scope.$interval.$filter.$str);
 

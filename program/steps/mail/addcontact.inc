@@ -87,7 +87,7 @@ if (!empty($_POST['_address']) && is_object($CONTACTS)) {
 }
 
 if (!$done) {
-    $OUTPUT->show_message($plugin['message'] ?: 'errorsavingcontact', 'error');
+    $OUTPUT->show_message($plugin['message'] ? rcmail::Q($plugin['message']) : 'errorsavingcontact', 'error');
 }
 
 $OUTPUT->send();

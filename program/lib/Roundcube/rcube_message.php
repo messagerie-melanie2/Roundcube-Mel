@@ -172,10 +172,16 @@ class rcube_message
      */
     public function get_part_url($mime_id, $embed = false)
     {
-        if ($this->mime_parts[$mime_id])
-            return $this->opt['get_url'] . '&_part=' . $mime_id . ($embed ? '&_embed=1&_mimeclass=' . $embed : '');
-        else
-            return false;
+        if (!empty($this->mime_parts[$mime_id])) {
+            $query = ['_part' => $mime_id];
+            if ($embed) {
+                $query['_embed'] = 1;
+                $query['_mimeclass'] = $embed;
+            }
+            return $this->opt['get_url'] . '&' . http_build_query($query);
+        }
+
+        return false;
     }
 
     /**
@@ -856,7 +862,7 @@ class rcube_message
                     }
                     // regular attachment with valid content type
                     // (content-type name regexp according to RFC4288.4.2)
-                    else if (preg_match('/^[a-z0-9!#$&.+^_-]+\/[a-z0-9!#$&.+^_-]+$/i', $part_mimetype)) {
+                    else if (rcube_mime::is_mimetype_valid($part_mimetype)) {
                         $this->add_part($mail_part, 'attachment');
                     }
                     // attachment with invalid content type

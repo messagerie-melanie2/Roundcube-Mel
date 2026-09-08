@@ -52,6 +52,8 @@
  */
 class rcube_washtml
 {
+    public const CSS_URL_REGEXP = '/(u|\\\0*75|\\\0*55)(r|\\\0*72|\\\0*52)(l|\\\0*6C|\\\0*4C)\(/i';
+
     /**
      * @var array Allowed HTML elements (default)
      */
@@ -263,7 +265,7 @@ class rcube_washtml
 
         $uri_callback = function ($uri) {
             if ($uri = $this->wash_uri($uri)) {
-                return htmlspecialchars($uri, \ENT_QUOTES, $this->config['charset']);
+                return $uri;
             }
         };
 
@@ -291,11 +293,11 @@ class rcube_washtml
             $key   = strtolower($name);
             $value = $attr->nodeValue;
 
-            if ($key == 'style' || ($key == 'values' && self::attribute_value($node, 'attributename', '/^style$/i'))) {
+            if ($key == 'style' || (in_array($key, ['by', 'values']) && self::attribute_value($node, 'attributename', '/^style$/i'))) {
                 $style = '';
                 if ($value === '' || ($style = $this->wash_style($value))) {
                     // replace double quotes to prevent syntax error and XSS issues (#1490227)
-                    $result .= ' ' . $attr->nodeName . '="' . str_replace('"', '&quot;', $style) . '"';
+                    $result .= ' ' . $attr->nodeName . '="' . htmlspecialchars($style, \ENT_QUOTES, $this->config['charset']) . '"';
                 }
                 else {
                     $washed[] = htmlspecialchars($attr->nodeName, \ENT_QUOTES, $this->config['charset']);
@@ -306,7 +308,7 @@ class rcube_washtml
                 $out   = null;
 
                 // in SVG to/from attribs may contain anything, including URIs
-                if ($key == 'to' || $key == 'from') {
+                if ($key == 'to' || $key == 'from' || $key == 'values') {
                     $key = strtolower((string) $node->getAttribute('attributeName'));
                     $key = trim(preg_replace('/^.*:/', '', $key));
                     if ($key && !isset($this->_html_attribs[$key])) {
@@ -321,8 +323,9 @@ class rcube_washtml
                     $out = $this->wash_link($value);
                 }
                 else if ($this->is_funciri_attribute($node->nodeName, $key)) {
-                    if (preg_match('/^[a-z:]*url\(/i', $value)) {
-                        if (preg_match('/^([a-z:]*url)\(\s*[\'"]?([^\'"\)]*)[\'"]?\s*\)/iu', $value, $match)) {
+                    if (preg_match(self::CSS_URL_REGEXP, $value, $m)) {
+                        $value = preg_replace(self::CSS_URL_REGEXP, 'url(', $value);
+                        if (preg_match('/^([a-z:]*url)\(\s*[\'"]?([^\'"\)]*)[\'"]?\s*\)?/iu', $value, $match)) {
                             if ($url = $this->wash_uri($match[2])) {
                                 $result .= ' ' . $attr->nodeName . '="' . $match[1]
                                     . '(' . htmlspecialchars($url, ENT_QUOTES, $this->config['charset']) . ')'
@@ -487,7 +490,7 @@ class rcube_washtml
         return $attr == 'background'
             || $attr == 'color-profile' // SVG
             || ($attr == 'poster' && $tag == 'video')
-            || ($attr == 'src' && preg_match('/^(img|image|source|input|video|audio)$/i', $tag))
+            || ($attr == 'src' && preg_match('/^(img|image|source|input|video|audio|animate|set)$/i', $tag))
             || ($attr == 'href' && preg_match('/^(feimage|image|use)$/i', $tag)); // SVG
     }
 
@@ -553,7 +556,7 @@ class rcube_washtml
 
         $rx = '/^(mask|cursor|fill|filter|stroke|clip-path|marker-start|marker-end|marker-mid)$/i';
         return self::attribute_value($node, 'attributeName', $rx)
-            && self::attribute_value($node, 'values', '/url\(/i');
+            && self::attribute_value($node, 'values', self::CSS_URL_REGEXP);
     }
 
     /**

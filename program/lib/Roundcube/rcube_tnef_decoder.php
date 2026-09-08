@@ -292,10 +292,11 @@ class rcube_tnef_decoder
                 break;
 
             case self::MAPI_ATTACH_MIME_TAG:
-                $value = $this->convertString($value);
-                /* Is this ever set, and what is format? */
-                $attachment_data[0]['type']    = preg_replace('/^(.*)\/.*/', '\1', $value);
-                $attachment_data[0]['subtype'] = preg_replace('/.*\/(.*)$/', '\1', $value);
+                $value = trim($value);
+                if (!rcube_mime::is_mimetype_valid($value)) {
+                    $value = 'application/octet-stream';
+                }
+                [$attachment_data[0]['type'],$attachment_data[0]['subtype']] = explode('/', $value);
                 break;
             }
         }

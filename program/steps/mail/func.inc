@@ -1104,7 +1104,7 @@ function rcmail_washtml_callback($tagname, $attrib, $content, $washtml)
                     break;
                 case 'background':
                     // Get background, we'll set it as background-image of the message container
-                    if (preg_match('/^([^\s]+)$/', $value, $m)) {
+                    if (preg_match('~^(program/resources/|https?://)([^\s();]+)$~', $value, $m)) {
                         $style['background-image'] = "url({$value})";
                     }
                     break;

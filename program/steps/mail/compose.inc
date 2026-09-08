@@ -897,9 +897,10 @@ function rcmail_compose_part_body($part, $isHtml = false)
 
     if ($isHtml) {
         if ($part->ctype_secondary == 'html') {
+            $body = rcmail_prepare_html_body($body);
         }
         else if ($part->ctype_secondary == 'enriched') {
-            $body = rcube_enriched::to_html($body);
+            $body = rcmail_prepare_html_body(rcube_enriched::to_html($body));
         }
         else {
             // try to remove the signature
@@ -1201,6 +1202,32 @@ function rcmail_create_draft_body($body, $bodyIsHtml)
     return $body;
 }
 
+// Clean up HTML content of Draft/Reply/Forward (part of the message)
+function rcmail_prepare_html_body($body, $wash_params = [])
+{
+    static $part_no, $COMPOSE, $MESSAGE;
+
+    // Set attributes of the part container
+    $container_id = $COMPOSE['mode'] . 'body' . (++$part_no);
+    $wash_params += [
+        'safe'         => $MESSAGE->is_safe,
+        'css_prefix'   => 'v' . $part_no,
+        'add_comments' => false,
+    ];
+
+    if ($COMPOSE['mode'] == RCUBE_COMPOSE_DRAFT) {
+        // convert TinyMCE's empty-line sequence (#1490463)
+        $body = preg_replace('/<p>\xC2\xA0<\/p>/', '<p><br /></p>', $body);
+        // remove <body> tags (not their content)
+        $wash_params['ignore_elements'] = ['body'];
+    }
+    else {
+        $wash_params['container_id'] = $container_id;
+    }
+
+    // Make the HTML content safe and clean
+    return rcmail_wash_html($body, $wash_params);
+}
 
 function rcmail_remove_signature($body)
 {
