@@ -378,6 +378,7 @@ function rcube_text_editor(config, id)
       if (last_child) {
         // Vérifier que ce n'est pas clairement du contenu de l'utilisateur
         const last_text = last_child.text().trim();
+        // PAMELA - 0009492 - Problème suppression du texte dans les brouillons
         const last_text_lc = last_text.toLowerCase();
         let has_any_sig = false;
 
