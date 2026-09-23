@@ -69,3 +69,11 @@ $config['skin'] = 'elastic';
 $config['compose_data_storage'] = 'session';
 // Lifetime of compose data storage. Possible units: s, m, h, d, w
 $config['compose_data_storage_ttl'] = '8h'; 
+
+
+// Sections masquées dans Paramètres > Préférences
+// valeurs possibles : general, mailbox, mailview, compose, addressbook, folders, server, encryption
+$config['disabled_preferences_sections'] = [];
+
+// List of disabled UI elements/actions
+$config['disabled_actions'] = [];
