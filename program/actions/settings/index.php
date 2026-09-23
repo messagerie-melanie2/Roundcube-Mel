@@ -116,7 +116,16 @@ class rcmail_action_settings_index extends rcmail_action
         $config      = $rcmail->config->all();
         $no_override = array_flip((array) $rcmail->config->get('dont_override'));
 
+        // Sections désactivées via la config (optionnel)
+        $disabled_sections = (array) $rcmail->config->get('disabled_preferences_sections', []);
+
         foreach ($sections as $idx => $sect) {
+            // Section masquée par la config : on la retire et on passe à la suivante
+            if (in_array($sect['id'], $disabled_sections)) {
+                unset($sections[$idx]);
+                continue;
+            }
+
             $sections[$idx]['class'] = !empty($sect['class']) ? $sect['class'] : $idx;
 
             if ($current && $sect['id'] != $current) {
