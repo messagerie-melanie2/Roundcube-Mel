@@ -385,7 +385,22 @@ class zipdownload extends rcube_plugin
      */
     private function _convert_filename($str)
     {
-        $str = strtr($str, [':' => '', '/' => '-']);
+        // PAMELA - Neutralise les caractères interdits dans un nom de fichier Windows
+        $str = strtr($str, [
+            ':'  => '',
+            '/'  => '-',
+            '\\' => '-',
+            '"'  => "'",
+            '<'  => '(',
+            '>'  => ')',
+            '|'  => '-',
+            '?'  => '',
+            '*'  => '',
+        ]);
+        // PAMELA - Retire les caractères de contrôle restants, et les espaces/points
+        // en fin de nom (également refusés par Windows)
+        $str = preg_replace('/[\x00-\x1F\x7F]/', '', $str);
+        $str = rtrim($str, " .");
 
         return rcube_charset::convert($str, RCUBE_CHARSET, $this->charset);
     }
