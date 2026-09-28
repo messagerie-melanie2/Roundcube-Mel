@@ -1430,7 +1430,8 @@ class rcmail_action_mail_index extends rcmail_action
                 }
                 else {
                     // PAMELA - Title string à la place de mailto
-                    $address = html::span(['title' => $title ?? $mailto, 'class' => "rcmContactAddress"],
+                    // data-email conserve l'adresse seule (utilisée par l'avatar), le title pouvant contenir "Nom" <email>
+                    $address = html::span(['title' => $title ?? $mailto, 'data-email' => $mailto, 'class' => "rcmContactAddress"],
                         rcube::SQ($name ?: $mailto));
                 }
 
