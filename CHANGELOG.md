@@ -1,5 +1,21 @@
 # Changelog Roundcube Webmail
 
+## Release 1.6.19
+
+- Fix PHP Warning: Undefined variable $tmp_command in .../plugins/markasjunk/drivers/cmd_learn.php (#10294)
+- Security: Fix CSS declaration smuggling via un-encoded ampersand emission
+- Security: Fix CSS property injection via body `background` attribute
+- Security: Fix email header injection via bare CR in the subject field
+- Security: Fix email header injection via C-escape \r in the recipient display name
+- Security: Fix email header injection via identity's organization field
+- Security: Fix zero-click stored XSS via TNEF MIME tag injection in the attachment URL
+- Security: Fix XSS in the HTML editor using text/enriched part content
+- Security: Fix cross-user access in contact group membership (add/remove) in the SQL address book
+- Security: Fix is_local_url() bypass via trailing-dot FQDN in stylesheet URL
+- Security: Fix remote content blocking bypass via CSS escapes in FuncIRI attributes
+- Security: Fix remote-content blocker bypass via SVG SMIL src animation
+- Security: Fix SSRF bypass in Roundcube CSS proxy via hexadecimal IPv6-mapped IPv4 addresses
+
 ## Release 1.6.18
 
 - Password: Fix fatal error "Class 'Zxcvbn' not found" (#10274)

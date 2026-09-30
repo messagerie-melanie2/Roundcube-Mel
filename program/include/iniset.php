@@ -26,7 +26,7 @@ if (PHP_VERSION_ID < 70300) {
 }
 
 // application constants
-define('RCMAIL_VERSION', '1.6.17');
+define('RCMAIL_VERSION', '1.6.19');
 define('RCMAIL_START', microtime(true));
 
 if (!defined('INSTALL_PATH')) {
@@ -119,6 +119,16 @@ function rcmail_error_handler()
     $error = error_get_last();
 
     if ($error && ($error['type'] === E_ERROR || $error['type'] === E_PARSE)) {
+        // PAMELA : notifie les plugins (ex: bnum_glitchtip) de l'erreur fatale avant
+        // l'exit() de rcmail_fatal_error() ci-dessous, seul moyen de leur laisser une
+        // chance de la remonter (le SDK Sentry enregistre son propre shutdown handler
+        // trop tard pour s'exécuter avant cet exit()).
+        try {
+            rcube_plugin_api::get_instance()->exec_hook('fatal_error', ['error' => $error]);
+        } catch (\Throwable $e) {
+            // Ne jamais laisser un plugin cascader une nouvelle erreur ici.
+        }
+
         rcmail_fatal_error();
     }
 }

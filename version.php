@@ -10,7 +10,7 @@ class Version
   /**
    * Version number
    */
-  const VERSION = '26.5.3';
+  const VERSION = '26.5.8.php8.5';
 
   /**
    * Build
