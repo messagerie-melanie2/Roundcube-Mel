@@ -69,3 +69,6 @@ $config['skin'] = 'elastic';
 $config['compose_data_storage'] = 'session';
 // Lifetime of compose data storage. Possible units: s, m, h, d, w
 $config['compose_data_storage_ttl'] = '8h'; 
+
+// Default value : ['name']
+$rcmail_config['autocomplete_fields'] = ['name', 'email'];
