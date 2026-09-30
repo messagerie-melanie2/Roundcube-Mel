@@ -860,8 +860,10 @@ class rcube_ldap extends rcube_addressbook
             }
 
             // PAMELA - Slow autocomplete - MANTIS 3508: L'autocomplétion LDAP n'est pas efficace
-            if (implode(',', (array)$fields) == implode(',', $list_fields)) {
-                $fields = array('name');
+            $rcube = rcube::get_instance();
+            $autocomplete_fields = $rcube->config->get("autocomplete_fields", ['name']);
+            if ($autocomplete_fields && join(',', (array)$fields) == join(',', $list_fields)) {
+                $fields = $autocomplete_fields;
             }
 
             // get all entries of this page and post-filter those that really match the query
@@ -885,8 +887,10 @@ class rcube_ldap extends rcube_addressbook
         }
 
         // PAMELA - Slow autocomplete - MANTIS 3508: L'autocomplétion LDAP n'est pas efficace
-        if (implode(',', (array)$fields) == implode(',', $list_fields)) {
-            $fields = array('name');
+        $rcube = rcube::get_instance();
+        $autocomplete_fields = $rcube->config->get("autocomplete_fields", ['name']);
+        if ($autocomplete_fields && join(',', (array)$fields) == join(',', $list_fields)) {
+            $fields = $autocomplete_fields;
         }
 
         // advanced per-attribute search
