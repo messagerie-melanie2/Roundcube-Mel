@@ -53,4 +53,5 @@ return [
   's7z' => 'application/x-7z-compressed',
   'vcf' => 'text/vcard',
   'ics' => 'text/calendar',
+  'eml' => 'message/rfc822',
 ];
