@@ -73,6 +73,29 @@ class rcube_session_php extends rcube_session
 
         $this->key     = session_id();
         $this->ip      = $_SESSION['__IP'] ?? null;
+        // PAMELA - IP check : une session anonyme sans IP prend l'IP courante ;
+        // une session authentifiée sans IP reste rejetée par check_auth()
+        if (empty($this->ip) && empty($_SESSION['user_id'])) {
+            $this->ip = rcube_utils::remote_addr();
+        }
         $this->changed = $_SESSION['__MTIME'] ?? null;
+    }
+
+    /**
+     * PAMELA - IP check : l'IP de référence est celle qui s'authentifie,
+     * y compris quand le login ne passe pas par kill_session()
+     * (valid forcé par mel_ldap_auth / roundcube_auth)
+     *
+     * @param bool $destroy If enabled the current session will be destroyed
+     *
+     * @return bool True on success, False on failure
+     */
+    public function regenerate_id($destroy = true)
+    {
+        $this->ip = rcube_utils::remote_addr();
+        // force l'écriture de __IP au write_close()
+        unset($_SESSION['__MTIME']);
+
+        return parent::regenerate_id($destroy);
     }
 }
