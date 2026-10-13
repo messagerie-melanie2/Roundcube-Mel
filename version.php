@@ -10,12 +10,12 @@ class Version
   /**
    * Version number
    */
-  const VERSION = '26.5.8.php8.5';
+  const VERSION = '26.7-pre';
 
   /**
    * Build
    */
-  const BUILD = '20260217090400';
+  const BUILD = '20260217090401';
 }
 
 // Afficher le numéro de version si demandé
