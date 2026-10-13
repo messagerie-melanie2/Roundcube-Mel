@@ -72,7 +72,8 @@ class rcube_session_php extends rcube_session
         parent::start();
 
         $this->key     = session_id();
-        $this->ip      = $_SESSION['__IP'] ?? null;
+        // PAMELA - Ne pas écraser l'IP calculée par rcube_session::start() pour une session neuve
+        $this->ip      = $_SESSION['__IP'] ?? $this->ip;
         $this->changed = $_SESSION['__MTIME'] ?? null;
     }
 }
