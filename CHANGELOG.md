@@ -1,5 +1,28 @@
 # Changelog Roundcube Webmail
 
+## Release 1.6.20
+
+- Security: Fix IMAP command injection via CRLF in `_uid` parameter of mail/headers and mail/viewsource action
+- Security: Fix bug where an alias login wasn't qualified by IMAP host
+- Security: Add a size limit to the CSS proxy content processing
+- Security: Fix SSRF filter (is_local_url()) bypass via NAT64 64:ff9b::/96
+- Security: Fix remote content blocking bypass via SVG SMIL `by` attribute
+- Security: Fix remote content blocking bypass via CSS escapes in FuncIRI attributes (again)
+- Security: Fix passing potentally unsafe attachment content into ImageMagick on image resize
+- Security: Fix mail header injection via the From display-name in the Bounce (resend) action
+- Security: Fix mail header injection via References/In-Reply-To/Message-ID/From parameters
+- Security: Fix object injection primitive in rcube_session::unserialize() via "!"-prefixed session keys
+- Security: Fix ImageMagick resource limits bypass by GD fallback during thumbnail generation
+- Security: Fix CSS scoping bypass in HTML messages using at-rules
+- Security: Fix bug where deprecated action aliases bypassed `disabled_actions` setting
+- Security: Fix IMAP command injection via CRLF in `_flag` parameter of mail/mark action
+- Security: Fix CSRF validation bypass in the mark-as-junk action
+- Security: Fix XSS issue in handling of password driver error responses
+- Security: Fix mail header injection via subject of a message forwarded as attachment
+- Security: Fix mail header injection via media type in an inline image data URI
+- Security: Fix bug where Password Modoboa driver could change password for another account
+- Security: Fix unsafe use of a login name in SquirrelMail import file path
+
 ## Release 1.6.19
 
 - Fix PHP Warning: Undefined variable $tmp_command in .../plugins/markasjunk/drivers/cmd_learn.php (#10294)
