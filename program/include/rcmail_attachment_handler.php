@@ -98,7 +98,8 @@ class rcmail_attachment_handler
             // PAMELA - Pouvoir sauvegarder le compose_data autre part qu'en session
             $compose = rcmail_action_mail_compose::get_compose_data($compose_id) ?? null;
 
-            if ($compose && ($this->upload = $compose['attachments'][$file_id])) {
+            if ($compose && !empty($compose['attachments'][$file_id])) {
+                $this->upload   = $compose['attachments'][$file_id];
                 $this->filename = $this->upload['name'];
                 $this->mimetype = $this->upload['mimetype'];
                 $this->size     = $this->upload['size'];

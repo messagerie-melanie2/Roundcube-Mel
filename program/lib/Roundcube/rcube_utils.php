@@ -464,9 +464,12 @@ class rcube_utils
                     '169.254.0.0/16', // link-local / cloud metadata
                     '100.64.0.0/10', // RFC6598: Shared Address Space (carrier-grade NAT)
                     '::1/128',
+                    '::/128',
                     'fc00::/7',
                     'fe80::/10', // IPv6 link-local
                     '::ffff:0:0/96', // RFC5156
+                    '64:ff9b::/96',   // RFC 6052 NAT64 (maps IPv4 incl. private ranges into IPv6)
+                    '64:ff9b:1::/48'  // (RFC 8215 local-use NAT64) 
                 ];
 
                 foreach ($nets as $net) {
@@ -566,9 +569,10 @@ class rcube_utils
         if ($container_id || $prefix) {
             // Exclude rcube_string_replacer pattern matches, this is needed
             // for cases like @media { body { position: fixed; } } (#5811)
-            $excl     = '(?!' . substr($replacements->pattern, 1, -1) . ')';
-            $regexp   = '/(^\s*|,\s*|\}\s*|\{\s*)(' . $excl . ':?[a-z0-9\._#\*\[][a-z0-9\._:\(\)#=~ \[\]"\|\>\+\$\^-]*)/im';
-            $callback = function($matches) use ($container_id, $prefix) {
+            $excl = '(?!' . substr($replacements->pattern, 1, -1) . ')';
+            $regexp = '/(^\s*|,\s*|\}\s*|\{\s*|@[^;{]*[;{]\s*)'
+                . '(' . $excl . ':?[a-z0-9\._#\*\[:][a-z0-9\._:\(\)#=~ \[\]"\|\>\+\$\^-]*)/im';
+            $callback = function ($matches) use ($container_id, $prefix) {
                 $replace = $matches[2];
 
                 if (stripos($replace, ':root') === 0) {

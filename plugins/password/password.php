@@ -424,10 +424,8 @@ class password extends rcube_plugin
                 $reason = $this->gettext('internalerror');
         }
 
-        if ($message) {
-            $reason .= ' ' . $message;
-        }
-
+        if ($message) $reason .= ' ' . rcube::Q($message, 'strict', false);
+        
         return $reason;
     }
 

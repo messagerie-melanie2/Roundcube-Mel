@@ -31,8 +31,9 @@ class rcmail_action_mail_headers extends rcmail_action_mail_index
         $rcmail = rcmail::get_instance();
         $uid    = rcube_utils::get_input_string('_uid', rcube_utils::INPUT_GP);
         $inline = $rcmail->output instanceof rcmail_output_html;
-
-        if (!$uid) {
+        
+        if (!$uid || preg_match('/[\r\n]/', $uid)) {
+            rcube::raise_error("Message UID {$uid} not found", true, true);
             exit;
         }
 
