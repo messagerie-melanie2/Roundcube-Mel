@@ -478,20 +478,15 @@ abstract class rcube_session
                 if (++$q >= $endptr)
                     break 2;
 
-            if ($str[$p] == '!') {
-                $p++;
-                $has_value = false;
-            }
-            else {
-                $has_value = true;
-            }
+            if ($str[$p] == '!') throw new Exception('Unsupported value');
 
             $name = substr($str, $p, $q - $p);
             $q++;
 
             $serialized .= 's:' . strlen($name) . ':"' . $name . '";';
 
-            if ($has_value) {
+            // @phpstan-ignore-next-line
+            if (true) {
                 for (;;) {
                     $p = $q;
                     switch (strtolower($str[$q])) {

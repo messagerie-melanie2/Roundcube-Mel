@@ -21,7 +21,7 @@
 
 // Supported image format types
 // ImageMagick works with other non-image types (e.g.pdf) we don't want here
-$IMAGE_TYPES = explode(',', 'jpeg,jpg,jp2,tiff,tif,bmp,eps,gif,png,png8,png24,png32,svg,ico'); 
+$IMAGE_TYPES = explode(',', 'jpeg,jpg,jp2,tiff,tif,bmp,gif,png,png8,png24,png32,svg,ico'); 
 
 // clear all stored output properties (like scripts and env vars)
 $OUTPUT->reset();

@@ -254,18 +254,6 @@ if (empty($RCMAIL->user->ID)) {
 
     $OUTPUT->send($plugin['task']);
 }
-else {
-    // CSRF prevention
-    $RCMAIL->request_security_check();
-
-    // check access to disabled actions
-    $disabled_actions = (array) $RCMAIL->config->get('disabled_actions');
-    if (in_array($RCMAIL->task . '.' . ($RCMAIL->action ?: 'index'), $disabled_actions)) {
-        rcube::raise_error(array(
-            'code' => 404, 'type' => 'php',
-            'message' => "Action disabled"), true, true);
-    }
-}
 
 // we're ready, user is authenticated and the request is safe
 $plugin = $RCMAIL->plugins->exec_hook('ready', array('task' => $RCMAIL->task, 'action' => $RCMAIL->action));

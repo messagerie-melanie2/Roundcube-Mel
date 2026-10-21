@@ -62,7 +62,7 @@ class rcube_directadmin_password
         if($Socket->result_status_code != 200)
             return array('code' => PASSWORD_CONNECT_ERROR, 'message' => $Socket->error[0]);
         elseif($response['error'] == 1)
-            return array('code' => PASSWORD_ERROR, 'message' => strip_tags($response['text']));
+            return array('code' => PASSWORD_ERROR, 'message' => $response['text']);
         else
             return PASSWORD_SUCCESS;
     }
