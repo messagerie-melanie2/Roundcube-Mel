@@ -20,6 +20,10 @@
 */
 
 if ($uid = rcube_utils::get_input_value('_uid', rcube_utils::INPUT_POST)) {
+    if (!$uid || preg_match('/[\r\n]/', $uid)) {
+        rcube::raise_error("Message UID {$uid} not found", true, true);
+        exit;
+    }
     if ($pos = strpos($uid, '.')) {
         $message = new rcube_message($uid);
         $source  = $message->get_part_body(substr($uid, $pos + 1));

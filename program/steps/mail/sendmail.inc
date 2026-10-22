@@ -172,14 +172,11 @@ $mdn_enabled   = in_array('mdn_default', $dont_override) ? $RCMAIL->config->get(
 $dsn_enabled   = in_array('dsn_default', $dont_override) ? $RCMAIL->config->get('dsn_default') : !empty($_POST['_dsn']);
 $subject       = trim(rcube_utils::get_input_value('_subject', rcube_utils::INPUT_POST, TRUE, $message_charset));
 
-// Don't allow CRLF in subject (#8404)
-$subject = trim(preg_replace('/[\r\n]+/', ' ', $subject));
-
 if (strlen($subject)) {
     $headers['Subject'] = $subject;
 }
 if (!empty($identity_arr['organization'])) {
-    $headers['Organization'] = preg_replace('/[\r\n]+/', ' ', $identity_arr['organization']);
+    $headers['Organization'] = $identity_arr['organization'];
 }
 if ($hdr = rcube_utils::get_input_value('_replyto', rcube_utils::INPUT_POST, TRUE, $message_charset)) {
     $headers['Reply-To'] = rcmail_email_input_format($hdr);
@@ -834,7 +831,7 @@ function rcmail_extract_inline_images($mime_message, $from)
             $mime_type = $matches[2][$idx][0];
             $name      = $list[$hash];
 
-            if (empty($mime_type)) {
+            if (empty($mime_type) || !rcube_mime::is_mimetype_valid($mime_type)) {
                 $mime_type = rcube_mime::image_content_type($data);
             }
 
