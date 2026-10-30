@@ -3493,7 +3493,7 @@ function rcube_elastic_ui()
                     recipients.push({
                         name: '',
                         email: email.replace(/(^<|>$)/g, '') // trim < and > characters
-                            .replace(/[,\s;.]+$/, '') // Pamela - Ticket 0009542: preserve internal email addresses ending with digits (e.g. .i2) while removing only trailing separators
+                            .replace(/[,\s;.]+$/, '') // PAMELA - 0009542 - Conserve les adresses internes se terminant par un chiffre (ex. .i2), ne retire que les séparateurs finaux
                     });
 
                     str = str.replace(email, '').trim();
