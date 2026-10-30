@@ -4551,7 +4551,11 @@ else xmlhttp.setRequestHeader('X-Roundcube-Request', ref.env.request_token);
 
   this.purge_mailbox = function(mbox)
   {
-    this.confirm_dialog(this.get_label('purgefolderconfirm'), 'delete', function() {
+    // PAMELA - 0009596 confirmation popup for purge mailbox with folder name
+    var folder = this.env.mailboxes && this.env.mailboxes[mbox] ? this.env.mailboxes[mbox].name : mbox,
+      msg = this.get_label('purgefolderconfirm').replace('$folder', this.quote_html(folder));
+
+    this.confirm_dialog(msg, 'delete', function() {
         var lock, post_data = {_mbox: mbox};
 
         // lock interface if it's the active mailbox

@@ -147,7 +147,7 @@ class rcmail_action_mail_index extends rcmail_action
                     'flagged', 'unflagged', 'unread', 'deleted', 'replied', 'forwarded',
                     'priority', 'withattachment', 'fileuploaderror', 'mark', 'markallread',
                     'folders-cur', 'folders-sub', 'folders-all', 'cancel', 'bounce', 'bouncemsg',
-                    'sendingmessage');
+                    'sendingmessage', 'purgefolderconfirm');
             }
         }
 
