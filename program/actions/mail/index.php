@@ -141,6 +141,7 @@ class rcmail_action_mail_index extends rcmail_action
                 'skip_deleted', 'display_next', 'message_extwin', 'forward_attachment']);
 
             if (!$rcmail->output->ajax_call) {
+                // PAMELA - 0009596 - Ajout de purgefolderconfirm aux libellés envoyés au client
                 $rcmail->output->add_label('checkingmail', 'deletemessage', 'movemessagetotrash',
                     'movingmessage', 'copyingmessage', 'deletingmessage', 'markingmessage',
                     'copy', 'move', 'quota', 'replyall', 'replylist', 'stillsearching',
