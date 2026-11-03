@@ -53,5 +53,6 @@ return [
   's7z' => 'application/x-7z-compressed',
   'vcf' => 'text/vcard',
   'ics' => 'text/calendar',
+  // PAMELA
   'eml' => 'message/rfc822',
 ];
