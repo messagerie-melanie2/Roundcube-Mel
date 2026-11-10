@@ -141,13 +141,14 @@ class rcmail_action_mail_index extends rcmail_action
                 'skip_deleted', 'display_next', 'message_extwin', 'forward_attachment']);
 
             if (!$rcmail->output->ajax_call) {
+                // PAMELA - 0009596 - Ajout de purgefolderconfirm aux libellés envoyés au client
                 $rcmail->output->add_label('checkingmail', 'deletemessage', 'movemessagetotrash',
                     'movingmessage', 'copyingmessage', 'deletingmessage', 'markingmessage',
                     'copy', 'move', 'quota', 'replyall', 'replylist', 'stillsearching',
                     'flagged', 'unflagged', 'unread', 'deleted', 'replied', 'forwarded',
                     'priority', 'withattachment', 'fileuploaderror', 'mark', 'markallread',
                     'folders-cur', 'folders-sub', 'folders-all', 'cancel', 'bounce', 'bouncemsg',
-                    'sendingmessage');
+                    'sendingmessage', 'purgefolderconfirm');
             }
         }
 
@@ -1430,7 +1431,8 @@ class rcmail_action_mail_index extends rcmail_action
                 }
                 else {
                     // PAMELA - Title string à la place de mailto
-                    $address = html::span(['title' => $title ?? $mailto, 'class' => "rcmContactAddress"],
+                    // data-email conserve l'adresse seule (utilisée par l'avatar), le title pouvant contenir "Nom" <email>
+                    $address = html::span(['title' => $title ?? $mailto, 'data-email' => $mailto, 'class' => "rcmContactAddress"],
                         rcube::SQ($name ?: $mailto));
                 }
 
