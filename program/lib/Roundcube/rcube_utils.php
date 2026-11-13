@@ -991,6 +991,16 @@ class rcube_utils
         return str_replace(array('%n', '%t', '%d', '%h', '%z', '%s'), array($n, $t, $d, $h, $z, $s[2]), $name);
     }
 
+    /**
+     * Returns the server name after checking it against trusted hostname patterns.
+     *
+     * Returns 'localhost' and logs a warning when the hostname is not trusted.
+     *
+     * @param string $type       The $_SERVER key, e.g. 'HTTP_HOST', Default: 'SERVER_NAME'.
+     * @param bool   $strip_port Strip port from the host name
+     *
+     * @return string Server name
+     */
     public static function server_name($type = null, $strip_port = true)
     {
         if (!$type) {
