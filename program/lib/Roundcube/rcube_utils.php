@@ -1,5 +1,6 @@
 <?php
 
+use IPLib\Address\AddressInterface;
 use IPLib\Factory;
 use IPLib\ParseStringFlag;
 
@@ -371,7 +372,7 @@ class rcube_utils
      */
     public static function is_simple_string($input)
     {
-        return is_string($input) && !!preg_match('/^[\w.-]+$/i', $input);
+        return is_string($input) && strlen($input) && !preg_match('/[^\w.-]/i', $input);
     }
 
     /**
@@ -507,15 +508,8 @@ class rcube_utils
 
             $host = trim($host, '[].');
 
-            if (preg_match('/([0-9a-f.-]+)\.nip\.io$/i', $host, $matches)) {
-                $host = $matches[1];
-                if (preg_match('/([0-9]{1,3}([.-][0-9]{1,3}){3})$/', $host, $m)) {
-                    $host = str_replace('-', '.', $m[1]); // IPv4
-                } elseif (preg_match('/^([0-9a-f]{8})$/i', $host, $m)) {
-                    $host = long2ip(base_convert($m[1], 16, 10)); // Hexadecimal
-                } else {
-                    $host = str_replace('-', ':', $host); // IPv6
-                }
+            if ($xip = self::xip_ip($host)) {
+                $host = $xip;
             }
 
             // TODO: This is pretty fast, but a single message can contain multiple links
@@ -538,14 +532,12 @@ class rcube_utils
                     '64:ff9b:1::/48'  // (RFC 8215 local-use NAT64) 
                 ];
 
-                foreach ($nets as $net) {
-                    $range = Factory::parseRangeString($net);
-                    if ($range->contains($address)) {
-                        return true;
-                    }
+                // Extract embedded IPv4 address
+                if ($address instanceof \IPLib\Address\IPv6 && ($embedded = $address->toIPv4())) {
+                    $address = $embedded;
                 }
 
-                return false;
+                return self::is_ip_in_range($address, $nets);
             }
 
             // FIXME: Should we accept any non-fqdn hostnames?
@@ -554,6 +546,96 @@ class rcube_utils
         }
 
         return false;
+    }
+
+    /**
+     * Check if an IP address matches an entry in the given whitelist.
+     * Entries may be exact IP addresses or CIDR ranges (e.g. '10.0.0.0/8', 'fc00::/7').
+     *
+     * @param string|AddressInterface $ip        IP address to check
+     * @param array                   $whitelist List of IPs or CIDR ranges
+     */
+    private static function is_ip_in_range($ip, array $whitelist): bool
+    {
+        if (empty($whitelist)) {
+            return false;
+        }
+
+        if ($ip instanceof AddressInterface) {
+            $address = $ip;
+            $ip = (string) $ip;
+        } else {
+            $address = Factory::parseAddressString($ip);
+        }
+
+        foreach ($whitelist as $entry) {
+            if ($entry === $ip) {
+                return true;
+            }
+            if ($address && ($range = Factory::parseRangeString($entry)) && $range->contains($address)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Extract IP address from a nip.io/sslip.io-style fqdn
+     *
+     * @return ?string IP address if found
+     */
+    private static function xip_ip(string $host)
+    {
+        if (!preg_match('/\.(backname\.io|fdns\.uk|ipq\.co|nip\.io|sslip\.io|traefik\.me)$/i', $host)) {
+            return null;
+        }
+
+        // IPv4 dash-separated
+        $ipv4REDashes = '/(^|[.-])(((25[0-5]|(2[0-4]|1\d|[1-9])?\d)\-){3}(25[0-5]|(2[0-4]|1\d|[1-9])?\d))($|[.-])/';
+        if (preg_match($ipv4REDashes, $host, $m)) {
+            return str_replace('-', '.', $m[2]);
+        }
+
+        // IPv4 dot-separated
+        $ipv4REDots = '/(^|[.-])(((25[0-5]|(2[0-4]|1\d|[1-9])?\d)\.){3}(25[0-5]|(2[0-4]|1\d|[1-9])?\d))($|[.-])/';
+        if (preg_match($ipv4REDots, $host, $m)) {
+            return str_replace('-', '.', $m[2]);
+        }
+
+        // IPv4 hex
+        $ipv4REHex = '/(^|[.-])([[:xdigit:]]{8})($|[.-])/';
+        if (preg_match($ipv4REHex, $host, $m)) {
+            return long2ip(base_convert($m[2], 16, 10));
+        }
+
+        // IPv6 dash-separated
+        $ipv6RE = '/(^|[.-])(([[:xdigit:]]{1,4}-){7}[[:xdigit:]]{1,4}|([[:xdigit:]]{1,4}-){1,7}-'
+            . '|([[:xdigit:]]{1,4}-){1,6}-[[:xdigit:]]{1,4}|([[:xdigit:]]{1,4}-){1,5}(-[[:xdigit:]]{1,4}){1,2}'
+            . '|([[:xdigit:]]{1,4}-){1,4}(-[[:xdigit:]]{1,4}){1,3}|([[:xdigit:]]{1,4}-){1,3}(-[[:xdigit:]]{1,4}){1,4}'
+            . '|([[:xdigit:]]{1,4}-){1,2}(-[[:xdigit:]]{1,4}){1,5}|[[:xdigit:]]{1,4}-((-[[:xdigit:]]{1,4}){1,6})'
+            . '|-((-[[:xdigit:]]{1,4}){1,7}|-)|fe80-(-[[:xdigit:]]{0,4}){0,4}%[\da-zA-Z]+'
+            . '|--(ffff(-0{1,4})?-)?((25[0-5]|(2[0-4]|1?\d)?\d)\.){3}(25[0-5]|(2[0-4]|1?\d)?\d)'
+            . '|([[:xdigit:]]{1,4}-){1,4}-((25[0-5]|(2[0-4]|1?\d)?\d)\.){3}(25[0-5]|(2[0-4]|1?\d)?\d))($|[.-])/';
+        if (preg_match($ipv6RE, $host, $m)) {
+            return str_replace('-', ':', $m[2]);
+        }
+
+        // IPv6 dot-separated (backname.io)
+        $ipv6REDots = '/(^|\.)(([[:xdigit:]]{1,4}\.){7}[[:xdigit:]]{1,4})($|\.)/';
+        if (preg_match($ipv6REDots, $host, $m)) {
+            return str_replace('.', ':', $m[2]);
+        }
+
+        // IPv6 hex
+        $ipv6REHex = '/(^|\.)([[:xdigit:]]{32})($|\.)/';
+        if (preg_match($ipv6REHex, $host, $m)) {
+            $words = str_split($m[2], 2);
+            $words = array_map('hex2bin', $words);
+            return (string) \IPLib\Address\IPv6::fromWords($words);
+        }
+
+        return null;
     }
 
     /**
@@ -907,6 +989,48 @@ class rcube_utils
         }
 
         return str_replace(array('%n', '%t', '%d', '%h', '%z', '%s'), array($n, $t, $d, $h, $z, $s[2]), $name);
+    }
+
+    public static function server_name($type = null, $strip_port = true)
+    {
+        if (!$type) {
+            $type = 'SERVER_NAME';
+        }
+
+        $name     = $_SERVER[$type] ?? '';
+        $rcube    = rcube::get_instance();
+        $patterns = (array) $rcube->config->get('trusted_host_patterns');
+
+        if (!empty($name)) {
+            if ($strip_port) {
+                $name = preg_replace('/:\d+$/', '', $name);
+            }
+
+            if (empty($patterns)) {
+                return $name;
+            }
+
+            foreach ($patterns as $pattern) {
+                // the pattern might be a regular expression or just a host/domain name
+                if (preg_match('/[^a-zA-Z0-9.:-]/', $pattern)) {
+                    if (preg_match("/$pattern/", $name)) {
+                        return $name;
+                    }
+                }
+                else if (strtolower($name) === strtolower($pattern)) {
+                    return $name;
+                }
+            }
+
+            $rcube->raise_error([
+                    'file' => __FILE__, 'line' => __LINE__,
+                    'message' => "Specified host is not trusted. Using 'localhost'."
+                ]
+                , true, false
+            );
+        }
+
+        return 'localhost';
     }
 
     /**
@@ -1488,9 +1612,12 @@ class rcube_utils
                 $default_port = 443;
             }
 
-            $prefix = $schema . '://' . preg_replace('/:\d+$/', '', $_SERVER['HTTP_HOST']);
-            if ($_SERVER['SERVER_PORT'] != $default_port) {
-                $prefix .= ':' . $_SERVER['SERVER_PORT'];
+            $host = self::server_name('HTTP_HOST', false);
+            $port = parse_url($host, \PHP_URL_PORT);
+
+            $prefix = $schema . '://' . preg_replace('/:\d+$/', '', $host);
+            if ($port && $port != $default_port && $port != 80) {
+                $prefix .= ':' . $port;
             }
 
             $url = $prefix . ($url[0] == '/' ? '' : '/') . $url;

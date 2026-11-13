@@ -26,6 +26,11 @@ if (!$OUTPUT->ajax_call) {
 
 $mbox = rcube_utils::get_input_value('_mbox', rcube_utils::INPUT_POST, true);
 
+if ($mbox === '') {
+    $rcmail->output->show_message('internalerror', 'error');
+    $rcmail->output->send();
+}
+
 // send EXPUNGE command
 if ($RCMAIL->action == 'expunge') {
     $success = $RCMAIL->storage->expunge_folder($mbox);
