@@ -21,6 +21,14 @@
 
 $method = rcube_utils::get_input_value('method', rcube_utils::INPUT_POST);
 $lang   = rcube_utils::get_input_value('lang', rcube_utils::INPUT_POST);
+
+if (!rcube_utils::is_simple_string($lang)) {
+    rcube::raise_error('Spellcheck error: Invalid language code', true);
+
+    echo json_encode(['error' => $rcmail->gettext('internalerror')]);
+    exit;
+}
+
 $result = array();
 
 $spellchecker = new rcube_spellchecker($lang);

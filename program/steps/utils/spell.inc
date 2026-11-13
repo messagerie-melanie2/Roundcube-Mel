@@ -21,6 +21,13 @@
 
 // read input
 $lang = rcube_utils::get_input_value('lang', rcube_utils::INPUT_GET);
+
+if (!rcube_utils::is_simple_string($lang)) {
+    rcube::raise_error('Spellcheck error: Invalid language code', true);
+    http_response_code(500);
+    exit;
+}
+
 $data = file_get_contents('php://input');
 
 $learn_word = strpos($data, '<learnword>');

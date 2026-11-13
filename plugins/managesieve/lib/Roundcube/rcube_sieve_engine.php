@@ -288,7 +288,7 @@ class rcube_sieve_engine
 
         // Handle user requests
         if ($action = rcube_utils::get_input_value('_act', rcube_utils::INPUT_GPC)) {
-            $fid = (int) rcube_utils::get_input_value('_fid', rcube_utils::INPUT_POST);
+            $$fid = rcube_utils::get_input_string('_fid', rcube_utils::INPUT_POST);
 
             if ($action == 'delete' && !$error) {
                 if (isset($this->script[$fid])) {

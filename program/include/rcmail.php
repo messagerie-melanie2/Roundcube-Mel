@@ -758,6 +758,9 @@ class rcmail extends rcube
         }
         else if (empty($default_host)) {
             $host = rcube_utils::get_input_value('_host', rcube_utils::INPUT_POST);
+            if (!preg_match('~^((imap|imaps|tls|ssl)://)?[\w.-]+(:[0-9]+)?\z~', $host)) {
+                $host = null;
+            }
         }
         else {
             $host = rcube_utils::parse_host($default_host);
@@ -2482,7 +2485,7 @@ class rcmail extends rcube
                 if ($uid == '*') {
                     $result[$mbox] = $uid;
                 }
-                else if (preg_match('/^[0-9:.]+$/', $uid)) {
+                elseif (preg_match('/^[0-9:.]+\z/', $uid)) {
                     $result[$mbox][] = $uid;
                 }
             }
