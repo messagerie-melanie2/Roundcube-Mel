@@ -4693,10 +4693,11 @@ class rcube_imap extends rcube_storage
         if ($this->sort_folder_collator === null) {
             $this->sort_folder_collator = false;
 
-            // strcoll() does not work with UTF8 locale on Windows,
-            // use Collator from the intl extension
-            if (stripos(PHP_OS, 'win') === 0 && function_exists('collator_compare')) {
-                $locale = $this->options['language'] ?: 'en_US';
+            // PAMELA - 0009306 : utiliser le Collator intl quel que soit l'OS
+            // strcoll() dépend des locales installées sur le serveur (absentes du conteneur PHP),
+            // les dossiers commençant par une majuscule accentuée (É...) se retrouvaient en fin de liste
+            if (function_exists('collator_compare')) {
+                $locale = !empty($this->options['language']) ? $this->options['language'] : 'en_US';
                 $this->sort_folder_collator = collator_create($locale) ?: false;
             }
         }
