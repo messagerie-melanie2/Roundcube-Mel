@@ -1890,7 +1890,14 @@ function rcmail_send_mdn($message, &$smtp_error)
             $report .= "Reporting-UA: $agent\r\n";
         }
 
-        $to   = rcube_mime::decode_mime_string($message->headers->to, $message->headers->charset);
+        // For security reasons do not allow new-line characters in headers
+        foreach ($headers as $idx => $value) {
+            if (is_string($value)) {
+                $headers[$idx] = trim(preg_replace('/[\r\n\t\s]+/', ' ', $value));
+            }
+        }
+
+        $to = rcube_mime::decode_mime_string($message->headers->to, $charset);
         $date = $RCMAIL->format_date($message->headers->date, $RCMAIL->config->get('date_long'));
         $body = $RCMAIL->gettext("yourmessage") . "\r\n\r\n" .
             "\t" . $RCMAIL->gettext("to") . ": {$to}\r\n" .

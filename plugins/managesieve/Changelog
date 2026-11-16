@@ -5,6 +5,9 @@
 - Fix parsing dot-staffed lines in multiline text (#5838)
 - Fix AM/PM suffix in vacation time selectors
 - Fix bug where 'exists' operator was reset to 'contains' (#5899)
+- Fix bug where some managesieve destructive actions could have been triggered cross-site via GET
+- Fix Sieve script injection via a rule operator
+- Fix Sieve script injection via set/include modifiers
 
 * version 8.9 [2017-05-22]
 -----------------------------------------------------------

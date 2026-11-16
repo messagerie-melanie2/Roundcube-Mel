@@ -136,48 +136,54 @@ class rcube_imap_generic
             return false;
         }
 
+        $position = 0;
+        $len = 0;
+
+        while (preg_match('/\{([0-9]+)\}\r\n/m', $string, $matches, \PREG_OFFSET_CAPTURE, $position + $len) === 1) {
+            $match = $matches[0][0]; // the whole match
+            $match_position = $matches[0][1]; // position of the match
+            $match_len = strlen($match); // length of the whole match
+            $len = (int) $matches[1][0]; // length of the next literal
+
+            // LITERAL+/LITERAL- support
+            $literal_plus = !empty($this->prefs['literal+']) || (!empty($this->prefs['literal-']) && $len <= 4096);
+
+            if ($literal_plus) {
+                $match = str_replace('}', '+}', $match);
+            }
+
+            $line = substr($string, $position, $match_position - $position) . $match;
+
+            $bytes = $this->putLine($line, false, $anonymized);
+            if ($bytes === false) {
+                return false;
+            }
+
+            $res += $bytes;
+
+            if (!$literal_plus) {
+                $line = $this->readLine(1000);
+                // handle error in command
+                if (!isset($line[0]) || $line[0] != '+') {
+                    return false;
+                }
+            }
+
+            $position = $match_position + $match_len;
+        }
+
         if ($endln) {
             $string .= "\r\n";
         }
 
-        $res = 0;
-        if ($parts = preg_split('/(\{[0-9]+\}\r\n)/m', $string, -1, PREG_SPLIT_DELIM_CAPTURE)) {
-            for ($i=0, $cnt=count($parts); $i<$cnt; $i++) {
-                if (preg_match('/^\{([0-9]+)\}\r\n$/', $parts[$i+1], $matches)) {
-                    // LITERAL+ support
-                    if ($this->prefs['literal+']) {
-                        $parts[$i+1] = sprintf("{%d+}\r\n", $matches[1]);
-                    }
-
-                    $bytes = $this->putLine($parts[$i].$parts[$i+1], false, $anonymized);
-                    if ($bytes === false) {
-                        return false;
-                    }
-
-                    $res += $bytes;
-
-                    // don't wait if server supports LITERAL+ capability
-                    if (!$this->prefs['literal+']) {
-                        $line = $this->readLine(1000);
-                        // handle error in command
-                        if ($line[0] != '+') {
-                            return false;
-                        }
-                    }
-
-                    $i++;
-                }
-                else {
-                    $bytes = $this->putLine($parts[$i], false, $anonymized);
-                    if ($bytes === false) {
-                        return false;
-                    }
-
-                    $res += $bytes;
-                }
+        if ($position < strlen($string)) {
+            $bytes = $this->putLine($position ? substr($string, $position) : $string, false, $anonymized);
+            if ($bytes === false) {
+                return false;
             }
-        }
 
+            $res += $bytes;
+        }
         return $res;
     }
 
@@ -1813,10 +1819,9 @@ class rcube_imap_generic
         }
 
         $encoding = $encoding ? trim($encoding) : 'US-ASCII';
-        $criteria = $criteria ? 'ALL ' . trim($criteria) : 'ALL';
 
         list($code, $response) = $this->execute($return_uid ? 'UID SORT' : 'SORT',
-            array("($field)", $encoding, $criteria));
+            ["({$field})", $encoding, $criteria ?: 'ALL']);
 
         if ($code != self::ERROR_OK) {
             $response = null;
@@ -1851,10 +1856,9 @@ class rcube_imap_generic
 
         $encoding  = $encoding ? trim($encoding) : 'US-ASCII';
         $algorithm = $algorithm ? trim($algorithm) : 'REFERENCES';
-        $criteria  = $criteria ? 'ALL '.trim($criteria) : 'ALL';
 
         list($code, $response) = $this->execute($return_uid ? 'UID THREAD' : 'THREAD',
-            array($algorithm, $encoding, $criteria));
+            [$algorithm, $encoding, $criteria ?: 'ALL']);
 
         if ($code != self::ERROR_OK) {
             $response = null;
@@ -1893,7 +1897,6 @@ class rcube_imap_generic
         }
 
         $esearch  = empty($items) ? false : $this->getCapability('ESEARCH');
-        $criteria = trim($criteria);
         $params   = '';
 
         // RFC4731: ESEARCH
@@ -1970,7 +1973,7 @@ class rcube_imap_generic
         }
         else {
             list($from_idx, $to_idx) = explode(':', $message_set);
-            if (empty($message_set) ||
+            if (empty($message_set) || preg_match('/[^0-9:,*]/', (string) $message_set) ||
                 (isset($to_idx) && $to_idx != '*' && (int)$from_idx > (int)$to_idx)
             ) {
                 return false;
@@ -2713,6 +2716,10 @@ class rcube_imap_generic
      */
     public function fetchMIMEHeaders($mailbox, $uid, $parts, $mime = true)
     {
+        if (preg_match('/[^0-9:,*]/', (string) $uid)) {
+            return false;
+        }
+
         if (!$this->select($mailbox)) {
             return false;
         }
@@ -2725,7 +2732,8 @@ class rcube_imap_generic
 
         // format request
         foreach ($parts as $part) {
-            $peeks[] = "BODY.PEEK[$part.$type]";
+            $part = preg_replace('/[\r\n]+/', ' ', (string) $part); // sanitize input
+            $peeks[] = "BODY.PEEK[{$part}.{$type}]";
         }
 
         $request = "$key UID FETCH $uid (" . implode(' ', $peeks) . ')';
@@ -2768,11 +2776,20 @@ class rcube_imap_generic
      */
     public function handlePartBody($mailbox, $id, $is_uid=false, $part='', $encoding=null, $print=null, $file=null, $formatted=false, $max_bytes=0)
     {
+        if (preg_match('/[^0-9:,*]/', (string) $id)) {
+            return false;
+        }
+
         if (!$this->select($mailbox)) {
             return false;
         }
 
         $binary = true;
+        $initiated = false;
+        $result = false;
+        $found = false;
+        $mode = 0;
+        $part = preg_replace('/[\r\n]+/', ' ', (string) $part); // sanitize input
 
         do {
             if (!$initiated) {
