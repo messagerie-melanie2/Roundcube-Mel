@@ -245,8 +245,7 @@ class rcmail extends rcube
         $task = $task == 'addressbook' ? 'contacts' : $task;
 
         // check access to disabled actions
-        $disabled_actions = (array) $this->config->get('disabled_actions');
-        if (in_array($task . '.' . ($this->action ?: 'index'), $disabled_actions)) {
+        if ($this->is_action_disabled($task, $this->action ?: 'index')) {
             self::raise_error(['code' => 404, 'message' => 'Action disabled'], true, true);
         }
 
@@ -257,7 +256,7 @@ class rcmail extends rcube
 
             // check access to disabled actions (resolve an alias)
             if ($this->action && !empty($task_handler::$aliases[$this->action])) {
-                if (in_array($task . '.' . $task_handler::$aliases[$this->action], $disabled_actions)) {
+                if ($this->is_action_disabled($task, $task_handler::$aliases[$this->action])) {
                     self::raise_error(['code' => 404, 'message' => 'Action disabled'], true, true);
                 }
             }
@@ -316,6 +315,17 @@ class rcmail extends rcube
         // if we arrive here, something went wrong
         $error = ['code' => 404, 'line' => __LINE__, 'file' => __FILE__, 'message' => "Invalid request"];
         rcmail::raise_error($error, true, true);
+    }
+
+    /**
+     * Check if the action is disabled
+     */
+    public function is_action_disabled(string $task, string $action)
+    {
+        $disabled_actions = (array) $this->config->get('disabled_actions');
+
+        return in_array($task . '.' . str_replace('_', '-', $action), $disabled_actions)
+            || in_array($task . '.' . str_replace('-', '_', $action), $disabled_actions);
     }
 
     /**
@@ -1011,6 +1021,10 @@ class rcmail extends rcube
         }
         else if (empty($default_host)) {
             $host = rcube_utils::get_input_string('_host', rcube_utils::INPUT_POST);
+            
+            if (!preg_match('~^((imap|imaps|tls|ssl)://)?[\w.-]+(:[0-9]+)?\z~', $host)) {
+                $host = null;
+            }
         }
         else {
             $host = rcube_utils::parse_host($default_host);
