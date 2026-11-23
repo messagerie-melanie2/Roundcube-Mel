@@ -1,5 +1,20 @@
 # Changelog Roundcube Webmail
 
+## Release 1.6.22
+
+- Security: Fix (again) HTTP request injection via the spellcheck ATD backend
+- Security: Fix CSS-scoping bypass via html comments in inline style
+- Security: Fix remote content blocking bypass via CSS comments in SVG FuncIRI attributes
+- Security: Fix CSS-scoping bypass via a direct access to CSS proxy and multiple style links
+- Security: Fix response disclosure in the CSS proxy using leading whitespace/BOM
+- Security: Fix namespace-prefixed attribute bypass of the washtml attribute allowlist (PHP < 8.4)
+- Security: Fix (again) bug where insecure attachment content (PDF/PostScript/SVG) was passed to ImageMagick
+- Security: Fix sieve script injection via a comparator name
+- Security: Fix DoS via uncapped MAPI multi-value loop in rcube_tnef_decoder
+- Security: Fix XML injection in XIMSS driver of the password plugin
+- Security: Fix falling back to insecure IMAP/SMTP/Managesieve connection when TLS is configured but no capability reported
+- Security: Fix Sieve script injection via the body/address/envelope part fields
+
 ## Release 1.6.21
 
 - Security: Fix open redirect via IMAP error recovery on attachment get

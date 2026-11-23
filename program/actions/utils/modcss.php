@@ -49,7 +49,7 @@ class rcmail_action_utils_modcss extends rcmail_action
         $ctype  = null;
 
         try {
-         // Be strict, and limit the response size
+            // Be strict, and limit the response size
             $options = [
                 'allow_redirects' => false,
                 'read_timeout' => 10,
@@ -82,13 +82,15 @@ class rcmail_action_utils_modcss extends rcmail_action
         if ($source !== false && self::is_valid_css($source, $ctype)) {
             $rcmail->output->sendExit(
                 rcube_utils::mod_css_styles($source, $container_id, false, $css_prefix),
-                ['Content-Type: text/css']
+                [
+                    'Content-Type: text/css',
+                    'X-Content-Type-Options: nosniff',
+                ]
             );
         }
 
         $rcmail->output->sendExitError(404, "Invalid response returned by server");
     }
-
 
     /**
      * Do basic response validation
@@ -99,7 +101,8 @@ class rcmail_action_utils_modcss extends rcmail_action
         // on what we proxy to the browser. Here we check if we deal with css or not.
 
         return preg_match('~^text/(css|plain)~i', (string) $ctype)
-            && !preg_match('~^[{<]~', $source) // exclude json and html
+            // exclude json and html/xml (ignore leading whitespace and BOM)
+            && !preg_match('~^[{<]~', ltrim($source, " \f\n\r\t\v\x00\xFE\xFF\xEF\xBB\xBF"))
             && strpos($source, '{')
             && strpos($source, '}')
             && strpos($source, ':');
