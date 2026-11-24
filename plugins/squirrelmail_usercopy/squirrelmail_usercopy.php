@@ -170,7 +170,7 @@ class squirrelmail_usercopy extends rcube_plugin
         $rcmail = rcmail::get_instance();
 
         /**** File based backend ****/
-      if ($rcmail->config->get('squirrelmail_driver') == 'file'
+        if ($rcmail->config->get('squirrelmail_driver') == 'file'
             && ($srcdir = $rcmail->config->get('squirrelmail_data_dir'))
             && strpos($uname, '/') === false // security check
         ) {

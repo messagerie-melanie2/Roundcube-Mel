@@ -110,7 +110,7 @@ class rcube_modoboa_password
         $curl = curl_init();
 
         curl_setopt_array($curl, [
-            CURLOPT_URL => $url,
+            CURLOPT_URL            => "https://{$host}/api/v1/accounts/{$userid}/",
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_ENCODING       => "",
             CURLOPT_MAXREDIRS      => 10,

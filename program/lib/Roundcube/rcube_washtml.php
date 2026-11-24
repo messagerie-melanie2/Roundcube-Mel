@@ -311,7 +311,7 @@ class rcube_washtml
                     $washed[] = htmlspecialchars($attr->nodeName, \ENT_QUOTES, $this->config['charset']);
                 }
             }
-            else if (isset($this->_html_attribs[$key]) || in_array($key, $additional_attribs)) {
+            elseif (isset($this->_html_attribs[$key]) || in_array($key, $additional_attribs)) {
                 $value = trim($value);
                 $out   = null;
 
@@ -357,8 +357,16 @@ class rcube_washtml
                 ) {
                     $out = preg_replace('/(\S+)/', $this->_css_prefix . '\1', $value);
                 }
+                else if ($key == 'xmlns' && !strpos($value, '://')) {
+                    continue;
+                }
                 else if ($key) {
-                   $out = $value;
+                    // Namespace-prefixed attribute bypass prevention for DOMDocument and libxml2 < 2.14
+                    if (preg_match('/[^a-z:-]/i', $attr->nodeName)) {
+                        continue;
+                    }
+
+                    $out = $value;
                 }
 
                 if ($out !== null && $out !== '') {
@@ -540,7 +548,7 @@ class rcube_washtml
                 $val = trim($attr->nodeValue);
                 // Read the attribute name, remove the namespace (e.g. xlink:href => href)
                 if ($attr_name === 'attributename') {
-                $val = trim(preg_replace('/^.*:/', '', $val));
+                    $val = trim(preg_replace('/^.*:/', '', $val));
                 }
                 if (preg_match($attr_value, $val)) {
                     return true;
@@ -586,7 +594,7 @@ class rcube_washtml
         return false;
     }
 
-        /**
+    /**
      * Resolve CSS escape sequences so that a value can be matched against a
      * plain pattern.
      *
@@ -606,8 +614,11 @@ class rcube_washtml
      */
     public static function css_unescape($value)
     {
-        if (strpos((string) $value, '\\') === false) {
-            return (string) $value;
+        // Remove comments
+        $value = preg_replace('#/\*.*\*/#Ums', '', (string) $value);
+
+        if (strpos($value, '\\') === false) {
+            return $value;
         }
 
         return preg_replace_callback(
@@ -625,7 +636,7 @@ class rcube_washtml
 
                 return $m[2];
             },
-            (string) $value
+            $value
         );
     }
 
