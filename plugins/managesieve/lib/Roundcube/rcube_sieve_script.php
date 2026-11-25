@@ -313,7 +313,7 @@ class rcube_sieve_script
                         }
 
                         // :all address-part is optional, skip it
-                        if (!empty($test['part']) && $test['part'] != 'all') {
+                        if (preg_match('/^(localpart|domain|user|detail)$/i', $test['part'] ?? '')) {
                             $tests[$i] .= ' :' . $test['part'];
                             if ($test['part'] == 'user' || $test['part'] == 'detail') {
                                 array_push($exts, 'subaddress');
@@ -331,7 +331,7 @@ class rcube_sieve_script
 
                         $tests[$i] .= (!empty($test['not']) ? 'not ' : '') . 'body';
 
-                        if (!empty($test['part'])) {
+                        if (preg_match('/^(raw|content|text)$/i', $test['part'] ?? '')) {
                             $tests[$i] .= ' :' . $test['part'];
 
                             if (!empty($test['content']) && $test['part'] == 'content') {
@@ -966,7 +966,6 @@ class rcube_sieve_script
                 $action  = ['type' => $token, 'target' => array_pop($tokens)];
                 $args    = ['copy'];
                 $action += $this->action_arguments($tokens, $args);
-
                 $result[] = $action;
                 break;
 
@@ -975,7 +974,6 @@ class rcube_sieve_script
                 $args    = ['mime'];
                 $vargs   = ['seconds', 'days', 'addresses', 'subject', 'handle', 'from'];
                 $action += $this->action_arguments($tokens, $args, $vargs);
-
                 $result[] = $action;
                 break;
 
@@ -1004,7 +1002,6 @@ class rcube_sieve_script
 
             case 'include':
                 $action  = ['type' => 'include', 'target' => array_pop($tokens)];
-                $args    = ['once', 'optional', 'global', 'personal'];
                 $action += $this->action_arguments($tokens, self::INCLUDE_OPTIONS);
 
                 $result[] = $action;
@@ -1012,7 +1009,6 @@ class rcube_sieve_script
 
             case 'set':
                 $action  = ['type' => 'set', 'value' => array_pop($tokens), 'name' => array_pop($tokens)];
-                $args    = ['lower', 'upper', 'lowerfirst', 'upperfirst', 'quotewildcard', 'length'];
                 $action += $this->action_arguments($tokens, self::SET_OPTIONS);
 
                 $result[] = $action;
@@ -1085,8 +1081,11 @@ class rcube_sieve_script
             array_push($exts, 'relational');
             array_push($exts, 'comparator-i;ascii-numeric');
         }
-        else if (!in_array($test['comparator'], ['i;octet', 'i;ascii-casemap'])) {
+        else if (preg_match('/^[a-z.;-]+\z/i', $test['comparator'])
+            && !in_array($test['comparator'], ['i;octet', 'i;ascii-casemap'])
+        ) {
             array_push($exts, 'comparator-' . $test['comparator']);
+            $exts[] = 'comparator-' . $test['comparator'];
         }
 
         // skip default comparator

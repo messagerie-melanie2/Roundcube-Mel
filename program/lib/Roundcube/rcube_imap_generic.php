@@ -139,6 +139,7 @@ class rcube_imap_generic
             return false;
         }
 
+        $res = 0;
         $position = 0;
         $len = 0;
 
@@ -1105,7 +1106,13 @@ class rcube_imap_generic
         }
 
         // TLS connection
-        if ($ssl_mode == 'tls' && $this->getCapability('STARTTLS')) {
+        if ($ssl_mode == 'tls') {
+            if (!$this->getCapability('STARTTLS')) {
+                $this->setError(self::ERROR_BAD, 'STARTTLS is not supported by the server');
+                $this->closeConnection();
+                return false;
+            }
+
             $res = $this->execute('STARTTLS');
 
             if (empty($res) || $res[0] != self::ERROR_OK) {
@@ -2900,7 +2907,7 @@ class rcube_imap_generic
 
         $binary    = true;
         $initiated = false;
-                $result = false;
+        $result = false;
         $found = false;
         $mode = 0;
         $part = preg_replace('/[\r\n]+/', ' ', (string) $part); // sanitize input
