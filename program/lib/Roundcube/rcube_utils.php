@@ -456,12 +456,12 @@ class rcube_utils
                     '172.16.0.0/12',  // RFC1918
                     '192.168.0.0/16', // RFC1918
                     '169.254.0.0/16', // link-local / cloud metadata
-                    '100.64.0.0/10', // RFC6598: Shared Address Space (carrier-grade NAT)
+                    '100.64.0.0/10',  // RFC6598: Shared Address Space (carrier-grade NAT)
                     '::1/128',
                     '::/128',
                     'fc00::/7',
-                    'fe80::/10', // IPv6 link-local
-                    '::ffff:0:0/96', // RFC5156
+                    'fe80::/10',      // IPv6 link-local
+                    '::ffff:0:0/96',  // RFC5156
                     '64:ff9b::/96',   // RFC 6052 NAT64 (maps IPv4 incl. private ranges into IPv6)
                     '64:ff9b:1::/48'  // (RFC 8215 local-use NAT64) 
                 ];
@@ -585,7 +585,7 @@ class rcube_utils
      */
     public static function mod_css_styles($source, $container_id, $allow_remote = false, $prefix = '')
     {
-        $source   = self::xss_entity_decode($source);
+        $source = self::xss_entity_decode($source);
 
         // No @import allowed
         // TODO: We should just remove it, not invalidate the whole content
@@ -600,6 +600,7 @@ class rcube_utils
 
         // remove html and css comments
         $source = preg_replace('/(^\s*<\!--)|(-->\s*$)/m', '', $source);
+
         // To prevent from a double-escaping tricks we consider a script with
         // any escape sequences (after de-escaping them above) an evil script.
         // This probably catches many valid scripts, but we\'re on the safe side.
@@ -610,7 +611,7 @@ class rcube_utils
         // If after removing comments there are still comments it's most likely a hack
         // Note: In <=1.6 comments are being removed by xss_entity_decode() above
         // $source = self::remove_css_comments($source);
-        if (strpos($source, '/*') !== false || strpos($source, '<!--') !== false) {
+        if (strpos($source, '/*') !== false || strpos($source, '<!--') !== false || strpos($source, '-->') !== false) {
             return '/* evil! */';
         }
 
@@ -633,7 +634,8 @@ class rcube_utils
                 $pos2++;
                 $source .= '}';
             }
-            $nested = strpos($source, '{', $pos+1);
+
+            $nested = strpos($source, '{', $pos + 1);
             if ($nested && $nested < $pos2) { // when dealing with nested blocks (e.g. @media), take the inner one
                 $pos = $nested;
             }
@@ -806,7 +808,7 @@ class rcube_utils
             }
 
             $value_length = $i - $colon_pos - ($s ? 1 : 0);
-            $value        = trim(substr($style, $colon_pos + 1, $value_length));
+            $value = trim(substr($style, $colon_pos + 1, $value_length));
             // Remove "orfaned" semicolons (#9948)
             $name = ltrim($name, "; \t\r\n");
 
